@@ -1,0 +1,55 @@
+<div ng-repeat="category in statCategories" ng-show="showCategory(category)">
+	<div class="row">
+		<h4>{{category.name}}</h4>
+	</div>
+	<div class="row">
+		<div class="form-group col-4 col-lg-2" ng-if="category['name'] == 'Basic'">
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<span class="input-group-text">Slot</span>
+				</div>
+				<select id="slotControl" ng-model="itemModel.Slot" class="form-control" ng-class="{'is-invalid': itemModel.Slot === undefined || itemModel.Slot < 0}" required>
+					<option ng-repeat="slot in slots" ng-value="$index">{{slot}}</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-8 col-lg-4" ng-if="category['name'] == 'Basic'">
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<span class="input-group-text">Name</span>
+				</div>
+				<input type="text" id="nameControl" ng-model="itemModel.Name" class="form-control" ng-class="{'is-invalid': itemModel.Name === undefined || itemModel.Name === ''}" required>
+			</div>
+		</div>
+		<div class="form-group col-4 col-lg-2" ng-repeat="item in category['stats']" ng-if="statInfo[item]['editable'] != false">
+			<div class="input-group">
+				<dig class="input-group-prepend">
+					<span class="input-group-text">{{statInfo[item]['short']}}</span>
+				</dig>
+				<input type="number" id="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]" class="form-control" ng-if="statInfo[item].type == 'int'">
+				<input type="text" id="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]" class="form-control" ng-if="statInfo[item].type == 'string'">
+				<div class="input-group-append" ng-if="statInfo[item].type == 'bool'">
+					<div class="input-group-text">
+						<input type="checkbox" id="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]">
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-12 col-sm-8 col-md-4 col-lg-3" ng-if="category['name'] == 'Basic'">
+			<select id="alignControl" ng-model="itemModel.AlignRestriction" class="form-control" ng-class="{'is-invalid': itemModel.AlignRestriction === undefined || itemModel.AlignRestriction === ''}" required>
+				<option ng-repeat="align in aligns" ng-value="$index">{{align}}</option>
+			</select>
+		</div>
+	</div>
+</div>
+<br /><br />
+<div class="row">
+	<div class="col-12 col-lg-6">
+		<div class="input-group">
+			<div class="input-group-prepend">
+				<span class="input-group-text">Notes</span>
+			</div>
+			<textarea class="form-control" rows="5" ng-model="itemModel.Notes"></textarea>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,96 @@
+<div class="row">
+	<h1><span class="text-primary">{{item.Name}}</span>&nbsp;&nbsp;&nbsp;
+		<sup style="white-space: nowrap"><small><a href="{{isLoggedIn ? '/items/edit.html?id=' + item.Id : '/login.html'}}" ng-show="!editing"><i class="far fa-edit"></i> Edit</a></small></sup>
+	</h1>
+</div>
+<div class="row">
+	<span><small><strong>Modified On</strong> {{item.ModifiedOn}} <strong>by</strong> {{item.ModifiedBy}}</small></span>
+</div>
+<br /><br />
+<div ng-show="item.MobName != null">
+	<div class="row">
+		<span><strong>Mob:</strong>&nbsp;&nbsp;{{item.MobName}}</span>
+	</div>
+	<br />
+</div>
+<div class="col-12 col-md-10 col-lg-8">
+	<div class="card">
+		<div class="card-header">
+			<div class="row">
+				<div class="col-sm-6 col-12">
+					<div class="row">
+						<dt class="col-8">Slot</dt>
+						<dd class="col-4">{{slots[item.Slot]}}</dd>
+					</div>
+					<div class="row">
+						<dd class="col-4 offset-8 text-info" ng-show="item.UniqueWear">Unique</dd>
+					</div>
+				</div>
+				<div class="col-sm-6 col-12">
+					<div class="row">
+						<dt class="col-8">Rent</dt>
+						<dd class="col-4">{{item.Rent}}</dd>
+					</div>
+					<div class="row">
+						<dt class="col-8" ng-show="item.Rent !== item.Value && item.Value !== 0">Sells For</dt>
+						<dd class="col-4" ng-show="item.Rent !== item.Value && item.Value !== 0">{{item.Value}}</dd>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="card-body">
+			<dl class="row">
+				<dt class="col-sm-4 col-8">Strength</dt>
+				<dd class="col-sm-2 col-4">{{item.Strength}}</dd>
+				<dt class="col-sm-4 col-8">Constitution</dt>
+				<dd class="col-sm-2 col-4">{{item.Constitution}}</dd>
+				<dt class="col-sm-4 col-8">Mind</dt>
+				<dd class="col-sm-2 col-4">{{item.Mind}}</dd>
+				<dt class="col-sm-4 col-8">Perception</dt>
+				<dd class="col-sm-2 col-4">{{item.Perception}}</dd>
+				<dt class="col-sm-4 col-8">Dexterity</dt>
+				<dd class="col-sm-2 col-4">{{item.Dexterity}}</dd>
+				<dt class="col-sm-4 col-8">Spirit</dt>
+				<dd class="col-sm-2 col-4">{{item.Spirit}}</dd>
+			</dl>
+			<dl class="row">
+				<dt class="col-sm-4 col-8">AC</dt>
+				<dd class="col-sm-2 col-4">{{item.Ac}}</dd>
+				<dt class="col-sm-4 col-8">Net Stat</dt>
+				<dd class="col-sm-2 col-4">{{item.NetStat}}</dd>
+			</dl>
+			<br /><br />
+			<div class="row">
+				<div class="col-sm-6 col-12" ng-repeat="stat in statInfo" ng-show="showStat(item[stat['var']], stat)">
+					<div class="row">
+						<dt class="col-8">{{stat['display']}}</dt>
+						<dd class="col-4">{{item[stat['var']]}}</dd>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="card-footer">
+			<div class="row">
+				<dt class="col-12">{{aligns[item.AlignRestriction]}}</dt>
+			</div>
+		</div>
+	</div>
+	<div ng-show="item.Notes !== ''">
+		<br /><br />
+		<div class="card">
+			<div class="card-header">Notes</div>
+			<div class="card-body"><pre>{{item.Notes}}</pre></div>
+		</div>
+	</div>
+	<br />
+	<div class="col-12 col-md-6" ng-show="history.length > 0">
+		<div class="card">
+			<div class="card-header list-group-item-action" data-toggle="collapse" data-target="#historyCollapse">Show Previous Versions&nbsp;&nbsp;<span class="badge badge-dark">{{history.length}}</span><span class="float-right"><i class="far fa-plus-square"></i></span></div>
+			<div id="historyCollapse" class="collapse">
+				<ul class="list-group list-group-flush">
+					<a href="/items/history.html?id={{record.Id}}" class="list-group-item list-group-item-action" ng-repeat="record in history">{{record.ModifiedOn}} <strong>by</strong> {{record.ModifiedBy}}</a>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
