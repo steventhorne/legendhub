@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{REMOTE_ADDR} !^192\.168\.1\.1
+RewriteCond %{DOCUMENT_ROOT}/maintenance.html -f
+RewriteCond %{DOCUMENT_ROOT}/maintenance.enable -f
+RewriteCond %{SCRIPT_FILENAME} !maintenance.html
+RewriteRule ^.*$ /maintenance.html [R=503,L]
+ErrorDocument 503 /maintenance.html
+Header Set Cache-Control "max-age=0, no-store"
+</IfModule>
