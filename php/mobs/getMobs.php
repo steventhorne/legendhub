@@ -7,24 +7,12 @@ require_once("$root/php/common/config.php");
 $pdo = getPDO();
 
 $postdata = json_decode(file_get_contents("php://input"));
-$slot = $postdata->slot;
+$searchString = $postdata->searchString;
 
-$sql = "SELECT * FROM Items WHERE ";
-
-if ($slot == 15)
-{
-	$sql = $sql . "(Slot = 14 AND Holdable = 1) OR ";
-}
-$sql = $sql . "Slot = :slot";
-if ($slot == 14)
-{
-	$sql = $sql . " OR Slot = 15";
-}
-
-$sql = $sql . " ORDER BY Name ASC";
-
+$sql = "SELECT * FROM Mobs WHERE (:searchString IS NULL OR Name LIKE :likeSearchString)";
 $query = $pdo->prepare($sql);
-$query->execute(array("slot" => $slot));
+$query->execute(['searchString' => $searchString,
+                 'likeSearchString' => '%' . $searchString . '%']);
 $result = $query->fetchAll(PDO::FETCH_OBJ);
 
 echo(json_encode($result))

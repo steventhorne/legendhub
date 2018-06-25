@@ -40,6 +40,9 @@
 				<option ng-repeat="align in aligns" ng-value="$index">{{align}}</option>
 			</select>
 		</div>
+		<div class="form-group col-12 col-sm-8 col-md-4 col-lg-3" ng-if="category['name'] == 'Basic'">
+			<button class="btn btn-outline-secondary" data-toggle="modal" data-target="#mobModal">{{itemModel.MobName ? itemModel.MobName : "Choose a Mob"}}</button>
+		</div>
 	</div>
 </div>
 <br /><br />

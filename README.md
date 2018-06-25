@@ -1,1 +1,2 @@
-# legendhub
+# legendwiki
+Wiki for LegendMUD

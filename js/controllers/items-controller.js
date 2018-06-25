@@ -2,6 +2,7 @@ app.controller('items-controller', function($scope, $cookies, $http, itemConstan
 	$scope.init = function() {
 		$scope.slots = itemConstants.slots;
 		$scope.aligns = itemConstants.aligns;
+		$scope.itemsPerPage = 20;
 
 		$scope.searchString = "";
 
@@ -34,6 +35,10 @@ app.controller('items-controller', function($scope, $cookies, $http, itemConstan
 		}).then(function succcessCallback(response) {
 			$scope.items = response.data;
 			$scope.recent = true;
+
+			$scope.totalPages = Math.floor(($scope.items.length - 1) / $scope.itemsPerPage) + 1;
+			$scope.currentPage = 1;
+			console.log($scope.totalPages);
 		}, function errorCallback(response){
 
 		});
@@ -72,11 +77,10 @@ app.controller('items-controller', function($scope, $cookies, $http, itemConstan
 			data: {"searchString": $scope.searchString, "filterColumns": filterColumns}
 		}).then(function succcessCallback(response) {
 			$scope.items = response.data;
-			if ($scope.items.length > 50) {
-				$scope.items = $scope.items.slice(0, 50);
-				$scope.resultWarning = "Results limited to 50. Refine your search to see the other options";
-			}
 			$scope.recent = false;
+
+			$scope.totalPages = Math.floor(($scope.items.length - 1) / $scope.itemsPerPage) + 1;
+			$scope.currentPage = 1;
 		}, function errorCallback(response){
 
 		});
@@ -108,6 +112,63 @@ app.controller('items-controller', function($scope, $cookies, $http, itemConstan
 			}
 		}
 		$cookies.put("sc1", $savedColumns);
+	}
+
+	$scope.onPreviousClicked = function() {
+		$scope.currentPage -= 1;
+		if ($scope.currentPage < 1) {
+			$scope.currentPage = 1;
+		}
+	}
+
+	$scope.onNextClicked = function() {
+		$scope.currentPage += 1;
+		if ($scope.currentPage > $scope.totalPages) {
+			$scope.currentPage = $scope.totalPages;
+		}
+	}
+
+	$scope.onPageClicked = function(num) {
+		$scope.currentPage = num;
+	}
+
+	$scope.onItemClicked = function(item) {
+		window.location = "/items/details.html?id=" + item.Id;
+	}
+
+	$scope.getPageArray = function() {
+		var nums = [];
+		if ($scope.totalPages > 7) {
+			var nums = [1];
+			if ($scope.currentPage < 5) {
+				nums.push(2, 3, 4, 5, 6);
+			}
+			else if ($scope.currentPage > $scope.totalPages - 3) {
+				var digit = $scope.totalPages - 6;
+				nums.push(++digit, ++digit, ++digit, ++digit, ++digit);
+			}
+			else {
+				var digit = $scope.currentPage - 3;
+				nums.push(++digit, ++digit, ++digit, ++digit, ++digit);
+			}
+			nums.push($scope.totalPages);
+		}
+		else {
+			for (var i = 1; i <= $scope.totalPages; ++i) {
+				nums.push(i);
+			}
+		}
+		return nums;
+	}
+
+	$scope.onColumnHeaderClicked = function(statVar) {
+
+	}
+
+	$scope.sortClass = function(statVar) {
+		if ($scope.recent) {
+			return "";
+		}
 	}
 
 	$scope.init();

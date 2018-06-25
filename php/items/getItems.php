@@ -1,5 +1,5 @@
 <?php
-header( "Access-Control-Allow-Origin: http://legendhub.org" );
+header( "Access-Control-Allow-Origin: legendhub.org" );
 header( "Content-Type: application/json; charset=UTF-8" );
 
 $root = realpath($_SERVER["DOCUMENT_ROOT"]);

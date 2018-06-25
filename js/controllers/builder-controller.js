@@ -1,3 +1,18 @@
+app.directive('tooltip', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.on('mouseenter', function() {
+				element.tooltip({html: true});
+				element.tooltip('show');
+			});
+			element.on('mouseleave', function() {
+				element.tooltip('hide');
+			});
+		}
+	};
+});
+
 app.controller('builder-controller', function($scope, $cookies, $http, itemConstants) {
 	//#region ~~~~~~~~~ INITIALIZATION ~~~~~~~~~
 	// constants
@@ -6,7 +21,7 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 		$scope.aligns = itemConstants.aligns;
 		$scope.itemsPerPage = 20;
 	
-		$scope.slotOrder = [0, 1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 11,12,13,13,14,15,15,16,16,17,18,19,20];
+		$scope.slotOrder = [0, 1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21];
 		$scope.longhouseList = ["Bear -- ( spi - min )",
 								"Beaver -- ( min - dex )",
 								"Eagle -- ( per - str )",
@@ -140,6 +155,12 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 				for (var j = 0; j < each.length; ++j) {
 					$scope.allLists[i].items.push({"Id": Number(each[j]), "Slot": $scope.slotOrder[j]});
 				}
+
+				if (each.length < 29) {
+					for (var k = 0; k < (29 - each.length); ++k) {
+						$scope.allLists[i].items.push({"Id": Number(each[j]), "Slot": 21});
+					}
+				}
 			}
 		}
 		if ($scope.allLists.length > 0) {
@@ -177,7 +198,7 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 				$savedColumns += $scope.statInfo[i]["short"] + "-";
 			}
 		}
-		$cookies.put("sc1", $savedColumns);
+		$cookies.put("sc1", $savedColumns, {"path": "/"});
 
 		// save lists
 		listCookieStr = "";
@@ -201,14 +222,31 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 			}
 			listCookieStr += "*";
 		}
-		$cookies.put("cl1", listCookieStr);
-		$cookies.put("scl1", $scope.selectedList.Name);
+		var date = new Date();
+		date.setFullYear(date.getFullYear() + 20);
+		$cookies.put("cl1", listCookieStr, {'expires': date});
+		$cookies.put("scl1", $scope.selectedList.Name, {'expires': date});
 	}
 
 	//#endregion
 
 	//#region ~~~~~~~~~ EVENTS ~~~~~~~~~
+	$scope.onStatChanged = function(index) {
+		// check stat total
+		$scope.showStatError = false;
+		if ($scope.selectedList.baseStats) {
+			var total = $scope.selectedList.baseStats.Strength + $scope.selectedList.baseStats.Mind + $scope.selectedList.baseStats.Dexterity + $scope.selectedList.baseStats.Constitution + $scope.selectedList.baseStats.Perception + $scope.selectedList.baseStats.Spirit;
+
+			if (total != 198 && total != 244) {
+				$scope.showStatError = true;
+			}
+		}
+
+		$scope.applyItemRestrictions();
+		$scope.saveCookies();
+	}
 	$scope.onRowClicked = function(index) {
+		console.log(index);
 		var item = $scope.selectedList.items[index];
 		$scope.loadingModal = false;
 		$scope.searchString = "";
@@ -259,6 +297,7 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 	$scope.onSearchRowClicked = function(item) {
 		$scope.selectedList.items[$scope.currentItemIndex] = item;
 		$scope.saveCookies();
+		$scope.applyItemRestrictions();
 		$('#itemChoiceModal').modal('hide');
 	}
 
@@ -298,7 +337,7 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 		
 		return "fas fa-sort-down";
 	}
-	
+
 	$('#itemChoiceModal').on('shown.bs.modal', function() {
 		$scope.currentPage = 1;
 		$scope.filterSearchResults();
@@ -356,15 +395,21 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 				for (var i = 0; i < list.items.length; ++i) {
 					for (var j = 0; j < response.data.length; ++j) {
 						if (list.items[i].Id == response.data[j].Id) {
-							var slot = list.items[i].Slot;
-							list.items[i] = response.data[j];
-							list.items[i].Slot = slot;
+							list.items[i] = Object.assign({}, response.data[j]);
+							list.items[i].Slot = $scope.slotOrder[i];
+							break;
 						}
 					}
+
+					if (list.items[i].Name == "Loading...") {
+						list.items[i].Name = "DELETED";
+					}
 				}
+				$scope.onStatChanged(); // to apply restrictions
 			}, function errorCallback(response){
 			});
 		}
+		$scope.onStatChanged(); // to apply restrictions
 
 		$scope.characterName = list.Name;
 		$scope.saveCookies();
@@ -483,8 +528,14 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 		if ($scope.selectedList.baseStats[statName]) {
 			total += $scope.selectedList.baseStats[statName];
 		}
+
+		var totalBaseStats = $scope.selectedList.baseStats.Strength + $scope.selectedList.baseStats.Mind + $scope.selectedList.baseStats.Dexterity + $scope.selectedList.baseStats.Constitution + $scope.selectedList.baseStats.Perception + $scope.selectedList.baseStats.Spirit;
+
 		switch (statName) {
 			case "Strength":
+				if (totalBaseStats != 244) {
+					total += 3;
+				}
 				if ($scope.selectedList.baseStats["Amulet"] == 0) {
 					total += 10;
 				}
@@ -496,6 +547,9 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 				}
 				break;
 			case "Mind":
+				if (totalBaseStats != 244) {
+					total += 3;
+				}
 				if ($scope.selectedList.baseStats["Amulet"] == 1) {
 					total += 10;
 				}
@@ -507,6 +561,9 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 				}
 				break;
 			case "Dexterity":
+				if (totalBaseStats != 244) {
+					total += 3;
+				}
 				if ($scope.selectedList.baseStats["Amulet"] == 2) {
 					total += 10;
 				}
@@ -518,6 +575,9 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 				}
 				break;
 			case "Constitution":
+				if (totalBaseStats != 244) {
+					total += 3;
+				}
 				if ($scope.selectedList.baseStats["Amulet"] == 3) {
 					total += 10;
 				}
@@ -529,6 +589,9 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 				}
 				break;
 			case "Perception":
+				if (totalBaseStats != 244) {
+					total += 3;
+				}
 				if ($scope.selectedList.baseStats["Amulet"] == 4) {
 					total += 10;
 				}
@@ -540,6 +603,9 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 				}
 				break;
 			case "Spirit":
+				if (totalBaseStats != 244) {
+					total += 13;
+				}
 				if ($scope.selectedList.baseStats["Amulet"] == 5) {
 					total += 10;
 				}
@@ -569,20 +635,118 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 			total += Math.floor(Math.max($scope.sumStats("Constitution") - 70, 0) / 3);
 		}
 		if (statName == "Ac") {
+			var str = $scope.sumStats("Strength");
 			var dex = $scope.sumStats("Dexterity");
+			var con = $scope.sumStats("Constitution");
+			var per = $scope.sumStats("Perception");
 
-			var startingPoint = 82;
-			var fromDex = Math.floor(Math.max(dex - 40, 0)) * -0.5;
-			if (dex >= 20) {
-				fromDex -= 5;
-				if (dex >= 40) {
-					fromDex -= 5;
+			var totalAC = 83;
+			totalAC += Math.floor(Math.max(dex - 40, 0)) * -0.5;
+			totalAC += Math.floor(Math.max(per - 30, 0)) * -0.5;
+			if (str >= 20 && dex >= 20 && con >= 20) {
+				totalAC -= 5;
+				if (dex >= 40 && con >= 40) {
+					totalAC -= 5;
 				}
 			}
 			
-			total += (startingPoint + fromDex);
+			total += totalAC;
 		}
 		return total;
+	}
+
+	$scope.applyItemRestrictions = function() {
+		// initialize restriction array
+		$scope.itemRestrictions = [];
+		for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+			$scope.itemRestrictions.push([]);
+		}
+
+		var handCount = 0;
+		var handApplied = false;
+		for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+			var curItem = $scope.selectedList.items[i];
+			// unique
+			if (curItem.Slot == 1 || curItem.Slot == 2 || curItem.Slot == 13 || curItem.Slot == 14 || curItem.Slot == 15 || curItem.Slot == 16) {
+				if (curItem.UniqueWear) {
+					for (var j = 0; j < $scope.selectedList.items.length; ++j) {
+						if (i == j) {
+							continue;
+						}
+						if (curItem.Id != 0 && curItem.Id == $scope.selectedList.items[j].Id) {
+							$scope.itemRestrictions[i].push("unique");
+							break;
+						}
+					}
+				}
+			}
+
+			var strength = $scope.sumStats("Strength");
+
+			// weight
+			if (curItem.Slot == 14) {
+				if (curItem.Weight * 4 > strength) {
+					$scope.itemRestrictions[i].push("weight");
+				}
+			}
+			else if (curItem.Slot == 15) {
+				if (curItem.Weight * 5 > strength) {
+					$scope.itemRestrictions[i].push("holdWeight");
+				}
+			}
+
+			// hand limit
+			if (!handApplied && curItem.Slot == 14 || curItem.Slot == 15) {
+				if (curItem.TwoHanded !== undefined) {
+					handCount += curItem.TwoHanded ? 2 : 1;
+				}
+				if (handCount > 3) {
+					for (var j = 0; j < $scope.selectedList.items.length; ++j) {
+						if ($scope.selectedList.items[j].Slot == 14 ||
+						    $scope.selectedList.items[j].Slot == 15) {
+							$scope.itemRestrictions[j].push("twohanded");
+						}
+					}
+					handApplied = true;
+				}
+			}
+		}
+	}
+	
+	$scope.anyItemRestrictions = function(index) {
+		return $scope.itemRestrictions[index].length > 0;
+	}
+
+	$scope.hasItemRestriction = function(index, name) {
+		return $scope.itemRestrictions[index].includes(name);
+	}
+
+	$scope.getItemRestrictionText = function(index) {
+		var text = "";
+		for (var i = 0; i < $scope.itemRestrictions[index].length; ++i) {
+			switch($scope.itemRestrictions[index][i]) {
+				case "unique":
+					text += "You cannot wear two of this item.";
+					break;
+				case "weight":
+					var req = $scope.selectedList.items[index].Weight * 4;
+					text += "You need " + req + " strength to wield this.";
+					break;
+				case "holdWeight":
+					var req = $scope.selectedList.items[index].Weight * 5;
+					text += "You need " + req + " strength to hold this with one hand.";
+					break;
+				case "twohanded":
+					text += "You do not have enough hands to hold this item.";
+					break;
+				default:
+					break;
+			}
+			if (i != $scope.itemRestrictions[index].length - 1) {
+				text += "<br /><br />";
+			}
+		}
+		return text;
 	}
 
 	$scope.dynamicSort = function(property) {
@@ -643,6 +807,15 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 
 	$scope.getNumberArray = function(num) {
 		return new Array(num);
+	}
+
+	$scope.showStatQuests = function() {
+		if (!$scope.selectedList || !$scope.selectedList.baseStats) {
+			return false;
+		}
+		var total = $scope.selectedList.baseStats.Strength + $scope.selectedList.baseStats.Mind + $scope.selectedList.baseStats.Dexterity + $scope.selectedList.baseStats.Constitution + $scope.selectedList.baseStats.Perception + $scope.selectedList.baseStats.Spirit;
+
+		return total != 244;
 	}
 
 	$scope.initialize();

@@ -10,7 +10,6 @@ app.controller('itemsedit-controller', function($scope, $http, itemConstants) {
 			url: '/php/items/getItemCategories.php'
 		}).then(function succcessCallback(response) {
 			$scope.statCategories = response.data;
-			console.log($scope.statCategories);
 			$scope.getStatInfo();
 		}, function errorCallback(response){
 
@@ -53,17 +52,24 @@ app.controller('itemsedit-controller', function($scope, $http, itemConstants) {
 			$scope.itemModel.Holdable = Boolean($scope.itemModel.Holdable);
 			$scope.itemModel.UniqueWear = Boolean($scope.itemModel.UniqueWear);
 			$scope.itemModel.Bonded = Boolean($scope.itemModel.Bonded);
-			console.log(response.data);
+			$scope.initialItemModel = Object.assign({}, $scope.itemModel);
 		}, function errorCallback(response){
 
 		});
 	}
 
+	$scope.saveDisabled = function() {
+		return !$scope.form.$valid || JSON.stringify($scope.itemModel) === JSON.stringify($scope.initialItemModel);
+	}
+
 	$scope.submitItem = function() {
+		if (!$scope.form.$valid || JSON.stringify($scope.itemModel) === JSON.stringify($scope.initialItemModel)) {
+			return;
+		}
+
 		$scope.calcNetStat();
 
 		var postData = Object.assign({}, $scope.itemModel);
-		delete postData.MobName;
 		delete postData.ModifiedOn;
 		delete postData.ModifiedBy;
 		delete postData.ModifiedByIP;
@@ -73,7 +79,6 @@ app.controller('itemsedit-controller', function($scope, $http, itemConstants) {
 			method: 'POST',
 			data: postData
 		}).then(function succcessCallback(response) {
-			//console.log(response);
 			window.location = "/items/details.html?id=" + $scope.itemModel.Id;
 		}, function errorCallback(response){
 
@@ -95,6 +100,32 @@ app.controller('itemsedit-controller', function($scope, $http, itemConstants) {
 	$scope.showCategory = function(category) {
 		return category["name"] != "Weapon" || $scope.itemModel.Slot == 14;
 	}
+
+	$scope.searchMobs = function() {
+		$http({
+			url: '/php/mobs/getMobs.php',
+			method: 'POST',
+			data: {"searchString": $scope.mobSearchName}
+		}).then(function succcessCallback(response) {
+			$scope.mobSearchResults = response.data;
+		}, function errorCallback(response){
+
+		});
+	}
+	
+	$scope.onMobSelected = function(mob) {
+		$scope.itemModel['MobName'] = mob.Name;
+		$('#mobModal').modal('hide');
+	}
+
+	$scope.addMob = function() {
+		$scope.itemModel['MobName'] = $scope.mobAddName;
+		$('#mobModal').modal('hide');
+	}
+
+	$('#mobModal').on('shown.bs.modal', function (e) {
+		$('#mobSearchInput').trigger('focus');
+	});
 
 	$scope.getStatCategories();
 });
