@@ -60,5 +60,31 @@ app.controller('itemsadd-controller', function($scope, $http, itemConstants) {
 		return category["name"] != "Weapon" || $scope.itemModel.Slot == 14;
 	}
 
+	$scope.searchMobs = function() {
+		$http({
+			url: '/php/mobs/getMobs.php',
+			method: 'POST',
+			data: {"searchString": $scope.mobSearchName}
+		}).then(function succcessCallback(response) {
+			$scope.mobSearchResults = response.data;
+		}, function errorCallback(response){
+
+		});
+	}
+	
+	$scope.onMobSelected = function(mob) {
+		$scope.itemModel['MobName'] = mob.Name;
+		$('#mobModal').modal('hide');
+	}
+
+	$scope.addMob = function() {
+		$scope.itemModel['MobName'] = $scope.mobAddName;
+		$('#mobModal').modal('hide');
+	}
+
+	$('#mobModal').on('shown.bs.modal', function (e) {
+		$('#mobSearchInput').trigger('focus');
+	});
+
 	$scope.getStatCategories();
 });

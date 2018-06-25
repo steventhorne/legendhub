@@ -1,7 +1,8 @@
 <?php
+session_set_cookie_params(0, '/', '.legendhub.org', 1, 0);
 session_start();
 
-header( "Access-Control-Allow-Origin: http://legendhub.org" );
+header( "Access-Control-Allow-Origin: legendhub.org" );
 header( "Content-Type: application/json; charset=UTF-8" );
 
 $root = realpath($_SERVER["DOCUMENT_ROOT"]);
@@ -28,8 +29,8 @@ if ($res = $query->fetchAll(PDO::FETCH_CLASS)[0])
 		$_SESSION['Username'] = $res->Username;
 		$_SESSION['UserId'] = $res->Id;
 
-		$updateq = $pdo->prepare("UPDATE Members SET LastLoginDate = NOW() WHERE Id = :id");
-		$updateq->execute(array("id" => $res->Id));
+		$updateq = $pdo->prepare("UPDATE Members SET LastLoginDate = NOW(), LastLoginIP = :ip, LastLoginIPForward = :ipf WHERE Id = :id");
+		$updateq->execute(array("id" => $res->Id, "ip" => $_SERVER['REMOTE_ADDR'], "ipf" => $_SERVER['HTTP_X_FORWARDED_FOR']));
 
 		echo('{"success": true, "reason": ""}');
 		return;

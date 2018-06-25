@@ -8,9 +8,10 @@
 
 	<!-- CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-		crossorigin="anonymous">
+	    crossorigin="anonymous">
 	<link rel="stylesheet" href="/css/styles.css">
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+	    crossorigin="anonymous">
 
 	<!-- JavaScript -->
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
@@ -37,12 +38,16 @@
 				<div class="row">
 					<div class="input-group col-12">
 						<div class="input-group-prepend">
-							<span class="input-group-text"><i class="fas fa-search"></i></span>
+							<span class="input-group-text">
+								<i class="fas fa-search"></i>
+							</span>
 						</div>
 						<input type="text" ng-model="searchString" class="form-control" placeholder="Search..." />
 						<div class="input-group-append">
-							<button class="btn btn-outline-secondary" type="button" data-toggle="collapse" data-target="#collapseHideColumns" aria-expanded="false" aria-controls="collapseHideColumns">Columns</button>
-							<button class="btn btn-outline-secondary" type="button" data-toggle="collapse" data-target="#collapseFilters" aria-expanded="false" aria-controls="collapseFilters">Filters</button>
+							<button class="btn btn-outline-secondary" type="button" data-toggle="collapse" data-target="#collapseHideColumns" aria-expanded="false"
+							    aria-controls="collapseHideColumns">Columns</button>
+							<button class="btn btn-outline-secondary" type="button" data-toggle="collapse" data-target="#collapseFilters" aria-expanded="false"
+							    aria-controls="collapseFilters">Filters</button>
 							<button class="btn btn-outline-success" type="submit">Search</button>
 						</div>
 					</div>
@@ -60,7 +65,8 @@
 							</div>
 							<div class="row">
 								<div class="form-check col-4 col-md-2" ng-repeat="stat in category['stats']">
-									<input class="form-check-input" type="checkbox" ng-model="statInfo[stat]['showColumn']" id="{{statInfo[stat]['var']}}check" ng-change="saveCookies()">
+									<input class="form-check-input" type="checkbox" ng-model="statInfo[stat]['showColumn']" id="{{statInfo[stat]['var']}}check"
+									    ng-change="saveCookies()">
 									<label class="form-check-label" for="{{statInfo[stat]['var']}}check">
 										{{statInfo[stat]["display"]}}
 									</label>
@@ -88,7 +94,7 @@
 								<div class="form-check col-4 col-md-2" ng-repeat="stat in category['stats']">
 									<input class="form-check-input" type="checkbox" ng-model="statInfo[stat]['filter']" id="{{statInfo[stat]['var']}}filtercheck">
 									<label class="form-check-label" for="{{statInfo[stat]['var']}}filtercheck">
-											{{statInfo[stat]["display"]}}
+										{{statInfo[stat]["display"]}}
 									</label>
 								</div>
 							</div>
@@ -106,24 +112,30 @@
 				<div class="card-header">
 					<strong class="float-left">{{recent ? "Recently Modified" : "Search Results"}}</strong>
 					<div class="float-right clickable">
-						<a href="{{isLoggedIn ? '/items/add.html' : '/login.html'}}"><i class="fas fa-plus"></i></a>
+						<a href="{{isLoggedIn ? '/items/add.html' : '/login.html'}}">
+							<i class="fas fa-plus"></i>
+						</a>
 					</div>
 				</div>
 				<div class="table-responsive">
-					<table class="table table-sm table-md table-hover table-striped" ng-cloak>
+					<table class="table table-sm table-md table-hover table-striped table-bordered" ng-cloak>
 						<thead class="thead-dark">
 							<tr>
+								<th scope="col" ng-if="recent">Modified By</th>
 								<th scope="col">Slot</th>
-								<th scope="col">Name</th>
-								<th ng-repeat="stat in statInfo" ng-show="stat.showColumn">{{stat.short}}</th>
+								<th scope="col" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="sortClass('Name')"></i></th>
+								<th ng-repeat="stat in statInfo" ng-show="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="sortClass(stat.var)"></i></th>
 							</tr>
 						</thead>
 						<tbody>
-							<tr ng-repeat="item in items">
-								<td>{{slots[item.Slot]}}</td>
-								<th scope="row"><a href="/items/details.html?id={{item.Id}}">{{item.Name}}</a></th>
-								<td ng-repeat="stat in statInfo" ng-show="stat.showColumn">
-									<span ng-if="stat.type == 'bool'"><i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i></span>
+							<tr ng-repeat="item in items | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onItemClicked(item)" style="cursor: pointer;">
+								<td ng-if="recent">{{item.ModifiedBy}}</th>
+								<th>{{slots[item.Slot]}}</td>
+								<th scope="row" class="text-primary">{{item.Name}}</th>
+								<td class="text-center" ng-repeat="stat in statInfo" ng-show="stat.showColumn">
+									<span ng-if="stat.type == 'bool'">
+										<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
+									</span>
 									<span ng-if="stat.type != 'bool'">{{item[stat.var]}}</span>
 								</td>
 							</tr>
@@ -132,8 +144,32 @@
 				</div>
 			</div>
 		</div>
+		<br />
+		<nav class="row" aria-label="Item result navigation" ng-show="totalPages > 1">
+			<ul class="pagination">
+				<li class="page-item">
+					<a class="page-link" ng-click="onPreviousClicked()" aria-label="Previous">
+						<span aria-hidden="true">
+							<i class="fas fa-chevron-left"></i>
+						</span>
+						<span class="sr-only">Previous</span>
+					</a>
+				</li>
+				<li class="page-item" ng-repeat="i in getPageArray(totalPages) track by $index" ng-class="{active: i == currentPage}">
+					<a class="page-link" ng-click="onPageClicked(i)">{{i}}</a>
+				</li>
+				<li class="page-item">
+					<a class="page-link" ng-click="onNextClicked()" aria-label="Next">
+						<span aria-hidden="true">
+							<i class="fas fa-chevron-right"></i>
+						</span>
+						<span class="sr-only">Next</span>
+					</a>
+				</li>
+			</ul>
+		</nav>
 	</div>
-	
+
 	<div ng-include="'/shared/footer.html'"></div>
 
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
@@ -141,7 +177,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
 	    crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-		crossorigin="anonymous"></script>
+	    crossorigin="anonymous"></script>
 </body>
 
 </html>

@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-header( "Access-Control-Allow-Origin: http://legendhub.org" );
+header( "Access-Control-Allow-Origin: legendhub.org" );
 header( "Content-Type: application/json; charset=UTF-8" );
 
 $postdata = json_decode(file_get_contents("php://input"));
@@ -26,6 +26,22 @@ if (isset($_SESSION['UserId'])) {
 else {
 	return;
 }
+
+$mobName = $statArray['MobName'];
+$statArray['MobId'] = 0;
+if (strlen(trim($mobName)) > 0) {
+	$query = $pdo->prepare("SELECT * FROM Mobs WHERE Name = :mobName");
+	$query->execute(array("mobName" => $mobName));
+	if ($res = $query->fetch(PDO::FETCH_OBJ)) {
+		$statArray['MobId'] = $res->Id;
+	}
+	if ($statArray['MobId'] == 0) {
+		$addMobQuery = $pdo->prepare("INSERT INTO Mobs (Name) VALUES (:Name)");
+		$addMobQuery->execute(array("Name" => $mobName));
+		$statArray['MobId'] = $pdo->lastInsertId();
+	}
+}
+unset($statArray['MobName']);
 
 $execArray = array();
 $sql = "UPDATE Items SET ModifiedOn = NOW(), ModifiedBy = :ModifiedBy, ModifiedByIP = :ModifiedByIP, ModifiedByIPForward = :ModifiedByIPForward";

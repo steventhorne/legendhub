@@ -1,5 +1,5 @@
 <?php
-header( "Access-Control-Allow-Origin: http://legendhub.org" );
+header( "Access-Control-Allow-Origin: legendhub.org" );
 header( "Content-Type: application/json; charset=UTF-8" );
 
 $root = realpath($_SERVER["DOCUMENT_ROOT"]);
@@ -10,6 +10,12 @@ $postdata = json_decode(file_get_contents("php://input"));
 $username = $postdata->Username;
 
 $cleanUsername = preg_replace("/[^A-Za-z0-9]*/", "", $username);
+
+if (strtolower($cleanUsername) == "dataimport")
+{
+	echo('{"success": false, "reason": "taken"}');
+	return;
+}
 
 if (strlen($cleanUsername) < 5 || strlen($cleanUsername) > 25)
 {

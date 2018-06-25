@@ -5,6 +5,10 @@ RewriteCond %{DOCUMENT_ROOT}/maintenance.html -f
 RewriteCond %{DOCUMENT_ROOT}/maintenance.enable -f
 RewriteCond %{SCRIPT_FILENAME} !maintenance.html
 RewriteRule ^.*$ /maintenance.html [R=503,L]
+
+RewriteCond %{HTTP_HOST} ^legendhub.org [NC]
+RewriteRule ^(.*)$ https://www.legendhub.org/$1 [L,R=301,NC]
+
 ErrorDocument 503 /maintenance.html
 Header Set Cache-Control "max-age=0, no-store"
 </IfModule>

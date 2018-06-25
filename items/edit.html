@@ -9,6 +9,8 @@
 	<!-- Bootstrap CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
 		crossorigin="anonymous">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+		crossorigin="anonymous">
 	<link rel="stylesheet" href="/css/styles.css">
 
 	<!-- AngularJS JavaScript -->
@@ -32,10 +34,12 @@
 		<div ng-include="'/shared/displayItemEdit.html'"></div>
 		<br />
 		<div class="row">
-			<button class="btn btn-primary col-2 col-md-1 offset-md-10 offset-9" ng-class="{disabled: !form.$valid}" type="button" ng-click="form.$valid && submitItem()">Save</button>
+			<button class="btn btn-primary col-2 col-md-1 offset-md-10 offset-9" ng-class="{disabled: saveDisabled()}" type="button" ng-click="form.$valid && submitItem()">Save</button>
 		</div>
 	</form>
 	
+	<div ng-include="'/shared/mobModal.html'"></div>
+
 	<div ng-include="'/shared/footer.html'"></div>
 
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
