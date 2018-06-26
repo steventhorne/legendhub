@@ -108,6 +108,37 @@
 			</div>
 		</div>
 		<div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header" style="cursor: pointer;" data-toggle="collapse" data-target="#collapseHideColumns">
+						Hide/Show Columns
+					</div>
+					<div class="collapse" id="collapseHideColumns" data-parent="#searchAccordian">
+						<div class="card-body">
+							<div class="row">
+								<p class="text-muted">Use these to hide columns from the search result grid.</p>
+							</div>
+							<div ng-repeat="category in statCategories">
+								<div class="row">
+									<h4>{{category["name"]}}</h4>
+								</div>
+								<div class="row">
+									<div class="form-check col-4 col-md-2" ng-repeat="stat in category['stats']">
+										<input class="form-check-input" type="checkbox" ng-model="statInfo[stat]['showColumn']" id="{{statInfo[stat]['var']}}check"
+											ng-change="saveCookies()">
+										<label class="form-check-label" for="{{statInfo[stat]['var']}}check">
+											{{statInfo[stat]["display"]}}
+										</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<br />
+		<div class="row">
 			<div class="table-responsive" ng-cloak>
 				<table class="table table-striped table-hover table-sm table-bordered">
 					<thead class="thead-dark">
