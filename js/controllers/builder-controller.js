@@ -641,8 +641,8 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 			var per = $scope.sumStats("Perception");
 
 			var totalAC = 83;
-			totalAC += Math.floor(Math.max(dex - 40, 0)) * -0.5;
-			totalAC += Math.floor(Math.max(per - 30, 0)) * -0.5;
+			totalAC += Math.floor(Math.floor(Math.max(dex - 40, 0)) * 0.5) * -1;
+			totalAC += Math.floor(Math.floor(Math.max(per - 30, 0)) * 0.5) * -1;
 			if (str >= 20 && dex >= 20 && con >= 20) {
 				totalAC -= 5;
 				if (dex >= 40 && con >= 40) {
