@@ -620,19 +620,35 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 
 		// bonus stats
 		if (statName == "Spelldam") {
-			total += Math.floor(($scope.sumStats("Mind") - 52) / 2);
+			total += parseInt(($scope.sumStats("Mind") - 52) / 2);
 		}
 		if (statName == "Spellcrit") {
-			total += Math.floor(($scope.sumStats("Mind") - 60) / 4);
-			total += Math.floor(Math.max($scope.sumStats("Perception") - 60, 0) / 8);
-			total += Math.floor(Math.max($scope.sumStats("Spirit") - 60, 0) / 8);
+			total += parseInt(($scope.sumStats("Mind") - 60) / 4);
+			total += parseInt(Math.max($scope.sumStats("Perception") - 60, 0) / 8);
+			total += parseInt(Math.max($scope.sumStats("Spirit") - 60, 0) / 8);
 			total += 5;
 		}
+		if (statName == "Hit") {
+			var str = $scope.sumStats("Strength");
+			var dex = $scope.sumStats("Dexterity");
+			var con = $scope.sumStats("Constitution");
+
+			var bestStat = dex;
+			if (false && str > bestStat) { // replace false with wearingStrWeap
+				bestStat = str;
+			}
+			if (false && con > bestStat) { // replace false with wearingConWeap
+				bestStat = con;
+			}
+
+			total += parseInt((bestStat - 30) / 3);
+			total += parseInt(Math.min(dex - 70, 0) / 6);
+		}
 		if (statName == "Dam") {
-			total += Math.floor(($scope.sumStats("Strength") - 15) / 3);
+			total += parseInt(($scope.sumStats("Strength") - 15) / 3);
 		}
 		if (statName == "Mitigation") {
-			total += Math.floor(Math.max($scope.sumStats("Constitution") - 70, 0) / 3);
+			total += parseInt(Math.max($scope.sumStats("Constitution") - 70, 0) / 3);
 		}
 		if (statName == "Ac") {
 			var str = $scope.sumStats("Strength");
@@ -641,8 +657,8 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 			var per = $scope.sumStats("Perception");
 
 			var totalAC = 83;
-			totalAC += Math.floor(Math.floor(Math.max(dex - 40, 0)) * 0.5) * -1;
-			totalAC += Math.floor(Math.floor(Math.max(per - 30, 0)) * 0.5) * -1;
+			totalAC += parseInt(Math.max(dex - 40, 0) * -0.5);
+			totalAC += parseInt(Math.max(per - 30, 0) * -0.5);
 			if (str >= 20 && dex >= 20 && con >= 20) {
 				totalAC -= 5;
 				if (dex >= 40 && con >= 40) {
