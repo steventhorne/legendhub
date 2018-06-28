@@ -36,8 +36,8 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 		$scope.currentItem = null;
 		$scope.itemsBySlot = [];
 		$scope.filteredItems = [];
-		$scope.sortStat = "Name";
-		$scope.sortDir = "+";
+		$scope.sortStat = "";
+		$scope.sortDir = "";
 	
 		for (var i = 0; i < $scope.slots.length; ++i) {
 			$scope.itemsBySlot[i] = [];
@@ -250,6 +250,8 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 		var item = $scope.selectedList.items[index];
 		$scope.loadingModal = false;
 		$scope.searchString = "";
+		$scope.sortStat = "";
+		$scope.sortDir = "";
 		$scope.currentItem = item;
 		$scope.currentItemIndex = index;
 		if ($scope.itemsBySlot[item.Slot].length == 0) {
