@@ -37,8 +37,8 @@ app.controller('itemshistory-controller', function($scope, $http, $location, ite
 	$scope.revert = function() {
 		var postData = Object.assign({}, $scope.item);
 		delete postData.ItemId;
-		delete postData.MobName;
 		delete postData.ModifiedOn;
+		delete postData.ModifiedBy;
 		delete postData.ModifiedByIP;
 		delete postData.ModifiedByIPForward;
 		$http({
