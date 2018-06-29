@@ -1,4 +1,4 @@
-var app = angular.module( "legendwiki-app", [ 'ngSanitize', 'ngCookies' ] );
+var app = angular.module( "legendwiki-app", ['ngCookies' ] );
 
 app.constant('test', 'hi');
 app.constant('itemConstants', {
