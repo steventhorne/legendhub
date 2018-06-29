@@ -192,13 +192,16 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 
 	$scope.saveCookies = function() {
 		// save columns
+		var cookieDate = new Date();
+		cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+
 		$savedColumns = "";
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
 			if ($scope.statInfo[i]["showColumn"]) {
 				$savedColumns += $scope.statInfo[i]["short"] + "-";
 			}
 		}
-		$cookies.put("sc1", $savedColumns, {"path": "/"});
+		$cookies.put("sc1", $savedColumns, {"path": "/", 'expires': cookieDate});
 
 		// save lists
 		listCookieStr = "";
@@ -222,10 +225,8 @@ app.controller('builder-controller', function($scope, $cookies, $http, itemConst
 			}
 			listCookieStr += "*";
 		}
-		var date = new Date();
-		date.setFullYear(date.getFullYear() + 20);
-		$cookies.put("cl1", listCookieStr, {'expires': date});
-		$cookies.put("scl1", $scope.selectedList.Name, {'expires': date});
+		$cookies.put("cl1", listCookieStr, {'expires': cookieDate});
+		$cookies.put("scl1", $scope.selectedList.Name, {'expires': cookieDate});
 	}
 
 	//#endregion
