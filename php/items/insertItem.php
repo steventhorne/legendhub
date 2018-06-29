@@ -45,17 +45,17 @@ if (strlen(trim($mobName)) > 0) {
 unset($statArray['MobName']);
 
 $statArray["ModifiedBy"] = $_SESSION['Username'];
+$statArray["ModifiedByIP"] = $_SERVER['REMOTE_ADDR'];
+$statArray["ModifiedByIPForward"] = $_SERVER['HTTP_X_FORWARDED_FOR'];
 $execArray = array();
-$execArray["ModifiedByIP"] = $_SERVER['REMOTE_ADDR'];
-$execArray["ModifiedByIPForward"] = $_SERVER['HTTP_X_FORWARDED_FOR'];
-$sql = "INSERT INTO Items(ModifiedOn, ModifiedByIP, ModifiedByIPForward";
+$sql = "INSERT INTO Items(ModifiedOn";
 foreach ($statArray as $key => $value) 
 {
 	$cleanKey = preg_replace('/[^A-Za-z_]*/', '', $key);
 	$sql = $sql . ", " . $cleanKey;
 	$execArray[$cleanKey] = $value;
 }
-$sql = $sql . ") VALUES (NOW(), :ModifiedByIP, :ModifiedByIPForward";
+$sql = $sql . ") VALUES (NOW()";
 foreach ($statArray as $key => $value)
 {
 	$cleanKey = preg_replace('/[^A-Za-z_]*/', '', $key);
