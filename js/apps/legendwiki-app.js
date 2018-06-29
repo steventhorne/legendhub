@@ -33,6 +33,14 @@ app.constant('itemConstants', {
 			 "Non-Evil Align"],
 });
 
+app.directive('lhTheme', function() {
+	return {
+		link: function (scope, element, attrs) {
+			$('link[id="theme"]').attr('href','/css/bootstrap-dark.min.css');
+		}
+	}
+});
+
 app.directive('lazyLoadOptions', [function() {
 	return {
 		restrict: 'EA',
