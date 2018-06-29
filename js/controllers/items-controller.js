@@ -105,13 +105,16 @@ app.controller('items-controller', function($scope, $cookies, $http, itemConstan
 		}
 	}
 	$scope.saveCookies = function() {
+		var cookieDate = new Date();
+		cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+
 		$savedColumns = "";
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
 			if ($scope.statInfo[i]["showColumn"]) {
 				$savedColumns += $scope.statInfo[i]["short"] + "-";
 			}
 		}
-		$cookies.put("sc1", $savedColumns);
+		$cookies.put("sc1", $savedColumns, {"path": "/", 'expires': cookieDate});
 	}
 
 	$scope.onPreviousClicked = function() {
