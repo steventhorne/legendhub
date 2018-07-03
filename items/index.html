@@ -32,6 +32,7 @@
 		<div class="row">
 			<h1>Items</h1>
 		</div>
+		<span class="text-info">{{listFilters()}}</span>
 		<div id="searchAccordian" ng-cloak>
 			<form ng-submit="search()">
 				<div class="row">
@@ -131,8 +132,8 @@
 						</thead>
 						<tbody>
 							<tr ng-repeat="item in items | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onItemClicked(item)" style="cursor: pointer;">
-								<td ng-if="recent">{{item.ModifiedBy}}</th>
-								<th>{{slots[item.Slot]}}</td>
+								<td ng-if="recent">{{item.ModifiedBy}}</td>
+								<td>{{slots[item.Slot]}}</td>
 								<th scope="row" class="text-primary">{{item.Name}}</th>
 								<td class="text-center" ng-repeat="stat in statInfo" ng-show="stat.showColumn">
 									<span ng-if="stat.type == 'bool'">
