@@ -36,8 +36,8 @@ if (strlen(trim($mobName)) > 0) {
 		$statArray['MobId'] = $res->Id;
 	}
 	if ($statArray['MobId'] == 0) {
-		$addMobQuery = $pdo->prepare("INSERT INTO Mobs (Name) VALUES (:Name)");
-		$addMobQuery->execute(array("Name" => $mobName));
+		$addMobQuery = $pdo->prepare("INSERT INTO Mobs (Name, ModifiedOn, ModifiedBy, ModifiedByIP, ModifiedByIPForward) VALUES (:Name, NOW(), :ModifiedBy, :ModifiedByIP, :ModifiedByIPForward)");
+		$addMobQuery->execute(array("Name" => $mobName, "ModifiedBy" => $_SESSION['Username'], "ModifiedByIP" => $_SERVER['REMOTE_ADDR'], "ModifiedByIPForward" => $_SERVER['HTTP_X_FORWARDED_FOR']));
 		$statArray['MobId'] = $pdo->lastInsertId();
 	}
 }
