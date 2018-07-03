@@ -26,7 +26,7 @@
 				<dig class="input-group-prepend">
 					<span class="input-group-text">{{statInfo[item]['short']}}</span>
 				</dig>
-				<input type="number" id="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]" class="form-control" ng-if="statInfo[item].type == 'int'">
+				<input type="number" id="{{statInfo[item]['var']}}Control" name="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]" class="form-control" ng-class="{'is-invalid': !form[statInfo[item]['var'] + 'Control'].$valid}" ng-if="statInfo[item].type == 'int'" required>
 				<input type="text" id="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]" class="form-control" ng-if="statInfo[item].type == 'string'">
 				<div class="input-group-append" ng-if="statInfo[item].type == 'bool'">
 					<div class="input-group-text">
