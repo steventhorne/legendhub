@@ -174,5 +174,36 @@ app.controller('items-controller', function($scope, $cookies, $http, itemConstan
 		}
 	}
 
+	$scope.listFilters = function() {
+		if (!$scope.statInfo) {
+			return "";
+		}
+
+		var filters = [];
+		for (var i = 0; i < $scope.statInfo.length; ++i) {
+			if ($scope.statInfo[i].filter) {
+				filters.push($scope.statInfo[i].display);
+			}
+		}
+
+		if (filters.length == 0) {
+			return "";
+		}
+		
+		if (filters.length <= 5) {
+			var msg = "The following filters are enabled: ";
+			for (var j = 0; j < filters.length; ++j) {
+				msg += filters[j];
+				if (j < filters.length - 1) {
+					msg += ", ";
+				}
+			}
+			return msg;
+		}
+		else {
+			return filters.length + " filters are enabled.";
+		}
+	}
+
 	$scope.init();
 });
