@@ -18,7 +18,7 @@ $itemStats = [(object) ["display" => "Strength", "short" => "Str", "var" => "Str
 			  (object) ["display" => "Constitution", "short" => "Con", "var" => "Constitution", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 1],
 			  (object) ["display" => "Perception", "short" => "Per", "var" => "Perception", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 1],
 			  (object) ["display" => "Spirit", "short" => "Spi", "var" => "Spirit", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 1],
-			  (object) ["display" => "Ac", "short" => "Ac", "var" => "Ac", "type" => "int", "showColumn" => true, "filterString" => "< 0", "default" => 0, "netStat" => 0],
+			  (object) ["display" => "Ac", "short" => "Ac", "var" => "Ac", "type" => "int", "showColumn" => true, "filterString" => "< 0", "default" => null, "netStat" => 0],
 			  (object) ["display" => "Hp", "short" => "Hp", "var" => "Hp", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 10],
 			  (object) ["display" => "Mana", "short" => "Ma", "var" => "Ma", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 10],
 			  (object) ["display" => "Mv", "short" => "Mv", "var" => "Mv", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 10],
@@ -32,7 +32,7 @@ $itemStats = [(object) ["display" => "Strength", "short" => "Str", "var" => "Str
 			  (object) ["display" => "Mana Reduction", "short" => "Ma Redux", "var" => "ManaReduction", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 3],
 			  (object) ["display" => "Concentration", "short" => "Concen", "var" => "Concentration", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
 			  (object) ["display" => "Mitigation", "short" => "Mit", "var" => "Mitigation", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 2],
-			  (object) ["display" => "Parry", "short" => "Parry", "var" => "Parry", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
+			  (object) ["display" => "Parry", "short" => "Parry", "var" => "Parry", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 2],
 			  (object) ["display" => "Accuracy", "short" => "Accu", "var" => "Accuracy", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
 			  (object) ["display" => "Ammo Limit", "short" => "Ammo", "var" => "Ammo", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
 			  (object) ["display" => "Accuracy Bonus", "short" => "AccuBonus", "var" => "RangedAccuracy", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0], // TODO: netStat???
