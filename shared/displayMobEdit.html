@@ -1,0 +1,62 @@
+<div class="form-row">
+	<div class="form-group col-12 col-lg-5">
+		<div class="input-group">
+			<div class="input-group-prepend">
+				<span class="input-group-text">Name</span>
+			</div>
+			<input type="text" id="nameControl" ng-model="mobModel.Name" class="form-control" ng-class="{'is-invalid': !mobModel.Name}" required>
+		</div>
+	</div>
+</div>
+<div class="form-row">
+	<div class="form-group col-12 col-lg-5">
+		<div class="input-group">
+			<div class="input-group-prepend">
+				<span class="input-group-text">Area</span>
+			</div>
+			<select id="areaControl" ng-model="mobModel.AreaId" class="form-control" ng-class="{'is-invalid': !mobModel.AreaId || mobModel.AreaId < 0}" required>
+				<option ng-repeat="area in areas" ng-value="area.Id">{{area.Name}} {{area.Era ? '(' + area.Era + ')' : ''}}</option>
+			<select>
+		</div>
+	</div>
+</div>
+<div class="form-row">
+	<div class="form-group col-4 col-lg-2">
+		<div class="input-group">
+			<div class="input-group-prepend">
+				<span class="input-group-text">Xp</span>
+			</div>
+			<input type="number" id="xpControl" ng-model="mobModel.Xp" class="form-control">
+		</div>
+	</div>
+	<div class="form-group col-4 col-lg-2">
+		<div class="input-group">
+			<div class="input-group-prepend">
+				<span class="input-group-text">Gold</span>
+			</div>
+			<input type="number" id="goldControl" ng-model="mobModel.Gold" class="form-control">
+		</div>
+	</div>
+	<div class="form-group col-4 col-lg-2">
+		<div class="input-group">
+			<div class="input-group-prepend">
+				<span class="input-group-text">Aggro</span>
+			</div>
+			<div class="input-group-append">
+				<div class="input-group-text">
+					<input type="checkbox" id="aggroControl" ng-model="mobModel.Aggro">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="form-row">
+	<div class="form-group col-12 col-lg-6">
+		<div class="input-group">
+			<div class="input-group-prepend">
+				<span class="input-group-text">Notes</span>
+			</div>
+			<textarea class="form-control" rows="5" ng-model="mobModel.Notes"></textarea>
+		</div>
+	</div>
+</div>

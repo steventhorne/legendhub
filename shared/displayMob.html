@@ -1,0 +1,62 @@
+<div class="row">
+	<h1>
+		<span class="text-primary">{{mob.Name}}</span>&nbsp;&nbsp;&nbsp;
+		<sup style="white-space: nowrap">
+			<small>
+				<a href="{{isLoggedIn ? '/mobs/edit.html?id=' + mob.Id : '/login.html?returnUrl=/mobs/edit.html?id=' + mob.Id}}" ng-show="!editing">
+					<i class="far fa-edit"></i> Edit</a>
+			</small>
+		</sup>
+	</h1>
+</div>
+<div class="row">
+	<span>
+		<small>
+			<strong>Modified On</strong> {{mob.ModifiedOn}}
+			<strong>by</strong> {{mob.ModifiedBy}}</small>
+	</span>
+</div>
+<br />
+<div class="row" ng-repeat="item in items">
+	<span><span class="text-muted">&lt;{{item.SlotName}}&gt;</span> <a href="/items/details.html?id={{item.Id}}">{{item.Name}}</a></span>
+</div>
+<br />
+<div class="col-12 col-md-10 col-lg-8">
+	<dl class="row">
+		<dt class="col-sm-4 col-8">Area</dt>
+		<dd class="col-sm-8 col-4"><span class="text-info">{{mob.AreaEra ? '(' + mob.AreaEra + ') ' : ''}}</span>{{mob.AreaName}}</dd>
+		<dt class="col-sm-4 col-8">Experience</dt>
+		<dd class="col-sm-8 col-4">{{mob.Xp}}</dd>
+		<dt class="col-sm-4 col-8">Gold</dt>
+		<dd class="col-sm-8 col-4">{{mob.Gold}}</dd>
+		<dt class="col-sm-4 col-8">Agg</dt>
+		<dd class="col-sm-8 col-4">{{mob.Aggro ? 'Yes' : 'No'}}</dd>
+	</dl>
+	<div ng-show="item.Notes !== ''">
+		<br />
+		<br />
+		<div class="card">
+			<div class="card-header">Notes</div>
+			<div class="card-body">
+				<pre>{{item.Notes}}</pre>
+			</div>
+		</div>
+	</div>
+	<br />
+	<div class="col-12 col-md-6" ng-show="history.length > 0">
+		<div class="card">
+			<div class="card-header list-group-item-action" data-toggle="collapse" data-target="#historyCollapse">Show Previous Versions&nbsp;&nbsp;
+				<span class="badge badge-dark">{{history.length}}</span>
+				<span class="float-right">
+					<i class="far fa-plus-square"></i>
+				</span>
+			</div>
+			<div id="historyCollapse" class="collapse">
+				<ul class="list-group list-group-flush">
+					<a href="/items/history.html?id={{record.Id}}" class="list-group-item list-group-item-action" ng-repeat="record in history">{{record.ModifiedOn}}
+						<strong>by</strong> {{record.ModifiedBy}}</a>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
