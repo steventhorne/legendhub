@@ -10,6 +10,7 @@ app.controller('itemsdetails-controller', function($scope, $http, $location, ite
 		}).then(function succcessCallback(response) {
 			$scope.item = response.data;
 			$scope.item.ModifiedOn = (new Date(response.data.ModifiedOn + " UTC")).toString().slice(4, 24);
+			$scope.getItemHistory();
 		}, function errorCallback(response){
 
 		});
@@ -26,9 +27,24 @@ app.controller('itemsdetails-controller', function($scope, $http, $location, ite
 			for (i = 0; i < $scope.history.length; i++) {
 				$scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + " UTC")).toString().slice(4, 24);
 			}
+			$scope.getMob();
 		}, function errorCallback(response){
 
 		});
+	}
+
+	$scope.getMob = function() {
+		if ($scope.item.MobId && $scope.item.MobId >= 0) {
+			$http({
+				url: '/php/mobs/getMob.php',
+				method: 'POST',
+				data: {"id": $scope.item.MobId}
+			}).then(function successCallback(response) {
+				$scope.mob = response.data;
+			}, function errorCallback(response){
+
+			});
+		}
 	}
 
 	getUrlParameter = function(name) {
@@ -75,7 +91,6 @@ app.controller('itemsdetails-controller', function($scope, $http, $location, ite
 			}
 
 			$scope.getItem();
-			$scope.getItemHistory();
 		}, function errorCallback(response){
 		});
 	}

@@ -18,17 +18,10 @@
 
 	<!-- CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-		crossorigin="anonymous">
+	    crossorigin="anonymous">
 	<link rel="stylesheet" href="/css/styles.css">
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-
-	<!-- JavaScript -->
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-sanitize.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
-	<script src="/js/apps/legendwiki-app.js"></script>
-	<script src="/js/controllers/mobs-controller.js"></script>
-	<script src="/js/controllers/header-controller.js"></script>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+	    crossorigin="anonymous">
 
 	<title>LegendHUB - Mobs</title>
 </head>
@@ -39,23 +32,25 @@
 		<div class="row">
 			<h1>Mobs</h1>
 		</div>
-		<form ng-submit="search()">
-			<div class="row">
-				<span class="text-danger" ng-show="searchError != ''">{{searchError}}</span>
-			</div>
-			<div class="row">
-				<div class="input-group col-12">
-					<div class="input-group-prepend">
-						<span class="input-group-text"><i class="fas fa-search"></i></span>
-					</div>
-					<input type="text" ng-model="searchString" class="form-control" placeholder="Search..." />
-					<div class="input-group-append">
-						<button class="btn btn-outline-primary" type="submit">Search</button>
-					</div>
+		<div ng-cloak>
+			<form ng-submit="search()">
+				<div class="row">
+					<span class="text-danger" ng-show="searchError != ''">{{searchError}}</span>
+				</div>
+				<div class="row">
+					<div class="input-group col-12">
+						<div class="input-group-prepend">
+							<span class="input-group-text">
+								<i class="fas fa-search"></i>
+							</span>
+						</div>
+						<input type="text" ng-model="searchString" class="form-control" placeholder="Search..." />
+						<div class="input-group-append">
+							<button class="btn btn-outline-success" type="submit">Search</button>
+						</div>
 					</div>
 				</div>
-			</div>
-		</form>
+			</form>
 		</div>
 		<br />
 		<div class="row" ng-show="resultWarning != ''" ng-cloak>
@@ -66,27 +61,61 @@
 				<div class="card-header">
 					<strong class="float-left">{{recent ? "Recently Modified" : "Search Results"}}</strong>
 					<div class="float-right clickable">
-						<a href="{{isLoggedIn ? '/mobs/add.html' : '/login.html?returnUrl=/mobs/add.html'}}"><i class="fas fa-plus"></i></a>
+						<a href="{{isLoggedIn ? '/mobs/add.html' : '/login.html?returnUrl=/mobs/add.html'}}">
+							<i class="fas fa-plus"></i>
+						</a>
 					</div>
 				</div>
 				<div class="table-responsive">
-					<table class="table table-sm table-md table-hover table-striped" ng-cloak>
+					<table class="table table-sm table-md table-hover table-striped table-bordered" ng-cloak>
 						<thead class="thead-dark">
 							<tr>
+								<th scope="col" ng-if="recent">Modified By</th>
 								<th scope="col">Name</th>
+								<th scope="col">Area</th>
+								<th scope="col">Experience</th>
+								<th scope="col">Gold</th>
 							</tr>
 						</thead>
 						<tbody>
-							<tr ng-repeat="mob in mobs">
+							<tr ng-repeat="mob in mobs | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onMobClicked(mob)" style="cursor: pointer;">
+								<td ng-if="recent">{{mob.ModifiedBy}}</td>
 								<td>{{mob.Name}}</td>
+								<td><span class="text-info">{{mob.AreaEra ? '(' + mob.AreaEra + ')' : ''}}</span> {{mob.AreaName}}</td>
+								<td>{{mob.Xp}}</td>
+								<td>{{mob.Gold}}</td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
 			</div>
 		</div>
+		<br />
+		<nav class="row" aria-label="Mob result navigation" ng-show="totalPages > 1">
+			<ul class="pagination">
+				<li class="page-item">
+					<a class="page-link" ng-click="onPreviousClicked()" aria-label="Previous">
+						<span aria-hidden="true">
+							<i class="fas fa-chevron-left"></i>
+						</span>
+						<span class="sr-only">Previous</span>
+					</a>
+				</li>
+				<li class="page-item" ng-repeat="i in getPageArray(totalPages) track by $index" ng-class="{active: i == currentPage}">
+					<a class="page-link" ng-click="onPageClicked(i)">{{i}}</a>
+				</li>
+				<li class="page-item">
+					<a class="page-link" ng-click="onNextClicked()" aria-label="Next">
+						<span aria-hidden="true">
+							<i class="fas fa-chevron-right"></i>
+						</span>
+						<span class="sr-only">Next</span>
+					</a>
+				</li>
+			</ul>
+		</nav>
 	</div>
-	
+
 	<div ng-include="'/shared/footer.html'"></div>
 
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
@@ -95,6 +124,11 @@
 	    crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
 		crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
+	<script src="/js/apps/legendwiki-app.js"></script>
+	<script src="/js/controllers/mobs-controller.js"></script>
+	<script src="/js/controllers/header-controller.js"></script>
 </body>
 
 </html>
