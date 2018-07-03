@@ -62,11 +62,24 @@ app.controller('login-controller', function($scope, $http) {
 			data: $scope.loginModel
 		}).then(function succcessCallback(response) {
 			if (response.data.success) {
-				window.location = "/";
+				var returnUrl = getUrlParameter("returnUrl");
+				if (returnUrl) {
+					window.location = returnUrl;
+				}
+				else {
+					window.location = "/";
+				}
 			}
 			else {
 				$scope.loginMessages[response.data.reason] = true;
 			}
 		})
 	}
+
+	getUrlParameter = function(name) {
+		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+		var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+		var results = regex.exec(location.search);
+		return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+	};
 });
