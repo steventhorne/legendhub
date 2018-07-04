@@ -1,4 +1,4 @@
-app.controller('login-controller', function($scope, $http) {
+app.controller('login', function($scope, $http) {
 	$scope.registerFailed = false;
 	$scope.loginFailed = false;
 

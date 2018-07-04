@@ -1,4 +1,4 @@
-app.controller('items-controller', function($scope, $cookies, $http, itemConstants) {
+app.controller('items', function($scope, $cookies, $http, itemConstants) {
 	$scope.init = function() {
 		$scope.slots = itemConstants.slots;
 		$scope.aligns = itemConstants.aligns;

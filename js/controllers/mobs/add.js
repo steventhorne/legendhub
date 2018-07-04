@@ -1,4 +1,4 @@
-app.controller('mobsadd-controller', function($scope, $http) {
+app.controller('mobs-add', function($scope, $http) {
 	$scope.initialize = function() {
 		$scope.mobModel = {"Xp": 0, "Gold": 0, "Aggro": false};
 		$scope.areas = [];
