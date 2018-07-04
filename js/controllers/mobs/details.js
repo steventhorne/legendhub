@@ -1,4 +1,4 @@
-app.controller('mobsdetails-controller', function($scope, $http, itemConstants) {
+app.controller('mobs-details', function($scope, $http, itemConstants) {
 	$scope.initialize = function() {
 		$scope.slots = itemConstants.slots;
 

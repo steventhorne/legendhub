@@ -1,4 +1,4 @@
-app.controller('itemsadd-controller', function($scope, $http, itemConstants) {
+app.controller('items-add', function($scope, $http, itemConstants) {
 	$scope.slots = itemConstants.slots;
 	$scope.aligns = itemConstants.aligns;
 	$scope.itemModel = {};

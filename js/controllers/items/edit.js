@@ -1,4 +1,4 @@
-app.controller('itemsedit-controller', function($scope, $http, itemConstants) {
+app.controller('items-edit', function($scope, $http, itemConstants) {
 	$scope.slots = itemConstants.slots;
 	$scope.aligns = itemConstants.aligns;
 	$scope.editing = true;

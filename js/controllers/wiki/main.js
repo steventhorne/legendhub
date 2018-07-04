@@ -1,4 +1,4 @@
-app.controller('wiki-controller', function($scope, $cookies, $http) {
+app.controller('wiki', function($scope, $cookies, $http) {
 	$scope.initialize = function() {
 		$scope.getRecentWikiPages();
 	}

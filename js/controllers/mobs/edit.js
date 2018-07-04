@@ -1,4 +1,4 @@
-app.controller('mobsedit-controller', function($scope, $http) {
+app.controller('mobs-edit', function($scope, $http) {
 	$scope.initialize = function() {
 		$scope.mobModel = {};
 		$scope.areas = [];

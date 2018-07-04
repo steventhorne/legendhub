@@ -1,4 +1,4 @@
-app.controller('mobshistory-controller', function($scope, $http, itemConstants) {
+app.controller('mobs-history', function($scope, $http, itemConstants) {
 	$scope.getMob = function() {
 		$scope.slots = itemConstants.slots;
 		$http({

@@ -1,4 +1,4 @@
-app.controller('header-controller', function($scope, $http) {
+app.controller('header', function($scope, $http) {
 	$scope.returnUrl = window.location.pathname;
 	$scope.getLoggedInUser = function() {
 		$http({

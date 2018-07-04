@@ -13,7 +13,7 @@ app.directive('tooltip', function() {
 	};
 });
 
-app.controller('builder-controller', function($scope, $cookies, $http, itemConstants) {
+app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 	//#region ~~~~~~~~~ INITIALIZATION ~~~~~~~~~
 	// constants
 	$scope.initialize = function() {
