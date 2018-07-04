@@ -1,4 +1,4 @@
-app.controller('mobs-controller', function($scope, $cookies, $http, itemConstants) {
+app.controller('mobs', function($scope, $cookies, $http, itemConstants) {
 	$scope.init = function() {
 		$scope.searchString = "";
 		$scope.mobsPerPage = 20;

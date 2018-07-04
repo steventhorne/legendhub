@@ -1,16 +1,15 @@
-app.controller('itemshistory-controller', function($scope, $http, $location, itemConstants) {
+app.controller('items-details', function($scope, $http, $location, itemConstants) {
 	$scope.slots = itemConstants.slots;
 	$scope.aligns = itemConstants.aligns;
 	
 	$scope.getItem = function() {
 		$http({
-			url: '/php/items/getItemByHistoryId.php',
+			url: '/php/items/getItem.php',
 			method: 'POST',
 			data: {"id": getUrlParameter("id")}
 		}).then(function succcessCallback(response) {
 			$scope.item = response.data;
 			$scope.item.ModifiedOn = (new Date(response.data.ModifiedOn + " UTC")).toString().slice(4, 24);
-			$scope.item.Id = $scope.item.ItemId;
 			$scope.getItemHistory();
 		}, function errorCallback(response){
 
@@ -21,11 +20,10 @@ app.controller('itemshistory-controller', function($scope, $http, $location, ite
 		$http({
 			url: '/php/items/getItemHistory.php',
 			method: 'POST',
-			data: {"id": $scope.item.ItemId}
+			data: {"id": getUrlParameter("id")}
 		}).then(function succcessCallback(response) {
-			$scope.history = response.data.slice(0, 9);
+			$scope.history = response.data;
 			var i;
-			console.log($scope.history)
 			for (i = 0; i < $scope.history.length; i++) {
 				$scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + " UTC")).toString().slice(4, 24);
 			}
@@ -49,24 +47,6 @@ app.controller('itemshistory-controller', function($scope, $http, $location, ite
 		}
 	}
 
-	$scope.revert = function() {
-		var postData = Object.assign({}, $scope.item);
-		delete postData.ItemId;
-		delete postData.ModifiedOn;
-		delete postData.ModifiedBy;
-		delete postData.ModifiedByIP;
-		delete postData.ModifiedByIPForward;
-		$http({
-			url: '/php/items/updateItem.php',
-			method: 'POST',
-			data: postData
-		}).then(function succcessCallback(response) {
-			window.location = "/items/details.html?id=" + $scope.item.ItemId;
-		}, function errorCallback(response){
-
-		});
-	}
-
 	getUrlParameter = function(name) {
 		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
 		var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -85,7 +65,7 @@ app.controller('itemshistory-controller', function($scope, $http, $location, ite
 		});
 		$scope.getStatInfo();
 	}
-
+	
 	$scope.getStatInfo = function() {
 		$http({
 			url: '/php/items/getItemStats.php'
@@ -93,7 +73,6 @@ app.controller('itemshistory-controller', function($scope, $http, $location, ite
 			$scope.statInfo = response.data;
 
 			// remove special items
-			console.log($scope.statInfo);
 			var i = $scope.statInfo.length;
 			while (i--) {
 				if ($scope.statInfo[i]['var'] == "Strength" ||
