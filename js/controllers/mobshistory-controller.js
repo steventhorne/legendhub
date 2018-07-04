@@ -37,7 +37,7 @@ app.controller('mobshistory-controller', function($scope, $http, itemConstants) 
 		$http({
 			url: '/php/items/getItemsByMobId.php',
 			method: 'POST',
-			data: {"MobId": getUrlParameter("id")}
+			data: {"MobId": $scope.mob.MobId}
 		}).then(function successCallback(response) {
 			$scope.items = response.data;
 			for (var i = 0; i < $scope.items.length; ++i) {
