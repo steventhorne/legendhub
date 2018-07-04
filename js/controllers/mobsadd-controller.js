@@ -1,6 +1,6 @@
 app.controller('mobsadd-controller', function($scope, $http) {
 	$scope.initialize = function() {
-		$scope.mobModel = {};
+		$scope.mobModel = {"Xp": 0, "Gold": 0, "Aggro": false};
 		$scope.areas = [];
 
 		$scope.getAreas();
