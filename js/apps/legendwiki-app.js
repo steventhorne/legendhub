@@ -1,5 +1,5 @@
-var app = angular.module( "legendwiki-app", ['ngCookies' ] );
-
+var app = angular.module( "legendwiki-app", ['ngCookies'] );
+  
 app.constant('test', 'hi');
 app.constant('itemConstants', {
 	slots: ["Light",
