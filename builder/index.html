@@ -52,62 +52,63 @@
 				</div>
 			</div>
 			<div class="col-lg-6 col-12 mb-4">
-				<div class="card border-primary h-100">
+				<div class="card border-primary h-100 pb-0">
 					<div class="card-header">
 						<h4>Base Stats</h4>
 					</div>
-					<div class="card-body">
+					<div class="card-body pt-0">
 						<div class="row">
 							<div class="form-group col-4 col-sm-2 text-center">
-								<label for="strInput">Str</label>
+								<label class="col-form-label col-form-label-sm" for="strInput">Str</label>
 								<input type="number" id="strInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.Strength" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
 								<span class="text-muted" ng-show="showStatQuests()">3</span>
 							</div>
 							<div class="form-group col-4 col-sm-2 text-center">
-								<label for="minInput">Min</label>
+								<label class="col-form-label col-form-label-sm" for="minInput">Min</label>
 								<input type="number" id="minInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.Mind" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
 								<span class="text-muted" ng-show="showStatQuests()">3</span>
 							</div>
 							<div class="form-group col-4 col-sm-2 text-center">
-								<label for="dexInput">Dex</label>
+								<label class="col-form-label col-form-label-sm" for="dexInput">Dex</label>
 								<input type="number" id="dexInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.Dexterity" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
 								<span class="text-muted" ng-show="showStatQuests()">3</span>
 							</div>
 							<div class="form-group col-4 col-sm-2 text-center">
-								<label for="conInput">Con</label>
+								<label class="col-form-label col-form-label-sm" for="conInput">Con</label>
 								<input type="number" id="conInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.Constitution" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
 								<span class="text-muted" ng-show="showStatQuests()">3</span>
 							</div>
 							<div class="form-group col-4 col-sm-2 text-center">
-								<label for="perInput">Per</label>
+								<label class="col-form-label col-form-label-sm" for="perInput">Per</label>
 								<input type="number" id="perInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.Perception" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
 								<span class="text-muted" ng-show="showStatQuests()">3</span>
 							</div>
 							<div class="form-group col-4 col-sm-2 text-center">
-								<label for="spiInput">Spi</label>
+								<label class="col-form-label col-form-label-sm" for="spiInput">Spi</label>
 								<input type="number" id="spiInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.Spirit" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
 								<span class="text-muted" ng-show="showStatQuests()">13</span>
 							</div>
 						</div>
 						<p ng-show="showStatError" class="text-danger">Base stats should add up to either 198 or 244.</p>
-						<div class="input-group input-group-sm">
-							<div class="input-group-prepend">
-								<label class="input-group-text" for="longhouseSelect">Longhouse</label>
+						<div class="row">
+							<div class="input-group input-group-sm col-12 col-sm-6 mb-3 mb-sm-0">
+								<div class="input-group-prepend">
+									<label class="input-group-text" for="longhouseSelect">Longhouse</label>
+								</div>
+								<select class="custom-select" id="longhouseSelect" ng-model="selectedList.baseStats.Longhouse" ng-change="saveCookies()" ng-model-options="{debounce:250}">
+									<option ng-value="-1">-</option>
+									<option ng-repeat="house in longhouseList" ng-value="$index">{{house}}</option>
+								</select>
 							</div>
-							<select class="custom-select" id="longhouseSelect" ng-model="selectedList.baseStats.Longhouse" ng-change="saveCookies()" ng-model-options="{debounce:250}">
-								<option ng-value="-1">-</option>
-								<option ng-repeat="house in longhouseList" ng-value="$index">{{house}}</option>
-							</select>
-						</div>
-						<br />
-						<div class="input-group input-group-sm">
-							<div class="input-group-prepend">
-								<label class="input-group-text" for="amuletSelect">Amulet</label>
+							<div class="input-group input-group-sm col-12 col-sm-6">
+								<div class="input-group-prepend">
+									<label class="input-group-text" for="amuletSelect">Amulet</label>
+								</div>
+								<select class="custom-select" id="amuletSelect" ng-model="selectedList.baseStats.Amulet" ng-change="saveCookies()" ng-model-options="{debounce:250}">
+									<option ng-value="-1">-</option>
+									<option ng-repeat="amulet in amuletList" ng-value="$index">{{amulet}}</option>
+								</select>
 							</div>
-							<select class="custom-select" id="amuletSelect" ng-model="selectedList.baseStats.Amulet" ng-change="saveCookies()" ng-model-options="{debounce:250}">
-								<option ng-value="-1">-</option>
-								<option ng-repeat="amulet in amuletList" ng-value="$index">{{amulet}}</option>
-							</select>
 						</div>
 					</div>
 				</div>
