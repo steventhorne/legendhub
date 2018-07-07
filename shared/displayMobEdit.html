@@ -58,5 +58,9 @@
 			</div>
 			<textarea class="form-control" rows="5" ng-model="mobModel.Notes"></textarea>
 		</div>
+		<div class="card">
+			<div class="card-header">Preview</div>
+			<div class="card-body" markdown-to-html="mobModel.Notes"></div>
+		</div>
 	</div>
 </div>
