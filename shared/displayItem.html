@@ -64,7 +64,8 @@
 				<div class="col-sm-6 col-12" ng-repeat="stat in statInfo" ng-show="showStat(item[stat['var']], stat)">
 					<div class="row">
 						<dt class="col-8">{{stat['display']}}</dt>
-						<dd class="col-4">{{item[stat['var']]}}</dd>
+						<dd class="col-4" ng-if="stat['type'] != 'bool'">{{item[stat['var']]}}</dd>
+						<dd class="col-4" ng-if="stat['type'] == 'bool'">{{item[stat['var']] == 1 ? 'true' : 'false'}}</dd>
 					</div>
 				</div>
 			</div>
@@ -75,7 +76,7 @@
 			</div>
 		</div>
 	</div>
-	<div ng-show="item.Notes !== ''">
+	<div ng-show="item.Notes">
 		<br /><br />
 		<div class="card">
 			<div class="card-header">Notes</div>
