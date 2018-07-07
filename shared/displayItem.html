@@ -65,7 +65,7 @@
 					<div class="row">
 						<dt class="col-8">{{stat['display']}}</dt>
 						<dd class="col-4" ng-if="stat['type'] != 'bool'">{{item[stat['var']]}}</dd>
-						<dd class="col-4" ng-if="stat['type'] == 'bool'">{{item[stat['var']] == 1 ? 'true' : 'false'}}</dd>
+						<dt class="col-4" ng-if="stat['type'] == 'bool'" ng-class="{'text-success': item[stat['var']] == 1, 'text-danger': item[stat['var']] == 0}">{{item[stat['var']] == 1 ? 'yes' : 'no'}}</dt>
 					</div>
 				</div>
 			</div>
