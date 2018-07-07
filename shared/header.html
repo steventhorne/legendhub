@@ -29,6 +29,16 @@
 			</li>
 		</ul>
 		<ul class="navbar-nav ml-auto">
+			<li class="nav-item dropdown float-right">
+				<a class="nav-link dropdown-toggle" href="#" id="themeDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
+				    aria-expanded="false">
+					Theme
+				</a>
+				<div class="dropdown-menu dropdown-menu-right" aria-labelledby="themeDropdown">
+					<a class="dropdown-item" href="" ng-click="setTheme('light')">Light</a>
+					<a class="dropdown-item" href="" ng-click="setTheme('dark')">Dark</a>
+				</div>
+			</li>
 			<li class="nav-item dropdown float-right" ng-show="currentUser">
 				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
 				    aria-expanded="false">
