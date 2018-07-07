@@ -75,15 +75,19 @@
 								<th scope="col">Area</th>
 								<th scope="col">Experience</th>
 								<th scope="col">Gold</th>
+								<th scope="col">Agg</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr ng-repeat="mob in mobs | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onMobClicked(mob)" style="cursor: pointer;">
 								<td ng-if="recent">{{mob.ModifiedBy}}</td>
-								<td>{{mob.Name}}</td>
+								<th scope="row" class="text-primary">{{mob.Name}}</th>
 								<td><span class="text-info">{{mob.AreaEra ? '(' + mob.AreaEra + ')' : ''}}</span> {{mob.AreaName}}</td>
 								<td>{{mob.Xp}}</td>
 								<td>{{mob.Gold}}</td>
+								<td class="text-center">
+									<i class="{{mob.Aggro == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
+								</td>
 							</tr>
 						</tbody>
 					</table>
