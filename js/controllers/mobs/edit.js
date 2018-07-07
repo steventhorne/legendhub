@@ -1,3 +1,5 @@
+angular.module("legendwiki-app").requires.push('ng-showdown');
+
 app.controller('mobs-edit', function($scope, $http) {
 	$scope.initialize = function() {
 		$scope.mobModel = {};

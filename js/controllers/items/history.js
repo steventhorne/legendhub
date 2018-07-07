@@ -1,3 +1,5 @@
+angular.module("legendwiki-app").requires.push('ng-showdown');
+
 app.controller('items-history', function($scope, $http, $location, itemConstants) {
 	$scope.slots = itemConstants.slots;
 	$scope.aligns = itemConstants.aligns;

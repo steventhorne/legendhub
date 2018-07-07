@@ -1,3 +1,5 @@
+angular.module("legendwiki-app").requires.push('ng-showdown');
+
 app.controller('mobs-details', function($scope, $http, itemConstants) {
 	$scope.initialize = function() {
 		$scope.slots = itemConstants.slots;
