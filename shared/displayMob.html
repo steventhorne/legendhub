@@ -30,7 +30,7 @@
 		<dt class="col-sm-4 col-8">Gold</dt>
 		<dd class="col-sm-8 col-4">{{mob.Gold}}</dd>
 		<dt class="col-sm-4 col-8">Agg</dt>
-		<dd class="col-sm-8 col-4">{{mob.Aggro ? 'Yes' : 'No'}}</dd>
+		<dd class="col-sm-8 col-4" ng-class="{'text-danger': !mob.Aggro, 'text-success': mob.Aggro}"><strong>{{mob.Aggro ? 'Yes' : 'No'}}</strong></dd>
 	</dl>
 	<div ng-show="item.Notes !== ''">
 		<br />
