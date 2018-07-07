@@ -86,3 +86,33 @@ app.directive('lazyLoadOptions', [function() {
 		}
 	}
 }]);
+
+app.controller('header', function($scope, $http, $cookies) {
+	$scope.returnUrl = window.location.pathname;
+	$scope.getLoggedInUser = function() {
+		$http({
+			url: '/php/login/getLoggedInUser.php'
+		}).then(function succcessCallback(response) {
+			if (response.data.success) {
+				$scope.currentUser = response.data.username;
+			}
+		})
+	}
+
+	$scope.logout = function() {
+		$http({
+			url: '/php/login/logout.php'
+		}).then(function succcessCallback(response) {
+			window.location = "/";
+		})
+	}
+
+	$scope.setTheme = function(theme) {
+		var cookieDate = new Date();
+		cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+		$cookies.put("theme", theme, {"path": "/", 'expires': cookieDate});
+		window.location.reload();
+	}
+
+	$scope.getLoggedInUser();
+});
