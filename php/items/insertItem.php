@@ -43,6 +43,7 @@ if (strlen(trim($mobName)) > 0) {
 	}
 }
 unset($statArray['MobName']);
+unset($statArray['QuestTitle']);
 
 $statArray["ModifiedBy"] = $_SESSION['Username'];
 $statArray["ModifiedByIP"] = $_SERVER['REMOTE_ADDR'];

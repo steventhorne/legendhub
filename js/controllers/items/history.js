@@ -2,6 +2,7 @@ angular.module("legendwiki-app").requires.push('ng-showdown');
 
 app.controller('items-history', function($scope, $http, $location, itemConstants) {
 	$scope.slots = itemConstants.slots;
+	$scope.weaponTypes = ['No Assigned Weapon Type', 'Bladed Weapon', 'Piercing Weapon', 'Blunt Weapon'];
 	$scope.aligns = itemConstants.aligns;
 	
 	$scope.getItem = function() {
@@ -27,11 +28,11 @@ app.controller('items-history', function($scope, $http, $location, itemConstants
 		}).then(function succcessCallback(response) {
 			$scope.history = response.data.slice(0, 9);
 			var i;
-			console.log($scope.history)
 			for (i = 0; i < $scope.history.length; i++) {
 				$scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + " UTC")).toString().slice(4, 24);
 			}
 			$scope.getMob();
+			$scope.getQuest();
 		}, function errorCallback(response){
 
 		});
@@ -47,6 +48,20 @@ app.controller('items-history', function($scope, $http, $location, itemConstants
 				$scope.mob = response.data;
 			}, function errorCallback(response){
 
+			});
+		}
+	}
+
+	$scope.getQuest = function() {
+		if ($scope.item.QuestId && $scope.item.QuestId >= 0) {
+			$http({
+				url: '/php/quests/getQuest.php',
+				method: 'POST',
+				data: {"id": $scope.item.QuestId}
+			}).then(function successCallback(response) {
+				$scope.quest = response.data;
+			}, function errorCallback(response){
+				
 			});
 		}
 	}
@@ -95,7 +110,6 @@ app.controller('items-history', function($scope, $http, $location, itemConstants
 			$scope.statInfo = response.data;
 
 			// remove special items
-			console.log($scope.statInfo);
 			var i = $scope.statInfo.length;
 			while (i--) {
 				if ($scope.statInfo[i]['var'] == "Strength" ||
