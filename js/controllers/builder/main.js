@@ -247,7 +247,6 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 		$scope.saveCookies();
 	}
 	$scope.onRowClicked = function(index) {
-		console.log(index);
 		var item = $scope.selectedList.items[index];
 		$scope.loadingModal = false;
 		$scope.searchString = "";
@@ -637,18 +636,30 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			var con = $scope.sumStats("Constitution");
 
 			var bestStat = dex;
-			if (false && str > bestStat) { // replace false with wearingStrWeap
+			var wearingStrWeap = false;
+			var wearingConWeap = false;
+			for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+				if ($scope.selectedList.items[i].Slot == 14 || $scope.selectedList.items[i].Slot == 15) {
+					if ($scope.selectedList.items[i].WeaponType == 1) {
+						wearingStrWeap = true;
+					}
+					else if ($scope.selectedList.items[i].WeaponType == 3) {
+						wearingConWeap = true;
+					}
+				}
+			}
+			if (wearingStrWeap && str > bestStat) { // replace false with wearingStrWeap
 				bestStat = str;
 			}
-			if (false && con > bestStat) { // replace false with wearingConWeap
+			if (wearingConWeap && con > bestStat) { // replace false with wearingConWeap
 				bestStat = con;
 			}
 
-			total += parseInt((bestStat - 30) / 3);
-			total += parseInt(Math.min(dex - 70, 0) / 6);
+			total += parseInt((bestStat - 30) / 3);;
+			total += parseInt(Math.max(dex - 70, 0) / 6);;
 		}
 		if (statName == "Dam") {
-			total += parseInt(($scope.sumStats("Strength") - 15) / 3);
+			total += parseInt(($scope.sumStats("Strength") - 30) / 3);
 		}
 		if (statName == "Mitigation") {
 			total += parseInt(Math.max($scope.sumStats("Constitution") - 70, 0) / 3);
