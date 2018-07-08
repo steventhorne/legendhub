@@ -111,7 +111,7 @@ app.controller('header', function($scope, $http, $cookies) {
 		var cookieDate = new Date();
 		cookieDate.setFullYear(cookieDate.getFullYear() + 20);
 		$cookies.put("theme", theme, {"path": "/", 'expires': cookieDate});
-		window.location.reload();
+		$('link[id="theme"]').attr('href', '/css/bootstrap-' + theme + '.min.css');
 	}
 
 	$scope.getLoggedInUser();
