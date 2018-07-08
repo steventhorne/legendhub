@@ -9,9 +9,10 @@ $pdo = getPDO();
 $postdata = json_decode(file_get_contents("php://input"));
 $id = $postdata->id;
 
-$query = $pdo->prepare('SELECT I.*, M.Name AS MobName
+$query = $pdo->prepare('SELECT I.*, M.Name AS MobName, Q.Title AS QuestTitle
 						FROM Items AS I
 							LEFT JOIN Mobs AS M ON M.Id = I.MobId
+							LEFT JOIN Quests AS Q ON Q.Id = I.QuestId
 						WHERE I.Id = ?');
 $query->execute([$id]);
 $result = $query->fetchAll(PDO::FETCH_CLASS);

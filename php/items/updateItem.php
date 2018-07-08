@@ -42,6 +42,7 @@ if (strlen(trim($mobName)) > 0) {
 	}
 }
 unset($statArray['MobName']);
+unset($statArray['QuestTitle']);
 
 $execArray = array();
 $sql = "UPDATE Items SET ModifiedOn = NOW()";
