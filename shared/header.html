@@ -8,13 +8,16 @@
 	<div class="collapse navbar-collapse" id="navbarSupportedContent">
 		<ul class="navbar-nav mr-auto">
 			<li class="nav-item">
+				<a class="nav-link" href="/builder/">Builder</a>
+			</li>
+			<li class="nav-item">
 				<a class="nav-link" href="/items/">Items</a>
 			</li>
 			<li class="nav-item">
 				<a class="nav-link" href="/mobs/">Mobs</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" href="/builder/">Builder</a>
+				<a class="nav-link" href="/quests/">Quests <span class="badge badge-danger">NEW!</span></a>
 			</li>
 			<li class="nav-item dropdown">
 				<a class="nav-link dropdown-toggle" href="#" id="soonDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
@@ -22,7 +25,6 @@
 					Coming Soon!
 				</a>
 				<div class="dropdown-menu" aria-labelledby="soonDropdown">
-					<a class="dropdown-item disabled" href="">Quests</a>
 					<a class="dropdown-item disabled" href="">Skills</a>
 					<a class="dropdown-item disabled" href="">Wiki</a>
 				</div>
@@ -36,7 +38,7 @@
 				</a>
 				<div class="dropdown-menu dropdown-menu-right" aria-labelledby="themeDropdown">
 					<a class="dropdown-item" href="" ng-click="setTheme('light')">Light</a>
-					<a class="dropdown-item" href="" ng-click="setTheme('dark')">Dark</a>
+					<a class="dropdown-item bg-dark text-light" href="" ng-click="setTheme('dark')">Dark</a>
 				</div>
 			</li>
 			<li class="nav-item dropdown float-right" ng-show="currentUser">
