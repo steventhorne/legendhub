@@ -2,6 +2,7 @@ angular.module("legendwiki-app").requires.push('ng-showdown');
 
 app.controller('items-details', function($scope, $http, $location, itemConstants) {
 	$scope.slots = itemConstants.slots;
+	$scope.weaponTypes = ['No Assigned Weapon Type', 'Bladed Weapon', 'Piercing Weapon', 'Blunt Weapon'];
 	$scope.aligns = itemConstants.aligns;
 	
 	$scope.getItem = function() {
@@ -30,6 +31,7 @@ app.controller('items-details', function($scope, $http, $location, itemConstants
 				$scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + " UTC")).toString().slice(4, 24);
 			}
 			$scope.getMob();
+			$scope.getQuest();
 		}, function errorCallback(response){
 
 		});
@@ -43,6 +45,20 @@ app.controller('items-details', function($scope, $http, $location, itemConstants
 				data: {"id": $scope.item.MobId}
 			}).then(function successCallback(response) {
 				$scope.mob = response.data;
+			}, function errorCallback(response){
+
+			});
+		}
+	}
+
+	$scope.getQuest = function() {
+		if ($scope.item.QuestId && $scope.item.QuestId >= 0) {
+			$http({
+				url: '/php/quests/getQuest.php',
+				method: 'POST',
+				data: {"id": $scope.item.QuestId}
+			}).then(function successCallback(response) {
+				$scope.quest = response.data;
 			}, function errorCallback(response){
 
 			});

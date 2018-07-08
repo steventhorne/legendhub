@@ -2,6 +2,7 @@ angular.module("legendwiki-app").requires.push('ng-showdown');
 
 app.controller('items-edit', function($scope, $http, itemConstants) {
 	$scope.slots = itemConstants.slots;
+	$scope.weaponTypes = ['Choose a type', 'Bladed', 'Piercing', 'Blunt'];
 	$scope.aligns = itemConstants.aligns;
 	$scope.editing = true;
 
@@ -128,6 +129,24 @@ app.controller('items-edit', function($scope, $http, itemConstants) {
 	$('#mobModal').on('shown.bs.modal', function (e) {
 		$('#mobSearchInput').trigger('focus');
 	});
+
+	$scope.searchQuests = function() {
+		$http({
+			url: '/php/quests/getQuests.php',
+			method: 'POST',
+			data: {"searchString": $scope.questSearchName}
+		}).then(function succcessCallback(response) {
+			$scope.questSearchResults = response.data;
+		}, function errorCallback(response){
+
+		});
+	}
+	
+	$scope.onQuestSelected = function(quest) {
+		$scope.itemModel['QuestTitle'] = quest.Title;
+		$scope.itemModel['QuestId'] = quest.Id;
+		$('#questModal').modal('hide');
+	}
 
 	$scope.getStatCategories();
 });
