@@ -9,7 +9,10 @@ $pdo = getPDO();
 $postdata = json_decode(file_get_contents("php://input"));
 $id = $postdata->id;
 
-$query = $pdo->prepare('SELECT * FROM Items_AuditTrail WHERE Id = ?');
+$query = $pdo->prepare('SELECT I.*, M.Name AS MobName
+						FROM Items_AuditTrail AS I
+							LEFT JOIN Mobs AS M ON M.Id = I.MobId
+						WHERE I.Id = ?');
 $query->execute([$id]);
 $result = $query->fetchAll(PDO::FETCH_OBJ);
 
