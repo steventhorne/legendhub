@@ -1,44 +1,44 @@
 <div id="mobModal" aria-labelledby="mobModalLabel" class="modal" tabindex="-1" role="dialog">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="mobModalLabel">Choose a Mob</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-						<span class="text-muted">Please search first to see if the mob already exists before adding a new one.</span>
-						<form name="searchMobForm" ng-submit="$parent.searchMobs()" class="col-12 mb-3">
-							<div class="input-group">
-								<div class="input-group-prepend">
-									<span class="input-group-text">
-										<i class="fas fa-search"></i>
-									</span>
-								</div>
-								<input id="mobSearchInput" ng-model="$parent.mobSearchName" type="text" class="form-control" placeholder="Search for mob..." aria-label="Search for mob">
-								<div class="input-group-append">
-									<button type="submit" class="btn btn-outline-primary">Search</button>
-								</div>
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="mobModalLabel">Choose a Mob</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+					<span class="text-muted">Please search first to see if the mob already exists before adding a new one.</span>
+					<form name="searchMobForm" ng-submit="$parent.searchMobs()" class="col-12 mb-3">
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<span class="input-group-text">
+									<i class="fas fa-search"></i>
+								</span>
 							</div>
-						</form>
-						<div class="mb-3" ng-show="mobSearchResults.length > 0">
-							<div class="table-responsive col-12">
-								<div class="list-group">
-									<button type="button" class="list-group-item list-group-item-secondary list-group-item-action" ng-click="$parent.onMobSelected(mob)" ng-repeat="mob in mobSearchResults">{{mob.Name}}</button>
-								</div>
+							<input id="mobSearchInput" ng-model="$parent.mobSearchName" type="text" class="form-control" placeholder="Search for mob..." aria-label="Search for mob">
+							<div class="input-group-append">
+								<button type="submit" class="btn btn-outline-primary">Search</button>
 							</div>
 						</div>
-						<form name="addMobForm" ng-submit="$parent.addMob()" class="col-12">
-							<div class="input-group">
-								<input ng-model="$parent.mobAddName" type="text" class="form-control" placeholder="Add new mob name..." aria-label="Add new mob name">
-								<div class="input-group-append">
-									<button type="submit" class="btn btn-outline-primary">Add</button>
-								</div>
+					</form>
+					<div class="mb-3" ng-show="mobSearchResults.length > 0">
+						<div class="table-responsive col-12">
+							<div class="list-group">
+								<button type="button" class="list-group-item list-group-item-secondary list-group-item-action" ng-click="$parent.onMobSelected(mob)" ng-repeat="mob in mobSearchResults">{{mob.Name}}</button>
 							</div>
-						</form>
+						</div>
 					</div>
+					<form name="addMobForm" ng-submit="$parent.addMob()" class="col-12">
+						<div class="input-group">
+							<input ng-model="$parent.mobAddName" type="text" class="form-control" placeholder="Add new mob name..." aria-label="Add new mob name">
+							<div class="input-group-append">
+								<button type="submit" class="btn btn-outline-primary">Add</button>
+							</div>
+						</div>
+					</form>
 				</div>
 			</div>
 		</div>
 	</div>
+</div>
