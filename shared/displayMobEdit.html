@@ -26,7 +26,7 @@
 			<div class="input-group-prepend">
 				<span class="input-group-text">Xp</span>
 			</div>
-			<input type="number" id="xpControl" ng-model="mobModel.Xp" class="form-control">
+			<input type="number" id="xpControl" ng-model="mobModel.Xp" class="form-control" required>
 		</div>
 	</div>
 	<div class="form-group col-4 col-lg-2">
@@ -34,7 +34,7 @@
 			<div class="input-group-prepend">
 				<span class="input-group-text">Gold</span>
 			</div>
-			<input type="number" id="goldControl" ng-model="mobModel.Gold" class="form-control">
+			<input type="number" id="goldControl" ng-model="mobModel.Gold" class="form-control" required>
 		</div>
 	</div>
 	<div class="form-group col-4 col-lg-2">
@@ -50,6 +50,7 @@
 		</div>
 	</div>
 </div>
+<span class="text-muted">This field supports <a href="https://github.com/showdownjs/showdown/wiki/Showdown's-Markdown-syntax" target="_blank">markdown</a> and <a href="https://github.com/showdownjs/showdown/wiki/Emojis" target="_blank">emoji</a>.</span>
 <div class="form-row">
 	<div class="form-group col-12 col-lg-6">
 		<div class="input-group">
