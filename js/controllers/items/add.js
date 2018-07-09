@@ -2,7 +2,7 @@ angular.module("legendwiki-app").requires.push('ng-showdown');
 
 app.controller('items-add', function($scope, $http, itemConstants) {
 	$scope.slots = itemConstants.slots;
-	$scope.weaponTypes = ['Choose a type', 'Bladed', 'Piercing', 'Blunt'];
+	$scope.weaponTypes = ['Choose a type', 'Bladed (Str)', 'Piercing (Dex)', 'Blunt (Con)'];
 	$scope.aligns = itemConstants.aligns;
 	$scope.itemModel = {};
 
