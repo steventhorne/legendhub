@@ -114,5 +114,26 @@ app.controller('header', function($scope, $http, $cookies) {
 		$('link[id="theme"]').attr('href', '/css/bootstrap-' + theme + '.min.css');
 	}
 
+	$scope.toggleTheme = function() {
+		var theme = $cookies.get("theme");
+		if (!theme || theme == "light") {
+			theme = "dark";
+		}
+		else {
+			theme = "light";
+		}
+		$scope.setTheme(theme);
+	}
+
+	$scope.getThemeClass = function() {
+		var theme = $cookies.get("theme");
+		if (!theme || theme == "light") {
+			return "fas fa-lightbulb text-warning fa-lg"
+		}
+		else {
+			return "fas fa-lightbulb fa-lg";
+		}
+	}
+
 	$scope.getLoggedInUser();
 });
