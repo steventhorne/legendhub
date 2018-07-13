@@ -521,168 +521,186 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				break;
 			}
 		}
-		var total = 0;
-		for (var i = 0; i < $scope.selectedList.items.length; ++i) {
-			if ($scope.selectedList.items[i][statName]) {
-				total += $scope.selectedList.items[i][statName];
-			}
-		}
+
+		var fromBaseStats = 0;
 		if ($scope.selectedList.baseStats[statName]) {
-			total += $scope.selectedList.baseStats[statName];
+			fromBaseStats += $scope.selectedList.baseStats[statName];
 		}
 
 		var totalBaseStats = $scope.selectedList.baseStats.Strength + $scope.selectedList.baseStats.Mind + $scope.selectedList.baseStats.Dexterity + $scope.selectedList.baseStats.Constitution + $scope.selectedList.baseStats.Perception + $scope.selectedList.baseStats.Spirit;
 
+		var fromStatQuests = 0;
 		switch (statName) {
 			case "Strength":
-				if (totalBaseStats != 244) {
-					total += 3;
+				if (totalBaseStats < 244) {
+					fromStatQuests += 3;
 				}
 				if ($scope.selectedList.baseStats["Amulet"] == 0) {
-					total += 10;
+					fromStatQuests += 10;
 				}
 				if ($scope.selectedList.baseStats["Longhouse"] == 3) {
-					total += 5;
+					fromStatQuests += 5;
 				}
 				if ($scope.selectedList.baseStats["Longhouse"] == 2) {
-					total += 3;
+					fromStatQuests += 3;
 				}
 				break;
 			case "Mind":
-				if (totalBaseStats != 244) {
-					total += 3;
+				if (totalBaseStats < 244) {
+					fromStatQuests += 3;
 				}
 				if ($scope.selectedList.baseStats["Amulet"] == 1) {
-					total += 10;
+					fromStatQuests += 10;
 				}
 				if ($scope.selectedList.baseStats["Longhouse"] == 1) {
-					total += 5;
+					fromStatQuests += 5;
 				}
 				if ($scope.selectedList.baseStats["Longhouse"] == 0) {
-					total += 3;
+					fromStatQuests += 3;
 				}
 				break;
 			case "Dexterity":
-				if (totalBaseStats != 244) {
-					total += 3;
+				if (totalBaseStats < 244) {
+					fromStatQuests += 3;
 				}
 				if ($scope.selectedList.baseStats["Amulet"] == 2) {
-					total += 10;
+					fromStatQuests += 10;
 				}
 				if ($scope.selectedList.baseStats["Longhouse"] == 4) {
-					total += 5;
+					fromStatQuests += 5;
 				}
 				if ($scope.selectedList.baseStats["Longhouse"] == 1) {
-					total += 3;
+					fromStatQuests += 3;
 				}
 				break;
 			case "Constitution":
-				if (totalBaseStats != 244) {
-					total += 3;
+				if (totalBaseStats < 244) {
+					fromStatQuests += 3;
 				}
 				if ($scope.selectedList.baseStats["Amulet"] == 3) {
-					total += 10;
+					fromStatQuests += 10;
 				}
 				if ($scope.selectedList.baseStats["Longhouse"] == 5) {
-					total += 5;
+					fromStatQuests += 5;
 				}
 				if ($scope.selectedList.baseStats["Longhouse"] == 3) {
-					total += 3;
+					fromStatQuests += 3;
 				}
 				break;
 			case "Perception":
-				if (totalBaseStats != 244) {
-					total += 3;
+				if (totalBaseStats < 244) {
+					fromStatQuests += 3;
 				}
 				if ($scope.selectedList.baseStats["Amulet"] == 4) {
-					total += 10;
+					fromStatQuests += 10;
 				}
 				if ($scope.selectedList.baseStats["Longhouse"] == 2) {
-					total += 5;
+					fromStatQuests += 5;
 				}
 				if ($scope.selectedList.baseStats["Longhouse"] == 4) {
-					total += 3;
+					fromStatQuests += 3;
 				}
 				break;
 			case "Spirit":
-				if (totalBaseStats != 244) {
-					total += 13;
+				if (totalBaseStats < 244) {
+					fromStatQuests += 13;
 				}
 				if ($scope.selectedList.baseStats["Amulet"] == 5) {
-					total += 10;
+					fromStatQuests += 10;
 				}
 				if ($scope.selectedList.baseStats["Longhouse"] == 0) {
-					total += 5;
+					fromStatQuests += 5;
 				}
 				if ($scope.selectedList.baseStats["Longhouse"] == 5) {
-					total += 3;
+					fromStatQuests += 3;
 				}
 				break;
 		}
 
-		// bonus stats
-		if (statName == "Spelldam") {
-			total += parseInt(($scope.sumStats("Mind") - 52) / 2);
+		var fromItems = 0;
+		for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+			if ($scope.selectedList.items[i][statName]) {
+				fromItems += $scope.selectedList.items[i][statName];
+			}
 		}
-		if (statName == "Spellcrit") {
-			total += parseInt(($scope.sumStats("Mind") - 60) / 4);
-			total += parseInt(Math.max($scope.sumStats("Perception") - 60, 0) / 8);
-			total += parseInt(Math.max($scope.sumStats("Spirit") - 60, 0) / 8);
-			total += 5;
-		}
-		if (statName == "Hit") {
-			var str = $scope.sumStats("Strength");
-			var dex = $scope.sumStats("Dexterity");
-			var con = $scope.sumStats("Constitution");
 
-			var bestStat = dex;
-			var wearingStrWeap = false;
-			var wearingConWeap = false;
-			for (var i = 0; i < $scope.selectedList.items.length; ++i) {
-				if ($scope.selectedList.items[i].Slot == 14 || $scope.selectedList.items[i].Slot == 15) {
-					if ($scope.selectedList.items[i].WeaponType == 1) {
-						wearingStrWeap = true;
-					}
-					else if ($scope.selectedList.items[i].WeaponType == 3) {
-						wearingConWeap = true;
+		// limit stats from items
+		switch (statName) {
+			case "Mitigation":
+				// for mitigation update
+				// fromItems = Math.min(total, 26);
+				break;
+		}
+
+		var fromBonus = 0;
+		switch (statName)
+		{
+			case "Spelldam":
+			fromBonus += parseInt(($scope.sumStats("Mind") - 52) / 2);
+				break;
+			case "Spellcrit":
+				fromBonus += parseInt(($scope.sumStats("Mind") - 60) / 4);
+				fromBonus += parseInt(Math.max($scope.sumStats("Perception") - 60, 0) / 8);
+				fromBonus += parseInt(Math.max($scope.sumStats("Spirit") - 60, 0) / 8);
+				fromBonus += 5;
+				break;
+			case "Hit":
+				var str = $scope.sumStats("Strength");
+				var dex = $scope.sumStats("Dexterity");
+				var con = $scope.sumStats("Constitution");
+	
+				var bestStat = dex;
+				var wearingStrWeap = false;
+				var wearingConWeap = false;
+				for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+					if ($scope.selectedList.items[i].Slot == 14 || $scope.selectedList.items[i].Slot == 15) {
+						if ($scope.selectedList.items[i].WeaponType == 1) {
+							wearingStrWeap = true;
+						}
+						else if ($scope.selectedList.items[i].WeaponType == 3) {
+							wearingConWeap = true;
+						}
 					}
 				}
-			}
-			if (wearingStrWeap && str > bestStat) { // replace false with wearingStrWeap
-				bestStat = str;
-			}
-			if (wearingConWeap && con > bestStat) { // replace false with wearingConWeap
-				bestStat = con;
-			}
-
-			total += parseInt((bestStat - 30) / 3);;
-			total += parseInt(Math.max(dex - 70, 0) / 6);;
-		}
-		if (statName == "Dam") {
-			total += parseInt(($scope.sumStats("Strength") - 30) / 3);
-		}
-		if (statName == "Mitigation") {
-			total += parseInt(Math.max($scope.sumStats("Constitution") - 70, 0) / 3);
-		}
-		if (statName == "Ac") {
-			var str = $scope.sumStats("Strength");
-			var dex = $scope.sumStats("Dexterity");
-			var con = $scope.sumStats("Constitution");
-			var per = $scope.sumStats("Perception");
-
-			var totalAC = 83;
-			totalAC += parseInt(Math.max(dex - 40, 0) * -0.5);
-			totalAC += parseInt(Math.max(per - 30, 0) * -0.5);
-			if (str >= 20 && dex >= 20 && con >= 20) {
-				totalAC -= 5;
-				if (dex >= 40 && con >= 40) {
+				if (wearingStrWeap && str > bestStat) { // replace false with wearingStrWeap
+					bestStat = str;
+				}
+				if (wearingConWeap && con > bestStat) { // replace false with wearingConWeap
+					bestStat = con;
+				}
+	
+				fromBonus += parseInt((bestStat - 30) / 3);
+				fromBonus += parseInt(Math.max(dex - 70, 0) / 6);
+				break;
+			case "Dam":
+				fromBonus += parseInt(($scope.sumStats("Strength") - 30) / 3);
+				break;
+			case "Mitigation":
+				fromBonus += parseInt(Math.max($scope.sumStats("Constitution") - 70, 0) / 3);
+	
+				// for mitigation update
+				// total += parseInt(Math.max($scope.sumStats("Constitution") - 80, 0) / 5);
+				break;
+			case "Ac":
+				var str = $scope.sumStats("Strength");
+				var dex = $scope.sumStats("Dexterity");
+				var con = $scope.sumStats("Constitution");
+				var per = $scope.sumStats("Perception");
+	
+				var totalAC = 83;
+				totalAC += parseInt(Math.max(dex - 40, 0) * -0.5);
+				totalAC += parseInt(Math.max(per - 30, 0) * -0.5);
+				if (str >= 20 && dex >= 20 && con >= 20) {
 					totalAC -= 5;
+					if (dex >= 40 && con >= 40) {
+						totalAC -= 5;
+					}
 				}
-			}
-			
-			total += totalAC;
+				
+				fromBonus += totalAC;
+				break;
 		}
-		return total;
+		return fromBaseStats + fromStatQuests + fromItems + fromBonus;
 	}
 
 	$scope.applyItemRestrictions = function() {
@@ -845,7 +863,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 		}
 		var total = $scope.selectedList.baseStats.Strength + $scope.selectedList.baseStats.Mind + $scope.selectedList.baseStats.Dexterity + $scope.selectedList.baseStats.Constitution + $scope.selectedList.baseStats.Perception + $scope.selectedList.baseStats.Spirit;
 
-		return total != 244;
+		return total < 244;
 	}
 
 	$scope.initialize();
