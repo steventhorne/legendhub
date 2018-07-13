@@ -32,10 +32,10 @@
 		<div class="row">
 			<div class="col-lg-6 col-12 mb-4">
 				<div class="card border-primary h-100">
-					<div class="card-header">
-						<h4>Character</h4>
+					<div class="card-header py-2">
+						<h4 class="mb-0">Character</h4>
 					</div>
-					<div class="card-body">
+					<div class="card-body py-2">
 						<div class="input-group">
 							<select class="custom-select" ng-model="selectedListIndex" ng-change="selectList()">
 								<option ng-repeat="list in allLists" ng-value="$index">{{list.Name}}</option>
@@ -53,10 +53,10 @@
 			</div>
 			<div class="col-lg-6 col-12 mb-4">
 				<div class="card border-primary h-100 pb-0">
-					<div class="card-header">
-						<h4>Base Stats</h4>
+					<div class="card-header py-2">
+						<h4 class="mb-0">Base Stats</h4>
 					</div>
-					<div class="card-body pt-0">
+					<div class="card-body py-2">
 						<div class="row">
 							<div class="form-group col-4 col-sm-2 text-center">
 								<label class="col-form-label col-form-label-sm" for="strInput">Str</label>
@@ -152,20 +152,20 @@
 						<tr>
 							<th scope="col" class="text-center">Slot</th>
 							<th scope="col" class="text-center">Name</th>
-							<th ng-repeat="stat in statInfo" ng-show="stat.showColumn" class="text-center">{{stat.short}}</th>
+							<th scope="col" ng-repeat="stat in statInfo" ng-show="stat.showColumn" class="text-center">{{stat.short}}</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr class="bg-secondary text-white">
-							<td scope="col"></td>
-							<td scope="col" class="text-center">Total</td>
+							<td></td>
+							<td class="text-center">Total</td>
 							<td ng-repeat="stat in statInfo" ng-show="stat.showColumn" class="text-center">{{sumStats(stat.var)}}</td>
 						</tr>
 						<tr ng-repeat="item in selectedList.items track by $index">
-							<td ng-class="anyItemRestrictions($index) ? 'bg-danger' : 'bg-primary'" class="bg-primary text-white text-center" data-toggle="tooltip" title="{{getItemRestrictionText($index)}}" nowrap tooltip><span ng-show="anyItemRestrictions($index)"><i class="fas fa-question-circle"></i>&nbsp;</span>{{::slots[item.Slot]}}</td>
-							<th scope="row" ng-click="onRowClicked($index)" style="cursor: pointer;">
+							<td ng-class="anyItemRestrictions($index) ? 'bg-danger' : 'bg-primary'" class="bg-primary text-white text-center py-md-1 py-lg-0" data-toggle="tooltip" title="{{getItemRestrictionText($index)}}" nowrap tooltip><span ng-show="anyItemRestrictions($index)"><i class="fas fa-question-circle"></i>&nbsp;</span>{{::slots[item.Slot]}}</td>
+							<th scope="row" ng-click="onRowClicked($index)" style="cursor: pointer;" class="py-1 py-lg-0">
 								<a href="/items/details.html?id={{item.Id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.Id"><i class="fas fa-link fa-lg"></i></a>&nbsp;{{item.Name}}</th>
-							<td ng-repeat="stat in statInfo" ng-show="stat.showColumn" class="text-center" ng-click="onRowClicked($parent.$index)" style="cursor: pointer;">
+							<td ng-repeat="stat in statInfo" ng-show="stat.showColumn" class="text-center py-1 py-lg-0" ng-click="onRowClicked($parent.$index)" style="cursor: pointer;">
 								<span ng-if="stat.type == 'bool'">
 									<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
 								</span>
@@ -173,13 +173,13 @@
 							</td>
 						</tr>
 						<tr class="bg-dark text-white">
-							<td scope="col" class="text-center">Slot</td>
-							<td scope="col" class="text-center">Name</td>
+							<td class="text-center">Slot</td>
+							<td class="text-center">Name</td>
 							<td ng-repeat="stat in statInfo" ng-show="stat.showColumn" class="text-center">{{stat.short}}</td>
 						</tr>
 						<tr class="bg-secondary text-white">
-							<td scope="col"></td>
-							<td scope="col" class="text-center">Total</td>
+							<td></td>
+							<td class="text-center">Total</td>
 							<td ng-repeat="stat in statInfo" ng-show="stat.showColumn" class="text-center">{{sumStats(stat.var)}}</td>
 						</tr>
 					</tbody>
@@ -187,7 +187,7 @@
 			</div>
 		</div>
 		<div class="modal" tabindex="-1" role="dialog" id="itemChoiceModal">
-			<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-dialog modal-xl" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
 						<h5 class="modal-title">Choose Item</h5>
