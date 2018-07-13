@@ -6,7 +6,7 @@ header( "Content-Type: application/json; charset=UTF-8" );
 
 $postdata = json_decode(file_get_contents("php://input"));
 
-$root = realpath($_SERVER["DOCUMENT_ROOT"]);
+$root = realpath(getenv("DOCUMENT_ROOT"));
 require_once("$root/php/common/config.php");
 $pdo = getPDO();
 
@@ -38,7 +38,7 @@ if (strlen(trim($mobName)) > 0) {
 	}
 	if ($statArray['MobId'] == 0) {
 		$addMobQuery = $pdo->prepare("INSERT INTO Mobs (Name, ModifiedOn, ModifiedBy, ModifiedByIP, ModifiedByIPForward) VALUES (:Name, NOW(), :ModifiedBy, :ModifiedByIP, :ModifiedByIPForward)");
-		$addMobQuery->execute(array("Name" => $mobName, "ModifiedBy" => $_SESSION['Username'], "ModifiedByIP" => $_SERVER['REMOTE_ADDR'], "ModifiedByIPForward" => $_SERVER['HTTP_X_FORWARDED_FOR']));
+		$addMobQuery->execute(array("Name" => $mobName, "ModifiedBy" => $_SESSION['Username'], "ModifiedByIP" => getenv('REMOTE_ADDR'), "ModifiedByIPForward" => getenv('HTTP_X_FORWARDED_FOR')));
 		$statArray['MobId'] = $pdo->lastInsertId();
 	}
 }
@@ -46,8 +46,8 @@ unset($statArray['MobName']);
 unset($statArray['QuestTitle']);
 
 $statArray["ModifiedBy"] = $_SESSION['Username'];
-$statArray["ModifiedByIP"] = $_SERVER['REMOTE_ADDR'];
-$statArray["ModifiedByIPForward"] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+$statArray["ModifiedByIP"] = getenv('REMOTE_ADDR');
+$statArray["ModifiedByIPForward"] = getenv('HTTP_X_FORWARDED_FOR');
 $execArray = array();
 $sql = "INSERT INTO Items(ModifiedOn";
 foreach ($statArray as $key => $value) 

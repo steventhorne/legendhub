@@ -2,7 +2,7 @@
 header( "Access-Control-Allow-Origin: legendhub.org" );
 header( "Content-Type: application/json; charset=UTF-8" );
 
-$root = realpath($_SERVER["DOCUMENT_ROOT"]);
+$root = realpath(getenv("DOCUMENT_ROOT"));
 require_once("$root/php/common/config.php");
 $pdo = getPDO();
 
@@ -30,7 +30,7 @@ if (strlen($password) < 8 || $password != $confirmPassword) {
 }
 
 $query = $pdo->prepare("SELECT Id FROM BannedIPs WHERE :IP REGEXP Pattern");
-$query->execute(array("IP" => $_SERVER['REMOTE_ADDR']));
+$query->execute(array("IP" => getenv('REMOTE_ADDR')));
 if ($res = $query->fetch())
 {
 	echo('{"success": false}');
