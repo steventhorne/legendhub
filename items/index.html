@@ -127,7 +127,7 @@
 								<th scope="col" ng-if="recent">Modified By</th>
 								<th scope="col">Slot</th>
 								<th scope="col" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="sortClass('Name')"></i></th>
-								<th ng-repeat="stat in statInfo" ng-show="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="sortClass(stat.var)"></i></th>
+								<th ng-repeat="stat in statInfo" ng-if="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="sortClass(stat.var)"></i></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -135,7 +135,7 @@
 								<td ng-if="recent">{{item.ModifiedBy}}</td>
 								<td>{{slots[item.Slot]}}</td>
 								<th scope="row" class="text-primary">{{item.Name}}</th>
-								<td class="text-center" ng-repeat="stat in statInfo" ng-show="stat.showColumn">
+								<td class="text-center" ng-repeat="stat in statInfo" ng-if="stat.showColumn">
 									<span ng-if="stat.type == 'bool'">
 										<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
 									</span>
@@ -148,7 +148,7 @@
 			</div>
 		</div>
 		<br />
-		<nav class="row" aria-label="Item result navigation" ng-show="totalPages > 1">
+		<nav class="row" aria-label="Item result navigation" ng-if="totalPages > 1">
 			<ul class="pagination">
 				<li class="page-item">
 					<a class="page-link" ng-click="onPreviousClicked()" aria-label="Previous">

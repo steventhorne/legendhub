@@ -10,10 +10,13 @@ app.controller('items', function($scope, $cookies, $http, itemConstants) {
 			url: '/php/login/getLoggedInUser.php'
 		}).then(function succcessCallback(response) {
 			$scope.isLoggedIn = response.data.success;
-			$scope.getStatCategories();
 		}, function errorCallback(response) {
 
 		});
+		$scope.statLoadCount = 0;
+		$scope.getStatCategories();
+		$scope.getStatInfo();
+		$scope.getRecentItems();
 	}
 
 	$scope.getStatCategories = function() {
@@ -22,7 +25,10 @@ app.controller('items', function($scope, $cookies, $http, itemConstants) {
 		}).then(function succcessCallback(response) {
 			$scope.statCategories = response.data;
 			
-			$scope.getStatInfo();
+			$scope.statLoadCount++;
+			if ($scope.statLoadCount == 2) {
+				$scope.loadCookies();
+			}
 		}, function errorCallback(response){
 
 		});
@@ -50,8 +56,10 @@ app.controller('items', function($scope, $cookies, $http, itemConstants) {
 		}).then(function succcessCallback(response) {
 			$scope.statInfo = response.data;
 
-			$scope.loadCookies();
-			$scope.getRecentItems();
+			$scope.statLoadCount++;
+			if ($scope.statLoadCount == 2) {
+				$scope.loadCookies();
+			}
 		}, function errorCallback(response){
 		});
 	}
