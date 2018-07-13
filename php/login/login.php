@@ -5,7 +5,7 @@ session_start();
 header( "Access-Control-Allow-Origin: legendhub.org" );
 header( "Content-Type: application/json; charset=UTF-8" );
 
-$root = realpath($_SERVER["DOCUMENT_ROOT"]);
+$root = realpath(getenv("DOCUMENT_ROOT"));
 require_once("$root/php/common/config.php");
 $pdo = getPDO();
 
@@ -30,7 +30,7 @@ if ($res = $query->fetchAll(PDO::FETCH_CLASS)[0])
 		$_SESSION['UserId'] = $res->Id;
 
 		$updateq = $pdo->prepare("UPDATE Members SET LastLoginDate = NOW(), LastLoginIP = :ip, LastLoginIPForward = :ipf WHERE Id = :id");
-		$updateq->execute(array("id" => $res->Id, "ip" => $_SERVER['REMOTE_ADDR'], "ipf" => $_SERVER['HTTP_X_FORWARDED_FOR']));
+		$updateq->execute(array("id" => $res->Id, "ip" => getenv('REMOTE_ADDR'), "ipf" => getenv('HTTP_X_FORWARDED_FOR')));
 
 		echo('{"success": true, "reason": ""}');
 		return;

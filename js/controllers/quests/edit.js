@@ -2,7 +2,7 @@ angular.module("legendwiki-app").requires.push('ng-showdown');
 
 app.controller('quests-edit', function($scope, $http) {
 	$scope.initialize = function() {
-		$scope.questModel = {Content: ""};
+		$scope.questModel = {Content: "", Whoises: null};
 		$scope.areas = [];
 		
 		$scope.getAreas();
