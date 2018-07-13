@@ -7,7 +7,7 @@ header( "Content-Type: application/json; charset=UTF-8" );
 $postdata = json_decode(file_get_contents("php://input"));
 $statArray = (array) $postdata;
 
-$root = realpath($_SERVER["DOCUMENT_ROOT"]);
+$root = realpath(getenv("DOCUMENT_ROOT"));
 require_once("$root/php/common/config.php");
 $pdo = getPDO();
 
@@ -29,8 +29,8 @@ else {
 
 $execArray = array();
 $sql = "UPDATE WikiPages SET ModifiedOn = NOW()";
-$statArray["ModifiedByIP"] = $_SERVER['REMOTE_ADDR'];
-$statArray["ModifiedByIPForward"] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+$statArray["ModifiedByIP"] = getenv('REMOTE_ADDR');
+$statArray["ModifiedByIPForward"] = getenv('HTTP_X_FORWARDED_FOR');
 $statArray["ModifiedBy"] = $_SESSION['Username'];
 foreach ($statArray as $key => $value)
 {

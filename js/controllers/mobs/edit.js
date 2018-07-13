@@ -2,7 +2,7 @@ angular.module("legendwiki-app").requires.push('ng-showdown');
 
 app.controller('mobs-edit', function($scope, $http) {
 	$scope.initialize = function() {
-		$scope.mobModel = {};
+		$scope.mobModel = {"Xp": 0, "Gold": 0, "Aggro": false, "Notes": null};
 		$scope.areas = [];
 		
 		$scope.getAreas();

@@ -6,7 +6,7 @@ header( "Content-Type: application/json; charset=UTF-8" );
 
 $postdata = json_decode(file_get_contents("php://input"));
 
-$root = realpath($_SERVER["DOCUMENT_ROOT"]);
+$root = realpath(getenv("DOCUMENT_ROOT"));
 require_once("$root/php/common/config.php");
 $pdo = getPDO();
 
@@ -36,8 +36,8 @@ $query->execute(array("Name" => $postdata->Name,
 			"Aggro" => $postdata->Aggro,
 			"Notes" => $postdata->Notes,
 			"ModifiedBy" => $_SESSION['Username'],
-			"ModifiedByIP" => $_SERVER['REMOTE_ADDR'],
-			"ModifiedByIPForward" => $_SERVER['HTTP_X_FORWARDED_FOR']));
+			"ModifiedByIP" => getenv('REMOTE_ADDR'),
+			"ModifiedByIPForward" => getenv('HTTP_X_FORWARDED_FOR')));
 
 echo($pdo->lastInsertId());
 
