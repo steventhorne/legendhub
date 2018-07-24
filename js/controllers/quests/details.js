@@ -22,6 +22,7 @@ app.controller('quests-details', function($scope, $http, itemConstants) {
 		}).then(function succcessCallback(response) {
 			$scope.quest = response.data;
 			$scope.quest.ModifiedOn = (new Date(response.data.ModifiedOn + " UTC")).toString().slice(4, 24);
+			$scope.quest.Stat = Boolean($scope.quest.Stat);
 			$scope.getQuestHistory();
 			$scope.splitWhoises();
 		}, function errorCallback(response){

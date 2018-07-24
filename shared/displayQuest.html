@@ -20,7 +20,7 @@
 <br />
 <div class="row">
 	<strong class="col-2">Area</strong>
-	<div class="col-10 text-right text-md-left"><span class="text-info">{{quest.AreaEra ? '(' + quest.AreaEra + ') ' : ''}}</span>{{quest.AreaName}}</div>
+	<div class="col-10 text-right text-md-left"><span class="text-info">{{quest.AreaEra ? '(' + quest.AreaEra + ') ' : ''}}</span>{{quest.AreaName}}<span ng-if="quest.Stat">&nbsp;&nbsp;(<span class="text-danger">stat quest</span>)</span></div>
 </div>
 <div class="row" ng-repeat="whois in whoises">
 		<strong class="col-2" ng-if="$index == 0">Whois</strong>
