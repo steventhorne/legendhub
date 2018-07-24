@@ -2,6 +2,7 @@ app.controller('quests', function($scope, $cookies, $http) {
 	$scope.init = function() {
 		$scope.searchString = "";
 		$scope.questsPerPage = 20;
+		$scope.statOnly = false;
 
 		$http({
 			url: '/php/login/getLoggedInUser.php'
@@ -35,7 +36,7 @@ app.controller('quests', function($scope, $cookies, $http) {
 		$http({
 			url: '/php/quests/getQuests.php',
 			method: 'POST',
-			data: {"searchString": $scope.searchString}
+			data: {"searchString": $scope.searchString, "statOnly": $scope.statOnly}
 		}).then(function succcessCallback(response) {
 			$scope.quests = response.data;
 			$scope.recent = false;
@@ -67,6 +68,10 @@ app.controller('quests', function($scope, $cookies, $http) {
 
 	$scope.onQuestClicked = function(item) {
 		window.location = "/quests/details.html?id=" + item.Id;
+	}
+
+	$scope.onStatClicked = function() {
+		$scope.statOnly = !$scope.statOnly;
 	}
 
 	$scope.getPageArray = function() {

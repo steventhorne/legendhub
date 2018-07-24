@@ -33,7 +33,8 @@ $sql = "UPDATE Quests SET ModifiedOn = NOW(),
 			Title = :Title,
 			AreaId = :AreaId,
 			Whoises = :Whoises,
-			Content = :Content
+			Content = :Content,
+			Stat = :Stat
 	WHERE Id = :Id";
 $query = $pdo->prepare($sql);
 $query->execute(array("ModifiedBy" => $_SESSION['Username'],
@@ -43,6 +44,7 @@ $query->execute(array("ModifiedBy" => $_SESSION['Username'],
 			"AreaId" => $postdata->AreaId,
 			"Whoises" => $postdata->Whoises,
 			"Content" => $postdata->Content,
+			"Stat" => $postdata->Stat,
 			"Id" => $postdata->Id));
 
 echo($pdo->lastInsertId());

@@ -46,6 +46,9 @@
 						</div>
 						<input type="text" ng-model="searchString" class="form-control" placeholder="Search by title, whois, area, or content..." autofocus>
 						<div class="input-group-append">
+							<button class="btn btn-{{statOnly ? '' : 'outline-'}}primary" type="button" ng-click="onStatClicked()">Stat&nbsp;&nbsp;<i class="{{statOnly ? 'far fa-check-square' : 'far fa-square'}}"></i></button>
+						</div>
+						<div class="input-group-append">
 							<button class="btn btn-outline-success" type="submit">Search</button>
 						</div>
 					</div>
@@ -124,7 +127,6 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
 	<script src="/js/apps/legendwiki-app.js"></script>
 	<script src="/js/controllers/quests/main.js"></script>
-	<script src="/js/controllers/header.js"></script>
 </body>
 
 </html>
