@@ -26,13 +26,14 @@ else {
 	return;
 }
 
-$sql = "INSERT INTO Quests(Title, AreaId, Content, Whoises, ModifiedOn, ModifiedBy, ModifiedByIP, ModifiedByIPForward)
-VALUES (:Title, :AreaId, :Content, :Whoises, NOW(), :ModifiedBy, :ModifiedByIP, :ModifiedByIPForward)";
+$sql = "INSERT INTO Quests(Title, AreaId, Content, Whoises, Stat, ModifiedOn, ModifiedBy, ModifiedByIP, ModifiedByIPForward)
+VALUES (:Title, :AreaId, :Content, :Whoises, :Stat, NOW(), :ModifiedBy, :ModifiedByIP, :ModifiedByIPForward)";
 $query = $pdo->prepare($sql);
 $query->execute(array("Title" => $postdata->Title,
 			"AreaId" => $postdata->AreaId,
 			"Content" => $postdata->Content,
 			"Whoises" => $postdata->Whoises,
+			"Stat" => $postdata->Stat,
 			"ModifiedBy" => $_SESSION['Username'],
 			"ModifiedByIP" => getenv('REMOTE_ADDR'),
 			"ModifiedByIPForward" => getenv('HTTP_X_FORWARDED_FOR')));
