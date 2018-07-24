@@ -626,9 +626,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 
 		// limit stats from items
 		switch (statName) {
-			case "Mitigation":
-				// for mitigation update
-				// fromItems = Math.min(total, 26);
+			default:
 				break;
 		}
 
@@ -676,10 +674,19 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				fromBonus += parseInt(($scope.sumStats("Strength") - 30) / 3);
 				break;
 			case "Mitigation":
-				fromBonus += parseInt(Math.max($scope.sumStats("Constitution") - 70, 0) / 3);
-	
-				// for mitigation update
-				// total += parseInt(Math.max($scope.sumStats("Constitution") - 80, 0) / 5);
+				var con = $scope.sumStats("Constitution");
+				var hasBattleTraining = false;
+				for (var i = 25; i < $scope.selectedList.items.length; ++i) { // loop through Other slots
+					console.log(i + ":" + $scope.selectedList.items[i].Name);
+					if ($scope.selectedList.items[i].Id == 1144 || $scope.selectedList.items[i].Id == 1137) {
+						hasBattleTraining = true;
+						break; 
+					}
+				}
+
+				if (hasBattleTraining) {
+					fromBonus += parseInt(Math.max(con - 75, 0) / 5);
+				}
 				break;
 			case "Ac":
 				var str = $scope.sumStats("Strength");
@@ -700,7 +707,32 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				fromBonus += totalAC;
 				break;
 		}
-		return fromBaseStats + fromStatQuests + fromItems + fromBonus;
+
+		var overallCap = 0;
+		// apply overallCap
+		switch (statName) {
+			case "Mitigation":
+				var hasBattleTraining = false;
+				for (var i = 25; i < $scope.selectedList.items.length; ++i) { // loop through Other slots
+					if ($scope.selectedList.items[i].Id == 1144 || $scope.selectedList.items[i].Id == 1137) {
+						hasBattleTraining = true;
+						break; 
+					}
+				}
+				
+				var overallCap = parseInt(Math.max(Math.min($scope.sumStats("Constitution"), 70) - 30, 0) / 2);
+				if (hasBattleTraining) {
+					overallCap += 10;
+				}
+				console.log(overallCap);
+				break;
+		}
+
+		var total = fromBaseStats + fromStatQuests + fromItems + fromBonus;
+		if (overallCap > 0) {
+			total = Math.min(total, overallCap);
+		}
+		return total;
 	}
 
 	$scope.applyItemRestrictions = function() {
