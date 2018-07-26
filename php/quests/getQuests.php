@@ -8,7 +8,12 @@ $pdo = getPDO();
 
 $postdata = json_decode(file_get_contents("php://input"));
 $searchString = $postdata->searchString;
-$statOnly = $postdata->statOnly;
+if (is_null($postdata->statOnly)) {
+    $statOnly = False;
+}
+else {
+    $statOnly = $postdata->statOnly;
+}
 
 $sql = "SELECT Q.*, A.Name AS AreaName, A.Era AS AreaEra
         FROM Quests AS Q
