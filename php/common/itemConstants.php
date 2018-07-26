@@ -48,7 +48,7 @@ $itemStats = [(object) ["display" => "Strength", "short" => "Str", "var" => "Str
 			  (object) ["display" => "Bonded", "short" => "Bonded", "var" => "Bonded", "type" => "bool", "filterString" => "= 1", "default" => false, "netStat" => 0],
 			  (object) ["display" => "Casts", "short" => "Casts", "var" => "Casts", "type" => "string", "filterString" => "<> ''", "default" => "", "netStat" => 0],
 			  (object) ["display" => "Level Req", "short" => "Level", "var" => "Level", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
-			  (object) ["display" => "Net Stat", "short" => "Net Stat", "var" => "NetStat", "type" => "decimal", "showColumn" => false, "filter" => true, "filterString" => ">= 4", "default" => 0, "netStat" => 0, "editable" => false],
+			  (object) ["display" => "Net Stat", "short" => "Net Stat", "var" => "NetStat", "type" => "decimal", "showColumn" => false, "filterString" => ">= 4", "default" => 0, "netStat" => 0, "editable" => false],
 			  (object) ["display" => "Rent", "short" => "Rent", "var" => "Rent", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 0]];
 
 // NOT INCLUDED
