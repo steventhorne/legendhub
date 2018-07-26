@@ -1,10 +1,12 @@
+angular.module("legendwiki-app").requires.push('isteven-multi-select');
 app.controller('items', function($scope, $cookies, $http, itemConstants) {
 	$scope.init = function() {
 		$scope.slots = itemConstants.slots;
 		$scope.aligns = itemConstants.aligns;
 		$scope.itemsPerPage = 20;
 
-		$scope.searchString = "";
+		
+				$scope.searchString = "";
 
 		$http({
 			url: '/php/login/getLoggedInUser.php'
@@ -27,7 +29,7 @@ app.controller('items', function($scope, $cookies, $http, itemConstants) {
 			
 			$scope.statLoadCount++;
 			if ($scope.statLoadCount == 2) {
-				$scope.loadCookies();
+				$scope.onStatsLoaded();
 			}
 		}, function errorCallback(response){
 
@@ -44,7 +46,6 @@ app.controller('items', function($scope, $cookies, $http, itemConstants) {
 
 			$scope.totalPages = Math.floor(($scope.items.length - 1) / $scope.itemsPerPage) + 1;
 			$scope.currentPage = 1;
-			console.log($scope.totalPages);
 		}, function errorCallback(response){
 
 		});
@@ -58,10 +59,35 @@ app.controller('items', function($scope, $cookies, $http, itemConstants) {
 
 			$scope.statLoadCount++;
 			if ($scope.statLoadCount == 2) {
-				$scope.loadCookies();
+				$scope.onStatsLoaded();
 			}
 		}, function errorCallback(response){
 		});
+	}
+
+	$scope.onStatsLoaded = function() {
+		$scope.availableFilters = [];
+		$scope.filterOptions = [];
+		$scope.filterModel = [];
+		for (var i = 0; i < $scope.statCategories.length; ++i) {
+			$scope.availableFilters.push({name: $scope.statCategories[i].name, msGroup: true});
+			for (var j = 0; j < $scope.statCategories[i].stats.length; ++j) {
+				var index = $scope.statCategories[i].stats[j];
+				var optionObj = {id: index, name: $scope.statInfo[index].display, filterString: $scope.statInfo[index].filterString};
+				$scope.availableFilters.push(optionObj);
+				if ($scope.statInfo[index].filter) {
+					$scope.filterModel.push(optionObj);
+				}
+			}
+			$scope.availableFilters.push({msGroup: false});
+		}
+		
+		$scope.filterSettings = {scrollableHeight: '250px', scrollable: true, enableSearch: true, groupBy: 'category', selectedToTop: true, buttonClasses: 'btn btn-outline-primary'};
+		$scope.loadCookies();
+	}
+
+	$scope.filterGroupBy = function(groupValue) {
+		return groupValue;
 	}
 	
 	$scope.search = function() {
