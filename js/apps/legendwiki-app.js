@@ -1,6 +1,82 @@
 var app = angular.module( "legendwiki-app", ['ngCookies'] );
-  
-app.constant('test', 'hi');
+app.run(function($templateCache) {
+	$templateCache.put('header.html',
+'<nav class="navbar navbar-expand-sm navbar-dark bg-dark" ng-controller="header">' +
+	'<a class="navbar-brand" href="/">LegendHUB</a>' +
+	'<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">' + 
+		'<span class="navbar-toggler-icon"></span>' +
+	'</button>' +
+	'<div class="collapse navbar-collapse" id="navbarSupportedContent">' +
+		'<ul class="navbar-nav mr-auto">' +
+			'<li class="nav-item">' +
+				'<a class="nav-link text-primary" target="_blank" href="http://www.topmudsites.com/vote-legend.html">Vote!</a>' +
+			'</li>' +
+			'<li class="nav-item">' +
+				'<a class="nav-link" href="/builder/">Builder</a>' +
+			'</li>' +
+			'<li class="nav-item">' +
+				'<a class="nav-link" href="/items/">Items</a>' +
+			'</li>' +
+			'<li class="nav-item">' +
+				'<a class="nav-link" href="/mobs/">Mobs</a>' +
+			'</li>' +
+			'<li class="nav-item">' +
+				'<a class="nav-link" href="/quests/">Quests</a>' +
+			'</li>' +
+			'<li class="nav-item">' +
+				'<a class="nav-link" href="/wiki/">Wiki</a>' +
+			'</li>' +
+		'</ul>' +
+		'<ul class="navbar-nav ml-auto">' +
+			'<li class="nav-item">' +
+				'<a class="nav-link" href="" ng-click="toggleTheme()"><i ng-class="getThemeClass()"></i></a>' +
+			'</li>' +
+			'<li class="nav-item dropdown float-right" ng-show="currentUser">' +
+				'<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+					'{{currentUser}}' +
+				'</a>' +
+				'<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">' +
+					'<a class="dropdown-item" href="https://github.com/SvarturH/legendhub/issues" target="_blank">Report an Issue</a>' +
+					'<div class="dropdown-divider"></div>' +
+					'<a class="dropdown-item" href="" ng-click="logout()">Logout</a>' +
+				'</div>' +
+			'</li>' +
+			'<li class="nav-item" ng-show="!currentUser">' +
+				'<a class="nav-link" href="/login.html?returnUrl={{returnUrl}}">Login</a>' +
+			'</li>' +
+		'</ul>' +
+	'</div>' +
+'</nav>' +
+'<br/>');
+	$templateCache.put('footer.html',
+'<br />' +
+'<div class="footer bg-dark">' +
+	'<div class="container">' +
+		'<div class="row">' +
+			'<span class="text-light">This domain, its content, and its creators are not associated, nor affiliated, with the LegendMUD immortal staff. Additionally, since this is an open-access project, all of the information posted and listed may be incorrect.</span>' +
+		'</div>' +
+		'<div class="row">' +
+			'<span class="text-info"><i class="far fa-copyright"></i>&nbsp;2018</span>' +
+		'</div>' +
+	'</div>' +
+'</div>');
+
+});
+
+app.directive('lhHeader', function() {
+	return {
+		restrict: 'E',
+		templateUrl: 'header.html'
+	}
+})
+
+app.directive('lhFooter', function() {
+	return {
+		restrict: 'E',
+		templateUrl: 'footer.html'
+	}
+})
+
 app.constant('itemConstants', {
 	slots: ["Light",
 	"Finger",
