@@ -677,7 +677,6 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				var con = $scope.sumStats("Constitution");
 				var hasBattleTraining = false;
 				for (var i = 25; i < $scope.selectedList.items.length; ++i) { // loop through Other slots
-					console.log(i + ":" + $scope.selectedList.items[i].Name);
 					if ($scope.selectedList.items[i].Id == 1144 || $scope.selectedList.items[i].Id == 1137) {
 						hasBattleTraining = true;
 						break; 
@@ -724,7 +723,6 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				if (hasBattleTraining) {
 					overallCap += 10;
 				}
-				console.log(overallCap);
 				break;
 		}
 

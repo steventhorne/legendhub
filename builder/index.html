@@ -27,7 +27,7 @@
 </head>
 
 <body ng-app="legendwiki-app" ng-controller="builder">
-	<div ng-include="'/shared/header.html'"></div>
+	<lh-header></lh-header>
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-lg-6 col-12 mb-4">
@@ -61,32 +61,32 @@
 							<div class="form-group col-4 col-sm-2 text-center">
 								<label class="col-form-label col-form-label-sm" for="strInput">Str</label>
 								<input type="number" id="strInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.Strength" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-								<span class="text-muted" ng-show="showStatQuests()">3</span>
+								<span ng-show="showStatQuests()">3</span>
 							</div>
 							<div class="form-group col-4 col-sm-2 text-center">
 								<label class="col-form-label col-form-label-sm" for="minInput">Min</label>
 								<input type="number" id="minInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.Mind" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-								<span class="text-muted" ng-show="showStatQuests()">3</span>
+								<span ng-show="showStatQuests()">3</span>
 							</div>
 							<div class="form-group col-4 col-sm-2 text-center">
 								<label class="col-form-label col-form-label-sm" for="dexInput">Dex</label>
 								<input type="number" id="dexInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.Dexterity" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-								<span class="text-muted" ng-show="showStatQuests()">3</span>
+								<span ng-show="showStatQuests()">3</span>
 							</div>
 							<div class="form-group col-4 col-sm-2 text-center">
 								<label class="col-form-label col-form-label-sm" for="conInput">Con</label>
 								<input type="number" id="conInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.Constitution" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-								<span class="text-muted" ng-show="showStatQuests()">3</span>
+								<span ng-show="showStatQuests()">3</span>
 							</div>
 							<div class="form-group col-4 col-sm-2 text-center">
 								<label class="col-form-label col-form-label-sm" for="perInput">Per</label>
 								<input type="number" id="perInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.Perception" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-								<span class="text-muted" ng-show="showStatQuests()">3</span>
+								<span ng-show="showStatQuests()">3</span>
 							</div>
 							<div class="form-group col-4 col-sm-2 text-center">
 								<label class="col-form-label col-form-label-sm" for="spiInput">Spi</label>
 								<input type="number" id="spiInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.Spirit" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-								<span class="text-muted" ng-show="showStatQuests()">13</span>
+								<span ng-show="showStatQuests()">13</span>
 							</div>
 						</div>
 						<p ng-show="showStatError" class="text-danger">Base stats should add up to either 198 or 244.</p>
@@ -123,7 +123,7 @@
 					<div class="collapse" id="collapseMainHideColumns" data-parent="#searchAccordian">
 						<div class="card-body">
 							<div class="row">
-								<p class="text-muted">Use these to hide columns from the search result grid.</p>
+								<p class="text-info">Use these to hide columns from the search result grid.</p>
 							</div>
 							<div ng-repeat="category in statCategories">
 								<div class="row">
@@ -221,7 +221,7 @@
 								<div class="collapse col-12" id="collapseHideColumns" data-parent="#searchAccordian">
 									<div class="card card-body">
 										<div class="row">
-											<p class="text-muted">Use these to hide columns from the search result grid.</p>
+											<p class="text-info">Use these to hide columns from the search result grid.</p>
 										</div>
 										<div ng-repeat="category in statCategories">
 											<div class="row">
@@ -369,7 +369,7 @@
 		</div>
 	</div>
 
-	<div ng-include="'/shared/footer.html'"></div>
+	<lh-footer></lh-footer>
 
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
 	    crossorigin="anonymous"></script>
@@ -382,7 +382,6 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
 	<script src="/js/apps/legendwiki-app.js"></script>
 	<script src="/js/controllers/builder/main.js"></script>
-	<script src="/js/controllers/header.js"></script>
 </body>
 
 </html>

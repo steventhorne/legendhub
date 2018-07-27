@@ -27,7 +27,7 @@
 </head>
 
 <body ng-app="legendwiki-app" ng-controller="quests-edit">
-	<div ng-include="'/shared/header.html'"></div>
+	<lh-header></lh-header>
 	
 	<form name="form" class="simple-form container" novalidate ng-cloak>
 		<div class="row">
@@ -40,7 +40,7 @@
 		</div>
 	</form>
 
-	<div ng-include="'/shared/footer.html'"></div>
+	<lh-footer></lh-footer>
 
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
 	    crossorigin="anonymous"></script>
@@ -55,7 +55,6 @@
 	<script src="/js/ng-showdown.js"></script>
 	<script src="/js/apps/legendwiki-app.js"></script>
 	<script src="/js/controllers/quests/edit.js"></script>
-	<script src="/js/controllers/header.js"></script>
 </body>
 
 </html>
