@@ -27,7 +27,7 @@
 </head>
 
 <body ng-app="legendwiki-app" ng-controller="items">
-	<div ng-include="'/shared/header.html'"></div>
+	<lh-header></lh-header>
 	<div class="container">
 		<div class="row">
 			<h1>Items</h1>
@@ -61,7 +61,7 @@
 				<div class="collapse col-12" id="collapseHideColumns" data-parent="#searchAccordian">
 					<div class="card card-body">
 						<div class="row">
-							<p class="text-muted">Use these to hide columns from the search result grid.</p>
+							<p class="text-info">Use these to hide columns from the search result grid.</p>
 						</div>
 						<div ng-repeat="category in statCategories">
 							<div class="row">
@@ -84,10 +84,10 @@
 				<div class="collapse col-12" id="collapseFilters" data-parent="#searchAccordian">
 					<div class="card card-body">
 						<div class="row">
-							<span class="text-muted">Use these to only show results with those stats.</span>
+							<span class="text-info">Use these to only show results with those stats.</span>
 						</div>
 						<div class="row">
-							<span class="text-muted">Search again after selecting.</span>
+							<span class="text-info">Search again after selecting.</span>
 						</div>
 						<br />
 						<div ng-repeat="category in statCategories">
@@ -174,7 +174,7 @@
 		</nav>
 	</div>
 
-	<div ng-include="'/shared/footer.html'"></div>
+	<lh-footer></lh-footer>
 
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
 	    crossorigin="anonymous"></script>

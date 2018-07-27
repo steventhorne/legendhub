@@ -9,10 +9,10 @@
 <br /><br />
 <div>
 	<div class="row" ng-if="mob && mob.Id >= 0">
-		<span><strong>Mob:</strong>&nbsp;&nbsp;<a href="/mobs/details.html?id={{item.MobId}}">{{mob.Name}} <span ng-class="{'text-danger': !mob.AreaName, 'text-muted': mob.AreaName}">({{mob.AreaName ? mob.AreaName : 'Area unspecified'}})</span></a></span>
+		<span><strong>Mob:</strong>&nbsp;&nbsp;<a href="/mobs/details.html?id={{item.MobId}}">{{mob.Name}} <span ng-class="{'text-danger': !mob.AreaName, 'text-info': mob.AreaName}">({{mob.AreaName ? mob.AreaName : 'Area unspecified'}})</span></a></span>
 	</div>
 	<div class="row" ng-if="quest && quest.Id >= 0">
-		<span><strong>Quest:</strong>&nbsp;&nbsp;<a href="/quests/details.html?id={{item.QuestId}}">{{quest.Title}} <span ng-class="{'text-danger': !quest.AreaName, 'text-muted': quest.AreaName}">({{quest.AreaName ? quest.AreaName : 'Area unspecified'}})</span></a></span>
+		<span><strong>Quest:</strong>&nbsp;&nbsp;<a href="/quests/details.html?id={{item.QuestId}}">{{quest.Title}} <span ng-class="{'text-danger': !quest.AreaName, 'text-info': quest.AreaName}">({{quest.AreaName ? quest.AreaName : 'Area unspecified'}})</span></a></span>
 	</div>
 	<br />
 </div>
