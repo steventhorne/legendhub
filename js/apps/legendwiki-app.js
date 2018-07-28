@@ -107,6 +107,13 @@ app.constant('itemConstants', {
 			 "Non-Good Align",
 			 "Non-Neutral Align",
 			 "Non-Evil Align"],
+	shortAligns: ["     ",
+				  "G    ",
+				  "  N  ",
+				  "    E",
+				  "  N E",
+				  "G   E",
+				  "G N  "],
 });
 
 app.directive('lhTheme', function() {
