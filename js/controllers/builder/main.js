@@ -18,7 +18,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 	// constants
 	$scope.initialize = function() {
 		$scope.slots = itemConstants.slots;
-		$scope.aligns = itemConstants.aligns;
+		$scope.aligns = itemConstants.shortAligns;
 		$scope.itemsPerPage = 20;
 	
 		$scope.slotOrder = [0, 1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21];
@@ -513,6 +513,48 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 	//#endregion
 
 	$scope.sumStats = function(statName) {
+		if (statName == 'AlignRestriction') {
+			var canUseG = true;
+			var canUseN = true;
+			var canUseE = true;
+
+			for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+				switch($scope.selectedList.items[i].AlignRestriction) {
+					case 0:
+						break;
+					case 1:
+						canUseN = false;
+						canUseE = false;
+						break;
+					case 2:
+						canUseG = false;
+						canUseE = false;
+						break;
+					case 3:
+						canUseG = false;
+						canUseN = false;
+						break;
+					case 4:
+						canUseG = false;
+						break;
+					case 5:
+						canUseN = false;
+						break;
+					case 6:
+						canUseE = false;
+						break;
+					default:
+						break;
+				}
+			}
+
+			if (!canUseG && !canUseN && !canUseE) {
+				return "ERROR";
+			}
+
+			return (canUseG ? "G " : "  ") + (canUseN ? "N " : "  ") + (canUseE ? "E" : " ");
+		}
+
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
 			if ($scope.statInfo[i].var == statName) {
 				if ($scope.statInfo[i].type != "int") {
