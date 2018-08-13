@@ -1,6 +1,6 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
-app.controller('quests-edit', function($scope, $http) {
+app.controller('quests-edit', function($scope, $http, breadcrumb) {
 	$scope.initialize = function() {
 		$scope.questModel = {Content: "", Whoises: null};
 		$scope.areas = [];
@@ -35,6 +35,11 @@ app.controller('quests-edit', function($scope, $http) {
 			$scope.questModel = response.data;
 			$scope.questModel.Aggro = Boolean($scope.questModel.Aggro);
 			$scope.initialQuestModel = Object.assign({}, $scope.questModel);
+
+			breadcrumb.links = [{'display': 'Quests', 'href': '/quests/'},
+								{'display': $scope.questModel.AreaName, 'href': '/quests/index.html?areaId=' + $scope.questModel.AreaId},
+								{'display': $scope.questModel.Title, 'href': '/quests/details.html?id=' + $scope.questModel.Id},
+								{'display': 'Edit', 'href': '', 'active': true}];
 		}, function errorCallback(response){
 
 		});

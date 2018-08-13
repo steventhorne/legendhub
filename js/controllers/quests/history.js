@@ -1,6 +1,6 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
-app.controller('quests-history', function($scope, $http, itemConstants) {
+app.controller('quests-history', function($scope, $http, itemConstants, breadcrumb) {
 	$scope.getQuest = function() {
 		$scope.slots = itemConstants.slots;
 		$http({
@@ -12,6 +12,12 @@ app.controller('quests-history', function($scope, $http, itemConstants) {
 			$scope.quest.ModifiedOn = (new Date(response.data.ModifiedOn + " UTC")).toString().slice(4, 24);
 			$scope.quest.Stat = Boolean($scope.quest.Stat);
 			$scope.quest.Id = $scope.quest.QuestId;
+
+			breadcrumb.links = [{'display': 'Quests', 'href': '/quests/'},
+								{'display': $scope.quest.AreaName, 'href': '/quests/index.html?areaId=' + $scope.quest.AreaId},
+								{'display': $scope.quest.Title, 'href': '/quests/details.html?id=' + $scope.quest.Id},
+								{'display': $scope.quest.ModifiedOn, 'href': '', 'active': true}];
+
 			$scope.getQuestHistory();
 			$scope.splitWhoises();
 		}, function errorCallback(response){
