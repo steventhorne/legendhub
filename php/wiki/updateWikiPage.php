@@ -5,7 +5,6 @@ header( "Access-Control-Allow-Origin: legendhub.org" );
 header( "Content-Type: application/json; charset=UTF-8" );
 
 $postdata = json_decode(file_get_contents("php://input"));
-$statArray = (array) $postdata;
 
 $root = realpath(getenv("DOCUMENT_ROOT"));
 require_once("$root/php/common/config.php");
@@ -27,26 +26,27 @@ else {
 	return;
 }
 
-$execArray = array();
-$sql = "UPDATE WikiPages SET ModifiedOn = NOW()";
-$statArray["ModifiedByIP"] = getenv('REMOTE_ADDR');
-$statArray["ModifiedByIPForward"] = getenv('HTTP_X_FORWARDED_FOR');
-$statArray["ModifiedBy"] = $_SESSION['Username'];
-foreach ($statArray as $key => $value)
-{
-	if ($key == "Id")
-		continue;
-	$cleanKey = preg_replace('/[^A-Za-z_]*/', '', $key);
-	$sql = $sql . ", " . $cleanKey . " = :" . $cleanKey;
-	$execArray[$cleanKey] = $value;
-}
-$sql = $sql . " WHERE Id = :Id";
-$execArray["Id"] = $statArray['Id'];
-
-
+$sql = "UPDATE WikiPages SET ModifiedOn = NOW(),
+			ModifiedBy = :ModifiedBy,
+			ModifiedByIP = :ModifiedByIP,
+			ModifiedByIPForward = :ModifiedByIPForward,
+			Title = :Title,
+			CategoryId = :CategoryId,
+			SubCategoryId = :SubCategoryId,
+			Tags = :Tags,
+			Content = :Content
+	WHERE Id = :Id";
 $query = $pdo->prepare($sql);
-$query->execute($execArray);
+$query->execute(array("ModifiedBy" => $_SESSION['Username'],
+			"ModifiedByIP" => getenv('REMOTE_ADDR'),
+			"ModifiedByIPForward" => getenv('HTTP_X_FORWARDED_FOR'),
+			"Title" => $postdata->Title,
+			"CategoryId" => $postdata->CategoryId,
+			"SubCategoryId" => $postdata->SubCategoryId,
+			"Tags" => $postdata->Tags,
+			"Content" => $postdata->Content,
+			"Id" => $postdata->Id));
 
-echo($pdo->lastInsertId());
+echo($postdata->Id);
 
 ?>

@@ -26,29 +26,17 @@ else {
 	return;
 }
 
-$statArray = (array) $postdata;
-
-$statArray["ModifiedBy"] = $_SESSION['Username'];
-$statArray["ModifiedByIP"] = getenv('REMOTE_ADDR');
-$statArray["ModifiedByIPForward"] = getenv('HTTP_X_FORWARDED_FOR');
-$execArray = array();
-$sql = "INSERT INTO WikiPages(ModifiedOn";
-foreach ($statArray as $key => $value) 
-{
-	$cleanKey = preg_replace('/[^A-Za-z_]*/', '', $key);
-	$sql = $sql . ", " . $cleanKey;
-	$execArray[$cleanKey] = $value;
-}
-$sql = $sql . ") VALUES (NOW()";
-foreach ($statArray as $key => $value)
-{
-	$cleanKey = preg_replace('/[^A-Za-z_]*/', '', $key);
-	$sql = $sql . ", :" . $cleanKey;
-}
-$sql = $sql . ")";
-
+$sql = "INSERT INTO WikiPages(Title, CategoryId, SubCategoryId, Tags, Content, ModifiedOn, ModifiedBy, ModifiedByIP, ModifiedByIPForward)
+VALUES (:Title, :CategoryId, :SubCategoryId, :Tags, :Content, NOW(), :ModifiedBy, :ModifiedByIP, :ModifiedByIPForward)";
 $query = $pdo->prepare($sql);
-$query->execute($execArray);
+$query->execute(array("Title" => $postdata->Title,
+			"CategoryId" => $postdata->CategoryId,
+			"SubCategoryId" => $postdata->SubCategoryId,
+			"Tags" => $postdata->Tags,
+			"Content" => $postdata->Content,
+			"ModifiedBy" => $_SESSION['Username'],
+			"ModifiedByIP" => getenv('REMOTE_ADDR'),
+			"ModifiedByIPForward" => getenv('HTTP_X_FORWARDED_FOR')));
 
 echo($pdo->lastInsertId());
 
