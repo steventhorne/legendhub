@@ -49,6 +49,6 @@ $query->execute(array("ModifiedBy" => $_SESSION['Username'],
 			"Notes" => $postdata->Notes,
 			"Id" => $postdata->Id));
 
-echo($pdo->lastInsertId());
+echo($postdata->Id);
 
 ?>
