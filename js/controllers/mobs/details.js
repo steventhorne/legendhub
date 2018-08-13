@@ -1,6 +1,6 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
-app.controller('mobs-details', function($scope, $http, itemConstants) {
+app.controller('mobs-details', function($scope, $http, itemConstants, breadcrumb) {
 	$scope.initialize = function() {
 		$scope.slots = itemConstants.slots;
 
@@ -22,6 +22,11 @@ app.controller('mobs-details', function($scope, $http, itemConstants) {
 		}).then(function succcessCallback(response) {
 			$scope.mob = response.data;
 			$scope.mob.ModifiedOn = (new Date(response.data.ModifiedOn + " UTC")).toString().slice(4, 24);
+
+			breadcrumb.links = [{'display': 'Mobs', 'href': '/mobs/'},
+								{'display': $scope.mob.AreaName, 'href': '/mobs/index.html?areaId=' + $scope.mob.AreaId},
+								{'display': $scope.mob.Name, 'href': '', 'active': true}];
+
 			$scope.getMobHistory();
 		}, function errorCallback(response){
 
