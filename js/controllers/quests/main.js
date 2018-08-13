@@ -4,11 +4,11 @@ app.controller('quests', function($scope, $cookies, $http) {
 		$scope.questsPerPage = 20;
 		$scope.statOnly = false;
 
+		$scope.getRecentQuests();
 		$http({
 			url: '/php/login/getLoggedInUser.php'
 		}).then(function succcessCallback(response) {
 			$scope.isLoggedIn = response.data.success;
-			$scope.getRecentQuests();
 		}, function errorCallback(response) {
 
 		});
