@@ -1,9 +1,12 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
-app.controller('quests-add', function($scope, $http) {
+app.controller('quests-add', function($scope, $http, breadcrumb) {
 	$scope.initialize = function() {
 		$scope.questModel = {Content: "", Whoises: null, Stat: false};
 		$scope.areas = [];
+
+		breadcrumb.links = [{'display': 'Quests', 'href': '/quests/'},
+						{'display': 'Add', 'href': '', 'active': true}];
 
 		$scope.getAreas();
 	}
