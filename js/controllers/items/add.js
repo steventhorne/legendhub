@@ -1,10 +1,13 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
-app.controller('items-add', function($scope, $http, itemConstants) {
+app.controller('items-add', function($scope, $http, itemConstants, breadcrumb) {
 	$scope.slots = itemConstants.slots;
 	$scope.weaponTypes = ['Choose a type', 'Bladed (Str)', 'Piercing (Dex)', 'Blunt (Con)'];
 	$scope.aligns = itemConstants.aligns;
 	$scope.itemModel = {};
+
+	breadcrumb.links = [{'display': 'Items', 'href': '/items/'},
+						{'display': 'Add', 'href': '', 'active': true}];
 
 	$scope.getStatCategories = function() {
 		$http({
