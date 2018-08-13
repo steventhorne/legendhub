@@ -6,44 +6,153 @@
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-121476411-1"></script>
 	<script>
 		window.dataLayer = window.dataLayer || [];
-		function gtag(){dataLayer.push(arguments);}
+
+		function gtag() {
+			dataLayer.push(arguments);
+		}
 		gtag('js', new Date());
 
 		gtag('config', 'UA-121476411-1');
 	</script>
-	
+
 	<!-- Required meta tags -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	<!-- CSS -->
 	<script src="/js/js.cookie.min.js"></script>
-	<noscript><link id="theme" rel="stylesheet" href="/css/bootstrap-light.min.css"></noscript>
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+	<noscript>
+		<link id="theme" rel="stylesheet" href="/css/bootstrap-light.min.css">
+	</noscript>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+	    crossorigin="anonymous">
 	<link rel="stylesheet" href="/css/styles.css">
 
 	<title>LegendHUB - Wiki</title>
 </head>
 
 <body ng-app="legendwiki-app" ng-controller="wiki">
-	<div ng-include="'/shared/header.html'"></div>
-	<div class="container">
-		
+	<lh-header></lh-header>
+	<div class="container-fluid">
+		<div class="px-0">
+			<div class="row">
+				<div class="categoryListContainer col-md-3 col-lg-2 border-right" ng-class="{active: categoryActive}">
+					<h2>Categories <button class="btn btn-outline-danger float-right d-block d-md-none" type="button" ng-click="categoryActive = false"><i class="fas fa-times"></i></button></h2>
+					<ul class="categoryList">
+						<li ng-repeat="category in categories" ng-cloak>
+							<a ng-class="{'text-primary font-weight-bold': category.Id == selectedCategoryId && !selectedSubcategoryId, 'text-secondary': category.Id != selectedCategoryId || selectedSubcategoryId}" href="/wiki/index.html?categoryId={{category.Id}}">{{category.Name}}</a>
+							<ul ng-if="category.Id == selectedCategoryId">
+								<li ng-repeat="subcategory in filteredSubcategories">
+									<a ng-class="{'text-primary font-weight-bold': subcategory.Id == selectedSubcategoryId, 'text-secondary': subcategory.Id != selectedSubcategoryId}" href="/wiki/index.html?categoryId={{category.Id}}&subcategoryId={{subcategory.Id}}">{{subcategory.Name}}</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+				<div class="col-12 col-md-9 col-lg-10">
+					<div class="row text-center">
+						</button><h1 class="float-left col-12">Wiki Pages</h1>
+					</div>
+					<div class="px-0 px-md-5" ng-cloak>
+						<form ng-submit="onSearchClicked()">
+							<div class="row">
+								<span class="text-danger" ng-show="searchError != ''">{{searchError}}</span>
+							</div>
+							<div class="row">
+								<div class="input-group col-12">
+									<div class="input-group-prepend d-block d-md-none">
+										<button class="btn btn-outline-primary" type="button" ng-click="categoryActive = true"><i class="fas fa-caret-right"></i>
+									</div>
+									<div class="input-group-prepend" ng-if="selectedCategoryId > 0 || selectedSubcategoryId > 0">
+										<button class="btn btn-outline-primary" type="button" ng-click="clearCategories()">{{getSearchingCategory()}}&nbsp;&nbsp;<i class="fas fa-times"></i></button>
+									</div>
+									<input type="text" ng-model="searchString" class="form-control" placeholder="Search by title, tags, or content..." lh-autofocus>
+									<div class="input-group-append">
+										<button class="btn btn-outline-success" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<br />
+					<div class="row" ng-show="resultWarning != ''" ng-cloak>
+						<span class="text-danger">{{resultWarning}}</span>
+					</div>
+					<div class="row" ng-cloak>
+						<div class="col-12">
+							<div class="card">
+								<div class="card-header">
+									<strong class="float-left">{{recent ? "Recently Modified" : "Search Results"}}</strong>
+									<div class="float-right clickable">
+										<a href="{{isLoggedIn ? '/wiki/add.html' : '/login.html?returnUrl=/wiki/add.html'}}">
+											<i class="fas fa-plus"></i>
+										</a>
+									</div>
+								</div>
+								<div class="table-responsive">
+									<table class="table table-sm table-md table-hover table-striped table-bordered" ng-cloak>
+										<thead class="thead-dark">
+											<tr>
+												<th scope="col" ng-if="recent">Modified By</th>
+												<th scope="col">Title</th>
+												<th scope="col">Category</th>
+												<th scope="col">Subcategory</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="wiki in wikiPages | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onWikiPageClicked(wiki)" style="cursor: pointer;">
+												<td ng-if="recent">{{wiki.ModifiedBy}}</td>
+												<th scope="row" class="text-primary">{{wiki.Title}}</th>
+												<td>{{getCategory(wiki.CategoryId)}}</td>
+												<td>{{getSubcategory(wiki.SubCategoryId)}}</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<br />
+					<nav class="row" aria-label="Wiki result navigation" ng-show="totalPages > 1">
+						<ul class="pagination">
+							<li class="page-item">
+								<a class="page-link" ng-click="onPreviousClicked()" aria-label="Previous">
+									<span aria-hidden="true">
+										<i class="fas fa-chevron-left"></i>
+									</span>
+									<span class="sr-only">Previous</span>
+								</a>
+							</li>
+							<li class="page-item" ng-repeat="i in getPageArray(totalPages) track by $index" ng-class="{active: i == currentPage}">
+								<a class="page-link" ng-click="onPageClicked(i)">{{i}}</a>
+							</li>
+							<li class="page-item">
+								<a class="page-link" ng-click="onNextClicked()" aria-label="Next">
+									<span aria-hidden="true">
+										<i class="fas fa-chevron-right"></i>
+									</span>
+									<span class="sr-only">Next</span>
+								</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
 	</div>
 
-	<div ng-include="'/shared/footer.html'"></div>
+	<lh-footer></lh-footer>
 
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
 	    crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
 	    crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-		crossorigin="anonymous"></script>
+	    crossorigin="anonymous"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
 	<script src="/js/apps/legendwiki-app.js"></script>
 	<script src="/js/controllers/wiki/main.js"></script>
-	<script src="/js/controllers/header.js"></script>
 </body>
 
 </html>
