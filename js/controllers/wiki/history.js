@@ -73,7 +73,7 @@ app.controller('wiki-history', function($scope, $http, breadcrumb) {
 			breadcrumb.links.push({'display': $scope.getSubcategory($scope.wikiModel.SubCategoryId), 'href': '/wiki/index.html?categoryId=' + $scope.wikiModel.CategoryId + '&subcategoryId=' + $scope.wikiModel.SubCategoryId});
 		}
 		breadcrumb.links.push({'display': $scope.wikiModel.Title, 'href': '/wiki/details.html?id=' + $scope.wikiModel.WikiPageId});
-		breadcrumb.links.push({'display': 'History', 'href': '', 'active': true});
+		breadcrumb.links.push({'display': $scope.wikiModel.ModifiedOn, 'href': '', 'active': true});
 	}
 
 	$scope.getCategory = function(id) {
