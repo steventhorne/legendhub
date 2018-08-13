@@ -1,6 +1,6 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
-app.controller('mobs-edit', function($scope, $http) {
+app.controller('mobs-edit', function($scope, $http, breadcrumb) {
 	$scope.initialize = function() {
 		$scope.mobModel = {"Xp": 0, "Gold": 0, "Aggro": false, "Notes": null};
 		$scope.areas = [];
@@ -35,6 +35,11 @@ app.controller('mobs-edit', function($scope, $http) {
 			$scope.mobModel = response.data;
 			$scope.mobModel.Aggro = Boolean($scope.mobModel.Aggro);
 			$scope.initialMobModel = Object.assign({}, $scope.mobModel);
+
+			breadcrumb.links = [{'display': 'Mobs', 'href': '/mobs/'},
+								{'display': $scope.mobModel.AreaName, 'href': '/mobs/index.html?areaId=' + $scope.mobModel.AreaId},
+								{'display': $scope.mobModel.Name, 'href': '/mobs/details.html?id=' + $scope.mobModel.Id},
+								{'display': 'Edit', 'href': '', 'active': true}];
 		}, function errorCallback(response){
 
 		});

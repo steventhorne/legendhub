@@ -1,9 +1,12 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
-app.controller('mobs-add', function($scope, $http) {
+app.controller('mobs-add', function($scope, $http, breadcrumb) {
 	$scope.initialize = function() {
 		$scope.mobModel = {"Xp": 0, "Gold": 0, "Aggro": false, "Notes": null};
 		$scope.areas = [];
+
+		breadcrumb.links = [{'display': 'Mobs', 'href': '/mobs/'},
+						{'display': 'Add', 'href': '', 'active': true}];
 
 		$scope.getAreas();
 	}
