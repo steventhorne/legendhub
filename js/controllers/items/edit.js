@@ -1,6 +1,6 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
-app.controller('items-edit', function($scope, $http, itemConstants) {
+app.controller('items-edit', function($scope, $http, itemConstants, breadcrumb) {
 	$scope.slots = itemConstants.slots;
 	$scope.weaponTypes = ['Choose a type', 'Bladed (Str)', 'Piercing (Dex)', 'Blunt (Con)'];
 	$scope.aligns = itemConstants.aligns;
@@ -56,6 +56,11 @@ app.controller('items-edit', function($scope, $http, itemConstants) {
 			$scope.itemModel.UniqueWear = Boolean($scope.itemModel.UniqueWear);
 			$scope.itemModel.Bonded = Boolean($scope.itemModel.Bonded);
 			$scope.initialItemModel = Object.assign({}, $scope.itemModel);
+
+			breadcrumb.links = [{'display': 'Items', 'href': '/items/'},
+								{'display': $scope.slots[$scope.itemModel.Slot], 'href': '/items/index.html?slotId=' + $scope.itemModel.Slot},
+								{'display': $scope.itemModel.Name, 'href': '/items/details.html?id=' + $scope.itemModel.Id},
+								{'display': 'Edit', 'href': '', 'active': true}];
 		}, function errorCallback(response){
 
 		});
