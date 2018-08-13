@@ -63,6 +63,6 @@ $execArray["Id"] = $statArray['Id'];
 $query = $pdo->prepare($sql);
 $query->execute($execArray);
 
-echo($pdo->lastInsertId());
+echo($statArray['Id']);
 
 ?>
