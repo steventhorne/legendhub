@@ -1,6 +1,6 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
-app.controller('items-details', function($scope, $http, $location, itemConstants) {
+app.controller('items-details', function($scope, $http, itemConstants, breadcrumb) {
 	$scope.slots = itemConstants.slots;
 	$scope.weaponTypes = ['No Assigned Weapon Type', 'Bladed Weapon (Str)', 'Piercing Weapon (Dex)', 'Blunt Weapon (Con)'];
 	$scope.aligns = itemConstants.aligns;
@@ -13,6 +13,11 @@ app.controller('items-details', function($scope, $http, $location, itemConstants
 		}).then(function succcessCallback(response) {
 			$scope.item = response.data;
 			$scope.item.ModifiedOn = (new Date(response.data.ModifiedOn + " UTC")).toString().slice(4, 24);
+
+			breadcrumb.links = [{'display': 'Items', 'href': '/items/'},
+								{'display': $scope.slots[$scope.item.Slot], 'href': '/items/index.html?slotId=' + $scope.item.Slot},
+								{'display': $scope.item.Name, 'href': '', 'active': true}];
+
 			$scope.getItemHistory();
 		}, function errorCallback(response){
 
