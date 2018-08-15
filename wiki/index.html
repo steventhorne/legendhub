@@ -103,8 +103,8 @@
 											<tr ng-repeat="wiki in wikiPages | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onWikiPageClicked(wiki)" style="cursor: pointer;">
 												<td ng-if="recent">{{wiki.ModifiedBy}}</td>
 												<th scope="row" class="text-primary">{{wiki.Title}}</th>
-												<td>{{getCategory(wiki.CategoryId)}}</td>
-												<td>{{getSubcategory(wiki.SubCategoryId)}}</td>
+												<td>{{catService.getCategoryName(wiki.CategoryId)}}</td>
+												<td>{{catService.getSubcategoryName(wiki.SubCategoryId)}}</td>
 											</tr>
 										</tbody>
 									</table>
