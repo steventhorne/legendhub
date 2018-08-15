@@ -197,12 +197,136 @@ app.directive('lazyLoadOptions', [function() {
 }]);
 
 app.factory('breadcrumb', function() {
-	function breadcrumb() {
+	function Breadcrumb() {
 		this.links = [];
 	}
 
-	return new breadcrumb();
+	return new Breadcrumb();
 });
+
+app.factory('categories', function() {
+	function Categories() {
+		this.categories = [];
+		this.subcategories = [];
+		this.categoryNameProperty = "Name";
+		this.subcategoryNameProperty = "Name";
+		this.subcategoryCategoryProperty = "CategoryId";
+	}
+
+	/** @description Sets the options for the category service.
+	 * @param {string} categoryNameProperty The name of the property that holds the category name.
+	 * @param {string} subcategoryNameProperty The name of the property that holds the subcategory name.
+	 * @param {string} subcategoryCategoryProperty The name of the property that holds the related categoryId for the subcategory.
+	*/
+	Categories.prototype.setOptions = function(categoryNameProperty, subcategoryNameProperty, subcategoryCategoryProperty) {
+		this.categoryNameProperty = categoryNameProperty;
+		this.subcategoryNameProperty = subcategoryNameProperty;
+		this.subcategoryCategoryProperty = subcategoryCategoryProperty;
+	}
+
+	/** @description Gets the category name via the given identifier.
+	 * @param {number} id The identifier.
+	 * @return {string} The category name.
+	 */
+	Categories.prototype.getCategoryName = function(id) {
+		for (var i = 0; i < this.categories.length; ++i) {
+			if (this.categories[i].Id == id) {
+				return this.categories[i][this.categoryNameProperty];
+			}
+		}
+		return '';
+	}
+
+	/** @description Gets the subcategory name via the given identifier.
+	 * @param {number} id The identifier.
+	 * @return {string} The subcategory name.
+	*/
+	Categories.prototype.getSubcategoryName = function(id) {
+		for (var i = 0; i < this.subcategories.length; ++i) {
+			if (this.subcategories[i].Id == id) {
+				return this.subcategories[i][this.subcategoryNameProperty];
+			}
+		}
+		return '';
+	}
+
+	/** @description Sets the categories for the service.
+	 * @param {array} categories
+	 */
+	Categories.prototype.setCategories = function(categories) {
+		this.categories = categories;
+	}
+
+	/** @description Sets the categories for the service.
+	 * @param {array} subcategories
+	 */
+	Categories.prototype.setSubcategories = function(subcategories) {
+		this.subcategories = subcategories;
+	}
+
+	/** @description Sets the current category.
+	 * @param {number} id The Id of the category.
+	 */
+	Categories.prototype.setSelectedCategory = function(id) {
+		this.categoryId = id;
+	}
+
+	/** @description Sets the current subcategory.
+	 * @param {number} id The Id of the subcategory.
+	 */
+	Categories.prototype.setSelectedSubcategory = function(id) {
+		this.subcategoryId = id;
+	}
+
+	/** @description Gets the current category Id.
+	 * @returns {number}
+	 */
+	Categories.prototype.getCategoryId = function() {
+		return this.categoryId;
+	}
+
+	/** @description Gets the current subcategory Id.
+	 * @returns {number}
+	 */
+	Categories.prototype.getSubcategoryId = function() {
+		return this.subcategoryId;
+	}
+
+	/** @description Gets the selected subcategory if selected, otherwise will get the selected category if selected. Used for displaying the category we're searching on.
+	 * @returns {string}
+	*/
+	Categories.prototype.getActiveCategory = function() {
+		if (this.categoryId > 0) {
+			if (this.subcategoryId > 0) {
+				return this.getSubcategoryName(this.subcategoryId);
+			}
+			return this.getCategoryName(this.categoryId);
+		}
+		return '';
+	}
+
+	Categories.prototype.getFilteredSubcategories = function() {
+		if (this.categoryId) {
+			var filtered = [];
+			for (var i = 0; i < this.subcategories.length; ++i) {
+				if (this.subcategories[i][this.subcategoryCategoryProperty] == this.categoryId) {
+					filtered.push(this.subcategories[i]);
+				}
+			}
+			return filtered;
+		}
+
+		return [];
+	}
+
+	/** @description Clears the selected categories. */
+	Categories.prototype.clearSelectedCategories = function() {
+		this.categoryId = 0;
+		this.subcategoryId = 0;
+	}
+
+	return new Categories();
+})
 
 app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function($scope, $http, $cookies, breadcrumb) {
 	$scope.bcFactory = breadcrumb;
