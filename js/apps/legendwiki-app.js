@@ -305,6 +305,9 @@ app.factory('categories', function() {
 		return '';
 	}
 
+	/** @description Gets the subcategories that are under the selected category.
+	 * @returns {array}
+	 */
 	Categories.prototype.getFilteredSubcategories = function() {
 		if (this.categoryId) {
 			var filtered = [];
