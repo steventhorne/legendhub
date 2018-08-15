@@ -39,11 +39,11 @@
 				<div class="categoryListContainer col-md-3 col-lg-2 border-right" ng-class="{active: categoryActive}">
 					<h2>Categories <button class="btn btn-outline-danger float-right d-block d-md-none" type="button" ng-click="categoryActive = false"><i class="fas fa-times"></i></button></h2>
 					<ul class="categoryList">
-						<li ng-repeat="category in categories" ng-cloak>
-							<a ng-class="{'text-primary font-weight-bold': category.Id == selectedCategoryId && !selectedSubcategoryId, 'text-secondary': category.Id != selectedCategoryId || selectedSubcategoryId}" href="/wiki/index.html?categoryId={{category.Id}}">{{category.Name}}</a>
-							<ul ng-if="category.Id == selectedCategoryId">
-								<li ng-repeat="subcategory in filteredSubcategories">
-									<a ng-class="{'text-primary font-weight-bold': subcategory.Id == selectedSubcategoryId, 'text-secondary': subcategory.Id != selectedSubcategoryId}" href="/wiki/index.html?categoryId={{category.Id}}&subcategoryId={{subcategory.Id}}">{{subcategory.Name}}</a>
+						<li ng-repeat="category in catService.categories" ng-cloak>
+							<a ng-class="{'text-primary font-weight-bold': category.Id == catService.getCategoryId() && !catService.getSubcategoryId(), 'text-secondary': category.Id != catService.getCategoryId() || catService.getSubcategoryId()}" href="/wiki/index.html?categoryId={{category.Id}}">{{category.Name}}</a>
+							<ul ng-if="category.Id == catService.getCategoryId()">
+								<li ng-repeat="subcategory in catService.getFilteredSubcategories()">
+									<a ng-class="{'text-primary font-weight-bold': subcategory.Id == catService.getSubcategoryId(), 'text-secondary': subcategory.Id != catService.getSubcategoryId()}" href="/wiki/index.html?categoryId={{category.Id}}&subcategoryId={{subcategory.Id}}">{{subcategory.Name}}</a>
 								</li>
 							</ul>
 						</li>
@@ -63,8 +63,8 @@
 									<div class="input-group-prepend d-block d-md-none">
 										<button class="btn btn-outline-primary" type="button" ng-click="categoryActive = true"><i class="fas fa-caret-right"></i>
 									</div>
-									<div class="input-group-prepend" ng-if="selectedCategoryId > 0 || selectedSubcategoryId > 0">
-										<button class="btn btn-outline-primary" type="button" ng-click="clearCategories()">{{getSearchingCategory()}}&nbsp;&nbsp;<i class="fas fa-times"></i></button>
+									<div class="input-group-prepend" ng-if="catService.getCategoryId() > 0 || catService.getSubcategoryId() > 0">
+										<button class="btn btn-outline-primary" type="button" ng-click="catService.clearSelectedCategories()">{{catService.getActiveCategory()}}&nbsp;&nbsp;<i class="fas fa-times"></i></button>
 									</div>
 									<input type="text" ng-model="searchString" class="form-control" placeholder="Search by title, tags, or content..." lh-autofocus>
 									<div class="input-group-append">
