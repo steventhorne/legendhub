@@ -1,19 +1,18 @@
-app.controller('wiki', function($scope, $location, $http) {
+app.controller('wiki', function($scope, $http, categories) {
 	$scope.init = function() {
 		$scope.searchString = "";
 		$scope.wikiPagesPerPage = 20;
-		$scope.categories = [];
-		$scope.subcategories = [];
+		$scope.catService = categories;
 
 		// load query params
-		$scope.selectedCategoryId = getUrlParameter('categoryId');
-		$scope.selectedSubcategoryId = getUrlParameter('subcategoryId');
+		categories.setSelectedCategory(getUrlParameter('categoryId'));
+		categories.setSelectedSubcategory(getUrlParameter('subcategoryId'));
 		$scope.searchString = getUrlParameter('search');
 
 		$scope.getCategories();
 		$scope.getSubcategories();
 
-		if ($scope.selectedCategoryId || $scope.searchString) {
+		if (categories.getCategoryId() || $scope.searchString) {
 			$scope.search();
 		}
 		else {
@@ -32,60 +31,20 @@ app.controller('wiki', function($scope, $location, $http) {
 		$http({
 			url: '/php/wiki/getCategories.php'
 		}).then(function succcessCallback(response) {
-			$scope.categories = response.data;
+			categories.setCategories(response.data);
 		}, function errorCallback(response){
 
 		});
-	}
-
-	$scope.getCategory = function(id) {
-		for (var i = 0; i < $scope.categories.length; ++i) {
-			if ($scope.categories[i].Id == id) {
-				return $scope.categories[i].Name;
-			}
-		}
-		return "";
 	}
 
 	$scope.getSubcategories = function() {
 		$http({
 			url: '/php/wiki/getSubCategories.php'
 		}).then(function succcessCallback(response) {
-			$scope.subcategories = response.data;
-			$scope.filteredSubcategories = [];
-			if ($scope.selectedCategoryId) {
-				for (var i = 0; i < $scope.subcategories.length; ++i) {
-					if ($scope.subcategories[i].CategoryId == $scope.selectedCategoryId) {
-						$scope.filteredSubcategories.push($scope.subcategories[i]);
-					}
-				}
-			}
+			categories.setSubcategories(response.data);
 		}, function errorCallback(response){
 
 		});
-	}
-
-	$scope.getSubcategory = function(id) {
-		for (var i = 0; i < $scope.subcategories.length; ++i) {
-			if ($scope.subcategories[i].Id == id) {
-				return $scope.subcategories[i].Name;
-			}
-		}
-		return "None";
-	}
-
-	$scope.getSearchingCategory = function() {
-		if ($scope.selectedCategoryId > 0) {
-			if ($scope.selectedSubcategoryId > 0) {
-				return $scope.getSubcategory($scope.selectedSubcategoryId);
-			}
-			return $scope.getCategory($scope.selectedCategoryId);
-		}
-	}
-
-	$scope.clearCategories = function() {
-		$scope.selectedCategoryId = 0;
-		$scope.selectedSubcategoryId = 0;
 	}
 
 	$scope.getRecentWikiPages = function() {
@@ -107,7 +66,7 @@ app.controller('wiki', function($scope, $location, $http) {
 		$http({
 			url: '/php/wiki/getWikiPages.php',
 			method: 'POST',
-			data: {"searchString": $scope.searchString, "categoryId": $scope.selectedCategoryId, "subcategoryId": $scope.selectedSubcategoryId}
+			data: {"searchString": $scope.searchString, "categoryId": categories.getCategoryId(), "subcategoryId": categories.getSubcategoryId()}
 		}).then(function succcessCallback(response) {
 			$scope.wikiPages = response.data;
 			$scope.recent = false;
@@ -121,12 +80,12 @@ app.controller('wiki', function($scope, $location, $http) {
 
 	$scope.onSearchClicked = function() {
 		var url = "/wiki/index.html?"
-		if ($scope.selectedCategoryId) {
-			url += "categoryId=" + $scope.selectedCategoryId + "&";
+		if (categories.getCategoryId()) {
+			url += "categoryId=" + categories.getCategoryId() + "&";
 		}
 
-		if ($scope.selectedSubcategoryId) {
-			url += "subcategoryId=" + $scope.selectedSubcategoryId + "&";
+		if (categories.getSubcategoryId()) {
+			url += "subcategoryId=" + categories.getSubcategoryId() + "&";
 		}
 
 		url += "search=" + $scope.searchString;
