@@ -12,7 +12,7 @@ app.controller('wiki', function($scope, $http, categories) {
 		$scope.getCategories();
 		$scope.getSubcategories();
 
-		if (categories.getCategoryId() || $scope.searchString) {
+		if (categories.getCategoryId() >= 0 || $scope.searchString) {
 			$scope.search();
 		}
 		else {

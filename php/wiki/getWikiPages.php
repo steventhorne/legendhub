@@ -17,9 +17,9 @@ $params["searchString"] = $searchString;
 $likeString = '%' . $searchString . '%';
 $params["likeSearchString"] = $likeString;
 $params["tagsSearchString"] = $likeString;
-$params["searchCategoryId"] = empty($categoryId) ? 0 : 1;
+$params["searchCategoryId"] = $categoryId >= 0 ? 1 : 0;
 $params["categoryId"] = $categoryId;
-$params["searchSubcategoryId"] = empty($subcategoryId) ? 0 : 1;
+$params["searchSubcategoryId"] = $subcategoryId >= 0 ? 1 : 0;
 $params["subcategoryId"] = $subcategoryId;
 
 $query = $pdo->prepare($sql);

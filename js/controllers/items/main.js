@@ -1,12 +1,24 @@
 angular.module("legendwiki-app").requires.push('isteven-multi-select');
-app.controller('items', function($scope, $cookies, $http, itemConstants) {
+app.controller('items', function($scope, $cookies, $http, itemConstants, categories) {
 	$scope.init = function() {
 		$scope.slots = itemConstants.slots;
 		$scope.aligns = itemConstants.aligns;
 		$scope.itemsPerPage = 20;
+		$scope.catService = categories;
 
-		
-				$scope.searchString = "";
+		// set categories
+		var slotCategories = [];
+		for (var i = 0; i < $scope.slots.length; ++i) {
+			slotCategories.push({"Id": i, "Name": $scope.slots[i]});
+		}
+		categories.setCategories(slotCategories);
+
+		categories.setSelectedCategory(getUrlParameter('slotId'));
+		$scope.searchString = getUrlParameter('search');
+
+		$scope.statLoadCount = 0;
+		$scope.getStatCategories();
+		$scope.getStatInfo();
 
 		$http({
 			url: '/php/login/getLoggedInUser.php'
@@ -15,10 +27,6 @@ app.controller('items', function($scope, $cookies, $http, itemConstants) {
 		}, function errorCallback(response) {
 
 		});
-		$scope.statLoadCount = 0;
-		$scope.getStatCategories();
-		$scope.getStatInfo();
-		$scope.getRecentItems();
 	}
 
 	$scope.getStatCategories = function() {
@@ -84,6 +92,22 @@ app.controller('items', function($scope, $cookies, $http, itemConstants) {
 		
 		$scope.filterSettings = {scrollableHeight: '250px', scrollable: true, enableSearch: true, groupBy: 'category', selectedToTop: true, buttonClasses: 'btn btn-outline-primary'};
 		$scope.loadCookies();
+		$scope.loadFiltersFromUrl();
+
+		var filterOn = false;
+		for (var i = 0; i < $scope.statInfo.length; ++i) {
+			if ($scope.statInfo[i]["filter"]) {
+				filterOn = true;
+				break;
+			}
+		}
+		console.log($scope.searchString);
+		if (categories.getCategoryId() >= 0 || filterOn || $scope.searchString) {
+			$scope.search();
+		}
+		else {
+			$scope.getRecentItems();
+		}
 	}
 
 	$scope.filterGroupBy = function(groupValue) {
@@ -91,24 +115,10 @@ app.controller('items', function($scope, $cookies, $http, itemConstants) {
 	}
 	
 	$scope.search = function() {
-		$scope.searchError = "";
-		$scope.resultWarning = "";
-
-		filterColumns = [];
-		for (var i = 0; i < $scope.statInfo.length; ++i) {
-			if ($scope.statInfo[i]["filter"]) {
-				filterColumns.push(i);
-			}
-		}
-		if ($scope.searchString.length < 3 && filterColumns.length == 0) {
-			$scope.searchError = "You must use at least 3 characters in your search, or use a filter.";
-			return;
-		}
-
 		$http({
 			url: '/php/items/getItems.php',
 			method: 'POST',
-			data: {"searchString": $scope.searchString, "filterColumns": filterColumns}
+			data: {"searchString": $scope.searchString, "filterColumns": $scope.filters, "slotId": categories.getCategoryId()}
 		}).then(function succcessCallback(response) {
 			$scope.items = response.data;
 			$scope.recent = false;
@@ -118,6 +128,52 @@ app.controller('items', function($scope, $cookies, $http, itemConstants) {
 		}, function errorCallback(response){
 
 		});
+	}
+
+	$scope.onSearchClicked = function() {
+		var url = "/items/index.html?";
+		if (categories.getCategoryId() > -1) {
+			url += "slotId=" + categories.getCategoryId() + "&";
+		}
+
+		var filtersUrl = $scope.saveFiltersToUrl();
+		if (filtersUrl) {
+			url += "filters=" + filtersUrl + "&";
+		}
+
+		url += "search=" + $scope.searchString;
+		window.location = url;
+	}
+
+	$scope.saveFiltersToUrl = function() {
+		var url = "";
+		for (var i = 0; i < $scope.statInfo.length; ++i) {
+			if ($scope.statInfo[i]["filter"]) {
+				if (url) {
+					url += ",";
+				}
+				url += $scope.statInfo[i]["var"];
+			}
+		}
+		return url;
+	}
+
+	$scope.loadFiltersFromUrl = function() {
+		var url = getUrlParameter("filters");
+		$scope.filters = [];
+		var urlParts = url.split(',');
+		for (var i = 0; i < urlParts.length; ++i)
+		{
+			if (urlParts[i]) {
+				for (var j = 0; j < $scope.statInfo.length; ++j) {
+					if ($scope.statInfo[j]["var"] == urlParts[i]) {
+						$scope.statInfo[j]["filter"] = true;
+						$scope.filters.push(j);
+					}
+				}
+			}
+		}
+
 	}
 
 	$scope.loadCookies = function() {
@@ -238,6 +294,13 @@ app.controller('items', function($scope, $cookies, $http, itemConstants) {
 			return filters.length + " filters are enabled.";
 		}
 	}
+
+	getUrlParameter = function(name) {
+		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+		var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+		var results = regex.exec(location.search);
+		return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+	};
 
 	$scope.init();
 });
