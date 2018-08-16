@@ -10,12 +10,17 @@ $pdo = getPDO();
 $postdata = json_decode(file_get_contents("php://input"));
 $searchString = $postdata->searchString;
 $filterColumns = $postdata->filterColumns;
+$slotId = $postdata->slotId;
 
 $sql = "SELECT * FROM Items WHERE (:searchString = '' OR Name LIKE :likeSearchString)";
 $params = array();
 for ($i = 0; $i < count($filterColumns); $i++)
 {
 	$sql = $sql . " AND (" . $itemStats[$filterColumns[$i]]->var . " " . $itemStats[$filterColumns[$i]]->filterString . ")";
+}
+if ($slotId >= 0) {
+	$sql = $sql . " AND (Slot = :SlotId)";
+	$params["SlotId"] = $slotId;
 }
 $params["searchString"] = $searchString;
 $params["likeSearchString"] = '%' . $searchString . '%';
