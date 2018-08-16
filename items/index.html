@@ -62,7 +62,7 @@
 							<div class="row">
 								<div class="input-group col-12">
 									<div class="input-group-prepend d-block d-md-none">
-										<button class="btn btn-outline-primary" type="button" ng-click="categoryActive = true"><i class="fas fa-caret-right"></i>
+										<button class="btn btn-outline-primary" type="button" ng-click="categoryActive = true">&nbsp;<i class="fas fa-caret-right"></i>&nbsp;
 									</div>
 									<div class="input-group-prepend" ng-if="catService.getActiveCategory()">
 										<button class="btn btn-outline-primary" type="button" ng-click="catService.clearSelectedCategories()">{{catService.getActiveCategory()}}&nbsp;&nbsp;<i class="fas fa-times"></i></button>
@@ -70,11 +70,11 @@
 									<input type="text" ng-model="searchString" class="form-control" placeholder="Search by name..." lh-autofocus>
 									<div class="input-group-append">
 										<button class="btn btn-outline-primary" type="button" data-toggle="collapse" data-target="#collapseHideColumns" aria-expanded="false"
-										    aria-controls="collapseHideColumns">Columns</button>
+										    aria-controls="collapseHideColumns"><span class="d-none d-md-inline-block">Columns</span><i class="d-inline-block d-md-none fas fa-columns"></i></button>
 										<button class="btn btn-outline-primary" type="button" data-toggle="collapse" data-target="#collapseFilters" aria-expanded="false"
-										    aria-controls="collapseFilters">Filters</button>
+										    aria-controls="collapseFilters"><span class="d-none d-md-inline-block">Filters</span><i class="d-inline-block d-md-none fas fa-filter"></i></button>
 										<!--<div isteven-multi-select input-model="availableFilters" output-model="filterModel" button-label="name" item-label="name filterString" tick-property="ticked" output-properties="id name" max-labels="0" max-height="250px" helper-elements="all filter none" group-property="msGroup"></div>-->
-										<button class="btn btn-outline-success" type="submit">Search</button>
+										<button class="btn btn-outline-success" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
 									</div>
 								</div>
 							</div>
