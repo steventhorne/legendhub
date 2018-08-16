@@ -211,6 +211,8 @@ app.factory('categories', function() {
 		this.categoryNameProperty = "Name";
 		this.subcategoryNameProperty = "Name";
 		this.subcategoryCategoryProperty = "CategoryId";
+		this.defaultId = -1;
+		this.clearSelectedCategories();
 	}
 
 	/** @description Sets the options for the category service.
@@ -218,10 +220,11 @@ app.factory('categories', function() {
 	 * @param {string} subcategoryNameProperty The name of the property that holds the subcategory name.
 	 * @param {string} subcategoryCategoryProperty The name of the property that holds the related categoryId for the subcategory.
 	*/
-	Categories.prototype.setOptions = function(categoryNameProperty, subcategoryNameProperty, subcategoryCategoryProperty) {
+	Categories.prototype.setOptions = function(categoryNameProperty, subcategoryNameProperty, subcategoryCategoryProperty, defaultId) {
 		this.categoryNameProperty = categoryNameProperty;
 		this.subcategoryNameProperty = subcategoryNameProperty;
 		this.subcategoryCategoryProperty = subcategoryCategoryProperty;
+		this.defaultId = defaultId;
 	}
 
 	/** @description Gets the category name via the given identifier.
@@ -268,14 +271,18 @@ app.factory('categories', function() {
 	 * @param {number} id The Id of the category.
 	 */
 	Categories.prototype.setSelectedCategory = function(id) {
-		this.categoryId = id;
+		if (id) {
+			this.categoryId = id;
+		}
 	}
 
 	/** @description Sets the current subcategory.
 	 * @param {number} id The Id of the subcategory.
 	 */
 	Categories.prototype.setSelectedSubcategory = function(id) {
-		this.subcategoryId = id;
+		if (id) {
+			this.subcategoryId = id;
+		}
 	}
 
 	/** @description Gets the current category Id.
@@ -296,8 +303,8 @@ app.factory('categories', function() {
 	 * @returns {string}
 	*/
 	Categories.prototype.getActiveCategory = function() {
-		if (this.categoryId > 0) {
-			if (this.subcategoryId > 0) {
+		if (this.categoryId && this.categoryId > this.defaultId) {
+			if (this.subcategoryId && this.subcategoryId > this.defaultId) {
 				return this.getSubcategoryName(this.subcategoryId);
 			}
 			return this.getCategoryName(this.categoryId);
@@ -324,8 +331,8 @@ app.factory('categories', function() {
 
 	/** @description Clears the selected categories. */
 	Categories.prototype.clearSelectedCategories = function() {
-		this.categoryId = 0;
-		this.subcategoryId = 0;
+		this.categoryId = this.defaultId;
+		this.subcategoryId = this.defaultId;
 	}
 
 	return new Categories();
