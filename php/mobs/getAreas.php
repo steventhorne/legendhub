@@ -8,7 +8,10 @@ $pdo = getPDO();
 
 $postdata = json_decode(file_get_contents("php://input"));
 
-$query = $pdo->query("SELECT * FROM Areas ORDER BY FIELD(Era, '', 'General', 'Ancient', 'Medieval', 'Industrial') ASC, Name ASC");
+$query = $pdo->query("SELECT A.Id, A.Name, A.EraId, E.Name AS Era
+					FROM Areas A
+						JOIN Eras E on E.Id = A.EraId
+					ORDER BY FIELD(Era, '', 'General', 'Ancient', 'Medieval', 'Industrial') ASC, Name ASC");
 $result = $query->fetchAll(PDO::FETCH_CLASS);
 
 echo(json_encode($result))
