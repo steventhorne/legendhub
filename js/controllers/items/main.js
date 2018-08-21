@@ -3,6 +3,7 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 	$scope.init = function() {
 		$scope.slots = itemConstants.slots;
 		$scope.aligns = itemConstants.aligns;
+		$scope.shortAligns = itemConstants.shortAligns;
 		$scope.itemsPerPage = 20;
 		$scope.catService = categories;
 
@@ -102,7 +103,7 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 			}
 		}
 		console.log($scope.searchString);
-		if (categories.getCategoryId() >= 0 || filterOn || $scope.searchString) {
+		if (categories.hasSelectedCategory() || filterOn || $scope.searchString) {
 			$scope.search();
 		}
 		else {
@@ -132,7 +133,7 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 
 	$scope.onSearchClicked = function() {
 		var url = "/items/index.html?";
-		if (categories.getCategoryId() > -1) {
+		if (categories.hasSelectedCategory()) {
 			url += "slotId=" + categories.getCategoryId() + "&";
 		}
 
