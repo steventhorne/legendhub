@@ -51,7 +51,7 @@
 				</div>
 				<div class="col-12 col-md-9 col-lg-10">
 					<div class="row text-center">
-						<h1 class="float-left col-12">Items</h1>
+						<h1 class="col-12">Items</h1>
 					</div>
 					<div class="px-0 px-md-5" id="searchAccordian" ng-cloak>
 						<span class="text-info">{{listFilters()}}</span>
@@ -153,6 +153,7 @@
 												<th scope="col" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;
 													<i ng-class="sortClass('Name')"></i>
 												</th>
+												<th scope="col">Align</th>
 												<th ng-repeat="stat in statInfo" ng-if="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;
 													<i ng-class="sortClass(stat.var)"></i>
 												</th>
@@ -163,6 +164,7 @@
 												<td ng-if="recent">{{item.ModifiedBy}}</td>
 												<td>{{slots[item.Slot]}}</td>
 												<th scope="row" class="text-primary">{{item.Name}}</th>
+												<td class="text-center text-monospace" ng-trim="false" style="white-space: pre">{{shortAligns[item.AlignRestriction]}}</td>
 												<td class="text-center" ng-repeat="stat in statInfo" ng-if="stat.showColumn">
 													<span ng-if="stat.type == 'bool'">
 														<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
