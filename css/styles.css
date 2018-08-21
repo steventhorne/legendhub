@@ -7,6 +7,10 @@ body {
 	margin-bottom: 100px;
 }
 
+[ng-click] {
+    cursor: pointer;
+}
+
 .footer {
 	height: 100px;
 	padding-top: 20px;
