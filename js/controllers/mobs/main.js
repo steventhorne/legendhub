@@ -1,16 +1,52 @@
-app.controller('mobs', function($scope, $cookies, $http) {
+app.controller('mobs', function($scope, $http, categories) {
 	$scope.init = function() {
 		$scope.searchString = "";
 		$scope.mobsPerPage = 20;
+		$scope.catService = categories;
+
+		categories.setSelectedCategory(getUrlParameter('eraId'));
+		categories.setSelectedSubcategory(getUrlParameter('areaId'));
+		$scope.searchString = getUrlParameter('search');
+
+		$scope.getAreas();
+
+		if (categories.hasSelectedCategory() || $scope.searchString) {
+			$scope.search();
+		}
+		else {
+			$scope.getRecentMobs();
+		}
 
 		$http({
 			url: '/php/login/getLoggedInUser.php'
 		}).then(function succcessCallback(response) {
 			$scope.isLoggedIn = response.data.success;
-			$scope.getRecentMobs();
 		}, function errorCallback(response) {
 
 		});
+	}
+
+	$scope.getAreas = function() {
+		$http({
+			url: '/php/mobs/getAreas.php'
+		}).then(function succcessCallback(response) {
+			var eras = [];
+			var eraCount = 0;
+			for (var i = 0; i < response.data.length; ++i) {
+				if (!eras.includes(response.data[i].Era)) {
+					eras[response.data[i].EraId] = response.data[i].Era;
+				}
+				response.data[i].CategoryId = response.data[i].EraId;
+			}
+			
+			var eraCategories = [];
+			for (var i = 1; i < eras.length; ++i) {
+				eraCategories.push({Id: i, Name: eras[i]});
+			}
+			
+			categories.setCategories(eraCategories);
+			categories.setSubcategories(response.data);
+		})
 	}
 
 	$scope.getRecentMobs = function() {
@@ -29,13 +65,10 @@ app.controller('mobs', function($scope, $cookies, $http) {
 	}
 
 	$scope.search = function() {
-		$scope.searchError = "";
-		$scope.resultWarning = "";
-
 		$http({
 			url: '/php/mobs/getMobs.php',
 			method: 'POST',
-			data: {"searchString": $scope.searchString}
+			data: {"searchString": $scope.searchString, "eraId": categories.getCategoryId(), "areaId": categories.getSubcategoryId()}
 		}).then(function succcessCallback(response) {
 			$scope.mobs = response.data;
 			$scope.recent = false;
@@ -45,6 +78,20 @@ app.controller('mobs', function($scope, $cookies, $http) {
 		}, function errorCallback(response){
 
 		});
+	}
+
+	$scope.onSearchClicked = function() {
+		var url = "/mobs/index.html?";
+		if (categories.hasSelectedCategory()) {
+			url += "eraId=" + categories.getCategoryId() + "&";
+		}
+
+		if (categories.hasSelectedSubcategory()) {
+			url += "areaId=" + categories.getSubcategoryId() + "&";
+		}
+
+		url += "search=" + $scope.searchString;
+		window.location = url;
 	}
 
 	$scope.onPreviousClicked = function() {
@@ -93,6 +140,13 @@ app.controller('mobs', function($scope, $cookies, $http) {
 		}
 		return nums;
 	}
+
+	getUrlParameter = function(name) {
+		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+		var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+		var results = regex.exec(location.search);
+		return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+	};
 
 	$scope.init();
 });

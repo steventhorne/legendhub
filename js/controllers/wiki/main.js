@@ -12,7 +12,7 @@ app.controller('wiki', function($scope, $http, categories) {
 		$scope.getCategories();
 		$scope.getSubcategories();
 
-		if (categories.getCategoryId() >= 0 || $scope.searchString) {
+		if (categories.hasSelectedCategory() || $scope.searchString) {
 			$scope.search();
 		}
 		else {
@@ -80,7 +80,7 @@ app.controller('wiki', function($scope, $http, categories) {
 
 	$scope.onSearchClicked = function() {
 		var url = "/wiki/index.html?"
-		if (categories.getCategoryId()) {
+		if (categories.hasSelectedCategory()) {
 			url += "categoryId=" + categories.getCategoryId() + "&";
 		}
 
