@@ -28,96 +28,118 @@
 
 <body ng-app="legendwiki-app" ng-controller="mobs">
 	<lh-header></lh-header>
-	<div class="container">
-		<div class="row">
-			<h1>Mobs</h1>
-		</div>
-		<div ng-cloak>
-			<form ng-submit="search()">
-				<div class="row">
-					<span class="text-danger" ng-show="searchError != ''">{{searchError}}</span>
+	<div class="container-fluid">
+		<div class="px-0">
+			<div class="row">
+				<div class="categoryListContainer col-md-3 col-lg-2 border-right" ng-class="{active: categoryActive}">
+					<h2>Areas <button class="btn btn-outline-danger float-right d-block d-md-none" type="button" ng-click="categoryActive = false"><i class="fas fa-times"></i></button></h2>
+					<ul class="categoryList">
+						<li ng-repeat="category in catService.categories" ng-cloak>
+							<a ng-class="{'text-primary font-weight-bold': category.Id == catService.getCategoryId() && !catService.hasSelectedSubcategory(), 'text-secondary': category.Id != catService.getCategoryId() || catService.hasSelectedSubcategory()}" href="/mobs/index.html?eraId={{category.Id}}">{{category.Name}}</a>
+							<ul ng-if="category.Id == catService.getCategoryId()">
+								<li ng-repeat="subcategory in catService.getFilteredSubcategories()">
+									<a ng-class="{'text-primary font-weight-bold': subcategory.Id == catService.getSubcategoryId(), 'text-secondary': subcategory.Id != catService.getSubcategoryId()}" href="/mobs/index.html?eraId={{category.Id}}&areaId={{subcategory.Id}}">{{subcategory.Name}}</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
 				</div>
-				<div class="row">
-					<div class="input-group col-12">
-						<div class="input-group-prepend">
-							<span class="input-group-text">
-								<i class="fas fa-search"></i>
-							</span>
-						</div>
-						<input type="text" ng-model="searchString" class="form-control" placeholder="Search by name or area..." autofocus>
-						<div class="input-group-append">
-							<button class="btn btn-outline-success" type="submit">Search</button>
+				<div class="col-12 col-md-9 col-lg-10">
+					<div class="row text-center">
+						<h1 class="col-12">Mobs</h1>
+					</div>
+					<div class="px-0 px-md-5" ng-cloak>
+						<form ng-submit="onSearchClicked()">
+							<div class="row">
+								<span class="text-danger" ng-show="searchError != ''">{{searchError}}</span>
+							</div>
+							<div class="row">
+								<div class="input-group col-12">
+									<div class="input-group-prepend d-block d-md-none">
+										<button class="btn btn-outline-primary" type="button" ng-click="categoryActive = true">&nbsp;<i class="fas fa-caret-right"></i>&nbsp;
+									</div>
+									<div class="input-group-prepend" ng-if="catService.getActiveCategory()">
+										<button class="btn btn-outline-primary" type="button" ng-click="catService.clearSelectedCategories()">{{catService.getActiveCategory()}}&nbsp;&nbsp;<i class="fas fa-times"></i></button>
+									</div>
+									<input type="text" ng-model="searchString" class="form-control" placeholder="Search by name or area..." autofocus>
+									<div class="input-group-append">
+										<button class="btn btn-outline-success" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<br />
+					<div class="row" ng-show="resultWarning != ''" ng-cloak>
+						<span class="text-danger">{{resultWarning}}</span>
+					</div>
+					<div class="row" ng-cloak>
+						<div class="col-12">
+							<div class="card">
+								<div class="card-header">
+									<strong class="float-left">{{recent ? "Recently Modified" : "Search Results"}}</strong>
+									<div class="float-right clickable">
+										<a href="{{isLoggedIn ? '/mobs/add.html' : '/login.html?returnUrl=/mobs/add.html'}}">
+											<i class="fas fa-plus"></i>
+										</a>
+									</div>
+								</div>
+								<div class="table-responsive">
+									<table class="table table-sm table-md table-hover table-striped table-bordered" ng-cloak>
+										<thead class="thead-dark">
+											<tr>
+												<th scope="col" ng-if="recent">Modified By</th>
+												<th scope="col">Name</th>
+												<th scope="col">Area</th>
+												<th scope="col">Experience</th>
+												<th scope="col">Gold</th>
+												<th scope="col">Agg</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="mob in mobs | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onMobClicked(mob)" style="cursor: pointer;">
+												<td ng-if="recent">{{mob.ModifiedBy}}</td>
+												<th scope="row" class="text-primary">{{mob.Name}}</th>
+												<td><span class="text-info">{{mob.AreaEra ? '(' + mob.AreaEra + ')' : ''}}</span> {{mob.AreaName}}</td>
+												<td>{{mob.Xp}}</td>
+												<td>{{mob.Gold}}</td>
+												<td class="text-center">
+													<i class="{{mob.Aggro == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
 						</div>
 					</div>
-				</div>
-			</form>
-		</div>
-		<br />
-		<div class="row" ng-show="resultWarning != ''" ng-cloak>
-			<span class="text-danger">{{resultWarning}}</span>
-		</div>
-		<div class="row" ng-cloak>
-			<div class="card table-responsive">
-				<div class="card-header">
-					<strong class="float-left">{{recent ? "Recently Modified" : "Search Results"}}</strong>
-					<div class="float-right clickable">
-						<a href="{{isLoggedIn ? '/mobs/add.html' : '/login.html?returnUrl=/mobs/add.html'}}">
-							<i class="fas fa-plus"></i>
-						</a>
-					</div>
-				</div>
-				<div class="table-responsive">
-					<table class="table table-sm table-md table-hover table-striped table-bordered" ng-cloak>
-						<thead class="thead-dark">
-							<tr>
-								<th scope="col" ng-if="recent">Modified By</th>
-								<th scope="col">Name</th>
-								<th scope="col">Area</th>
-								<th scope="col">Experience</th>
-								<th scope="col">Gold</th>
-								<th scope="col">Agg</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr ng-repeat="mob in mobs | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onMobClicked(mob)" style="cursor: pointer;">
-								<td ng-if="recent">{{mob.ModifiedBy}}</td>
-								<th scope="row" class="text-primary">{{mob.Name}}</th>
-								<td><span class="text-info">{{mob.AreaEra ? '(' + mob.AreaEra + ')' : ''}}</span> {{mob.AreaName}}</td>
-								<td>{{mob.Xp}}</td>
-								<td>{{mob.Gold}}</td>
-								<td class="text-center">
-									<i class="{{mob.Aggro == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
-								</td>
-							</tr>
-						</tbody>
-					</table>
+					<br />
+					<nav class="row" aria-label="Mob result navigation" ng-show="totalPages > 1">
+						<ul class="pagination">
+							<li class="page-item">
+								<a class="page-link" ng-click="onPreviousClicked()" aria-label="Previous">
+									<span aria-hidden="true">
+										<i class="fas fa-chevron-left"></i>
+									</span>
+									<span class="sr-only">Previous</span>
+								</a>
+							</li>
+							<li class="page-item" ng-repeat="i in getPageArray(totalPages) track by $index" ng-class="{active: i == currentPage}">
+								<a class="page-link" ng-click="onPageClicked(i)">{{i}}</a>
+							</li>
+							<li class="page-item">
+								<a class="page-link" ng-click="onNextClicked()" aria-label="Next">
+									<span aria-hidden="true">
+										<i class="fas fa-chevron-right"></i>
+									</span>
+									<span class="sr-only">Next</span>
+								</a>
+							</li>
+						</ul>
+					</nav>
 				</div>
 			</div>
 		</div>
-		<br />
-		<nav class="row" aria-label="Mob result navigation" ng-show="totalPages > 1">
-			<ul class="pagination">
-				<li class="page-item">
-					<a class="page-link" ng-click="onPreviousClicked()" aria-label="Previous">
-						<span aria-hidden="true">
-							<i class="fas fa-chevron-left"></i>
-						</span>
-						<span class="sr-only">Previous</span>
-					</a>
-				</li>
-				<li class="page-item" ng-repeat="i in getPageArray(totalPages) track by $index" ng-class="{active: i == currentPage}">
-					<a class="page-link" ng-click="onPageClicked(i)">{{i}}</a>
-				</li>
-				<li class="page-item">
-					<a class="page-link" ng-click="onNextClicked()" aria-label="Next">
-						<span aria-hidden="true">
-							<i class="fas fa-chevron-right"></i>
-						</span>
-						<span class="sr-only">Next</span>
-					</a>
-				</li>
-			</ul>
-		</nav>
 	</div>
 
 	<lh-footer></lh-footer>

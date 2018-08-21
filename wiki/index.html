@@ -40,7 +40,7 @@
 					<h2>Categories <button class="btn btn-outline-danger float-right d-block d-md-none" type="button" ng-click="categoryActive = false"><i class="fas fa-times"></i></button></h2>
 					<ul class="categoryList">
 						<li ng-repeat="category in catService.categories" ng-cloak>
-							<a ng-class="{'text-primary font-weight-bold': category.Id == catService.getCategoryId() && catService.getSubcategoryId() < 0, 'text-secondary': category.Id != catService.getCategoryId() || catService.getSubcategoryId() >= 0}" href="/wiki/index.html?categoryId={{category.Id}}">{{category.Name}}</a>
+							<a ng-class="{'text-primary font-weight-bold': category.Id == catService.getCategoryId() && !catService.hasSelectedSubcategory(), 'text-secondary': category.Id != catService.getCategoryId() || catService.hasSelectedSubcategory()}" href="/wiki/index.html?categoryId={{category.Id}}">{{category.Name}}</a>
 							<ul ng-if="category.Id == catService.getCategoryId()">
 								<li ng-repeat="subcategory in catService.getFilteredSubcategories()">
 									<a ng-class="{'text-primary font-weight-bold': subcategory.Id == catService.getSubcategoryId(), 'text-secondary': subcategory.Id != catService.getSubcategoryId()}" href="/wiki/index.html?categoryId={{category.Id}}&subcategoryId={{subcategory.Id}}">{{subcategory.Name}}</a>
@@ -51,7 +51,7 @@
 				</div>
 				<div class="col-12 col-md-9 col-lg-10">
 					<div class="row text-center">
-						<h1 class="float-left col-12">Wiki Pages</h1>
+						<h1 class="col-12">Wiki Pages</h1>
 					</div>
 					<div class="px-0 px-md-5" ng-cloak>
 						<form ng-submit="onSearchClicked()">
