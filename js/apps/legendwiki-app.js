@@ -285,6 +285,20 @@ app.factory('categories', function() {
 		}
 	}
 
+	/** @description Returns whether or not the selected category Id is valid.
+	 * @returns {boolean}
+	 */
+	Categories.prototype.hasSelectedCategory = function() {
+		return this.categoryId > this.defaultId;
+	}
+
+	/** @description Returns whether or not the selected subcategory Id is valid.
+	 * @returns {boolean}
+	 */
+	Categories.prototype.hasSelectedSubcategory = function() {
+		return this.subcategoryId > this.defaultId;
+	}
+
 	/** @description Gets the current category Id.
 	 * @returns {number}
 	 */
@@ -297,6 +311,20 @@ app.factory('categories', function() {
 	 */
 	Categories.prototype.getSubcategoryId = function() {
 		return this.subcategoryId;
+	}
+
+	/** @description Gets the current category name.
+	 * @returns {number}
+	 */
+	Categories.prototype.getSelectedCategoryName = function() {
+		return this.getCategoryName(this.categoryId);
+	}
+
+	/** @description Gets the current subcategory name.
+	 * @returns {number}
+	 */
+	Categories.prototype.getSelectedSubcategoryName = function() {
+		return this.getSubcategoryName(this.subcategoryId);
 	}
 
 	/** @description Gets the selected subcategory if selected, otherwise will get the selected category if selected. Used for displaying the category we're searching on.
