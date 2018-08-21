@@ -43,7 +43,7 @@ $itemStats = [(object) ["display" => "Strength", "short" => "Str", "var" => "Str
 			  (object) ["display" => "Min Dam", "short" => "MinDam", "var" => "MinDam", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
 			  (object) ["display" => "Holdable", "short" => "Holdable", "var" => "Holdable", "type" => "bool", "filterString" => "= 1", "default" => false, "netStat" => 0],
 			  (object) ["display" => "Sell Price", "short" => "Sell", "var" => "Value", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
-			  (object) ["display" => "Weight", "short" => "Weight", "var" => "Weight", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
+			  (object) ["display" => "Weight", "short" => "Weight", "var" => "Weight", "type" => "decimal", "filterString" => "> 0", "default" => 0, "netStat" => 0],
 			  (object) ["display" => "Unique", "short" => "Unique", "var" => "UniqueWear", "type" => "bool", "filterString" => "= 1", "default" => false, "netStat" => 0],
 			  (object) ["display" => "Bonded", "short" => "Bonded", "var" => "Bonded", "type" => "bool", "filterString" => "= 1", "default" => false, "netStat" => 0],
 			  (object) ["display" => "Casts", "short" => "Casts", "var" => "Casts", "type" => "string", "filterString" => "<> ''", "default" => "", "netStat" => 0],

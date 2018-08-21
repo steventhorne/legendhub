@@ -55,6 +55,7 @@ app.controller('items-edit', function($scope, $http, itemConstants, breadcrumb) 
 			$scope.itemModel.Holdable = Boolean($scope.itemModel.Holdable);
 			$scope.itemModel.UniqueWear = Boolean($scope.itemModel.UniqueWear);
 			$scope.itemModel.Bonded = Boolean($scope.itemModel.Bonded);
+			$scope.itemModel.Weight = Number($scope.itemModel.Weight);
 			$scope.initialItemModel = Object.assign({}, $scope.itemModel);
 
 			breadcrumb.links = [{'display': 'Items', 'href': '/items/'},
