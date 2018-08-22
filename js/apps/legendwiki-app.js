@@ -94,14 +94,14 @@ app.directive('lhHeader', function() {
 		restrict: 'E',
 		templateUrl: 'header.html'
 	}
-})
+});
 
 app.directive('lhFooter', function() {
 	return {
 		restrict: 'E',
 		templateUrl: 'footer.html'
 	}
-})
+});
 
 app.constant('itemConstants', {
 	slots: ["Light",
