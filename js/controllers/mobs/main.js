@@ -83,17 +83,28 @@ app.controller('mobs', function($scope, $http, categories) {
 	}
 
 	$scope.onSearchClicked = function() {
+		window.location = $scope.getSearchUrl();
+	}
+
+	$scope.getSearchUrl = function(categoryId, subcategoryId) {
 		var url = "/mobs/index.html?";
-		if (categories.hasSelectedCategory()) {
+
+		if (categoryId !== undefined) {
+			url += "eraId=" + categoryId + "&";
+		}
+		else if (categories.hasSelectedCategory()) {
 			url += "eraId=" + categories.getCategoryId() + "&";
 		}
 
-		if (categories.hasSelectedSubcategory()) {
+		if (subcategoryId !== undefined) {
+			url += "areaId=" + subcategoryId + "&";
+		}
+		else if (categories.hasSelectedSubcategory()) {
 			url += "areaId=" + categories.getSubcategoryId() + "&";
 		}
 
 		url += "search=" + $scope.searchString;
-		window.location = url;
+		return url;
 	}
 
 	$scope.onPreviousClicked = function() {

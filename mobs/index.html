@@ -35,10 +35,10 @@
 					<h2>Areas <button class="btn btn-outline-danger float-right d-block d-md-none" type="button" ng-click="categoryActive = false"><i class="fas fa-times"></i></button></h2>
 					<ul class="categoryList">
 						<li ng-repeat="category in catService.categories" ng-cloak>
-							<a ng-class="{'text-primary font-weight-bold': category.Id == catService.getCategoryId() && !catService.hasSelectedSubcategory(), 'text-secondary': category.Id != catService.getCategoryId() || catService.hasSelectedSubcategory()}" href="/mobs/index.html?eraId={{category.Id}}">{{category.Name}}</a>
+							<a ng-class="{'text-primary font-weight-bold': category.Id == catService.getCategoryId() && !catService.hasSelectedSubcategory(), 'text-secondary': category.Id != catService.getCategoryId() || catService.hasSelectedSubcategory()}" ng-href="{{getSearchUrl(category.Id, -1)}}">{{category.Name}}</a>
 							<ul ng-if="category.Id == catService.getCategoryId()">
 								<li ng-repeat="subcategory in catService.getFilteredSubcategories()">
-									<a ng-class="{'text-primary font-weight-bold': subcategory.Id == catService.getSubcategoryId(), 'text-secondary': subcategory.Id != catService.getSubcategoryId()}" href="/mobs/index.html?eraId={{category.Id}}&areaId={{subcategory.Id}}">{{subcategory.Name}}</a>
+									<a ng-class="{'text-primary font-weight-bold': subcategory.Id == catService.getSubcategoryId(), 'text-secondary': subcategory.Id != catService.getSubcategoryId()}" ng-href="{{getSearchUrl(category.Id, subcategory.Id)}}">{{subcategory.Name}}</a>
 								</li>
 							</ul>
 						</li>

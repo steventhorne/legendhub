@@ -81,18 +81,28 @@ app.controller('wiki', function($scope, $http, categories) {
 	}
 
 	$scope.onSearchClicked = function() {
-		var url = "/wiki/index.html?"
-		if (categories.hasSelectedCategory()) {
+		window.location = $scope.getSearchUrl();
+	}
+
+	$scope.getSearchUrl = function(categoryId, subcategoryId) {
+		var url = "/wiki/index.html?";
+		
+		if (categoryId !== undefined) {
+			url += "categoryId=" + categoryId + "&";
+		}
+		else if (categories.hasSelectedCategory()) {
 			url += "categoryId=" + categories.getCategoryId() + "&";
 		}
 
-		if (categories.getSubcategoryId()) {
+		if (subcategoryId !== undefined) {
+			url += "subcategoryId=" + subcategoryId + "&";
+		}
+		else if (categories.getSubcategoryId()) {
 			url += "subcategoryId=" + categories.getSubcategoryId() + "&";
 		}
 
 		url += "search=" + $scope.searchString;
-
-		window.location = url;
+		return url;
 	}
 
 	$scope.onPreviousClicked = function() {
