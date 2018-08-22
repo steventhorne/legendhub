@@ -24,7 +24,8 @@ app.controller('mobs-details', function($scope, $http, itemConstants, breadcrumb
 			$scope.mob.ModifiedOn = (new Date(response.data.ModifiedOn + " UTC")).toString().slice(4, 24);
 
 			breadcrumb.links = [{'display': 'Mobs', 'href': '/mobs/'},
-								{'display': $scope.mob.AreaName, 'href': '/mobs/index.html?areaId=' + $scope.mob.AreaId},
+								{'display': $scope.mob.AreaEra, 'href': '/mobs/index.html?eraId=' + $scope.mob.EraId},
+								{'display': $scope.mob.AreaName, 'href': '/mobs/index.html?eraId=' + $scope.mob.EraId + '&areaId=' + $scope.mob.AreaId},
 								{'display': $scope.mob.Name, 'href': '', 'active': true}];
 
 			$scope.getMobHistory();
