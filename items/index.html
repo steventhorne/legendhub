@@ -148,19 +148,15 @@
 									<table class="table table-sm table-md table-hover table-striped table-bordered" ng-cloak>
 										<thead class="thead-dark">
 											<tr>
-												<th scope="col" ng-if="recent">Modified By</th>
-												<th scope="col">Slot</th>
-												<th scope="col" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;
-													<i ng-class="sortClass('Name')"></i>
-												</th>
-												<th scope="col">Align</th>
-												<th ng-repeat="stat in statInfo" ng-if="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;
-													<i ng-class="sortClass(stat.var)"></i>
-												</th>
+												<th scope="col" ng-click="onColumnHeaderClicked('ModifiedBy')" ng-if="recent" nowrap>Modified By&nbsp;<i ng-class="sortClass('ModifiedBy')"></i></th>
+												<th scope="col" ng-click="onColumnHeaderClicked('Slot')" nowrap>Slot&nbsp;<i ng-class="sortClass('Slot')"></i></th>
+												<th scope="col" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="sortClass('Name')"></i></th>
+												<th scope="col" ng-click="onColumnHeaderClicked('AlignRestriction')" nowrap>Align&nbsp;<i ng-class="sortClass('AlignRestriction')"></i></th>
+												<th ng-repeat="stat in statInfo" ng-if="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="sortClass(stat.var)"></i></th>
 											</tr>
 										</thead>
 										<tbody>
-											<tr ng-repeat="item in items | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onItemClicked(item)" style="cursor: pointer;">
+											<tr ng-repeat="item in items | orderBy:sortProperty:sortReverse | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onItemClicked(item)" style="cursor: pointer;">
 												<td ng-if="recent">{{item.ModifiedBy}}</td>
 												<td>{{slots[item.Slot]}}</td>
 												<th scope="row" class="text-primary">{{item.Name}}</th>

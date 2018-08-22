@@ -1,8 +1,11 @@
 app.controller('quests', function($scope, $http, categories) {
 	$scope.init = function() {
-		$scope.searchString = "";
-		$scope.questsPerPage = 20;
 		$scope.statOnly = false;
+
+		$scope.questsPerPage = 20;
+		$scope.sortProperty = "";
+		$scope.sortReverse = false;
+		
 		$scope.catService = categories;
 
 		categories.setSelectedCategory(getUrlParameter('eraId'));
@@ -144,6 +147,25 @@ app.controller('quests', function($scope, $http, categories) {
 			}
 		}
 		return nums;
+	}
+
+	$scope.onColumnHeaderClicked = function(statVar) {
+		if ($scope.sortProperty == statVar) {
+			$scope.sortReverse = !$scope.sortReverse;
+		}
+		else {
+			$scope.sortProperty = statVar;
+			$scope.sortReverse = true;
+		}
+	}
+
+	$scope.sortClass = function(statVar) {
+		if (!$scope.sortProperty) {
+			return "fas fa-sort";
+		}
+		else if ($scope.sortProperty == statVar) {
+			return $scope.sortReverse ? "fas fa-sort-down" : "fas fa-sort-up";
+		}
 	}
 
 	getUrlParameter = function(name) {
