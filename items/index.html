@@ -45,7 +45,7 @@
 					<ul class="categoryList">
 						<li ng-repeat="category in catService.categories" ng-cloak>
 							<a ng-class="{'text-primary font-weight-bold': category.Id == catService.getCategoryId(), 'text-secondary': category.Id != catService.getCategoryId()}"
-							    ng-href="/items/index.html?slotId={{category.Id}}">{{category.Name}}</a>
+							    ng-href="{{getSearchUrl(category.Id)}}">{{category.Name}}</a>
 						</li>
 					</ul>
 				</div>

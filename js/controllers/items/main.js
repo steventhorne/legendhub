@@ -136,22 +136,33 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 	}
 
 	$scope.onSearchClicked = function() {
+		window.location = $scope.getSearchUrl();
+	}
+
+	$scope.getSearchUrl = function(categoryId) {
 		var url = "/items/index.html?";
-		if (categories.hasSelectedCategory()) {
+
+		if (categoryId !== undefined) {
+			url += "slotId=" + categoryId + "&";
+		}
+		else if (categories.hasSelectedCategory()) {
 			url += "slotId=" + categories.getCategoryId() + "&";
 		}
-
+		
 		var filtersUrl = $scope.saveFiltersToUrl();
 		if (filtersUrl) {
 			url += "filters=" + filtersUrl + "&";
 		}
 
 		url += "search=" + $scope.searchString;
-		window.location = url;
+		return url;
 	}
 
 	$scope.saveFiltersToUrl = function() {
 		var url = "";
+		if (!$scope.statInfo) {
+			return;
+		}
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
 			if ($scope.statInfo[i]["filter"]) {
 				if (url) {

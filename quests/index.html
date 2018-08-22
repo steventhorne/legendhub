@@ -45,11 +45,11 @@
 					<ul class="categoryList">
 						<li ng-repeat="category in catService.categories" ng-cloak>
 							<a ng-class="{'text-primary font-weight-bold': category.Id == catService.getCategoryId() && !catService.hasSelectedSubcategory(), 'text-secondary': category.Id != catService.getCategoryId() || catService.hasSelectedSubcategory()}"
-							    href="/quests/index.html?eraId={{category.Id}}">{{category.Name}}</a>
+							ng-href="{{getSearchUrl(category.Id, -1)}}">{{category.Name}}</a>
 							<ul ng-if="category.Id == catService.getCategoryId()">
 								<li ng-repeat="subcategory in catService.getFilteredSubcategories()">
 									<a ng-class="{'text-primary font-weight-bold': subcategory.Id == catService.getSubcategoryId(), 'text-secondary': subcategory.Id != catService.getSubcategoryId()}"
-									    href="/quests/index.html?eraId={{category.Id}}&areaId={{subcategory.Id}}">{{subcategory.Name}}</a>
+									    ng-href="{{getSearchUrl(category.Id, subcategory.Id)}}">{{subcategory.Name}}</a>
 								</li>
 							</ul>
 						</li>
