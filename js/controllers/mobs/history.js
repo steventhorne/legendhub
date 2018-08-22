@@ -13,7 +13,8 @@ app.controller('mobs-history', function($scope, $http, itemConstants, breadcrumb
 			$scope.mob.Id = $scope.mob.MobId;
 
 			breadcrumb.links = [{'display': 'Mobs', 'href': '/mobs/'},
-								{'display': $scope.mob.AreaName, 'href': '/mobs/index.html?areaId=' + $scope.mob.AreaId},
+								{'display': $scope.mob.AreaEra, 'href': '/mobs/index.html?eraId=' + $scope.mob.EraId},
+								{'display': $scope.mob.AreaName, 'href': '/mobs/index.html?eraId=' + $scope.mob.EraId + '&areaId=' + $scope.mob.AreaId},
 								{'display': $scope.mob.Name, 'href': '/mobs/details.html?id=' + $scope.mob.Id},
 								{'display': $scope.mob.ModifiedOn, 'href': '', 'active': true}];
 

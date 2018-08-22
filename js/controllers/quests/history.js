@@ -14,7 +14,8 @@ app.controller('quests-history', function($scope, $http, itemConstants, breadcru
 			$scope.quest.Id = $scope.quest.QuestId;
 
 			breadcrumb.links = [{'display': 'Quests', 'href': '/quests/'},
-								{'display': $scope.quest.AreaName, 'href': '/quests/index.html?areaId=' + $scope.quest.AreaId},
+								{'display': $scope.quest.AreaEra, 'href': '/quests/index.html?eraId=' + $scope.quest.EraId},
+								{'display': $scope.quest.AreaName, 'href': '/quests/index.html?eraId=' + $scope.quest.EraId + '&areaId=' + $scope.quest.AreaId},
 								{'display': $scope.quest.Title, 'href': '/quests/details.html?id=' + $scope.quest.Id},
 								{'display': $scope.quest.ModifiedOn, 'href': '', 'active': true}];
 

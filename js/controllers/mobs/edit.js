@@ -37,7 +37,8 @@ app.controller('mobs-edit', function($scope, $http, breadcrumb) {
 			$scope.initialMobModel = Object.assign({}, $scope.mobModel);
 
 			breadcrumb.links = [{'display': 'Mobs', 'href': '/mobs/'},
-								{'display': $scope.mobModel.AreaName, 'href': '/mobs/index.html?areaId=' + $scope.mobModel.AreaId},
+								{'display': $scope.mobModel.AreaEra, 'href': '/mobs/index.html?eraId=' + $scope.mobModel.EraId},
+								{'display': $scope.mobModel.AreaName, 'href': '/mobs/index.html?eraId=' + $scope.mobModel.EraId + '&areaId=' + $scope.mobModel.AreaId},
 								{'display': $scope.mobModel.Name, 'href': '/mobs/details.html?id=' + $scope.mobModel.Id},
 								{'display': 'Edit', 'href': '', 'active': true}];
 		}, function errorCallback(response){
