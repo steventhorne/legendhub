@@ -1,7 +1,9 @@
 app.controller('wiki', function($scope, $http, categories) {
 	$scope.init = function() {
-		$scope.searchString = "";
 		$scope.wikiPagesPerPage = 20;
+		$scope.sortProperty = "";
+		$scope.sortReverse = false;
+
 		$scope.catService = categories;
 
 		// load query params
@@ -138,6 +140,25 @@ app.controller('wiki', function($scope, $http, categories) {
 			}
 		}
 		return nums;
+	}
+
+	$scope.onColumnHeaderClicked = function(statVar) {
+		if ($scope.sortProperty == statVar) {
+			$scope.sortReverse = !$scope.sortReverse;
+		}
+		else {
+			$scope.sortProperty = statVar;
+			$scope.sortReverse = true;
+		}
+	}
+
+	$scope.sortClass = function(statVar) {
+		if (!$scope.sortProperty) {
+			return "fas fa-sort";
+		}
+		else if ($scope.sortProperty == statVar) {
+			return $scope.sortReverse ? "fas fa-sort-down" : "fas fa-sort-up";
+		}
 	}
 
 	getUrlParameter = function(name) {

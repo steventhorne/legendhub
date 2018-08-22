@@ -88,16 +88,16 @@
 									<table class="table table-sm table-md table-hover table-striped table-bordered" ng-cloak>
 										<thead class="thead-dark">
 											<tr>
-												<th scope="col" ng-if="recent">Modified By</th>
-												<th scope="col">Name</th>
-												<th scope="col">Area</th>
-												<th scope="col">Experience</th>
-												<th scope="col">Gold</th>
-												<th scope="col">Agg</th>
+												<th scope="col" ng-click="onColumnHeaderClicked('ModifiedBy')" nowrap ng-if="recent">Modified By&nbsp;<i ng-class="sortClass('ModifiedBy')"></i></th>
+												<th scope="col" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="sortClass('Name')"></i></th>
+												<th scope="col" ng-click="onColumnHeaderClicked('AreaName')" nowrap>Area&nbsp;<i ng-class="sortClass('AreaName')"></i></th>
+												<th scope="col" ng-click="onColumnHeaderClicked('Xp')" nowrap>Experience&nbsp;<i ng-class="sortClass('Xp')"></i></th>
+												<th scope="col" ng-click="onColumnHeaderClicked('Gold')" nowrap>Gold&nbsp;<i ng-class="sortClass('Gold')"></i></th>
+												<th scope="col" ng-click="onColumnHeaderClicked('Aggro')" nowrap>Agg&nbsp;<i ng-class="sortClass('Aggro')"></i></th>
 											</tr>
 										</thead>
 										<tbody>
-											<tr ng-repeat="mob in mobs | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onMobClicked(mob)" style="cursor: pointer;">
+											<tr ng-repeat="mob in mobs | orderBy:sortProperty:sortReverse | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onMobClicked(mob)" style="cursor: pointer;">
 												<td ng-if="recent">{{mob.ModifiedBy}}</td>
 												<th scope="row" class="text-primary">{{mob.Name}}</th>
 												<td><span class="text-info">{{mob.AreaEra ? '(' + mob.AreaEra + ')' : ''}}</span> {{mob.AreaName}}</td>

@@ -4,7 +4,11 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 		$scope.slots = itemConstants.slots;
 		$scope.aligns = itemConstants.aligns;
 		$scope.shortAligns = itemConstants.shortAligns;
+		
 		$scope.itemsPerPage = 20;
+		$scope.sortProperty = "";
+		$scope.sortReverse = false;
+
 		$scope.catService = categories;
 
 		// set categories
@@ -256,12 +260,21 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 	}
 
 	$scope.onColumnHeaderClicked = function(statVar) {
-
+		if ($scope.sortProperty == statVar) {
+			$scope.sortReverse = !$scope.sortReverse;
+		}
+		else {
+			$scope.sortProperty = statVar;
+			$scope.sortReverse = true;
+		}
 	}
 
 	$scope.sortClass = function(statVar) {
-		if ($scope.recent) {
-			return "";
+		if (!$scope.sortProperty) {
+			return "fas fa-sort";
+		}
+		else if ($scope.sortProperty == statVar) {
+			return $scope.sortReverse ? "fas fa-sort-down" : "fas fa-sort-up";
 		}
 	}
 
