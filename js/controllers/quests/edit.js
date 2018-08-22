@@ -37,7 +37,8 @@ app.controller('quests-edit', function($scope, $http, breadcrumb) {
 			$scope.initialQuestModel = Object.assign({}, $scope.questModel);
 
 			breadcrumb.links = [{'display': 'Quests', 'href': '/quests/'},
-								{'display': $scope.questModel.AreaName, 'href': '/quests/index.html?areaId=' + $scope.questModel.AreaId},
+								{'display': $scope.questModel.AreaEra, 'href': '/quests/index.html?eraId=' + $scope.questModel.EraId},
+								{'display': $scope.questModel.AreaName, 'href': '/quests/index.html?eraId=' + $scope.questModel.EraId + '&areaId=' + $scope.questModel.AreaId},
 								{'display': $scope.questModel.Title, 'href': '/quests/details.html?id=' + $scope.questModel.Id},
 								{'display': 'Edit', 'href': '', 'active': true}];
 		}, function errorCallback(response){
