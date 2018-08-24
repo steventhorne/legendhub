@@ -2,14 +2,14 @@
 header( "Access-Control-Allow-Origin: http://legendhub.org" );
 header( "Content-Type: application/json; charset=UTF-8" );
 
-$itemCategories = [(object) ['name' => 'Basic', 'stats' => [30, 31, 32, 33, 34, 35, 36, 37]],
+$itemCategories = [(object) ['name' => 'Basic', 'stats' => [31, 32, 33, 34, 35, 36, 37, 38]],
 					(object) ['name' => 'Main', 'stats' => [0, 1, 2, 3, 4, 5, 6]],
 					(object) ['name' => 'Regen', 'stats' => [7, 8, 9, 10, 11, 12]],
 					(object) ['name' => 'Melee', 'stats' => [13, 14]],
 					(object) ['name' => 'Mage', 'stats' => [15, 16, 17, 18]],
 					(object) ['name' => 'Tank', 'stats' => [19, 20]],
 					(object) ['name' => 'Ranged', 'stats' => [21, 22, 23]],
-					(object) ['name' => 'Weapon', 'stats' => [24, 25, 26, 27, 28, 29]],
+					(object) ['name' => 'Weapon', 'stats' => [24, 25, 26, 27, 28, 29, 30]],
 ];
 
 $itemStats = [(object) ["display" => "Strength", "short" => "Str", "var" => "Strength", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 1],
@@ -38,6 +38,7 @@ $itemStats = [(object) ["display" => "Strength", "short" => "Str", "var" => "Str
 			  (object) ["display" => "Accuracy Bonus", "short" => "AccuBonus", "var" => "RangedAccuracy", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0], // TODO: netStat???
 			  (object) ["display" => "Two Handed", "short" => "2H", "var" => "TwoHanded", "type" => "bool", "filterString" => "= 1", "default" => false, "netStat" => 0],
 			  (object) ["display" => "Quality", "short" => "Quality", "var" => "Quality", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
+			  (object) ["display" => "Speed Factor", "short" => "Speed", "var" => "SpeedFactor", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
 			  (object) ["display" => "Max Dam", "short" => "MaxDam", "var" => "MaxDam", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
 			  (object) ["display" => "Avg Dam", "short" => "AvgDam", "var" => "AvgDam", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
 			  (object) ["display" => "Min Dam", "short" => "MinDam", "var" => "MinDam", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
