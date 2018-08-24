@@ -93,18 +93,18 @@
 									<table class="table table-sm table-md table-hover table-striped table-bordered" ng-cloak>
 										<thead class="thead-dark">
 											<tr>
-												<th scope="col" ng-click="onColumnHeaderClicked('ModifiedBy')" nowrap ng-if="recent">Modified By&nbsp;<i ng-class="sortClass('ModifiedBy')"></i></th>
-												<th scope="col" ng-click="onColumnHeaderClicked('Title')" nowrap>Title&nbsp;<i ng-class="sortClass('Title')"></i></th>
-												<th scope="col" ng-click="onColumnHeaderClicked('CategoryId')" nowrap>Category&nbsp;<i ng-class="sortClass('CategoryId')"></i></th>
-												<th scope="col" ng-click="onColumnHeaderClicked('SubCategoryId')" nowrap>Subcategory&nbsp;<i ng-class="sortClass('SubCategoryId')"></i></th>
+												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" nowrap ng-if="recent">Modified By&nbsp;<i ng-class="sortClass('ModifiedBy')"></i></th>
+												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('Title')" nowrap>Title&nbsp;<i ng-class="sortClass('Title')"></i></th>
+												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('CategoryId')" nowrap>Category&nbsp;<i ng-class="sortClass('CategoryId')"></i></th>
+												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('SubCategoryId')" nowrap>Subcategory&nbsp;<i ng-class="sortClass('SubCategoryId')"></i></th>
 											</tr>
 										</thead>
 										<tbody>
 											<tr ng-repeat="wiki in wikiPages | orderBy:sortProperty:sortReverse | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onWikiPageClicked(wiki)" style="cursor: pointer;">
-												<td ng-if="recent">{{wiki.ModifiedBy}}</td>
+												<td ng-if="recent" class="text-center">{{wiki.ModifiedBy}}</td>
 												<th scope="row" class="text-primary">{{wiki.Title}}</th>
-												<td>{{catService.getCategoryName(wiki.CategoryId)}}</td>
-												<td>{{catService.getSubcategoryName(wiki.SubCategoryId)}}</td>
+												<td class="text-center">{{catService.getCategoryName(wiki.CategoryId)}}</td>
+												<td class="text-center">{{catService.getSubcategoryName(wiki.SubCategoryId)}}</td>
 											</tr>
 										</tbody>
 									</table>
