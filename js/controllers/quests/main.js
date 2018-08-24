@@ -1,7 +1,5 @@
 app.controller('quests', function($scope, $http, categories) {
 	$scope.init = function() {
-		$scope.statOnly = false;
-
 		$scope.questsPerPage = 20;
 		$scope.sortProperty = "";
 		$scope.sortReverse = false;
@@ -11,10 +9,11 @@ app.controller('quests', function($scope, $http, categories) {
 		categories.setSelectedCategory(getUrlParameter('eraId'));
 		categories.setSelectedSubcategory(getUrlParameter('areaId'));
 		$scope.searchString = getUrlParameter('search');
+		$scope.statOnly = Boolean(getUrlParameter('stat'));
 
 		$scope.getAreas();
 
-		if (categories.hasSelectedCategory() || $scope.searchString) {
+		if (categories.hasSelectedCategory() || $scope.searchString || $scope.statOnly) {
 			$scope.search();
 		}
 		else {
@@ -103,6 +102,10 @@ app.controller('quests', function($scope, $http, categories) {
 		}
 		else if (categories.hasSelectedSubcategory()) {
 			url += "areaId=" + categories.getSubcategoryId() + "&";
+		}
+
+		if ($scope.statOnly) {
+			url += "stat=" + ($scope.statOnly ? "1&" : "0&");
 		}
 
 		url += "search=" + $scope.searchString;
