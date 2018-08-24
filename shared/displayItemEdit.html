@@ -18,7 +18,7 @@
 				<div class="input-group-prepend">
 					<span class="input-group-text">Name</span>
 				</div>
-				<input type="text" id="nameControl" ng-model="itemModel.Name" class="form-control" ng-class="{'is-invalid': itemModel.Name === undefined || itemModel.Name === ''}" required>
+				<input type="text" id="nameControl" ng-model="itemModel.Name" class="form-control" ng-class="{'is-invalid': itemModel.Name === undefined || itemModel.Name === ''}" required lh-autofocus>
 			</div>
 		</div>
 		<div class="form-group col-4 col-lg-2" ng-repeat="item in category['stats']" ng-if="statInfo[item]['editable'] != false">
