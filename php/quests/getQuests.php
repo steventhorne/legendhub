@@ -8,14 +8,25 @@ $pdo = getPDO();
 
 $postdata = json_decode(file_get_contents("php://input"));
 $searchString = $postdata->searchString;
-$eraId = $postdata->eraId;
-$areaId = $postdata->areaId;
-
-if (is_null($postdata->statOnly)) {
-    $statOnly = False;
+if (isset($postdata->eraId)) {
+    $eraId = $postdata->eraId;
 }
 else {
+    $eraId = -1;
+}
+
+if (isset($postdata->areaId)) {
+    $areaId = $postdata->areaId;
+}
+else {
+    $areaId = -1;
+}
+
+if (isset($postdata->statOnly)) {
     $statOnly = $postdata->statOnly;
+}
+else {
+    $statOnly = False;
 }
 
 $sql = "SELECT Q.*, A.Name AS AreaName, A.Era AS AreaEra

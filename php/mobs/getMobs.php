@@ -8,19 +8,29 @@ $pdo = getPDO();
 
 $postdata = json_decode(file_get_contents("php://input"));
 $searchString = $postdata->searchString;
-$eraId = $postdata->eraId;
-$areaId = $postdata->areaId;
+if (isset($postdata->eraId)) {
+    $eraId = $postdata->eraId;
+}
+else {
+    $eraId = -1;
+}
+
+if (isset($postdata->areaId)) {
+    $areaId = $postdata->areaId;
+}
+else {
+    $areaId = -1;
+}
 
 $sql = "SELECT M.*, A.Name AS AreaName, A.Era AS AreaEra
         FROM Mobs AS M
             LEFT JOIN Areas AS A ON A.Id = M.AreaId
-        WHERE (:searchString IS NULL OR M.Name LIKE :likeSearchString OR A.Name LIKE :areaLikeSearchString) AND
+        WHERE (:searchString IS NULL OR M.Name LIKE :likeSearchString) AND
               (:eraIdCheck < 1 OR :eraId = A.EraId) AND
               (:areaIdCheck < 1 OR :areaId = A.Id)";
 $query = $pdo->prepare($sql); 
 $query->execute(['searchString' => $searchString,
                  'likeSearchString' => '%' . $searchString . '%',
-                 'areaLikeSearchString' => '%' . $searchString . '%',
                  'eraIdCheck' => $eraId,
                  'eraId' => $eraId,
                  'areaIdCheck' => $areaId,
