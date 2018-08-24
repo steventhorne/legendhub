@@ -56,7 +56,7 @@ app.controller('items-edit', function($scope, $http, itemConstants, breadcrumb) 
 			$scope.itemModel.UniqueWear = Boolean($scope.itemModel.UniqueWear);
 			$scope.itemModel.Bonded = Boolean($scope.itemModel.Bonded);
 			$scope.itemModel.Weight = Number($scope.itemModel.Weight);
-			$scope.initialItemModel = Object.assign({}, $scope.itemModel);
+			$scope.initialItemModel = angular.copy($scope.itemModel);
 
 			breadcrumb.links = [{'display': 'Items', 'href': '/items/'},
 								{'display': $scope.slots[$scope.itemModel.Slot], 'href': '/items/index.html?slotId=' + $scope.itemModel.Slot},
@@ -68,17 +68,17 @@ app.controller('items-edit', function($scope, $http, itemConstants, breadcrumb) 
 	}
 
 	$scope.saveDisabled = function() {
-		return !$scope.form.$valid || JSON.stringify($scope.itemModel) === JSON.stringify($scope.initialItemModel);
+		return !$scope.form.$valid || angular.toJson($scope.itemModel) === angular.toJson($scope.initialItemModel);
 	}
 
 	$scope.submitItem = function() {
-		if (!$scope.form.$valid || JSON.stringify($scope.itemModel) === JSON.stringify($scope.initialItemModel)) {
+		if (!$scope.form.$valid || angular.toJson($scope.itemModel) === angular.toJson($scope.initialItemModel)) {
 			return;
 		}
 
 		$scope.calcNetStat();
 
-		var postData = Object.assign({}, $scope.itemModel);
+		var postData = angular.copy($scope.itemModel);
 		delete postData.ModifiedOn;
 		delete postData.ModifiedBy;
 		delete postData.ModifiedByIP;

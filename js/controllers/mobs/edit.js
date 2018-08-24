@@ -34,7 +34,7 @@ app.controller('mobs-edit', function($scope, $http, breadcrumb) {
 		}).then(function succcessCallback(response) {
 			$scope.mobModel = response.data;
 			$scope.mobModel.Aggro = Boolean($scope.mobModel.Aggro);
-			$scope.initialMobModel = Object.assign({}, $scope.mobModel);
+			$scope.initialMobModel = angular.copy($scope.mobModel);
 
 			breadcrumb.links = [{'display': 'Mobs', 'href': '/mobs/'},
 								{'display': $scope.mobModel.AreaEra, 'href': '/mobs/index.html?eraId=' + $scope.mobModel.EraId},
@@ -47,15 +47,15 @@ app.controller('mobs-edit', function($scope, $http, breadcrumb) {
 	}
 
 	$scope.saveDisabled = function() {
-		return !$scope.form.$valid || JSON.stringify($scope.mobModel) === JSON.stringify($scope.initialMobModel);
+		return !$scope.form.$valid || angular.toJson($scope.mobModel) === angular.toJson($scope.initialMobModel);
 	}
 
 	$scope.submitMob = function() {
-		if (!$scope.form.$valid || JSON.stringify($scope.mobModel) === JSON.stringify($scope.initialMobModel)) {
+		if (!$scope.form.$valid || angular.toJson($scope.mobModel) === angular.toJson($scope.initialMobModel)) {
 			return;
 		}
 
-		var postData = Object.assign({}, $scope.mobModel);
+		var postData = angular.copy($scope.mobModel);
 		$http({
 			url: '/php/mobs/updateMob.php',
 			method: 'POST',

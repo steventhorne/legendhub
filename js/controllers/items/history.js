@@ -73,7 +73,7 @@ app.controller('items-history', function($scope, $http, itemConstants, breadcrum
 	}
 
 	$scope.revert = function() {
-		var postData = Object.assign({}, $scope.item);
+		var postData = angular.copy($scope.item);
 		delete postData.ItemId;
 		delete postData.ModifiedOn;
 		delete postData.ModifiedBy;
