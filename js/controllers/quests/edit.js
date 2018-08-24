@@ -34,7 +34,7 @@ app.controller('quests-edit', function($scope, $http, breadcrumb) {
 		}).then(function succcessCallback(response) {
 			$scope.questModel = response.data;
 			$scope.questModel.Aggro = Boolean($scope.questModel.Aggro);
-			$scope.initialQuestModel = Object.assign({}, $scope.questModel);
+			$scope.initialQuestModel = angular.copy($scope.questModel);
 
 			breadcrumb.links = [{'display': 'Quests', 'href': '/quests/'},
 								{'display': $scope.questModel.AreaEra, 'href': '/quests/index.html?eraId=' + $scope.questModel.EraId},
@@ -47,15 +47,15 @@ app.controller('quests-edit', function($scope, $http, breadcrumb) {
 	}
 
 	$scope.saveDisabled = function() {
-		return !$scope.form.$valid || JSON.stringify($scope.questModel) === JSON.stringify($scope.initialQuestModel);
+		return !$scope.form.$valid || angular.toJson($scope.questModel) === angular.toJson($scope.initialQuestModel);
 	}
 
 	$scope.submitQuest = function() {
-		if (!$scope.form.$valid || JSON.stringify($scope.questModel) === JSON.stringify($scope.initialQuestModel)) {
+		if (!$scope.form.$valid || angular.toJson($scope.questModel) === angular.toJson($scope.initialQuestModel)) {
 			return;
 		}
 
-		var postData = Object.assign({}, $scope.questModel);
+		var postData = angular.copy($scope.questModel);
 		$http({
 			url: '/php/quests/updateQuest.php',
 			method: 'POST',

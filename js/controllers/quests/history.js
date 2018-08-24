@@ -64,7 +64,7 @@ app.controller('quests-history', function($scope, $http, itemConstants, breadcru
 	}
 
 	$scope.revert = function() {
-		var postData = Object.assign({}, $scope.quest);
+		var postData = angular.copy($scope.quest);
 		delete postData.QuestId;
 		delete postData.ModifiedOn;
 		delete postData.ModifiedBy;

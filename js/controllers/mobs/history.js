@@ -58,7 +58,7 @@ app.controller('mobs-history', function($scope, $http, itemConstants, breadcrumb
 	}
 
 	$scope.revert = function() {
-		var postData = Object.assign({}, $scope.mob);
+		var postData = angular.copy($scope.mob);
 		delete postData.MobId;
 		delete postData.ModifiedOn;
 		delete postData.ModifiedBy;

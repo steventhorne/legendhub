@@ -397,7 +397,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				for (var i = 0; i < list.items.length; ++i) {
 					for (var j = 0; j < response.data.length; ++j) {
 						if (list.items[i].Id == response.data[j].Id) {
-							list.items[i] = Object.assign({}, response.data[j]);
+							list.items[i] = angular.copy(response.data[j]);
 							list.items[i].Slot = $scope.slotOrder[i];
 							break;
 						}
