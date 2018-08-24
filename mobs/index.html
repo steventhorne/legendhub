@@ -61,7 +61,7 @@
 									<div class="input-group-prepend" ng-if="catService.getActiveCategory()">
 										<button class="btn btn-outline-primary" type="button" ng-click="catService.clearSelectedCategories()">{{catService.getActiveCategory()}}&nbsp;&nbsp;<i class="fas fa-times"></i></button>
 									</div>
-									<input type="text" ng-model="searchString" class="form-control" placeholder="Search by name or area..." lh-autofocus>
+									<input type="text" ng-model="searchString" class="form-control" placeholder="Search by name..." lh-autofocus>
 									<div class="input-group-append">
 										<button class="btn btn-outline-success" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
 									</div>
@@ -88,21 +88,21 @@
 									<table class="table table-sm table-md table-hover table-striped table-bordered" ng-cloak>
 										<thead class="thead-dark">
 											<tr>
-												<th scope="col" ng-click="onColumnHeaderClicked('ModifiedBy')" nowrap ng-if="recent">Modified By&nbsp;<i ng-class="sortClass('ModifiedBy')"></i></th>
-												<th scope="col" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="sortClass('Name')"></i></th>
-												<th scope="col" ng-click="onColumnHeaderClicked('AreaName')" nowrap>Area&nbsp;<i ng-class="sortClass('AreaName')"></i></th>
-												<th scope="col" ng-click="onColumnHeaderClicked('Xp')" nowrap>Experience&nbsp;<i ng-class="sortClass('Xp')"></i></th>
-												<th scope="col" ng-click="onColumnHeaderClicked('Gold')" nowrap>Gold&nbsp;<i ng-class="sortClass('Gold')"></i></th>
-												<th scope="col" ng-click="onColumnHeaderClicked('Aggro')" nowrap>Agg&nbsp;<i ng-class="sortClass('Aggro')"></i></th>
+												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" nowrap ng-if="recent">Modified By&nbsp;<i ng-class="sortClass('ModifiedBy')"></i></th>
+												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="sortClass('Name')"></i></th>
+												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('AreaName')" nowrap>Area&nbsp;<i ng-class="sortClass('AreaName')"></i></th>
+												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('Xp')" nowrap>Experience&nbsp;<i ng-class="sortClass('Xp')"></i></th>
+												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('Gold')" nowrap>Gold&nbsp;<i ng-class="sortClass('Gold')"></i></th>
+												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('Aggro')" nowrap>Agg&nbsp;<i ng-class="sortClass('Aggro')"></i></th>
 											</tr>
 										</thead>
 										<tbody>
 											<tr ng-repeat="mob in mobs | orderBy:sortProperty:sortReverse | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onMobClicked(mob)" style="cursor: pointer;">
-												<td ng-if="recent">{{mob.ModifiedBy}}</td>
+												<td ng-if="recent" class="text-center">{{mob.ModifiedBy}}</td>
 												<th scope="row" class="text-primary">{{mob.Name}}</th>
 												<td><span class="text-info">{{mob.AreaEra ? '(' + mob.AreaEra + ')' : ''}}</span> {{mob.AreaName}}</td>
-												<td>{{mob.Xp}}</td>
-												<td>{{mob.Gold}}</td>
+												<td class="text-center">{{mob.Xp}}</td>
+												<td class="text-center">{{mob.Gold}}</td>
 												<td class="text-center">
 													<i class="{{mob.Aggro == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
 												</td>
