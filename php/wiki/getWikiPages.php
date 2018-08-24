@@ -8,8 +8,19 @@ $pdo = getPDO();
 
 $postdata = json_decode(file_get_contents("php://input"));
 $searchString = $postdata->searchString;
-$categoryId = $postdata->categoryId;
-$subcategoryId = $postdata->subcategoryId;
+if (isset($postdata->categoryId)) {
+	$categoryId = $postdata->categoryId;
+}
+else {
+	$categoryId = -1;
+}
+
+if (isset($postdata->subcategoryId)) {
+	$subcategoryId = $postdata->subcategoryId;
+}
+else {
+	$subcategoryId = -1;
+}
 
 $sql = "SELECT * FROM WikiPages WHERE (:searchString = '' OR Title LIKE :likeSearchString OR Tags LIKE :tagsSearchString) AND (:searchCategoryId = 0 OR :categoryId = CategoryId) AND (:searchSubcategoryId = 0 OR :subcategoryId = SubCategoryId)";
 $params = array();
