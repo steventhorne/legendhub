@@ -4,7 +4,6 @@ app.controller('items-edit', function($scope, $http, itemConstants, breadcrumb) 
 	$scope.slots = itemConstants.slots;
 	$scope.weaponTypes = ['Choose a type', 'Bladed (Str)', 'Piercing (Dex)', 'Blunt (Con)'];
 	$scope.aligns = itemConstants.aligns;
-	$scope.editing = true;
 
 	$scope.itemModel = {};
 
