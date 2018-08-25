@@ -102,7 +102,11 @@
 										<tbody>
 											<tr ng-repeat="wiki in wikiPages | orderBy:sortProperty:sortReverse | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onWikiPageClicked(wiki)" style="cursor: pointer;">
 												<td ng-if="recent" class="text-center">{{wiki.ModifiedBy}}</td>
-												<th scope="row" class="text-primary">{{wiki.Title}}</th>
+												<th scope="row" ng-class="{'text-primary': !((recent && wiki.PinnedRecent) || (!recent && wiki.PinnedSearch)), 'text-success': ((recent && wiki.PinnedRecent) || (!recent && wiki.PinnedSearch))}">
+													<i ng-if="(recent && wiki.PinnedRecent) || (!recent && wiki.PinnedSearch)" class="fas fa-thumbtack">&nbsp;</i>
+													<i ng-if="wiki.Locked" class="fas fa-lock">&nbsp;</i>
+													{{wiki.Title}}
+												</th>
 												<td class="text-center">{{catService.getCategoryName(wiki.CategoryId)}}</td>
 												<td class="text-center">{{catService.getSubcategoryName(wiki.SubCategoryId)}}</td>
 											</tr>
