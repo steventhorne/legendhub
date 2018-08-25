@@ -26,6 +26,15 @@ else {
 	return;
 }
 
+$query = $pdo->prepare("SELECT Locked FROM WikiPages WHERE Id = :id");
+$query->execute(array("id" => $postdata->Id));
+if ($res = $query->fetchAll(PDO::FETCH_CLASS)[0]) {
+	if ($res->Locked) {
+		echo($postdata->Id);
+		return;
+	}
+}
+
 $sql = "UPDATE WikiPages SET ModifiedOn = NOW(),
 			ModifiedBy = :ModifiedBy,
 			ModifiedByIP = :ModifiedByIP,

@@ -6,7 +6,10 @@ $root = realpath(getenv("DOCUMENT_ROOT"));
 require_once("$root/php/common/config.php");
 $pdo = getPDO();
 
-$query = $pdo->query('SELECT * FROM WikiPages ORDER BY ModifiedOn DESC LIMIT 100');
+$query = $pdo->query('SELECT *
+						FROM WikiPages
+						ORDER BY PinnedRecent DESC, ModifiedOn DESC
+						LIMIT 100');
 $result = $query->fetchAll(PDO::FETCH_OBJ);
 
 echo(json_encode($result))
