@@ -21,6 +21,8 @@ app.controller('wiki-edit', function($scope, $http, breadcrumb) {
 		}).then(function succcessCallback(response) {
 			$scope.wikiModel = response.data;
 			$scope.wikiModel.ModifiedOn = (new Date(response.data.ModifiedOn + " UTC")).toString().slice(4, 24);
+			$scope.initialWikiModel = angular.copy($scope.wikiModel);
+
 			$scope.loadSubcategories();
 
 			if (++$scope.loadingProgress == 3) {
@@ -97,6 +99,10 @@ app.controller('wiki-edit', function($scope, $http, breadcrumb) {
 	$scope.onCategoryChanged = function() {
 		$scope.wikiModel.SubCategoryId = 0;
 		$scope.loadSubcategories();
+	}
+	
+	$scope.saveDisabled = function() {
+		return !$scope.form.$valid || angular.toJson($scope.wikiModel) === angular.toJson($scope.initialWikiModel);
 	}
 
 	$scope.submitWiki = function() {
