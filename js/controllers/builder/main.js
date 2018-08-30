@@ -111,7 +111,10 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 		// load lists
 		$scope.allLists = [];
 
-		var listCookieStr = $cookies.get("cl1");
+		var listCookieStr = localStorage.getItem("cl");
+		if (!listCookieStr) {
+			listCookieStr = $cookies.get("cl1");
+		}
 		if (listCookieStr) {
 			var listStrs = listCookieStr.split("*").filter(function(el) {return el.length != 0});;
 			for (var i = 0; i < listStrs.length; ++i) {
@@ -164,7 +167,10 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			}
 		}
 		if ($scope.allLists.length > 0) {
-			var selectedListCookie = $cookies.get("scl1");
+			var selectedListCookie = localStorage.getItem("scl1");
+			if (!selectedListCookie) {
+				selectedListCookie = $cookies.get("scl1");
+			}
 			if (selectedListCookie) {
 				var found = false;
 				for (var i = 0; i < $scope.allLists.length; ++i) {
@@ -225,8 +231,15 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			}
 			listCookieStr += "*";
 		}
-		$cookies.put("cl1", listCookieStr, {'expires': cookieDate});
-		$cookies.put("scl1", $scope.selectedList.Name, {'expires': cookieDate});
+		
+		localStorage.setItem("cl", listCookieStr);
+		localStorage.setItem("scl", $scope.selectedList.Name);
+
+		if ($cookies.get("cl1")) {
+			$cookies.remove("cl1");
+			$cookies.remove("scl1");
+			console.log("Migrated lists successfully.");
+		}
 	}
 
 	//#endregion
@@ -513,6 +526,10 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 	//#endregion
 
 	$scope.sumStats = function(statName) {
+		if (!$scope.selectedList) {
+			return;
+		}
+
 		if (statName == 'AlignRestriction') {
 			var canUseG = true;
 			var canUseN = true;
