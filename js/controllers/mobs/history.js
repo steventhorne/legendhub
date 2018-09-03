@@ -32,7 +32,6 @@ app.controller('mobs-history', function($scope, $http, itemConstants, breadcrumb
 		}).then(function succcessCallback(response) {
 			$scope.history = response.data.slice(0, 9);
 			var i;
-			console.log($scope.history)
 			for (i = 0; i < $scope.history.length; i++) {
 				$scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + " UTC")).toString().slice(4, 24);
 			}
