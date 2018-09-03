@@ -25,7 +25,6 @@ app.controller('wiki-history', function($scope, $http, breadcrumb) {
 			data: {"id": getUrlParameter("id")}
 		}).then(function succcessCallback(response) {
 			$scope.wikiModel = response.data;
-			console.log($scope.wikiModel);
 			$scope.wikiModel.ModifiedOn = (new Date(response.data.ModifiedOn + " UTC")).toString().slice(4, 24);
 			$scope.getWikiPageHistory();
 			$scope.splitTags();
@@ -78,8 +77,6 @@ app.controller('wiki-history', function($scope, $http, breadcrumb) {
 
 	$scope.getCategory = function(id) {
 		for (var i = 0; i < $scope.categories.length; ++i) {
-			console.log($scope.categories);
-			console.log(id);
 			if ($scope.categories[i].Id == id) {
 				return $scope.categories[i].Name;
 			}
