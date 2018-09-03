@@ -106,7 +106,7 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 				break;
 			}
 		}
-		console.log($scope.searchString);
+		
 		if (categories.hasSelectedCategory() || filterOn || $scope.searchString) {
 			$scope.search();
 		}
