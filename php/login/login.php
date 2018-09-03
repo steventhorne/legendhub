@@ -13,14 +13,12 @@ $postdata = json_decode(file_get_contents("php://input"));
 $username = $postdata->Username;
 $password = $postdata->Password;
 
-$hash = password_hash($password, PASSWORD_DEFAULT);
-
-
 // check if username exists
 $query = $pdo->prepare("SELECT Id, Username, Banned, Password FROM Members WHERE Username = :username");
 $query->execute(array("username" => $username));
 if ($res = $query->fetchAll(PDO::FETCH_CLASS)[0])
 {
+	// verify password
 	if (password_verify($password, $res->Password) && !$res->Banned) {
 		if ($res->Banned) {
 			echo('{"success": false, "reason": "locked"');
@@ -32,7 +30,17 @@ if ($res = $query->fetchAll(PDO::FETCH_CLASS)[0])
 		$updateq = $pdo->prepare("UPDATE Members SET LastLoginDate = NOW(), LastLoginIP = :ip, LastLoginIPForward = :ipf WHERE Id = :id");
 		$updateq->execute(array("id" => $res->Id, "ip" => getenv('REMOTE_ADDR'), "ipf" => getenv('HTTP_X_FORWARDED_FOR')));
 
-		echo('{"success": true, "reason": ""}');
+		$response->success = true;
+		$response->reason = "";
+		if ($postdata->StayLoggedIn) {
+			$response->token = bin2hex(openssl_random_pseudo_bytes(16));
+
+			// store hashed token
+			$tokenHash = password_hash($response->token, PASSWORD_DEFAULT);
+			$updateq = $pdo->prepare("INSERT INTO PersistentLogins (Username, LoginIP, Token) VALUES (:username, :loginIP, :token)");
+			$updateq->execute(array("username" => $res->Username, "loginIP" => getenv('REMOTE_ADDR'), "token" => $tokenHash));
+		}
+		echo(json_encode($response));
 		return;
 	}
 }
