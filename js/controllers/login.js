@@ -1,4 +1,4 @@
-app.controller('login', function($scope, $http) {
+app.controller('login', function($scope, $cookies, $http) {
 	$scope.registerFailed = false;
 	$scope.loginFailed = false;
 
@@ -62,6 +62,13 @@ app.controller('login', function($scope, $http) {
 			data: $scope.loginModel
 		}).then(function succcessCallback(response) {
 			if (response.data.success) {
+				// save stayLoggedIn token
+				if (response.data.token) {
+					var cookieDate = new Date();
+					cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+					$cookies.put("loginToken", response.data.token, {"path": "/", 'expires': cookieDate});
+				}
+
 				var returnUrl = getUrlParameter("returnUrl");
 				if (returnUrl) {
 					window.location = returnUrl;
