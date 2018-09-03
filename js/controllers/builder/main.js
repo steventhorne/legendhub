@@ -167,7 +167,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			}
 		}
 		if ($scope.allLists.length > 0) {
-			var selectedListCookie = localStorage.getItem("scl1");
+			var selectedListCookie = localStorage.getItem("scl");
 			if (!selectedListCookie) {
 				selectedListCookie = $cookies.get("scl1");
 			}
@@ -490,8 +490,8 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 	}
 
 	$scope.deleteAllLists = function() {
-		$cookies.remove("scl1");
-		$cookies.remove("cl1");
+		localStorage.remove("cl")
+		localStorage.remove("scl");
 		window.location.reload();
 	}
 	//#endregion
@@ -506,7 +506,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				break;
 			}
 		}
-		if ($scope.allLists.length == 20) {
+		if ($scope.allLists.length == 20000) {
 			$scope.addCharacterForm.nameInput.$setValidity("limit", false);
 		}
 	}
