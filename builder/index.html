@@ -311,7 +311,7 @@
 									<div class="input-group-prepend">
 										<span class="input-group-text">Name</span>
 									</div>
-									<input name="nameInput" id="addCharacterModalName" type="text" ng-model="addCharacterModel.Name" class="form-control" ng-pattern="/^[A-Za-z]*$/" ng-change="validateAddCharacter()" ng-model-options="{debounce: 250}" />
+									<input name="nameInput" id="addCharacterModalName" type="text" ng-model="addCharacterModel.Name" class="form-control" ng-pattern="/^[A-Za-z\s\d]*$/" ng-change="validateAddCharacter()" ng-model-options="{debounce: 250}" />
 									<div class="input-group-append">
 										<button class="btn btn-outline-primary" type="submit" ng-disabled="!addCharacterForm.$valid">Add</button>
 									</div>
@@ -320,7 +320,7 @@
 							<div class="row">
 								<p ng-show="addCharacterForm.nameInput.$error.pattern" class="text-danger">Invalid characters.</p>
 								<p ng-show="addCharacterForm.nameInput.$error.duplicate" class="text-danger">Duplicate character name.</p>
-								<p ng-show="addCharacterForm.nameInput.$error.limit" class="text-danger">Limit of 20 lists reached.</p>
+								<p ng-show="addCharacterForm.nameInput.$error.limit" class="text-danger">Limit of 20,000 lists reached.</p>
 							</div>
 						</form>
 					</div>
