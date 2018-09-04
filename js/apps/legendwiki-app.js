@@ -386,6 +386,13 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 			if (response.data.success) {
 				console.log("Successfully restored login.");
 				$scope.currentUser = response.data.username;
+
+				// save new stayLoggedIn token
+				if (response.data.token) {
+					var cookieDate = new Date();
+					cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+					$cookies.put("loginToken", response.data.token, {"path": "/", 'expires': cookieDate});
+				}
 			}
 			else {
 				$cookies.remove("loginToken");
