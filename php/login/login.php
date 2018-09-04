@@ -33,9 +33,9 @@ if ($res = $query->fetchAll(PDO::FETCH_CLASS)[0])
 		$response->success = true;
 		$response->reason = "";
 		if ($postdata->StayLoggedIn) {
-			$response->token = bin2hex(openssl_random_pseudo_bytes(16));
+			$response->token = bin2hex(openssl_random_pseudo_bytes(24));
 
-			// store hashed token
+			// store hashed token to prevent database theft
 			$tokenHash = password_hash($response->token, PASSWORD_DEFAULT);
 			$updateq = $pdo->prepare("INSERT INTO PersistentLogins (Username, LoginIP, Token) VALUES (:username, :loginIP, :token)");
 			$updateq->execute(array("username" => $res->Username, "loginIP" => getenv('REMOTE_ADDR'), "token" => $tokenHash));
