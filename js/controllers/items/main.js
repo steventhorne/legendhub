@@ -24,14 +24,6 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 		$scope.statLoadCount = 0;
 		$scope.getStatCategories();
 		$scope.getStatInfo();
-
-		$http({
-			url: '/php/login/getLoggedInUser.php'
-		}).then(function succcessCallback(response) {
-			$scope.isLoggedIn = response.data.success;
-		}, function errorCallback(response) {
-
-		});
 	}
 
 	$scope.getStatCategories = function() {

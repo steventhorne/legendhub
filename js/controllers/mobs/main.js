@@ -18,14 +18,6 @@ app.controller('mobs', function($scope, $http, categories) {
 		else {
 			$scope.getRecentMobs();
 		}
-
-		$http({
-			url: '/php/login/getLoggedInUser.php'
-		}).then(function succcessCallback(response) {
-			$scope.isLoggedIn = response.data.success;
-		}, function errorCallback(response) {
-
-		});
 	}
 
 	$scope.getAreas = function() {
