@@ -33,6 +33,7 @@ while ($res = $query->fetch(PDO::FETCH_OBJ)) {
 		$updateq->execute(array("token" => $res->Token, "username" => $res->Username));
 
 		// create new token and return username
+		$response = new \stdClass();
 		$response->token = bin2hex(openssl_random_pseudo_bytes(24));
 		$response->username = $res->Username;
 

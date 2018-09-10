@@ -30,9 +30,10 @@ if ($res = $query->fetchAll(PDO::FETCH_CLASS)[0])
 		$updateq = $pdo->prepare("UPDATE Members SET LastLoginDate = NOW(), LastLoginIP = :ip, LastLoginIPForward = :ipf WHERE Id = :id");
 		$updateq->execute(array("id" => $res->Id, "ip" => getenv('REMOTE_ADDR'), "ipf" => getenv('HTTP_X_FORWARDED_FOR')));
 
+		$response = new \stdClass();
 		$response->success = true;
 		$response->reason = "";
-		if ($postdata->StayLoggedIn) {
+		if (isset($postdata->StayLoggedIn) && $postdata->StayLoggedIn) {
 			$response->token = bin2hex(openssl_random_pseudo_bytes(24));
 
 			// store hashed token to prevent database theft
