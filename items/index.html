@@ -138,11 +138,16 @@
 							<div class="card">
 								<div class="card-header">
 									<strong class="float-left">{{recent ? "Recently Modified" : "Search Results"}}</strong>
-									<div class="float-right clickable">
-										<a href="{{isLoggedIn ? '/items/add.html' : '/login.html?returnUrl=/items/add.html'}}">
+									<lh-perm-check lh-perm-name="Item" lh-perm-create class="float-right clickable" ng-cloak>
+										<a href="/items/add.html">
 											<i class="fas fa-plus"></i>
 										</a>
-									</div>
+									</lh-perm-check>
+									<lh-perm-check lh-perm-name="Item" lh-perm-create lh-perm-inverse class="float-right clickable" ng-cloak>
+										<a href="/login.html?returnUrl=/items/add.html">
+											<i class="fas fa-plus"></i>
+										</a>
+									</lh-perm-check>
 								</div>
 								<div class="table-responsive">
 									<table class="table table-sm table-md table-hover table-striped table-bordered" ng-cloak>

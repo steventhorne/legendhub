@@ -1,11 +1,13 @@
 <div class="row">
 	<h1>
-		<span class="text-primary">{{quest.Title}}</span>&nbsp;&nbsp;&nbsp;
-		<sup style="white-space: nowrap">
-			<small>
-				<a href="{{isLoggedIn ? '/quests/edit.html?id=' + quest.Id : '/login.html?returnUrl=/quests/edit.html?id=' + quest.Id}}">
-					<i class="far fa-edit"></i> Edit</a>
-			</small>
+		<span class="text-primary">{{quest.Title}}</span>
+		<sup style="white-space: nowrap">&nbsp;&nbsp;&nbsp;
+			<lh-perm-check lh-perm-name="Quest" lh-perm-update ng-cloak>
+				<a ng-href="/quests/edit.html?id={{::quest.Id}}"><i class="far fa-edit"></i> Edit</a>
+			</lh-perm-check>
+			<lh-perm-check lh-perm-name="Quest" lh-perm-update lh-perm-inverse ng-cloak>
+				<a ng-href="/login.html?returnUrl=/quests/edit.html?id={{::quest.Id}}"><i class="far fa-edit"></i> Edit</a></sup>
+			</lh-perm-check>
 		</sup>
 	</h1>
 </div>

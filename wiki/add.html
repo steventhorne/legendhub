@@ -29,16 +29,18 @@
 <body ng-app="legendwiki-app" ng-controller="wiki-add">
 	<lh-header></lh-header>
 	
-	<form name="form" class="simple-form container" novalidate ng-cloak>
-		<div class="row">
-			<h1>Add Wiki Page</h1>
-		</div>
-		<div ng-include="'/shared/displayWikiEdit.html'"></div>
-		<br />
-		<div class="row">
-			<button class="btn btn-primary col-2 col-md-1 offset-md-10 offset-9" ng-class="{disabled: !form.$valid}" type="button" ng-click="form.$valid && submitWiki()">Save</button>
-		</div>
-	</form>
+	<lh-perm-check lh-perm-redirect lh-perm-name="Wiki" lh-perm-create ng-cloak>
+		<form name="form" class="simple-form container" novalidate ng-cloak>
+			<div class="row">
+				<h1>Add Wiki Page</h1>
+			</div>
+			<div ng-include="'/shared/displayWikiEdit.html'"></div>
+			<br />
+			<div class="row">
+				<button class="btn btn-primary col-2 col-md-1 offset-md-10 offset-9" ng-class="{disabled: !form.$valid}" type="button" ng-click="form.$valid && submitWiki()">Save</button>
+			</div>
+		</form>
+	</lh-perm-check>
 	
 	<lh-footer></lh-footer>
 
