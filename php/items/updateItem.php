@@ -8,22 +8,11 @@ $postdata = json_decode(file_get_contents("php://input"));
 $statArray = (array) $postdata;
 
 $root = realpath(getenv("DOCUMENT_ROOT"));
-require_once("$root/php/common/config.php");
+require_once("$root/php/common/permissions.php");
 $pdo = getPDO();
 
-if (isset($_SESSION['UserId'])) {
-	$query = $pdo->prepare("SELECT Banned FROM Members WHERE Id = :id");
-	$query->execute(array("id" => $_SESSION['UserId']));
-	if ($res = $query->fetchAll(PDO::FETCH_CLASS)[0]) {
-		if ($res->Banned) {			
-			session_unset();
-			session_destroy();
-			
-			return;
-		}
-	}
-}
-else {
+if (!Permissions::Check("Item", false, false, true, false)) {
+	header("HTTP/1.1 401 Unauthorized");
 	return;
 }
 

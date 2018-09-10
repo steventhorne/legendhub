@@ -1,11 +1,13 @@
 <div class="row">
 	<h1>
-		<span class="text-primary">{{mob.Name}}</span>&nbsp;&nbsp;&nbsp;
-		<sup style="white-space: nowrap">
-			<small>
-				<a href="{{isLoggedIn ? '/mobs/edit.html?id=' + mob.Id : '/login.html?returnUrl=/mobs/edit.html?id=' + mob.Id}}">
-					<i class="far fa-edit"></i> Edit</a>
-			</small>
+		<span class="text-primary">{{mob.Name}}</span>
+		<sup style="white-space: nowrap">&nbsp;&nbsp;&nbsp;
+			<lh-perm-check lh-perm-name="Mob" lh-perm-update ng-cloak>
+				<a ng-href="/mobs/edit.html?id={{::mob.Id}}"><i class="far fa-edit"></i> Edit</a>
+			</lh-perm-check>
+			<lh-perm-check lh-perm-name="Mob" lh-perm-update lh-perm-inverse ng-cloak>
+				<a ng-href="/login.html?returnUrl=/mobs/edit.html?id={{::mob.Id}}"><i class="far fa-edit"></i> Edit</a></sup>
+			</lh-perm-check>
 		</sup>
 	</h1>
 </div>

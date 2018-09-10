@@ -7,8 +7,13 @@ header( "Content-Type: application/json; charset=UTF-8" );
 $postdata = json_decode(file_get_contents("php://input"));
 
 $root = realpath(getenv("DOCUMENT_ROOT"));
-require_once("$root/php/common/config.php");
+require_once("$root/php/common/permissions.php");
 $pdo = getPDO();
+
+if (!Permissions::Check("Wiki", false, false, true, false)) {
+	header("HTTP/1.1 401 Unauthorized");
+	return;
+}
 
 if (isset($_SESSION['UserId'])) {
 	$query = $pdo->prepare("SELECT Banned FROM Members WHERE Id = :id");

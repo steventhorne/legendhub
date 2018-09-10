@@ -1,10 +1,13 @@
 <div class="row">
 	<h1>
-		<span class="text-primary">{{wikiModel.Title}}</span>&nbsp;&nbsp;&nbsp;
-		<sup style="white-space: nowrap">
-			<small>
-				<a ng-if="!wikiModel.Locked" href="{{isLoggedIn ? '/wiki/edit.html?id=' + wikiModel.Id : '/login.html?returnUrl=/wiki/edit.html?id=' + wikiModel.Id}}"><i class="far fa-edit"></i> Edit</a>
-			</small>
+		<span class="text-primary">{{wikiModel.Title}}</span>
+		<sup style="white-space: nowrap">&nbsp;&nbsp;&nbsp;
+			<lh-perm-check lh-perm-name="Wiki" lh-perm-update ng-cloak>
+				<a ng-href="/wiki/edit.html?id={{::wikiModel.Id}}"><i class="far fa-edit"></i> Edit</a>
+			</lh-perm-check>
+			<lh-perm-check lh-perm-name="Wiki" lh-perm-update lh-perm-inverse ng-cloak>
+				<a ng-href="/login.html?returnUrl=/wiki/edit.html?id={{::wikiModel.Id}}"><i class="far fa-edit"></i> Edit</a></sup>
+			</lh-perm-check>
 		</sup>
 	</h1>
 </div>
