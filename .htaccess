@@ -8,7 +8,7 @@ RewriteRule ^.*$ /maintenance.html [R=503,L]
 
 RewriteCond %{HTTP_HOST} ^legendhub.org [NC]
 RewriteRule ^(.*)$ https://www.legendhub.org/$1 [L,R=301,NC]
-
-ErrorDocument 503 /maintenance.html
-Header Set Cache-Control "max-age=0, no-store"
 </IfModule>
+ErrorDocument 503 /maintenance.html
+ErrorDocument 404 /error/404.html
+Header Set Cache-Control "max-age=0, no-store"
