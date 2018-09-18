@@ -2,3 +2,4 @@
 php/common/config.php
 php/scrape/*
 sql/*
+bin/*
