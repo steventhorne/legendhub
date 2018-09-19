@@ -5,25 +5,12 @@ header( "Access-Control-Allow-Origin: legendhub.org" );
 header( "Content-Type: application/json; charset=UTF-8" );
 
 $root = realpath(getenv("DOCUMENT_ROOT"));
-require_once("$root/php/common/config.php");
-$pdo = getPDO();
+require_once("$root/php/common/permissions.php");
 
-if (isset($_SESSION['UserId'])) {
-	$query = $pdo->prepare("SELECT Banned FROM Members WHERE Id = :id");
-	$query->execute(array("id" => $_SESSION['UserId']));
-	if ($res = $query->fetchAll(PDO::FETCH_CLASS)[0]) {
-		if ($res->Banned) {			
-			session_unset();
-			session_destroy();
-			
-			echo('{"success": false, "username": ""}');
-			return;
-		}
-	}
-
-	echo('{"success": true, "username": "'. $_SESSION['Username'] . '"}');
+if (Permissions::Check()) {
+    echo('{"success": true, "username": "' . $_SESSION['Username'] . '"}');
 }
 else {
-	echo('{"success": false, "username": ""}');
+    echo('{"success": false, "username": ""}');
 }
 ?>

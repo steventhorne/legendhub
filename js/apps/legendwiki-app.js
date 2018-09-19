@@ -4,7 +4,7 @@ app.run(function($templateCache) {
 '<div ng-controller="header">' +
 '<nav class="navbar navbar-expand-sm navbar-dark bg-dark">' +
 	'<a class="navbar-brand" href="/">LegendHUB</a>' +
-	'<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">' + 
+	'<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">' +
 		'<span class="navbar-toggler-icon"></span>' +
 	'</button>' +
 	'<div class="collapse navbar-collapse" id="navbarSupportedContent">' +
@@ -62,7 +62,7 @@ app.run(function($templateCache) {
 '<br />' +
 '<div class="footer bg-dark">' +
 	'<div class="container">' +
-		'<div>' + 
+		'<div>' +
 			'<div class="row text-light" style="font-size:.8em">' +
 				'<span class="mx-auto text-center">This domain, its content, and its creators are not associated, nor affiliated, with the LegendMUD immortal staff.</span>' +
 			'</div>' +
@@ -71,7 +71,7 @@ app.run(function($templateCache) {
 			'</div>' +
 			'<div class="row text-primary">' +
 				'<span class="mx-auto text-center"><i class="far fa-copyright"></i>&nbsp;2018</span>' +
-			'</div>' + 
+			'</div>' +
 		'</div>' +
 	'</div>' +
 '</div>');
@@ -91,6 +91,39 @@ app.factory('unauthorizedInterceptor', function($q) {
 	};
 }).config(function($httpProvider) {
 	$httpProvider.interceptors.push('unauthorizedInterceptor');
+});
+
+// http interceptors for restoring logins
+app.factory('httpRequestInterceptor', function($cookies) {
+    return {
+        request: function (config) {
+            var loginToken = $cookies.get("loginToken");
+			if (loginToken) {
+                config.headers['login-token'] = loginToken;
+			}
+
+            return config;
+        }
+    }
+}).config(function($httpProvider) {
+	$httpProvider.interceptors.push('httpRequestInterceptor');
+});
+
+app.factory('httpResponseInterceptor', function($cookies) {
+    return {
+        response: function(response) {
+            var token = response.headers('login-token');
+            if (token) {
+                var cookieDate = new Date();
+				cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+				$cookies.put("loginToken", token, {"path": "/", 'expires': cookieDate});
+                console.log("Login restored.");
+            }
+            return response;
+        }
+    }
+}).config(function($httpProvider) {
+	$httpProvider.interceptors.push('httpResponseInterceptor');
 });
 
 app.factory('permissions', ['$http', '$q', function($http, $q) {
@@ -176,7 +209,7 @@ app.directive('lhPermCheck', ['$http', 'permissions', function($http, permission
 		},
 		compile: function(tElement, tAttributes) {
 			tElement.addClass("ng-cloak"); // just in case
-			 
+
 			return {
 				// use pre-link to add ng-cloak immediately after angular usually
 				// removes it. Then remove cloak after we get a response back.
@@ -307,7 +340,7 @@ app.directive('lazyLoadOptions', [function() {
 
 						// Prevent the load from occurring again
 						$scope.loaded = true;
-			
+
 						// Blur the element to collapse it
 						$element[0].blur();
 
@@ -318,7 +351,6 @@ app.directive('lazyLoadOptions', [function() {
 							$element[0].dispatchEvent(e);
 						}, 1);
 					}, function(reason) {
-						console.error(reason);
 					});
 				}
 			});
@@ -507,6 +539,9 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 		getLoggedInUser();
 	}
 
+    /**
+     * @deprecated Login restoring automatically happens whenever a permissions check happens.
+    */
 	var attemptRestoreLogin = function(loginToken) {
 		$http({
 			url: '/php/login/restoreLogin.php',
@@ -514,7 +549,6 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 			data: { 'loginToken': loginToken }
 		}).then(function successCallback(response) {
 			if (response.data.success) {
-				console.log("Successfully restored login.");
 				$scope.currentUser = response.data.username;
 
 				// save new stayLoggedIn token
@@ -536,12 +570,6 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 		}).then(function succcessCallback(response) {
 			if (response.data.success) {
 				$scope.currentUser = response.data.username;
-			}
-			else {
-				var loginToken = $cookies.get("loginToken");
-				if (loginToken) {
-					attemptRestoreLogin(loginToken);
-				}
 			}
 		});
 	}
