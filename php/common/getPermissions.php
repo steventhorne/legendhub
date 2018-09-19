@@ -5,11 +5,12 @@ header( "Access-Control-Allow-Origin: legendhub.org" );
 header( "Content-Type: application/json; charset=UTF-8" );
 
 $root = realpath(getenv("DOCUMENT_ROOT"));
-require_once("$root/php/common/config.php");
+require_once("$root/php/common/permissions.php");
 $PDO = getPDO();
 
 $postdata = json_decode(file_get_contents("php://input"));
-if (isset($_SESSION['UserId'])) {
+
+if (Permissions::Check()) {
 	$query = $PDO->prepare("SELECT DISTINCT P.Name, RPM.Create, RPM.Read, RPM.Update, RPM.Delete
 						FROM Members M
 							JOIN MemberRoleMap MRM ON MRM.MemberId = M.Id
