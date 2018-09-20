@@ -24,7 +24,7 @@ else {
 
 $sql = "SELECT *
 		FROM WikiPages
-		WHERE (:searchString = '' OR Title LIKE :likeSearchString OR Tags LIKE :tagsSearchString) AND
+		WHERE (:searchString = '' OR Title LIKE :likeSearchString OR Tags LIKE :tagsSearchString OR Content LIKE :contentSearchString) AND
 			(:searchCategoryId = 0 OR :categoryId = CategoryId) AND
 			(:searchSubcategoryId = 0 OR :subcategoryId = SubCategoryId)
 		ORDER BY PinnedSearch DESC, ModifiedOn DESC";
@@ -33,6 +33,7 @@ $params["searchString"] = $searchString;
 $likeString = '%' . $searchString . '%';
 $params["likeSearchString"] = $likeString;
 $params["tagsSearchString"] = $likeString;
+$params["contentSearchString"] = $likeString;
 $params["searchCategoryId"] = $categoryId >= 0 ? 1 : 0;
 $params["categoryId"] = $categoryId;
 $params["searchSubcategoryId"] = $subcategoryId >= 0 ? 1 : 0;
