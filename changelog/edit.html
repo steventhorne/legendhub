@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-121476411-1"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'UA-121476411-1');
+	</script>
+	
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- Bootstrap CSS -->
+	<script src="/js/js.cookie.min.js"></script>
+	<noscript><link id="theme" rel="stylesheet" href="/css/bootstrap-light.min.css"></noscript>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+		crossorigin="anonymous">
+	<link rel="stylesheet" href="/css/styles.css">
+
+	<title>Edit Changelog - LegendHUB</title>
+</head>
+
+<body ng-app="legendwiki-app" ng-controller="changelog-edit">
+	<lh-header></lh-header>
+	
+	<lh-perm-check lh-perm-redirect lh-perm-name="ChangelogVersion" lh-perm-update ng-cloak>
+		<form name="form" class="simple-form container" novalidate ng-cloak>
+			<div class="row">
+				<h1>Edit Changelog</h1>
+			</div>
+			<div ng-include="'/shared/displayChangelogEdit.html'"></div>
+			<br />
+			<div class="row">
+				<button class="btn btn-primary col-2 col-md-1 offset-md-10 offset-9" ng-class="{disabled: saveDisabled()}" type="button" ng-click="form.$valid && submitChangelog()">Save</button>
+			</div>
+		</form>
+	</lh-perm-check>
+
+	<lh-footer></lh-footer>
+
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+	    crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+	    crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+		crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-sanitize.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js"></script>
+	<script src="/js/ng-showdown.js"></script>
+	<script src="/js/apps/legendwiki-app.js"></script>
+	<script src="/js/controllers/changelog/edit.js"></script>
+</body>
+
+</html>
