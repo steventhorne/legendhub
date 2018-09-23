@@ -531,7 +531,7 @@ app.factory('categories', function() {
 app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function($scope, $http, $cookies, breadcrumb) {
 	$scope.initialize = function() {
 		$scope.bcFactory = breadcrumb;
-		$scope.returnUrl = window.location.pathname;
+		$scope.returnUrl = window.location.pathname + window.location.search;
 		checkIfLoggedIn();
 	}
 
