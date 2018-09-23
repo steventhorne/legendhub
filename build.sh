@@ -18,7 +18,7 @@ if [[ -d "bin" ]]; then
 fi
 mkdir bin
 
-cp -r .htaccess builder css items maintenance.html php wiki error index.html js login.html mobs quests shared bin/
+cp -r .htaccess builder changelog css items maintenance.html php wiki error index.html js login.html mobs quests shared bin/
 
 # Copy to publish path
 if ! [[ -d $publishPath ]]; then
