@@ -1,10 +1,10 @@
 # [LegendHUB](https://www.legendhub.org)
-> A resource hub for []LegendMUD](www.legendmud.org).
-![Version 1.5.1](http://img.shield.io/badge/version-1.5.1-brightgreen.svg?style=flat-square) [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+> A resource hub for [LegendMUD](www.legendmud.org).
+![Version 1.5.1](http://img.shields.io/badge/version-1.5.1-brightgreen.svg?style=flat-square) [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 ## Table of Contents
 - [Installation](#installation)
-- [Not Included](#notincluded)
+- [Not Included](#not-included)
 
 ## Installation
 > This repo contains a simple to use install process on linux assuming you have an HTTP server setup on that system.
