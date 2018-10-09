@@ -1,7 +1,7 @@
 # [LegendHUB](https://www.legendhub.org)
 > A resource hub for [LegendMUD](www.legendmud.org).
 
-![Version 1.5.1](http://img.shields.io/badge/version-1.5.1-brightgreen.svg?style=flat-square) [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+[![Version 1.5.1](http://img.shields.io/badge/version-1.5.1-brightgreen.svg?style=flat-square)](https://www.legendhub.org) [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 ## Table of Contents
 - [Installation](#installation)
@@ -26,7 +26,7 @@ The following is not included:
 - Bootstrap build process
     - The site makes use of Bootstrap CSS framework
     - The css/themes folder contains custom bootstrap styles
-        - The _*-theme.scss files include _variables.scss overrides
+        - The _*-theme.scss files include _variables.scss overrides for each theme
         - The _custom.scss contains custom css that is also built with bootstrap
     - You must manually build bootstrap with these files to update bootstrap or the themes
         - More can be found [here](https://getbootstrap.com/docs/4.1/getting-started/build-tools/)
