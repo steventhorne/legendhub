@@ -3,3 +3,4 @@ php/common/config.php
 php/scrape/*
 sql/*
 bin/*
+deploy.sh.conf
