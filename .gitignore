@@ -1,6 +1,6 @@
 .vscode
-php/common/config.php
-php/scrape/*
-sql/*
-bin/*
-deploy.sh.conf
+www/php/common/config.php
+www/php/scrape/*
+www/sql/*
+www/bin/*
+www/deploy.sh.conf
