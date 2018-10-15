@@ -1,6 +1,15 @@
+# IDE
 .vscode
+
+# WWW
 www/php/common/config.php
 www/php/scrape/*
 www/sql/*
 www/bin/*
 www/deploy.sh.conf
+
+# notification listener
+notification_listener/engine/sql_engine_config.py
+notification_listener/__pycache__/
+notification_listener/**/*.py[cod]
+notification_listener/**/*$py.class
