@@ -22,8 +22,8 @@ furnished to do so, subject to the following conditions:
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 """
-from sql_engine import sql_engine as se
-from models import member
+from sql import sql_engine as se
+from sql.models import member
 
 def main():
     """ Main entrance point for notification listener. """
