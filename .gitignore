@@ -12,4 +12,4 @@ www/deploy.sh.conf
 python/__pycache__/
 python/**/*.py[cod]
 python/**/*$py.class
-python/sql_engine/sql_engine_config.py
+python/sql/sql_engine_config.py
