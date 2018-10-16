@@ -25,30 +25,30 @@ body {
   border-top: $border-color;
 }
 
-.breadcrumbNav .breadcrumbList {
+.breadcrumbList {
   padding: 5px 15px;
   list-style: none;
 }
 
-.breadcrumbNav .breadcrumbList .breadcrumbListLink {
+.breadcrumbListLink {
   display: inline;
   font-size: .9em;
-}
 
-.breadcrumbNav .breadcrumbList .breadcrumbListLink a {
-  color: $link-color;
-}
+  a {
+    color: $link-color;
 
-.breadcrumbNav .breadcrumbList .breadcrumbListLink a:hover {
-  color: $link-hover-color;
-}
+    &:hover {
+      color: $link-hover-color;
+    }
 
-.breadcrumbNav .breadcrumbList .breadcrumbListLink .active {
-  color: $white;
-}
+    .active {
+      color: $white;
+    }
+  }
 
-.breadcrumbNav .breadcrumbList .breadcrumbListLink:not(:first-child)::before {
-  content: " > ";
+  &:not(:first-child)::before {
+    content: " > ";
+  }
 }
 
 .categoryList {
@@ -56,20 +56,24 @@ body {
   padding-left: 20px;
   font-size: 1.1em;
   list-style: none;
-}
 
-.categoryList li a:hover {
-  text-decoration: none;
-}
+  li {
+    a {
+      &:hover {
+        text-decoration: none;
+      }
 
-.categoryList li a.active {
-  color: $link-color;
-}
+      .active {
+        color: $link-color;
+      }
+    }
 
-.categoryList li ul {
-  padding-left: 20px;
-  font-size: .9em;
-  list-style: none;
+    ul {
+      padding-left: 20px;
+      font-size: .9em;
+      list-style: none;
+    }
+  }
 }
 
 .clickable {
@@ -91,6 +95,10 @@ body {
 .rounded-right-0 {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
+}
+
+.dropdown-toggle-no-caret::after {
+  display: none;
 }
 
 @media (min-width: 768px) {
@@ -118,14 +126,14 @@ body {
     width: 250px;
     padding: 15px;
     background-color: $gray-800 !important;
-  }
-  .categoryListContainer.active {
-    left: 0;
-    @include transition(all 150ms linear);
-  }
 
-  .categoryListContainer h2 {
-    color: $white !important;
+    .active {
+      left: 0;
+      @include transition(all 150ms linear);
+    }
+
+    h2 {
+      color: $white !important;
+    }
   }
 }
-
