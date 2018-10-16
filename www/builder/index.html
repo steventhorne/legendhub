@@ -95,7 +95,7 @@
 								<div class="input-group-prepend">
 									<label class="input-group-text" for="longhouseSelect">Longhouse</label>
 								</div>
-								<select class="custom-select" id="longhouseSelect" ng-model="selectedList.baseStats.Longhouse" ng-change="saveCookies()" ng-model-options="{debounce:250}">
+								<select class="custom-select custom-select-sm" id="longhouseSelect" ng-model="selectedList.baseStats.Longhouse" ng-change="saveCookies()" ng-model-options="{debounce:250}">
 									<option ng-value="-1">-</option>
 									<option ng-repeat="house in longhouseList" ng-value="$index">{{house}}</option>
 								</select>
@@ -104,7 +104,7 @@
 								<div class="input-group-prepend">
 									<label class="input-group-text" for="amuletSelect">Amulet</label>
 								</div>
-								<select class="custom-select" id="amuletSelect" ng-model="selectedList.baseStats.Amulet" ng-change="saveCookies()" ng-model-options="{debounce:250}">
+								<select class="custom-select custom-select-sm" id="amuletSelect" ng-model="selectedList.baseStats.Amulet" ng-change="saveCookies()" ng-model-options="{debounce:250}">
 									<option ng-value="-1">-</option>
 									<option ng-repeat="amulet in amuletList" ng-value="$index">{{amulet}}</option>
 								</select>
