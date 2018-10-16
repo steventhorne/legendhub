@@ -29,8 +29,14 @@ app.run(function($templateCache) {
 			'</li>' +
 		'</ul>' +
 		'<ul class="navbar-nav ml-auto">' +
-			'<li class="nav-item">' +
-				'<a class="nav-link" href="" ng-click="toggleTheme()"><i ng-class="getThemeClass()"></i></a>' +
+			'<li class="nav-item dropdown float-right">' +
+                '<a class="nav-link dropdown-toggle" href="#" id="themeDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                    '<i class="fas fa-palette"></i>' +
+                '</a>' +
+                '<div class="dropdown-menu dropdown-menu-right" aria-labelledby="themeDropdown">' +
+                   '<a ng-repeat="theme in themes" class="dropdown-item" href="" ng-click="setTheme(theme)">{{::theme}}</a>' +
+                '</div>' +
+				//'<a class="nav-link" href="" ng-click="toggleTheme()"><i ng-class="getThemeClass()"></i></a>' +
 			'</li>' +
 			'<li class="nav-item dropdown float-right" ng-show="currentUser">' +
 				'<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
@@ -530,6 +536,7 @@ app.factory('categories', function() {
 
 app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function($scope, $http, $cookies, breadcrumb) {
 	$scope.initialize = function() {
+        $scope.themes = ['Light', 'Dark', 'Solarized Dark'];
 		$scope.bcFactory = breadcrumb;
 		$scope.returnUrl = window.location.pathname + window.location.search;
 		checkIfLoggedIn();
@@ -583,6 +590,7 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 	}
 
 	$scope.setTheme = function(theme) {
+        theme = theme.toLowerCase().replace(/\s/g, '-');
 		var cookieDate = new Date();
 		cookieDate.setFullYear(cookieDate.getFullYear() + 20);
 		$cookies.put("theme", theme, {"path": "/", 'expires': cookieDate});
