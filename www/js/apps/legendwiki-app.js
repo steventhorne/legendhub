@@ -30,7 +30,7 @@ app.run(function($templateCache) {
 		'</ul>' +
 		'<ul class="navbar-nav ml-auto">' +
 			'<li class="nav-item dropdown float-right">' +
-                '<a class="nav-link dropdown-toggle" href="#" id="themeDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                '<a class="nav-link dropdown-toggle dropdown-toggle-no-caret" href="#" id="themeDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
                     '<i class="fas fa-palette"></i>' +
                 '</a>' +
                 '<div class="dropdown-menu dropdown-menu-right" aria-labelledby="themeDropdown">' +
