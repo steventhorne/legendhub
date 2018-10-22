@@ -76,7 +76,7 @@ if [[ -d "bin" ]]; then
 fi
 mkdir bin
 
-cp -r .htaccess builder changelog css items maintenance.html php wiki error index.html js login.html mobs quests shared bin/
+cp -r .htaccess account builder changelog css error index.html items js login.html maintenance.html mobs php quests shared wiki bin/
 
 echo
 echo "Copied necessary files to bin folder"

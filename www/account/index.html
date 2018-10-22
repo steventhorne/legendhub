@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-121476411-1"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'UA-121476411-1');
+	</script>
+	
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- Bootstrap CSS -->
+	<script src="/js/js.cookie.min.js"></script>
+	<noscript><link id="theme" rel="stylesheet" href="/css/bootstrap-light.min.css"></noscript>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
+
+	<title>Account - LegendHUB</title>
+</head>
+
+<body ng-app="legendwiki-app" ng-controller="account">
+	<lh-header></lh-header>
+	<lh-perm-check lh-perm-redirect ng-cloak>
+	    <div class="container">
+            <div class="row text-center">
+                <h1>Account Settings</h1>
+            </div>
+            <!-- Notifications -->
+            <div class="row py-3 border-bottom border-primary">
+                <div class="col-lg-4" ng-class="{'col-4': !editingNotifications, 'col-12': editingNotifications}">
+                    <!-- display heading -->
+                    <h4>Notifications</h4>
+                </div>
+                <div ng-class="{'offset-4 col-4': !editingNotifications, 'col-12 col-lg-8': editingNotifications}">
+                    <div class="row no-gutters">
+                        <!-- display edit button -->
+                        <button type="button" class="btn btn-default btn-block" ng-show="!editingNotifications" ng-click="editingNotifications = true">Edit</button>
+                        <!-- edit notification data -->
+                        <div class="col-12" ng-show="editingNotifications">
+                            <!-- MemberId | ItemAdded | ItemUpdated | MobAdded | MobUpdated | QuestAdded | QuestUpdated | WikiPageAdded | WikiPageUpdated | ChangelogAdded -->
+                            <div class="row mb-3">
+			                    <div class="col-12 col-md-6 input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="itemAddedInput">Item Added</label>
+				                    </div>
+                                    <select class="custom-select" id="itemAddedInput" ng-model="notificationSettings.ItemAdded">
+                                        <option ng-repeat="option in notificationOptions | orderBy:'Value'" ng-value="option.Value" ng-selected="option.Value == notificationSettings.ItemAdded">{{option.Name}}</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-6 input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="itemAddedInput">Item Updated</label>
+				                    </div>
+                                    <select class="custom-select" id="itemUpdatedInput" ng-model="notificationSettings.ItemUpdated">
+                                        <option ng-repeat="option in notificationOptions | orderBy:'Value'" ng-value="option.Value" ng-selected="option.Value == notificationSettings.ItemUpdated">{{option.Name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-12 col-md-6 input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="mobAddedInput">Mob Added</label>
+				                    </div>
+                                    <select class="custom-select" id="mobAddedInput" ng-model="notificationSettings.MobAdded">
+                                        <option ng-repeat="option in notificationOptions | orderBy:'Value'" ng-value="option.Value" ng-selected="option.Value == notificationSettings.MobAdded">{{option.Name}}</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-6 input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="mobUpdatedInput">Mob Updated</label>
+				                    </div>
+                                    <select class="custom-select" id="mobUpdatedInput" ng-model="notificationSettings.MobUpdated">
+                                        <option ng-repeat="option in notificationOptions | orderBy:'Value'" ng-value="option.Value" ng-selected="option.Value == notificationSettings.MobUpdated">{{option.Name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-12 col-md-6 input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="questAddedInput">Quest Added</label>
+				                    </div>
+                                    <select class="custom-select" id="questAddedInput" ng-model="notificationSettings.QuestAdded">
+                                        <option ng-repeat="option in notificationOptions | orderBy:'Value'" ng-value="option.Value" ng-selected="option.Value == notificationSettings.QuestAdded">{{option.Name}}</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-6 input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="questUpdatedInput">Quest Updated</label>
+				                    </div>
+                                    <select class="custom-select" id="questUpdatedInput" ng-model="notificationSettings.QuestUpdated">
+                                        <option ng-repeat="option in notificationOptions | orderBy:'Value'" ng-value="option.Value" ng-selected="option.Value == notificationSettings.QuestUpdated">{{option.Name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-12 col-md-6 input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="wikiPageAddedInput">Wiki Page Added</label>
+				                    </div>
+                                    <select class="custom-select" id="wikiPageAddedInput" ng-model="notificationSettings.WikiPageAdded">
+                                        <option ng-repeat="option in notificationOptions | orderBy:'Value'" ng-value="option.Value" ng-selected="option.Value == notificationSettings.WikiPageAdded">{{option.Name}}</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-6 input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="wikiPageUpdatedInput">Wiki Page Updated</label>
+				                    </div>
+                                    <select class="custom-select" id="wikiPageUpdatedInput" ng-model="notificationSettings.WikiPageUpdated">
+                                        <option ng-repeat="option in notificationOptions | orderBy:'Value'" ng-value="option.Value" ng-selected="option.Value == notificationSettings.WikiPageUpdated">{{option.Name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row" ng-show="editingNotifications">
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-primary btn-block" ng-click="saveNotifications()">Save</button>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-link btn-block" ng-click="cancelNotifications()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row py-3">
+                <div class="col-lg-4" ng-class="{'col-4': !editingPassword, 'col-12': editingPassword}">
+                    <!-- display heading -->
+                    <h4>Password</h4>
+                </div>
+                <div ng-class="{'offset-4 col-4': !editingPassword, 'col-12 col-lg-8': editingPassword}">
+                    <div class="row no-gutters">
+                        <!-- display edit button -->
+                        <button type="button" class="btn btn-default btn-block" ng-show="!editingPassword" ng-click="editingPassword = true">Change</button>
+                        <!-- edit password -->
+                        <form name="editPasswordForm" class="col-12 offset-md-6 col-md-6" ng-show="editingPassword">
+                            <div class="row mb-3">
+			                    <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="oldPasswordInput">Old Password</label>
+				                    </div>
+                                    <input type="password" class="form-control" name="oldPasswordInput" id="oldPasswordInput" ng-model="oldPassword" required>
+                                </div>
+                                <p class="text-danger" ng-show="dbfail">Password is invalid.</p>
+                            </div>
+                            <div class="row mb-3">
+			                    <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="newPasswordInput">New Password</label>
+				                    </div>
+                                    <input type="password" class="form-control" name="newPasswordInput" id="newPasswordInput" ng-model="newPassword" ng-change="onPasswordChanged()" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+			                    <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="confirmPasswordInput">Confirm Password</label>
+				                    </div>
+                                    <input type="password" class="form-control" name="confirmPasswordInput" id="confirmPasswordInput" ng-model="confirmPassword" ng-change="onPasswordChanged()" required>
+                                </div>
+                                <p class="text-danger" ng-show="editPasswordForm.confirmPasswordInput.$error.matches">New passwords do not match.</p>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="row" ng-show="editingPassword">
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-primary btn-block" ng-disabled="!editPasswordForm.$valid" ng-click="savePassword()">Save</button>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-link btn-block" ng-click="editingPassword = false">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+	</lh-perm-check>
+	<lh-footer></lh-footer>
+
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+		crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+	    crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+		crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
+	<script src="/js/apps/legendwiki-app.js"></script>
+	<script src="/js/controllers/account/main.js"></script>
+</body>
+
+</html>
