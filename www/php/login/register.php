@@ -45,13 +45,19 @@ if ($res = $query->fetch())
 	return;
 }
 
+// Create new member
 $query = $pdo->prepare("INSERT INTO Members (Username, Password) VALUES (:username, :password)");
 $query->execute(array("username" => $username, "password" => $hash));
 
 $insertedId = $pdo->lastInsertId();
 
+// Add new member to Member role
 $query = $pdo->prepare("INSERT INTO MemberRoleMap (MemberId, RoleId) VALUES (:memberId, :roleId)");
 $query->execute(array("memberId" => $insertedId, "roleId" => 2)); // role 2 = Member role
+
+// Add new NotificationSettings record for new member
+$query = $pdo->prepare("INSERT INTO NotificationSettings (MemberId) VALUES (:memberId)");
+$query->execute(array("memberId" => $insertedId));
 
 echo('{"success": true}');
 ?>

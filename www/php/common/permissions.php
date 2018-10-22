@@ -33,13 +33,13 @@ class Permissions {
             if (isset($_SESSION['UserId'])) {
 				$query = self::$PDO->prepare("SELECT Banned FROM Members WHERE Id = :id");
         		$query->execute(array("id" => $_SESSION['UserId']));
-        		if ($res = $query->fetch(PDO::FETCH_OBJ)) {
-					if ($res->Banned) {
+                if ($res = $query->fetch(PDO::FETCH_OBJ)) {
+                    if ($res->Banned) {
 						session_unset();
 						session_destroy();
 					}
 					else {
-					    self::$Authenticated = True;
+                        self::$Authenticated = True;
 					}
         		}
             }
@@ -88,11 +88,10 @@ class Permissions {
 	}
 
 	private static function CheckPermissions($permission, $mustCreate, $mustRead, $mustUpdate, $mustDelete) {
-		if (!isset(self::$PermissionList)) {
-			self::GatherPermissions();
-		}
-
 		if (!is_null($permission)) {
+		    if (!isset(self::$PermissionList)) {
+			    self::GatherPermissions();
+		    }
 
 			//check permission
 			$canCreate = False;
