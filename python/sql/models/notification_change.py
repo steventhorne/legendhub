@@ -21,37 +21,37 @@ furnished to do so, subject to the following conditions:
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
 """
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import orm
 from sql.models import shared
 
-class Member(shared.Base):
-    """ ORM class for Members
+class NotificationChange(shared.Base):
+    """ ORM class for NotificationQueue
 
     Attributes:
-        id: Identity column
-        username: Username for the member
-        password: Hashed password for the member
-        banned: Boolean for whether or not the member is banned
-        last_login_date: Datetime for when the member logged in last
-        last_login_ip: IP of the machine the member logged in from last
-        last_login_ip_forwarded: Forwarded IP of the machine the member logged in
-            from last
+        id: Identity column.
+        actor_id: The id of the Member who caused this notification.
+        object_id: The id of the subject of the notification.
+        object_type: The type of object that the ObjectId refers to.
+        verb: The action that was taken on the object.
+        created_on: The datetime that the notification was created.
     """
-    __tablename__ = "Members"
+    __tablename__ = "NotificationChanges"
 
     id = Column("Id", Integer, primary_key=True)
-    username = Column("Username", String(45))
-    password = Column("Password", String(255))
-    banned = Column("Banned", Boolean())
-    last_login_date = Column("LastLoginDate", DateTime())
-    last_login_ip = Column("LastLoginIP", String(45))
-    last_login_ip_forward = Column("LastLoginIPForward", String(45))
+    actor_id = Column("ActorId", Integer)
+    object_id = Column("ObjectId", Integer)
+    object_type = Column("ObjectType", String(20))
+    verb = Column("Verb", String(20))
+    created_on = Column("CreatedOn", DateTime())
 
     def __repr__(self):
         """ Debug representation of the class """
-        return ("<Member(Id='{}', Username='{}',"
-                "LastLoginDate='{:%Y-%m-%d %H:%M}')").format(
+        return ("<NotificationChange(Id='{}', ActorId='{}', ObjectId='{}',"
+                "ObjectType='{}', Verb='{}')").format(
             self.id,
-            self.username,
-            self.last_login_date
+            self.actor_id,
+            self.object_id,
+            self.object_type,
+            self.verb
         )
