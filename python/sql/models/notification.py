@@ -21,37 +21,48 @@ furnished to do so, subject to the following conditions:
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
 """
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, Boolean, ForeignKey
+from sqlalchemy import orm
+from sql.models import notification_change as nc
 from sql.models import shared
 
-class Member(shared.Base):
-    """ ORM class for Members
+class Notification(shared.Base):
+    """ ORM class for Notifications
 
     Attributes:
-        id: Identity column
-        username: Username for the member
-        password: Hashed password for the member
-        banned: Boolean for whether or not the member is banned
-        last_login_date: Datetime for when the member logged in last
-        last_login_ip: IP of the machine the member logged in from last
-        last_login_ip_forwarded: Forwarded IP of the machine the member logged in
-            from last
+        id: Identity column.
+        notification_change_id: The id of the notification change details.
+        member_id: The id of the member the notification is sent to.
+        read: Whether or not the notification has been marked as read.
     """
-    __tablename__ = "Members"
+    __tablename__ = "Notifications"
 
     id = Column("Id", Integer, primary_key=True)
-    username = Column("Username", String(45))
-    password = Column("Password", String(255))
-    banned = Column("Banned", Boolean())
-    last_login_date = Column("LastLoginDate", DateTime())
-    last_login_ip = Column("LastLoginIP", String(45))
-    last_login_ip_forward = Column("LastLoginIPForward", String(45))
+    notification_change_id = Column(
+        "NotificationChangeId",
+        Integer,
+        ForeignKey('NotificationChanges.Id')
+    )
+    member_id = Column("MemberId", Integer)
+    read = Column("Read", Boolean)
+
+    notification_change = orm.relationship(
+        "NotificationChange",
+        back_populates="Notifications"
+    )
 
     def __repr__(self):
         """ Debug representation of the class """
-        return ("<Member(Id='{}', Username='{}',"
-                "LastLoginDate='{:%Y-%m-%d %H:%M}')").format(
+        return ("<Notification(Id='{}', ChangeId='{}', MemberId='{}',"
+                "Read='{}')").format(
             self.id,
-            self.username,
-            self.last_login_date
+            self.notification_change_id,
+            self.member_id,
+            self.read
         )
+
+nc.NotificationChange.notifications = orm.relationship(
+    "Notification",
+    order_by=Notification.id,
+    back_populates="NotificationChanges"
+)
