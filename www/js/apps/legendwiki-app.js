@@ -4,6 +4,7 @@ app.run(function($templateCache) {
 '<div ng-controller="header">' +
 '<nav class="navbar navbar-expand-sm navbar-dark bg-dark">' +
 	'<a class="navbar-brand" href="/">LegendHUB</a>' +
+    '<a tabindex="0" class="btn btn-dark ml-auto mr-3 d-inline-block d-md-none" role="button" data-container="lh-header>div" data-toggle="popover" data-placement="bottom" ng-attr-data-content="{{getNotificationContent()}}" ng-if="!!currentUser" lh-popover><span class="badge badge-pill badge-danger">{{notifications.length}}</span>&nbsp;<i class="fas fa-bell"></i></a>' +
 	'<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">' +
 		'<span class="navbar-toggler-icon"></span>' +
 	'</button>' +
@@ -38,7 +39,7 @@ app.run(function($templateCache) {
                 '</div>' +
 				//'<a class="nav-link" href="" ng-click="toggleTheme()"><i ng-class="getThemeClass()"></i></a>' +
 			'</li>' +
-			'<li class="nav-item dropdown float-right" ng-show="currentUser">' +
+			'<li class="nav-item dropdown float-right" ng-if="!!currentUser">' +
 				'<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
 					'{{currentUser}}' +
 				'</a>' +
@@ -49,7 +50,7 @@ app.run(function($templateCache) {
 					'<a class="dropdown-item" href="" ng-click="logout()">Logout</a>' +
 				'</div>' +
 			'</li>' +
-			'<li class="nav-item" ng-show="!currentUser">' +
+			'<li class="nav-item" ng-if="!currentUser">' +
 				'<a class="nav-link" href="/login.html?returnUrl={{returnUrl}}">Login</a>' +
 			'</li>' +
 		'</ul>' +
@@ -320,6 +321,30 @@ app.directive('lhTheme', function() {
 	}
 });
 
+app.directive('lhTooltip', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.on('mouseenter', function() {
+				element.tooltip({html: true});
+				element.tooltip('show');
+			});
+			element.on('mouseleave', function() {
+				element.tooltip('hide');
+			});
+		}
+	};
+});
+
+app.directive('lhPopover', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+            element.popover({html: true, trigger: 'focus'})
+        }
+    };
+});
+
 app.directive('lazyLoadOptions', [function() {
 	return {
 		restrict: 'EA',
@@ -541,35 +566,11 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 		$scope.bcFactory = breadcrumb;
 		$scope.returnUrl = window.location.pathname + window.location.search;
 		checkIfLoggedIn();
+        $scope.getNotifications();
 	}
 
 	var checkIfLoggedIn = function() {
 		getLoggedInUser();
-	}
-
-    /**
-     * @deprecated Login restoring automatically happens whenever a permissions check happens.
-    */
-	var attemptRestoreLogin = function(loginToken) {
-		$http({
-			url: '/php/login/restoreLogin.php',
-			method: 'POST',
-			data: { 'loginToken': loginToken }
-		}).then(function successCallback(response) {
-			if (response.data.success) {
-				$scope.currentUser = response.data.username;
-
-				// save new stayLoggedIn token
-				if (response.data.token) {
-					var cookieDate = new Date();
-					cookieDate.setFullYear(cookieDate.getFullYear() + 20);
-					$cookies.put("loginToken", response.data.token, {"path": "/", 'expires': cookieDate});
-				}
-			}
-			else {
-				$cookies.remove("loginToken");
-			}
-		});
 	}
 
 	var getLoggedInUser = function() {
@@ -598,6 +599,9 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 		$('link[id="theme"]').attr('href', '/css/bootstrap-' + theme + '.min.css');
 	}
 
+    /**
+     * @deprecated used for old theme toggle
+     */
 	$scope.toggleTheme = function() {
 		var theme = $cookies.get("theme");
 		if (!theme || theme == "light") {
@@ -609,6 +613,9 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 		$scope.setTheme(theme);
 	}
 
+    /**
+     * @deprecated used for old theme toggle
+     */
 	$scope.getThemeClass = function() {
 		var theme = $cookies.get("theme");
 		if (!theme || theme == "light") {
@@ -618,6 +625,50 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 			return "fas fa-lightbulb fa-lg";
 		}
 	}
+
+    $scope.getNotifications = function() {
+        $http({
+            url: '/php/account/getNotificationsForMember.php',
+        }).then(function successCallback(response) {
+            $scope.notifications = response.data;
+            for (var i = 0; i < $scope.notifications.length; ++i) {
+                var objectName = "<span class='text-primary'>" + $scope.notifications[i].ObjectName + "</span>";
+                var verb = $scope.notifications[i].Verb;
+
+                var message = objectName + " has been " + verb + " by ";
+                if ($scope.notifications[i].Count > 1) {
+                    message += $scope.notifications[i].Count + " users.";
+                }
+                else {
+                    message += $scope.notifications[i].MemberName;
+                }
+
+                $scope.notifications[i].Message = message;
+                $scope.notifications[i].CreatedOn = (new Date($scope.notifications[i].CreatedOn + " UTC")).toString().slice(4, 15);
+            }
+        }, function errorCallback(response) {
+
+        });
+    }
+
+    $scope.getNotificationContent = function() {
+        if (!$scope.notifications) {
+            return "";
+        }
+
+        var text = "<div class='list-group'>";
+        for (var i = 0; i < $scope.notifications.length; ++i) {
+            text += "<a href='' class='list-group-item list-group-item-action flex-column align-items-stretch'>" +
+                "<div class='d-flex w-100 justify-content-between'>" +
+                    "<p class='mr-3'>" + $scope.notifications[i].Message + "</p>" +
+                    "<small class='text-info' style='white-space:nowrap'>" + $scope.notifications[i].CreatedOn + "</small>" +
+                "</div>" +
+            "</a>";
+        }
+
+        text += "</div>";
+        return text;
+    }
 
 	$scope.initialize();
 }]);
