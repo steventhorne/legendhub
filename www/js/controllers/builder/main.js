@@ -1,18 +1,3 @@
-app.directive('tooltip', function() {
-	return {
-		restrict: 'A',
-		link: function(scope, element, attrs) {
-			element.on('mouseenter', function() {
-				element.tooltip({html: true});
-				element.tooltip('show');
-			});
-			element.on('mouseleave', function() {
-				element.tooltip('hide');
-			});
-		}
-	};
-});
-
 app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 	//#region ~~~~~~~~~ INITIALIZATION ~~~~~~~~~
 	// constants
@@ -20,7 +5,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 		$scope.slots = itemConstants.slots;
 		$scope.aligns = itemConstants.shortAligns;
 		$scope.itemsPerPage = 20;
-	
+
 		$scope.slotOrder = [0, 1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21];
 		$scope.longhouseList = ["Bear -- ( spi - min )",
 								"Beaver -- ( min - dex )",
@@ -28,9 +13,9 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 								"Moose -- ( str - con )",
 								"Snake -- ( dex - per )",
 								"Turtle -- ( con - spi )"];
-	
+
 		$scope.amuletList = ["Strength", "Mind", "Dexterity", "Constitution", "Perception", "Spirit"];
-	
+
 		// item searching vars
 		$scope.searchString = "";
 		$scope.currentItem = null;
@@ -38,11 +23,11 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 		$scope.filteredItems = [];
 		$scope.sortStat = "";
 		$scope.sortDir = "";
-	
+
 		for (var i = 0; i < $scope.slots.length; ++i) {
 			$scope.itemsBySlot[i] = [];
 		}
-	
+
 		$scope.getStatCategories();
 	}
 
@@ -51,7 +36,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			url: '/php/items/getItemCategories.php'
 		}).then(function succcessCallback(response) {
 			$scope.statCategories = response.data;
-			
+
 			$scope.getStatInfo();
 		}, function errorCallback(response){
 
@@ -122,7 +107,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 
 				var listStr = listStrs[i];
 				var each = listStr.split("_");
-				
+
 				// name
 				$scope.allLists[i].Name = each[0];
 				each.shift();
@@ -231,7 +216,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			}
 			listCookieStr += "*";
 		}
-		
+
 		localStorage.setItem("cl", listCookieStr);
 		localStorage.setItem("scl", $scope.selectedList.Name);
 
@@ -287,7 +272,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			}, function errorCallback(response){
 			});
 		}
-		
+
 		$('#itemChoiceModal').modal();
 	}
 
@@ -345,11 +330,11 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 		if ($scope.sortStat != statVar) {
 			return "";
 		}
-		
+
 		if ($scope.sortDir == "+") {
 			return "fas fa-sort-up";
 		}
-		
+
 		return "fas fa-sort-down";
 	}
 
@@ -367,7 +352,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 		$('#editCharacterModalName').focus();
 	});
 	//#endregion
-	
+
 	//#region ~~~~~~~~~ COMMANDS ~~~~~~~~~
 	$scope.selectList = function() {
 		$scope.selectedList = $scope.allLists[$scope.selectedListIndex];
@@ -389,7 +374,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 							}
 						}
 					}
-					
+
 					if (!found) {
 						list.items[i].Name = "Loading...";
 						ids.push(list.items[i].Id);
@@ -705,7 +690,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				var str = $scope.sumStats("Strength");
 				var dex = $scope.sumStats("Dexterity");
 				var con = $scope.sumStats("Constitution");
-	
+
 				var bestStat = dex;
 				var wearingStrWeap = false;
 				var wearingConWeap = false;
@@ -725,7 +710,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				if (wearingConWeap && con > bestStat) { // replace false with wearingConWeap
 					bestStat = con;
 				}
-	
+
 				fromBonus += parseInt((bestStat - 30) / 3);
 				fromBonus += parseInt(Math.max(dex - 70, 0) / 6);
 				break;
@@ -738,7 +723,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				for (var i = 25; i < $scope.selectedList.items.length; ++i) { // loop through Other slots
 					if ($scope.selectedList.items[i].Id == 1144 || $scope.selectedList.items[i].Id == 1137) {
 						hasBattleTraining = true;
-						break; 
+						break;
 					}
 				}
 
@@ -751,7 +736,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				var dex = $scope.sumStats("Dexterity");
 				var con = $scope.sumStats("Constitution");
 				var per = $scope.sumStats("Perception");
-	
+
 				var totalAC = 83;
 				totalAC += parseInt(Math.max(dex - 40, 0) * -0.5);
 				totalAC += parseInt(Math.max(per - 30, 0) * -0.5);
@@ -761,7 +746,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 						totalAC -= 5;
 					}
 				}
-				
+
 				fromBonus += totalAC;
 				break;
 		}
@@ -774,10 +759,10 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				for (var i = 25; i < $scope.selectedList.items.length; ++i) { // loop through Other slots
 					if ($scope.selectedList.items[i].Id == 1144 || $scope.selectedList.items[i].Id == 1137) {
 						hasBattleTraining = true;
-						break; 
+						break;
 					}
 				}
-				
+
 				var overallCap = parseInt(Math.max(Math.min($scope.sumStats("Constitution"), 70) - 30, 0) / 2);
 				if (hasBattleTraining) {
 					overallCap += 10;
@@ -849,7 +834,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			}
 		}
 	}
-	
+
 	$scope.anyItemRestrictions = function(index) {
 		return $scope.itemRestrictions[index].length > 0;
 	}
@@ -918,7 +903,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 
 	$scope.getFilteredSearchResults = function() {
 		$scope.totalPages = Math.floor(($scope.filteredItems.length - 1) / $scope.itemsPerPage) + 1;
-				
+
 		var start = ($scope.currentPage - 1) * $scope.itemsPerPage;
 		return $scope.filteredItems.slice(start, start + $scope.itemsPerPage);
 	}
@@ -933,7 +918,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 					filteredItems.splice(i, 1);
 				}
 			}
-			
+
 			$scope.filteredItems = filteredItems;
 		}
 		else {
