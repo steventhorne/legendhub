@@ -22,14 +22,22 @@ furnished to do so, subject to the following conditions:
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
 """
-from business_objects import notifications
+import timeit
+from business_objects import notifications as nf
 
 def main():
     """ Main entrance point for notification listener. """
-    settings = notifications.fetch_notification_settings()
-    print type(settings)
-    for instance in settings:
-        print instance
+    if __debug__:
+        start_time = timeit.default_timer()
+
+    queue = nf.fetch_notification_queue()
+    settings = nf.fetch_notification_settings()
+    nf_changes = nf.create_notification_changes(queue, settings)
+    nf.save_notification_changes(nf_changes)
+
+    if __debug__:
+        end_time = timeit.default_timer()
+        print("\nProgram completed in {} seconds.".format(end_time - start_time))
 
 if __name__ == '__main__':
     main()

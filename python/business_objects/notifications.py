@@ -21,6 +21,7 @@ furnished to do so, subject to the following conditions:
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
 """
+import timeit
 from sql import sql_engine as se
 from sql.models import (
     notification_queue as nq, notification_setting as ns,
@@ -33,12 +34,18 @@ def fetch_notification_queue():
     """ Fetches rows from notification queue.
 
         Returns:
-            A sqlalchemy.orm.query.Query object representing the results
-            of the query.
+            An array with the results of the query.
     """
+    if __debug__:
+        start_time = timeit.default_timer()
+
     sess = ENGINE.get_session()
-    res = sess.query(nq.NotificationQueue)
+    res = sess.query(nq.NotificationQueue).all()
     sess.close()
+
+    if __debug__:
+        end_time = timeit.default_timer()
+        print("\nQueue fetched in {} seconds.".format(end_time - start_time))
 
     return res
 
@@ -46,12 +53,18 @@ def fetch_notification_settings():
     """ Fetches rows from notification settings.
 
         Returns:
-            a sqlalchemy.orm.query.Query object representing the results
-            of the query.
+            An array with the results of the query.
     """
+    if __debug__:
+        start_time = timeit.default_timer()
+
     sess = ENGINE.get_session()
-    res = sess.query(ns.NotificationSetting)
+    res = sess.query(ns.NotificationSetting).all()
     sess.close()
+
+    if __debug__:
+        end_time = timeit.default_timer()
+        print("\nSettings fetched in {} seconds.".format(end_time - start_time))
 
     return res
 
@@ -66,20 +79,21 @@ Each notification change has an array of Notification objects
         enabled.
 
         Args:
-            queue_query: the sqlalchemy.orm.query.Query object for the
-                NotificationQueue query.
-            settings_query: the sqlalchemy.orm.query.Query object for the
-                NotificationSettings query.
+            queue_query: the array object with the NotificationQueue query.
+            settings_query: the array object with the NotificationSettings query.
 
         Returns:
             An array of sql.models.notification_change.NotificationChange
             objects.
         """
+    if __debug__:
+        start_time = timeit.default_timer()
+
     notification_changes = []
     for queue in queue_query:
-        setting_name = "{}{}".format(
-            queue.ObjectType.capitalize(),
-            queue.Verb.capitalize()
+        setting_name = "{}_{}".format(
+            queue.object_type.replace(" ", "_"),
+            queue.verb
         )
 
         notification_change = None
@@ -88,7 +102,7 @@ Each notification change has an array of Notification objects
                 if notification_change is None:
                     notification_change = nc.NotificationChange(
                         actor_id=queue.actor_id,
-                        object_id=queue.actor_id,
+                        object_id=queue.object_id,
                         object_type=queue.object_type,
                         verb=queue.verb,
                         created_on=queue.created_on
@@ -104,4 +118,30 @@ Each notification change has an array of Notification objects
         if notification_change is not None:
             notification_changes.append(notification_change)
 
+    if __debug__:
+        end_time = timeit.default_timer()
+        print("\nNotification changes created in {} seconds.".format(end_time - start_time))
+
     return notification_changes
+
+def save_notification_changes(notification_changes):
+    """ Saves an array of NotificationChange objects to the db.
+
+        Adds the NotificationChange objects to the sql engine, as
+        well as any Notification objects linked via relationships.
+
+        Args:
+            notification_changes: the array of
+                sql.models.notification_change.NotificationChange objects
+    """
+    if __debug__:
+        start_time = timeit.default_timer()
+
+    sess = ENGINE.get_session()
+    sess.add_all(notification_changes)
+    sess.commit()
+    sess.close()
+
+    if __debug__:
+        end_time = timeit.default_timer()
+        print("\nNotification changes saved in {} seconds.".format(end_time - start_time))
