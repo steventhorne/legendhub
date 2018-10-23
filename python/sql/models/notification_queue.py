@@ -21,8 +21,8 @@ furnished to do so, subject to the following conditions:
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
 """
-from sql.models import notification_base as base
+from sql.models import notification_mixin as mixin, shared
 
-class NotificationQueue(base.NotificationBase): # pylint: disable=R0903
+class NotificationQueue(mixin.NotificationMixin, shared.BASE): # pylint: disable=R0903
     """ ORM class for NotificationQueue """
     __tablename__ = "NotificationQueue"
