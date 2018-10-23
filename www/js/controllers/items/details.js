@@ -4,7 +4,7 @@ app.controller('items-details', function($scope, $http, itemConstants, breadcrum
 	$scope.slots = itemConstants.slots;
 	$scope.weaponTypes = ['No Assigned Weapon Type', 'Bladed Weapon (Str)', 'Piercing Weapon (Dex)', 'Blunt Weapon (Con)'];
 	$scope.aligns = itemConstants.aligns;
-	
+
 	$scope.getItem = function() {
 		$http({
 			url: '/php/items/getItem.php',
@@ -88,7 +88,7 @@ app.controller('items-details', function($scope, $http, itemConstants, breadcrum
 		});
 		$scope.getStatInfo();
 	}
-	
+
 	$scope.getStatInfo = function() {
 		$http({
 			url: '/php/items/getItemStats.php'

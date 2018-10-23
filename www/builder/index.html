@@ -164,7 +164,7 @@
 							<td ng-repeat="stat in statInfo" ng-show="stat.showColumn" class="text-center">{{sumStats(stat.var)}}</td>
 						</tr>
 						<tr ng-repeat="item in selectedList.items track by $index">
-							<td ng-class="anyItemRestrictions($index) ? 'bg-danger' : 'bg-primary'" class="bg-primary text-white text-center py-md-1 py-lg-0" data-toggle="tooltip" title="{{getItemRestrictionText($index)}}" nowrap tooltip><span ng-show="anyItemRestrictions($index)"><i class="fas fa-question-circle"></i>&nbsp;</span>{{::slots[item.Slot]}}</td>
+							<td ng-class="anyItemRestrictions($index) ? 'bg-danger' : 'bg-primary'" class="bg-primary text-white text-center py-md-1 py-lg-0" data-toggle="tooltip" title="{{getItemRestrictionText($index)}}" nowrap lh-tooltip><span ng-show="anyItemRestrictions($index)"><i class="fas fa-question-circle"></i>&nbsp;</span>{{::slots[item.Slot]}}</td>
 							<th scope="row" ng-click="onRowClicked($index)" style="cursor: pointer;" class="py-1 py-lg-0">
 								<a href="/items/details.html?id={{item.Id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.Id"><i class="fas fa-link fa-lg"></i></a>&nbsp;{{item.Name}}</th>
 							<td ng-click="onRowClicked($index)" style="cursor: pointer;" class="text-center text-monospace py-1 py-lg-0" ng-trim="false" style="white-space: pre">{{aligns[item.AlignRestriction]}}</td>
