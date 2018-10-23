@@ -22,9 +22,9 @@ furnished to do so, subject to the following conditions:
     DEALINGS IN THE SOFTWARE.
 """
 from sqlalchemy import orm
-from sql.models import notification_base as base
+from sql.models import notification_mixin as mixin, shared
 
-class NotificationChange(base.NotificationBase): # pylint: disable=R0903
+class NotificationChange(mixin.NotificationMixin, shared.BASE): # pylint: disable=R0903
     """ ORM class for NotificationChanges """
     __tablename__ = "NotificationChanges"
 
