@@ -26,56 +26,82 @@ from sql.models import (
     notification_queue as nq, notification_setting as ns,
     notification_change as nc, notification as nn
 )
-from sqlalchemy.orm import query
 
-engine = se.SqlEngine()
+ENGINE = se.SqlEngine()
 
-def get_notification_queue():
-    """ Gets all items from the notification queue """
-    sess = engine.get_session()
+def fetch_notification_queue():
+    """ Fetches rows from notification queue.
+
+        Returns:
+            A sqlalchemy.orm.query.Query object representing the results
+            of the query.
+    """
+    sess = ENGINE.get_session()
     res = sess.query(nq.NotificationQueue)
     sess.close()
 
     return res
 
-def get_notification_settings():
-    sess = engine.get_session()
+def fetch_notification_settings():
+    """ Fetches rows from notification settings.
+
+        Returns:
+            a sqlalchemy.orm.query.Query object representing the results
+            of the query.
+    """
+    sess = ENGINE.get_session()
     res = sess.query(ns.NotificationSetting)
     sess.close()
 
     return res
 
-def get_notifications_for_members(queue_query, settings_query):
-    notificationChanges = []
-    for nq in queue_query:
+def create_notification_changes(queue_query, settings_query):
+    """ Creates an array of NotificationChange objects.
+
+        Creates an array of NotificationChange objects based on
+        the current notification queue and the notification settings
+        of each Member.
+Each notification change has an array of Notification objects
+        for each Member that has the NotificationSetting for that event
+        enabled.
+
+        Args:
+            queue_query: the sqlalchemy.orm.query.Query object for the
+                NotificationQueue query.
+            settings_query: the sqlalchemy.orm.query.Query object for the
+                NotificationSettings query.
+
+        Returns:
+            An array of sql.models.notification_change.NotificationChange
+            objects.
+        """
+    notification_changes = []
+    for queue in queue_query:
         setting_name = "{}{}".format(
-            nq.ObjectType.capitalize(),
-            nq.Verb.capitalize()
+            queue.ObjectType.capitalize(),
+            queue.Verb.capitalize()
         )
 
-        notificationChange = None
-        for ns in settings_query:
-            if getattr(ns, setting_name):
-                if notificationChange is None:
-                    notificationChange = nc.NotificationChange(
-                        actor_id=nq.actor_id,
-                        object_id=nq.actor_id,
-                        object_type=nq.object_type,
-                        verb=nq.verb,
-                        created_on=nq.created_on
+        notification_change = None
+        for setting in settings_query:
+            if getattr(setting, setting_name):
+                if notification_change is None:
+                    notification_change = nc.NotificationChange(
+                        actor_id=queue.actor_id,
+                        object_id=queue.actor_id,
+                        object_type=queue.object_type,
+                        verb=queue.verb,
+                        created_on=queue.created_on
                     )
 
-                    notificationChange.notifications.append(
+                    notification_change.notifications.append(
                         nn.Notification(
-                            member_id=ns.member_id,
+                            member_id=setting.member_id,
                             read=False
                         )
                     )
 
-        if notificationChange is not None:
-            notificationChanges.append(notificationChange)
+        if notification_change is not None:
+            notification_changes.append(notification_change)
 
-    sess = engine.get_session()
-    sess.add_all(notificationChanges)
-    sess.commit()
-    sess.close()
+    return notification_changes

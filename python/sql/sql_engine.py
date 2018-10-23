@@ -23,7 +23,7 @@ furnished to do so, subject to the following conditions:
 """
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import sql_engine_config as conf
+from sql import sql_engine_config as conf
 
 class SqlEngine(object):
     """ Used for connecting to sql.
@@ -48,6 +48,10 @@ class SqlEngine(object):
                 conf.DB_DATABASE
             )
         )
+
+    def get_engine(self):
+        """ Gets the sqlalchemy.engine.Engine object for this class """
+        return self.engine
 
     def get_session(self):
         """ Gets a sql session
