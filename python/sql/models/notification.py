@@ -48,7 +48,7 @@ class Notification(shared.Base):
 
     notification_change = orm.relationship(
         "NotificationChange",
-        back_populates="Notifications"
+        back_populates="notifications"
     )
 
     def __repr__(self):
@@ -60,9 +60,3 @@ class Notification(shared.Base):
             self.member_id,
             self.read
         )
-
-nc.NotificationChange.notifications = orm.relationship(
-    "Notification",
-    order_by=Notification.id,
-    back_populates="NotificationChanges"
-)

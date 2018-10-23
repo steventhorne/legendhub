@@ -45,6 +45,11 @@ class NotificationChange(shared.Base):
     verb = Column("Verb", String(20))
     created_on = Column("CreatedOn", DateTime())
 
+    notifications = orm.relationship(
+        "Notification",
+        back_populates="notification_change"
+    )
+
     def __repr__(self):
         """ Debug representation of the class """
         return ("<NotificationChange(Id='{}', ActorId='{}', ObjectId='{}',"
