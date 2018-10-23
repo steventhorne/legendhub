@@ -22,9 +22,9 @@ furnished to do so, subject to the following conditions:
     DEALINGS IN THE SOFTWARE.
 """
 from sqlalchemy import Column, Integer, String, DateTime
-from sql.models import shared
+from sqlalchemy.ext.declarative import declared_attr
 
-class NotificationBase(shared.BASE): # pylint: disable=R0903
+class NotificationMixin(object): # pylint: disable=R0903
     """ Shared ORM class for NotificationQueue and NotificationChanges
 
     Attributes:
@@ -35,6 +35,10 @@ class NotificationBase(shared.BASE): # pylint: disable=R0903
         verb: The action that was taken on the object.
         created_on: The datetime that the notification was created.
     """
+    @declared_attr
+    def __tablename__(cls): # No self for sqlalchemy pylint: disable=E0213
+        return cls.__name__.lower()
+
     id = Column("Id", Integer, primary_key=True) # pylint: disable=C0103
     actor_id = Column("ActorId", Integer)
     object_id = Column("ObjectId", Integer)
