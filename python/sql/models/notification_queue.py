@@ -21,36 +21,8 @@ furnished to do so, subject to the following conditions:
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
 """
-from sqlalchemy import Column, Integer, String, DateTime
-from sql.models import shared
+from sql.models import notification_base as base
 
-class NotificationQueue(shared.Base):
-    """ ORM class for NotificationQueue
-
-    Attributes:
-        id: Identity column.
-        actor_id: The id of the Member who caused this notification.
-        object_id: The id of the subject of the notification.
-        object_type: The type of object that the ObjectId refers to.
-        verb: The action that was taken on the object.
-        created_on: The datetime that the notification was created.
-    """
+class NotificationQueue(base.NotificationBase): # pylint: disable=R0903
+    """ ORM class for NotificationQueue """
     __tablename__ = "NotificationQueue"
-
-    id = Column("Id", Integer, primary_key=True)
-    actor_id = Column("ActorId", Integer)
-    object_id = Column("ObjectId", Integer)
-    object_type = Column("ObjectType", String(20))
-    verb = Column("Verb", String(20))
-    created_on = Column("CreatedOn", DateTime())
-
-    def __repr__(self):
-        """ Debug representation of the class """
-        return ("<NotificationQueue(Id='{}', ActorId='{}', ObjectId='{}',"
-                "ObjectType='{}', Verb='{}')").format(
-            self.id,
-            self.actor_id,
-            self.object_id,
-            self.object_type,
-            self.verb
-        )

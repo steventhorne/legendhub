@@ -26,7 +26,7 @@ from business_objects import notifications
 
 def main():
     """ Main entrance point for notification listener. """
-    settings = notifications.get_notification_settings()
+    settings = notifications.fetch_notification_settings()
     print type(settings)
     for instance in settings:
         print instance
