@@ -24,7 +24,7 @@ furnished to do so, subject to the following conditions:
 from sqlalchemy import Column, Integer
 from sql.models import shared
 
-class NotificationSetting(shared.Base):
+class NotificationSetting(shared.BASE): # pylint: disable=R0903
     """ ORM class for NotificationSettings
 
     Attributes:
@@ -42,7 +42,7 @@ class NotificationSetting(shared.Base):
     """
     __tablename__ = "NotificationSettings"
 
-    id = Column("Id", Integer, primary_key=True)
+    id = Column("Id", Integer, primary_key=True) # pylint: disable=C0103
     member_id = Column("MemberId", Integer)
     item_added = Column("ItemAdded", Integer)
     item_updated = Column("ItemUpdated", Integer)
@@ -60,15 +60,15 @@ class NotificationSetting(shared.Base):
                 "ItemUpdated='{}', MobAdded='{}', MobUpdated='{}',"
                 "QuestAdded='{}', QuestUpdated='{}', WikiPageAdded='{}',"
                 "WikiPageUpdated='{}', ChangelogAdded='{}')").format(
-            self.id,
-            self.member_id,
-            self.item_added,
-            self.item_updated,
-            self.mob_added,
-            self.mob_updated,
-            self.quest_added,
-            self.quest_updated,
-            self.wiki_page_added,
-            self.wiki_page_updated,
-            self.changelog_added
-        )
+                    self.id,
+                    self.member_id,
+                    self.item_added,
+                    self.item_updated,
+                    self.mob_added,
+                    self.mob_updated,
+                    self.quest_added,
+                    self.quest_updated,
+                    self.wiki_page_added,
+                    self.wiki_page_updated,
+                    self.changelog_added
+                )

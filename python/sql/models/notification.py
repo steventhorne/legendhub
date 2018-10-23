@@ -23,10 +23,9 @@ furnished to do so, subject to the following conditions:
 """
 from sqlalchemy import Column, Integer, Boolean, ForeignKey
 from sqlalchemy import orm
-from sql.models import notification_change as nc
 from sql.models import shared
 
-class Notification(shared.Base):
+class Notification(shared.BASE): # pylint: disable=R0903
     """ ORM class for Notifications
 
     Attributes:
@@ -37,7 +36,7 @@ class Notification(shared.Base):
     """
     __tablename__ = "Notifications"
 
-    id = Column("Id", Integer, primary_key=True)
+    id = Column("Id", Integer, primary_key=True) # pylint: disable=C0103
     notification_change_id = Column(
         "NotificationChangeId",
         Integer,
@@ -55,8 +54,8 @@ class Notification(shared.Base):
         """ Debug representation of the class """
         return ("<Notification(Id='{}', ChangeId='{}', MemberId='{}',"
                 "Read='{}')").format(
-            self.id,
-            self.notification_change_id,
-            self.member_id,
-            self.read
-        )
+                    self.id,
+                    self.notification_change_id,
+                    self.member_id,
+                    self.read
+                )
