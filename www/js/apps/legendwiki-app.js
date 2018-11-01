@@ -30,6 +30,9 @@ app.run(function($templateCache) {
 			'</li>' +
 		'</ul>' +
 		'<ul class="navbar-nav ml-auto">' +
+            '<li class="nav-item">' +
+                '<a tabindex="0" class="btn btn-dark d-none d-md-inline-block" role="button" data-container="lh-header>div" data-toggle="popover" data-placement="bottom" ng-attr-data-content="{{getNotificationContent()}}" ng-if="!!currentUser" lh-popover><span class="badge badge-pill badge-danger">{{notifications.length}}</span>&nbsp;<i class="fas fa-bell"></i></a>' +
+            '</li>' +
 			'<li class="nav-item dropdown float-right">' +
                 '<a class="nav-link dropdown-toggle dropdown-toggle-no-caret" href="#" id="themeDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
                     '<i class="fas fa-palette"></i>' +
@@ -566,7 +569,6 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 		$scope.bcFactory = breadcrumb;
 		$scope.returnUrl = window.location.pathname + window.location.search;
 		checkIfLoggedIn();
-        $scope.getNotifications();
 	}
 
 	var checkIfLoggedIn = function() {
@@ -579,6 +581,7 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 		}).then(function succcessCallback(response) {
 			if (response.data.success) {
 				$scope.currentUser = response.data.username;
+                $scope.getNotifications();
 			}
 		});
 	}
@@ -632,18 +635,22 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
         }).then(function successCallback(response) {
             $scope.notifications = response.data;
             for (var i = 0; i < $scope.notifications.length; ++i) {
+                console.log($scope.notifications[i].ObjectType);
+                var objectType = $scope.notifications[i].ObjectType.charAt(0).toUpperCase() + $scope.notifications[i].ObjectType.slice(1);
                 var objectName = "<span class='text-primary'>" + $scope.notifications[i].ObjectName + "</span>";
                 var verb = $scope.notifications[i].Verb;
 
-                var message = objectName + " has been " + verb + " by ";
+                var message = objectType + " " + objectName + " has been " + verb + " by ";
                 if ($scope.notifications[i].Count > 1) {
                     message += $scope.notifications[i].Count + " users.";
                 }
                 else {
                     message += $scope.notifications[i].MemberName;
                 }
+                console.log(message);
 
                 $scope.notifications[i].Message = message;
+                $scope.notifications[i].CreatedOnTime = (new Date($scope.notifications[i].CreatedOn + " UTC")).toString().slice(16, 24);
                 $scope.notifications[i].CreatedOn = (new Date($scope.notifications[i].CreatedOn + " UTC")).toString().slice(4, 15);
             }
         }, function errorCallback(response) {
@@ -656,12 +663,23 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
             return "";
         }
 
-        var text = "<div class='list-group'>";
+        var text = "<div class='list-group' style='max-height:50vh;overflow-y:scroll'>";
         for (var i = 0; i < $scope.notifications.length; ++i) {
-            text += "<a href='' class='list-group-item list-group-item-action flex-column align-items-stretch'>" +
+            var link = "/";
+            if ($scope.notifications[i].ObjectPage && $scope.notifications[i].ObjectId) {
+                link += $scope.notifications[i].ObjectPage + "/details.html?id=" + $scope.notifications[i].ObjectId;
+            }
+            else {
+                link = "";
+            }
+
+            text += "<a href='" + link + "' class='list-group-item list-group-item-action flex-column align-items-stretch'>" +
                 "<div class='d-flex w-100 justify-content-between'>" +
                     "<p class='mr-3'>" + $scope.notifications[i].Message + "</p>" +
-                    "<small class='text-info' style='white-space:nowrap'>" + $scope.notifications[i].CreatedOn + "</small>" +
+                    "<div class='text-info'>" +
+                        "<p class='mb-0' style='white-space:nowrap'><small>" + $scope.notifications[i].CreatedOn + "</small></p>" +
+                        "<p style='white-space:nowrap'><small>" + $scope.notifications[i].CreatedOnTime + "</small></p>" +
+                    "</div>" +
                 "</div>" +
             "</a>";
         }
