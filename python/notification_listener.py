@@ -37,7 +37,8 @@ def main():
 
     if __debug__:
         end_time = timeit.default_timer()
-        print("\nProgram completed in {} seconds.".format(end_time - start_time))
+        print("\nProgram completed in {} "
+              "seconds.".format(end_time - start_time))
 
 if __name__ == '__main__':
     main()
