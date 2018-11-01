@@ -18,16 +18,16 @@ $sql = "SELECT N.MemberId,
             N.Read,
             NC.ObjectType,
             NC.ObjectId,
-            COALESCE(I.Name) AS ObjectName,
+            NC.ObjectPage,
+            NC.ObjectName,
             NC.Verb,
             COUNT(1) AS Count,
             MAX(NC.CreatedOn) AS CreatedOn
         FROM Notifications N
             JOIN NotificationChanges NC ON NC.Id = N.NotificationChangeId AND NC.ActorId <> N.MemberId
             JOIN Members NCM ON NC.ActorId = NCM.Id
-            LEFT JOIN Items I ON NC.ObjectType = 'item' AND I.Id = NC.ObjectId
         WHERE N.MemberId = :memberId
-        GROUP BY N.MemberId, N.Read, NC.ObjectType, NC.ObjectId, NC.Verb, I.Name";
+        GROUP BY N.MemberId, N.Read, NC.ObjectId, NC.ObjectType, NC.ObjectPage, NC.ObjectName, NC.Verb";
 
 $query = $pdo->prepare($sql); 
 $query->execute(array('memberId' => $_SESSION['UserId']));
