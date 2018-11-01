@@ -64,7 +64,8 @@ def fetch_notification_settings():
 
     if __debug__:
         end_time = timeit.default_timer()
-        print("\nSettings fetched in {} seconds.".format(end_time - start_time))
+        print("\nSettings fetched in {} "
+                "seconds.".format(end_time - start_time))
 
     return res
 
@@ -80,7 +81,8 @@ Each notification change has an array of Notification objects
 
         Args:
             queue_query: the array object with the NotificationQueue query.
-            settings_query: the array object with the NotificationSettings query.
+            settings_query: the array object with the NotificationSettings
+                query.
 
         Returns:
             An array of sql.models.notification_change.NotificationChange
@@ -104,6 +106,8 @@ Each notification change has an array of Notification objects
                         actor_id=queue.actor_id,
                         object_id=queue.object_id,
                         object_type=queue.object_type,
+                        object_page=queue.object_page,
+                        object_name=queue.object_name,
                         verb=queue.verb,
                         created_on=queue.created_on
                     )
@@ -120,7 +124,8 @@ Each notification change has an array of Notification objects
 
     if __debug__:
         end_time = timeit.default_timer()
-        print("\nNotification changes created in {} seconds.".format(end_time - start_time))
+        print("\nNotification changes created "
+                "in {} seconds.".format(end_time - start_time))
 
     return notification_changes
 
@@ -144,4 +149,5 @@ def save_notification_changes(notification_changes):
 
     if __debug__:
         end_time = timeit.default_timer()
-        print("\nNotification changes saved in {} seconds.".format(end_time - start_time))
+        print("\nNotification changes saved "
+                "in {} seconds.".format(end_time - start_time))

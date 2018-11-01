@@ -43,17 +43,22 @@ class NotificationMixin(object): # pylint: disable=R0903
     actor_id = Column("ActorId", Integer)
     object_id = Column("ObjectId", Integer)
     object_type = Column("ObjectType", String(20))
+    object_page = Column("ObjectPage", String(20))
+    object_name = Column("ObjectName", String(100))
     verb = Column("Verb", String(20))
     created_on = Column("CreatedOn", DateTime())
 
     def __repr__(self):
         """ Debug representation of the class """
-        return ("<{}(Id='{}', ActorId='{}', ObjectId='{}',"
-                "ObjectType='{}', Verb='{}')").format(
+        return ("<{}(Id='{}', ActorId='{}', ObjectId='{}', "
+                "ObjectType='{}', ObjectPage='{}', ObjectName='{}', "
+                "Verb='{}')").format(
                     self.__class__.__name__,
                     self.id,
                     self.actor_id,
                     self.object_id,
                     self.object_type,
+                    self.object_page,
+                    self.object_name,
                     self.verb
                 )
