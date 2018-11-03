@@ -1,10 +1,14 @@
 var app = angular.module( "legendwiki-app", ['ngCookies'] );
 app.run(function($templateCache) {
+    var notificationHtml = ' tabindex="0" role="button" data-container="lh-header>div" data-toggle="popover" data-placement="bottom" ng-attr-data-content="{{getNotificationContent()}}" ng-if="!!currentUser" lh-popover><span ng-if="notifications.length > 0"><span class="badge badge-pill badge-danger">{{notifications.length}}</span>&nbsp;</span><i class="fas fa-bell"></i></a>';
+    var notificationWeb = '<a class="btn btn-dark d-none d-sm-inline-block"' + notificationHtml;
+    var notificationMobile = '<a tabindex="0" class="btn btn-dark ml-auto mr-3 d-inline-block d-sm-none"' + notificationHtml;
+
 	$templateCache.put('header.html',
 '<div ng-controller="header">' +
 '<nav class="navbar navbar-expand-sm navbar-dark bg-dark">' +
 	'<a class="navbar-brand" href="/">LegendHUB</a>' +
-    '<a tabindex="0" class="btn btn-dark ml-auto mr-3 d-inline-block d-md-none" role="button" data-container="lh-header>div" data-toggle="popover" data-placement="bottom" ng-attr-data-content="{{getNotificationContent()}}" ng-if="!!currentUser" lh-popover><span class="badge badge-pill badge-danger">{{notifications.length}}</span>&nbsp;<i class="fas fa-bell"></i></a>' +
+     notificationMobile +
 	'<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">' +
 		'<span class="navbar-toggler-icon"></span>' +
 	'</button>' +
@@ -31,7 +35,7 @@ app.run(function($templateCache) {
 		'</ul>' +
 		'<ul class="navbar-nav ml-auto">' +
             '<li class="nav-item">' +
-                '<a tabindex="0" class="btn btn-dark d-none d-md-inline-block" role="button" data-container="lh-header>div" data-toggle="popover" data-placement="bottom" ng-attr-data-content="{{getNotificationContent()}}" ng-if="!!currentUser" lh-popover><span class="badge badge-pill badge-danger">{{notifications.length}}</span>&nbsp;<i class="fas fa-bell"></i></a>' +
+                 notificationWeb +
             '</li>' +
 			'<li class="nav-item dropdown float-right">' +
                 '<a class="nav-link dropdown-toggle dropdown-toggle-no-caret" href="#" id="themeDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
@@ -339,11 +343,14 @@ app.directive('lhTooltip', function() {
 	};
 });
 
-app.directive('lhPopover', function() {
+app.directive('lhPopover', function($compile) {
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {
-            element.popover({html: true, trigger: 'focus'})
+            element.popover({html: true, trigger: 'focus'});
+            element.on('shown.bs.popover', function() {
+                $compile($(".popover-body").contents())(scope);
+            });
         }
     };
 });
@@ -634,8 +641,11 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
             url: '/php/account/getNotificationsForMember.php',
         }).then(function successCallback(response) {
             $scope.notifications = response.data;
+
+            var currentPageIsInNotifications = false;
             for (var i = 0; i < $scope.notifications.length; ++i) {
-                console.log($scope.notifications[i].ObjectType);
+                var objectId = $scope.notifications[i].ObjectId;
+                var objectPage = $scope.notifications[i].ObjectPage;
                 var objectType = $scope.notifications[i].ObjectType.charAt(0).toUpperCase() + $scope.notifications[i].ObjectType.slice(1);
                 var objectName = "<span class='text-primary'>" + $scope.notifications[i].ObjectName + "</span>";
                 var verb = $scope.notifications[i].Verb;
@@ -647,14 +657,49 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
                 else {
                     message += $scope.notifications[i].MemberName;
                 }
-                console.log(message);
 
                 $scope.notifications[i].Message = message;
+                $scope.notifications[i].CreatedOnDate = (new Date($scope.notifications[i].CreatedOn + " UTC")).toString().slice(4, 15);
                 $scope.notifications[i].CreatedOnTime = (new Date($scope.notifications[i].CreatedOn + " UTC")).toString().slice(16, 24);
-                $scope.notifications[i].CreatedOn = (new Date($scope.notifications[i].CreatedOn + " UTC")).toString().slice(4, 15);
+                if ($scope.notifications[i].ObjectPage && $scope.notifications[i].ObjectId) {
+                    $scope.notifications[i].Link = "/" + objectPage + "/details.html?id=" + objectId;
+                }
+                else {
+                    $scope.notifications[i].Link = "";
+                }
+
+                // check if notification points to current page
+                var path = window.location.pathname + window.location.search;
+                if (!currentPageIsInNotifications && path === $scope.notifications[i].Link) {
+                    $scope.notifications.splice(i, 1);
+                    --i;
+                    currentPageIsInNotifications = true;
+
+                    // tell server to mark notifications as read
+                    $scope.markNotificationsAsRead(objectType, objectId)
+                }
             }
         }, function errorCallback(response) {
 
+        });
+    }
+
+    $scope.markNotificationsAsRead = function(objectType, objectId) {
+        $http({
+			url: '/php/account/markNotificationsAsRead.php',
+            method: 'POST',
+            data: { all: false, objectType: objectType, objectId: objectId }
+		}).then(function succcessCallback(response) {
+		});
+    }
+
+    $scope.markAllNotificationsAsRead = function() {
+        $http({
+            url: '/php/account/markNotificationsAsRead.php',
+            method: 'POST',
+            data: { all: true }
+        }).then(function successCallback(response) {
+            $scope.notifications = [];
         });
     }
 
@@ -663,28 +708,26 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
             return "";
         }
 
-        var text = "<div class='list-group' style='max-height:50vh;overflow-y:scroll'>";
-        for (var i = 0; i < $scope.notifications.length; ++i) {
-            var link = "/";
-            if ($scope.notifications[i].ObjectPage && $scope.notifications[i].ObjectId) {
-                link += $scope.notifications[i].ObjectPage + "/details.html?id=" + $scope.notifications[i].ObjectId;
-            }
-            else {
-                link = "";
-            }
-
-            text += "<a href='" + link + "' class='list-group-item list-group-item-action flex-column align-items-stretch'>" +
-                "<div class='d-flex w-100 justify-content-between'>" +
-                    "<p class='mr-3'>" + $scope.notifications[i].Message + "</p>" +
-                    "<div class='text-info'>" +
-                        "<p class='mb-0' style='white-space:nowrap'><small>" + $scope.notifications[i].CreatedOn + "</small></p>" +
-                        "<p style='white-space:nowrap'><small>" + $scope.notifications[i].CreatedOnTime + "</small></p>" +
+        if ($scope.notifications.length > 0) {
+            var text = "<button class='btn btn-primary btn-block' type='button' ng-click='markAllNotificationsAsRead()'>Mark all as read</button>" +
+            "<div class='list-group' style='max-height:50vh;overflow-y:scroll'>";
+            for (var i = 0; i < $scope.notifications.length; ++i) {
+                text += "<a href='" + $scope.notifications[i].Link + "' class='list-group-item list-group-item-action flex-column align-items-stretch'>" +
+                    "<div class='d-flex w-100 justify-content-between'>" +
+                        "<p class='mr-3'>" + $scope.notifications[i].Message + "</p>" +
+                        "<div class='text-info'>" +
+                            "<p class='mb-0' style='white-space:nowrap'><small>" + $scope.notifications[i].CreatedOnDate + "</small></p>" +
+                            "<p style='white-space:nowrap'><small>" + $scope.notifications[i].CreatedOnTime + "</small></p>" +
+                        "</div>" +
                     "</div>" +
-                "</div>" +
-            "</a>";
+                "</a>";
+            }
+            text += "</div>";
+        }
+        else {
+            text = "<p>You have no notifications.</p>";
         }
 
-        text += "</div>";
         return text;
     }
 
