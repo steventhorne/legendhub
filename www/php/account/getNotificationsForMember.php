@@ -26,9 +26,9 @@ $sql = "SELECT N.MemberId,
         FROM Notifications N
             JOIN NotificationChanges NC ON NC.Id = N.NotificationChangeId AND NC.ActorId <> N.MemberId
             JOIN Members NCM ON NC.ActorId = NCM.Id
-        WHERE N.MemberId = :memberId
+        WHERE N.MemberId = :memberId AND N.Read = 0
         GROUP BY N.MemberId, N.Read, NC.ObjectId, NC.ObjectType, NC.ObjectPage, NC.ObjectName, NC.Verb
-        ORDER BY MAX(NC.CreatedOn)";
+        ORDER BY MAX(NC.CreatedOn) DESC";
 
 $query = $pdo->prepare($sql); 
 $query->execute(array('memberId' => $_SESSION['UserId']));
