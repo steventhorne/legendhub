@@ -638,7 +638,7 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 
     $scope.getNotifications = function() {
         $http({
-            url: '/php/account/getNotificationsForMember.php',
+            url: '/php/account/getUnreadNotificationsForMember.php',
         }).then(function successCallback(response) {
             $scope.notifications = response.data;
 
@@ -725,7 +725,7 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
             text += "</div>";
         }
         else {
-            text = "<p>You have no notifications.</p>";
+            text = "<p>No unread notifications.</p>";
         }
 
         return text;
