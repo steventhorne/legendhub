@@ -18,12 +18,12 @@ app.controller('notifications', function($scope, $http, $sanitize) {
                 var objectName = "<span class='text-primary'>" + $scope.allNotifications[i].ObjectName + "</span>";
                 var verb = $scope.allNotifications[i].Verb;
 
-                var message = objectType + " " + objectName + " has been " + verb + " by ";
+                var message = objectType + " " + objectName + " has been " + verb;
                 if ($scope.allNotifications[i].Count > 1) {
-                    message += $scope.allNotifications[i].Count + " users.";
+                    message += " " + $scope.allNotifications[i].Count + " times.";
                 }
                 else {
-                    message += $scope.allNotifications[i].MemberName;
+                    message += " by " + $scope.allNotifications[i].MemberName;
                 }
 
                 $scope.allNotifications[i].Message = message;
