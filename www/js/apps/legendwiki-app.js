@@ -709,8 +709,17 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
         }
 
         if ($scope.notifications.length > 0) {
-            var text = "<button class='btn btn-primary btn-block' type='button' ng-click='markAllNotificationsAsRead()'>Mark all as read</button>" +
-            "<div class='list-group' style='max-height:50vh;overflow-y:scroll'>";
+            var text = "<p class='text-center'>" + $scope.notifications.length + " unread notifications.</p>";
+
+        }
+        else {
+            var text = "<p class='text-center'>No unread notifications.</p>";
+        }
+
+        text += "<span class='d-flex justify-content-between'><a class='px-1' href='/notifications/'>View all</a>|<a class='px-1' href='' ng-click='markAllNotificationsAsRead()'>Mark all as read</a>|<a class='px-1' href='/account/'>Settings</a></span>";
+
+        if ($scope.notifications.length > 0) {
+            text += "<div class='list-group' style='max-height:50vh;overflow-y:scroll'>";
             for (var i = 0; i < $scope.notifications.length; ++i) {
                 text += "<a href='" + $scope.notifications[i].Link + "' class='list-group-item list-group-item-action flex-column align-items-stretch'>" +
                     "<div class='d-flex w-100 justify-content-between'>" +
@@ -723,9 +732,6 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
                 "</a>";
             }
             text += "</div>";
-        }
-        else {
-            text = "<p>No unread notifications.</p>";
         }
 
         return text;
