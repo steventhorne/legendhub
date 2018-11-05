@@ -650,12 +650,12 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
                 var objectName = "<span class='text-primary'>" + $scope.notifications[i].ObjectName + "</span>";
                 var verb = $scope.notifications[i].Verb;
 
-                var message = objectType + " " + objectName + " has been " + verb + " by ";
+                var message = objectType + " " + objectName + " has been " + verb;
                 if ($scope.notifications[i].Count > 1) {
-                    message += $scope.notifications[i].Count + " users.";
+                    message += " " + $scope.notifications[i].Count + " times.";
                 }
                 else {
-                    message += $scope.notifications[i].MemberName;
+                    message += " by " + $scope.notifications[i].MemberName;
                 }
 
                 $scope.notifications[i].Message = message;
