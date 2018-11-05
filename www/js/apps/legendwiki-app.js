@@ -52,6 +52,7 @@ app.run(function($templateCache) {
 				'</a>' +
 				'<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">' +
                     '<a class="dropdown-item" href="/account/">Account</a>' +
+                    '<a class="dropdown-item" href="/changelog/">Changelog</a>' +
 					'<a class="dropdown-item" href="https://github.com/SvarturH/legendhub/issues" target="_blank">Report an Issue</a>' +
 					'<div class="dropdown-divider"></div>' +
 					'<a class="dropdown-item" href="" ng-click="logout()">Logout</a>' +
