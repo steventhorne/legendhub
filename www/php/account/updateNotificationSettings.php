@@ -45,5 +45,5 @@ $query->execute(array('itemAdded' => $itemAdded,
     'wikiPageUpdated' => $wikiPageUpdated,
     'memberId' => $_SESSION['UserId']));
 
-echo("{'success': true}")
+echo("{\"success\": true}")
 ?>
