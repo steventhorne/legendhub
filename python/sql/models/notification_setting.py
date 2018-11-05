@@ -52,7 +52,7 @@ class NotificationSetting(shared.BASE): # pylint: disable=R0903
     quest_updated = Column("QuestUpdated", Integer)
     wiki_page_added = Column("WikiPageAdded", Integer)
     wiki_page_updated = Column("WikiPageUpdated", Integer)
-    changelog_added = Column("ChangelogAdded", Integer)
+    website_version_released = Column("ChangelogAdded", Integer)
 
     def __repr__(self):
         """ Debug representation of the class """
@@ -70,5 +70,5 @@ class NotificationSetting(shared.BASE): # pylint: disable=R0903
                     self.quest_updated,
                     self.wiki_page_added,
                     self.wiki_page_updated,
-                    self.changelog_added
+                    self.website_version_released
                 )

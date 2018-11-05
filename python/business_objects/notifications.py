@@ -22,11 +22,13 @@ furnished to do so, subject to the following conditions:
     DEALINGS IN THE SOFTWARE.
 """
 import timeit
+import datetime
 from sql import sql_engine as se
 from sql.models import (
     notification_queue as nq, notification_setting as ns,
     notification_change as nc, notification as nn
 )
+from sqlalchemy import sql as sqla
 
 ENGINE = se.SqlEngine()
 
@@ -112,12 +114,12 @@ Each notification change has an array of Notification objects
                         created_on=queue.created_on
                     )
 
-                    notification_change.notifications.append(
-                        nn.Notification(
-                            member_id=setting.member_id,
-                            read=False
-                        )
+                notification_change.notifications.append(
+                    nn.Notification(
+                        member_id=setting.member_id,
+                        read=False
                     )
+                )
 
         if notification_change is not None:
             notification_changes.append(notification_change)
@@ -150,4 +152,56 @@ def save_notification_changes(notification_changes):
     if __debug__:
         end_time = timeit.default_timer()
         print("\nNotification changes saved "
+                "in {} seconds.".format(end_time - start_time))
+
+def delete_notification_queue(date):
+    """ Clears out the NotificationQueue items that have been processed.
+
+        Args:
+            date: All queue items before or on this date will be deleted.
+    """
+    if date is None:
+        return
+
+    if __debug__:
+        start_time = timeit.default_timer()
+
+    # add 1 millisecond to date to account for the date itself
+    # since <= is not a valid option in sqlalchemy
+    date = date + datetime.timedelta(seconds=1)
+
+    sess = ENGINE.get_session()
+    sess.query(nq.NotificationQueue)\
+        .filter(nq.NotificationQueue.created_on < date)\
+        .delete(synchronize_session=False)
+    sess.commit()
+    sess.close()
+
+    if __debug__:
+        end_time = timeit.default_timer()
+        print("\nNotificationQueue cleared "
+                "in {} seconds.".format(end_time - start_time))
+
+def clean_notifications():
+    """ Cleans up old Notifications that have been marked as read. """
+    if __debug__:
+        start_time = timeit.default_timer()
+
+    days_ago = 7
+    delete_date = datetime.datetime.now() + datetime.timedelta(-days_ago)
+
+    sess = ENGINE.get_session()
+    sess.execute(
+        "DELETE N "
+        "FROM Notifications N "
+        "JOIN NotificationChanges NC on NC.Id = N.NotificationChangeId "
+        "WHERE N.Read = 1 AND NC.CreatedOn < :delete_date",
+        {"delete_date": delete_date}
+    )
+    sess.commit()
+    sess.close()
+
+    if __debug__:
+        end_time = timeit.default_timer()
+        print("\nNotifications cleaned "
                 "in {} seconds.".format(end_time - start_time))

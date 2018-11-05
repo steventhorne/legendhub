@@ -31,9 +31,18 @@ def main():
         start_time = timeit.default_timer()
 
     queue = nf.fetch_notification_queue()
+
+    # go through queue and find latest change
+    latest_date = None
+    for queue_item in queue:
+        if latest_date is None or queue_item.created_on > latest_date:
+            latest_date = queue_item.created_on
+
     settings = nf.fetch_notification_settings()
     nf_changes = nf.create_notification_changes(queue, settings)
     nf.save_notification_changes(nf_changes)
+    nf.delete_notification_queue(latest_date)
+    nf.clean_notifications()
 
     if __debug__:
         end_time = timeit.default_timer()
