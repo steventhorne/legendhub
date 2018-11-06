@@ -33,13 +33,15 @@ if ($res = $query->fetchAll(PDO::FETCH_CLASS)[0])
 		$response = new \stdClass();
 		$response->success = true;
 		$response->reason = "";
-		if (isset($postdata->StayLoggedIn) && $postdata->StayLoggedIn) {
-			$response->token = bin2hex(openssl_random_pseudo_bytes(24));
+        if (isset($postdata->StayLoggedIn) && $postdata->StayLoggedIn) {
+            $token = bin2hex(openssl_random_pseudo_bytes(24));
+            $selector = bin2hex(openssl_random_pseudo_bytes(6));
+            $response->token = "$selector-$token";
 
-			// store hashed token to prevent database theft
-			$tokenHash = password_hash($response->token, PASSWORD_DEFAULT);
-			$updateq = $pdo->prepare("INSERT INTO PersistentLogins (Username, LoginIP, Token) VALUES (:username, :loginIP, :token)");
-			$updateq->execute(array("username" => $res->Username, "loginIP" => getenv('REMOTE_ADDR'), "token" => $tokenHash));
+            // store hashed token to prevent database theft
+            $tokenHash = hash("sha256", $token);
+            $authTokenQ = $pdo->prepare("INSERT INTO AuthTokens (Selector, HashedValidator, MemberId, Expires) VALUES (:selector, :hashedValidator, :memberId, DATE_ADD(NOW(), INTERVAL 30 DAY))");
+            $authTokenQ->execute(array("selector" => $selector, "hashedValidator" => $tokenHash, "memberId" => $_SESSION['UserId']));
 		}
 		echo(json_encode($response));
 		return;
