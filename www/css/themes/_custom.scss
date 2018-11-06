@@ -21,7 +21,6 @@ body {
   bottom: 0;
   flex-shrink: 0;
   width: 100%;
-  padding-top: 20px;
 }
 
 .breadcrumbNav {
@@ -124,7 +123,7 @@ body {
     padding: 15px;
     background-color: $gray-800 !important;
 
-    .active {
+    &.active {
       left: 0;
       @include transition(all 150ms linear);
     }

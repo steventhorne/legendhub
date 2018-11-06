@@ -78,7 +78,7 @@ app.run(function($templateCache) {
 '<br />' +
 '<div class="footer bg-dark">' +
 	'<div class="container">' +
-		'<div>' +
+		'<div class="p-3">' +
 			'<div class="row text-light" style="font-size:.8em">' +
 				'<span class="mx-auto text-center">This domain, its content, and its creators are not associated, nor affiliated, with the LegendMUD immortal staff.</span>' +
 			'</div>' +
