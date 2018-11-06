@@ -131,7 +131,7 @@ app.factory('httpResponseInterceptor', function($cookies) {
             var token = response.headers('login-token');
             if (token) {
                 var cookieDate = new Date();
-				cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+				cookieDate.setDate(cookieDate.getDate() + 30);
 				$cookies.put("loginToken", token, {"path": "/", 'expires': cookieDate});
                 console.log("Login restored.");
             }

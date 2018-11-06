@@ -15,8 +15,8 @@ app.controller('login', function($scope, $cookies, $http) {
 		}).then(function succcessCallback(response) {
 			$scope.registerForm.usernameInput.$setValidity(response.data.reason, response.data.success);
 		}, function errorCallback(response){
-	
-		});	
+
+		});
 	}
 
 	$scope.checkPassword = function() {
@@ -50,8 +50,8 @@ app.controller('login', function($scope, $cookies, $http) {
 				$scope.registerFailed = true;
 			}
 		}, function errorCallback(response){
-	
-		});	
+
+		});
 	}
 
 	$scope.login = function() {
@@ -65,7 +65,7 @@ app.controller('login', function($scope, $cookies, $http) {
 				// save stayLoggedIn token
 				if (response.data.token) {
 					var cookieDate = new Date();
-					cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+					cookieDate.setDate(cookieDate.getDate() + 30);
 					$cookies.put("loginToken", response.data.token, {"path": "/", 'expires': cookieDate});
 				}
 

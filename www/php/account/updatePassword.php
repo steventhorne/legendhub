@@ -32,6 +32,11 @@ if (password_verify($oldPassword, $result->Password)) {
     $query = $pdo->prepare($sql);
     $query->execute(array('newPassword' => password_hash($newPassword, PASSWORD_DEFAULT)));
 
+    // delete all remember-me tokens
+    $sql = "DELETE FROM AuthTokens WHERE MemberId = :memberId";
+    $query = $pdo->prepare($sql);
+    $query->execute(array('memberId' => $_SESSION['UserId']));
+
     echo('{"success": true}');
 } else {
     echo('{"success": false}');
