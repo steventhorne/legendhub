@@ -81,7 +81,7 @@ class Permissions {
 
 		                // update last login on members table
 		                $updateq = self::$PDO->prepare("UPDATE Members SET LastLoginDate = NOW(), LastLoginIP = :ip, LastLoginIPForward = :ipf WHERE Id = :id");
-                        $updateq->execute(array("id" => $res->Id, "ip" => getenv('REMOTE_ADDR'), "ipf" => getenv('HTTP_X_FORWARDED_FOR')));
+                        $updateq->execute(array("id" => $res->MemberId, "ip" => getenv('REMOTE_ADDR'), "ipf" => getenv('HTTP_X_FORWARDED_FOR')));
 
                         // set the login token header on the response
                         header("login-token: $combined");
