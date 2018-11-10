@@ -2,7 +2,7 @@
 header( "Access-Control-Allow-Origin: http://legendhub.org" );
 header( "Content-Type: application/json; charset=UTF-8" );
 
-$itemCategories = [(object) ['name' => 'Basic', 'stats' => [31, 32, 33, 34, 35, 36, 37, 38]],
+$itemCategories = [(object) ['name' => 'Basic', 'stats' => [31, 32, 33, 34, 35, 36, 37, 38, 39, 40]],
 					(object) ['name' => 'Main', 'stats' => [0, 1, 2, 3, 4, 5, 6]],
 					(object) ['name' => 'Regen', 'stats' => [7, 8, 9, 10, 11, 12]],
 					(object) ['name' => 'Melee', 'stats' => [13, 14]],
@@ -50,7 +50,9 @@ $itemStats = [(object) ["display" => "Strength", "short" => "Str", "var" => "Str
 			  (object) ["display" => "Level Req", "short" => "Level", "var" => "Level", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
 			  (object) ["display" => "Net Stat", "short" => "Net Stat", "var" => "NetStat", "type" => "decimal", "showColumn" => false, "filterString" => ">= 4", "default" => 0, "netStat" => 0, "editable" => false],
 			  (object) ["display" => "Sell Price", "short" => "Sell", "var" => "Value", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
-			  (object) ["display" => "Rent", "short" => "Rent", "var" => "Rent", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 0]];
+              (object) ["display" => "Rent", "short" => "Rent", "var" => "Rent", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 0],
+              (object) ["display" => "Light", "short" => "Light", "var" => "IsLight", "type" => "bool", "filterString" => "= 1", "default" => false, "netStat" => 0],
+              (object) ["display" => "Heroic", "short" => "Heroic", "var" => "IsHeroic", "type" => "bool", "filterString" => "= 1", "default" => false, "netStat" => 0]];
 
 // NOT INCLUDED
 // | Id                  | int(11)     | NO   | PRI | NULL    | auto_increment |
