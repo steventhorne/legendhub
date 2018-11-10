@@ -2,7 +2,8 @@ angular.module("legendwiki-app").requires.push('ng-showdown');
 
 app.controller('items-add', function($scope, $http, itemConstants, breadcrumb) {
 	$scope.slots = itemConstants.slots;
-	$scope.weaponTypes = ['Choose a type', 'Bladed (Str)', 'Piercing (Dex)', 'Blunt (Con)'];
+	$scope.weaponTypes = ['Choose a type', 'Bladed', 'Piercing', 'Blunt'];
+    $scope.weaponStats = ['Choose a stat', 'Strength', 'Dexterity', 'Constitution'];
 	$scope.aligns = itemConstants.aligns;
 	$scope.itemModel = {};
 
@@ -14,7 +15,7 @@ app.controller('items-add', function($scope, $http, itemConstants, breadcrumb) {
 			url: '/php/items/getItemCategories.php'
 		}).then(function succcessCallback(response) {
 			$scope.statCategories = response.data;
-			
+
 			$scope.getStatInfo();
 		}, function errorCallback(response){
 
@@ -77,7 +78,7 @@ app.controller('items-add', function($scope, $http, itemConstants, breadcrumb) {
 
 		});
 	}
-	
+
 	$scope.onMobSelected = function(mob) {
 		$scope.itemModel['MobName'] = mob.Name;
 		$('#mobModal').modal('hide');
@@ -103,7 +104,7 @@ app.controller('items-add', function($scope, $http, itemConstants, breadcrumb) {
 
 		});
 	}
-	
+
 	$scope.onQuestSelected = function(quest) {
 		$scope.itemModel['QuestTitle'] = quest.Title;
 		$scope.itemModel['QuestId'] = quest.Id;
