@@ -3,7 +3,7 @@
 		<h4>{{category.name}}</h4>
 	</div>
 	<div class="row">
-		<div class="form-group col-4 col-lg-2" ng-if="category['name'] == 'Basic'">
+		<div class="form-group col-12 col-md-4 col-lg-2" ng-if="category['name'] == 'Basic'">
 			<div class="input-group">
 				<div class="input-group-prepend">
 					<span class="input-group-text">Slot</span>
@@ -13,7 +13,7 @@
 				</select>
 			</div>
 		</div>
-		<div class="col-8 col-lg-4" ng-if="category['name'] == 'Basic'">
+		<div class="form-group col-12 col-md-8 col-lg-4" ng-if="category['name'] == 'Basic'">
 			<div class="input-group">
 				<div class="input-group-prepend">
 					<span class="input-group-text">Name</span>
@@ -21,7 +21,7 @@
 				<input type="text" id="nameControl" ng-model="itemModel.Name" class="form-control" ng-class="{'is-invalid': itemModel.Name === undefined || itemModel.Name === ''}" required lh-autofocus>
 			</div>
 		</div>
-		<div class="form-group col-4 col-lg-2" ng-repeat="item in category['stats']" ng-if="statInfo[item]['editable'] != false">
+		<div class="form-group col-6 col-md-4 col-lg-2" ng-repeat="item in category['stats']" ng-if="statInfo[item]['editable'] != false">
 			<div class="input-group">
 				<dig class="input-group-prepend">
 					<span class="input-group-text">{{statInfo[item]['short']}}</span>
@@ -53,9 +53,19 @@
 					<span class="input-group-text">Type</span>
 				</div>
 				<select id="weaponTypeControl" ng-model="itemModel.WeaponType" class="form-control" ng-class="{'is-invalid': itemModel.WeaponType === undefined || itemModel.WeaponType <= 0}" ng-required="itemModel.Slot == 14">
-					<option ng-repeat="weaponType in weaponTypes" ng-value="$index">{{weaponType}}</option>
+					<option ng-repeat="weaponType in weaponTypes track by $index" ng-value="$index">{{::weaponType}}</option>
 				</select>
 			</div>
+        </div>
+        <div class="form-group col-12 col-md-4 col-lg-3" ng-if="category['name'] == 'Weapon'">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Stat</span>
+                </div>
+                <select id="weaponStatControl" ng-model="itemModel.WeaponStat" class="form-control" ng-class="{'is-invalid': itemModel.WeaponStat === undefined || itemModel.WeaponStat <= 0}" ng-required="itemModel.Slot == 14">
+                    <option ng-repeat="weaponStat in weaponStats track by $index" ng-value="$index">{{::weaponStat}}</option>
+                </select>
+            </div>
 		</div>
 	</div>
 </div>

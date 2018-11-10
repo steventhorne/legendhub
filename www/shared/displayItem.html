@@ -91,7 +91,7 @@
 				</div>
 				<div class="col-sm-6 col-12" ng-if="item.Slot == 14">
 					<div class="row">
-						<dt class="col-12" ng-class="{'text-danger': item.WeaponType == 0}">{{weaponTypes[item.WeaponType]}}</dt>
+                        <dt class="col-12" ng-class="{'text-danger': item.WeaponType == 0}">{{::weaponTypes[item.WeaponType]}} ({{::weaponStats[item.WeaponStat]}})</dt>
 					</div>
 				</div>
 			</div>
