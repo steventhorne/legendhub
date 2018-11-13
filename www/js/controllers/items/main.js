@@ -1,17 +1,15 @@
-angular.module("legendwiki-app").requires.push('isteven-multi-select');
-app.controller('items', function($scope, $cookies, $http, itemConstants, categories) {
+app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "categories", function($scope, $q, $cookies, $http, itemConstants, categories) {
 	$scope.init = function() {
 		$scope.slots = itemConstants.slots;
 		$scope.aligns = itemConstants.aligns;
 		$scope.shortAligns = itemConstants.shortAligns;
-		
+        $scope.selectShortOptions = itemConstants.selectShortOptions;
+
 		$scope.itemsPerPage = 20;
 		$scope.sortProperty = "";
 		$scope.sortReverse = false;
 
 		$scope.catService = categories;
-
-		// set categories
 		var slotCategories = [];
 		for (var i = 0; i < $scope.slots.length; ++i) {
 			slotCategories.push({"Id": i, "Name": $scope.slots[i]});
@@ -21,27 +19,69 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 		categories.setSelectedCategory(getUrlParameter('slotId'));
 		$scope.searchString = getUrlParameter('search');
 
-		$scope.statLoadCount = 0;
-		$scope.getStatCategories();
-		$scope.getStatInfo();
-	}
+        loadPage();
+	};
 
-	$scope.getStatCategories = function() {
-		$http({
+    var loadPage = function() {
+        $q.all([getStatCategories(), getStatInfo()]).then(function() {
+            loadCookies();
+		    loadFiltersFromUrl();
+
+            onPageLoaded();
+        });
+    };
+
+    var getStatCategories = function() {
+		return $http({
 			url: '/php/items/getItemCategories.php'
 		}).then(function succcessCallback(response) {
 			$scope.statCategories = response.data;
-			
-			$scope.statLoadCount++;
-			if ($scope.statLoadCount == 2) {
-				$scope.onStatsLoaded();
-			}
 		}, function errorCallback(response){
 
 		});
-	}
+	};
 
-	$scope.getRecentItems = function() {
+    var getStatInfo = function() {
+		return $http({
+			url: '/php/items/getItemStats.php'
+		}).then(function succcessCallback(response) {
+			$scope.statInfo = response.data;
+		}, function errorCallback(response){
+		});
+	};
+
+    var onPageLoaded = function() {
+        var isSearchFiltered = getIsSearchFiltered();
+
+		if (categories.hasSelectedCategory() || isSearchFiltered || $scope.searchString) {
+			search();
+		}
+		else {
+			getRecentItems();
+		}
+	};
+
+    var getIsFilterEnabled = function(statInfo) {
+        if (statInfo.type === "select") {
+            return statInfo.filter !== "" && statInfo.filter >= 0;
+        }
+        else {
+            return statInfo.filter;
+        }
+
+        return false;
+    }
+
+    var getIsSearchFiltered = function() {
+		for (var i = 0; i < $scope.statInfo.length; ++i) {
+            if (getIsFilterEnabled($scope.statInfo[i])) {
+                return true;
+			}
+		}
+        return false;
+    };
+
+    var getRecentItems = function() {
 		$http({
 			url: '/php/items/getRecentItems.php',
 			method: 'POST'
@@ -54,64 +94,9 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 		}, function errorCallback(response){
 
 		});
-	}
+	};
 
-	$scope.getStatInfo = function() {
-		$http({
-			url: '/php/items/getItemStats.php'
-		}).then(function succcessCallback(response) {
-			$scope.statInfo = response.data;
-
-			$scope.statLoadCount++;
-			if ($scope.statLoadCount == 2) {
-				$scope.onStatsLoaded();
-			}
-		}, function errorCallback(response){
-		});
-	}
-
-	$scope.onStatsLoaded = function() {
-		$scope.availableFilters = [];
-		$scope.filterOptions = [];
-		$scope.filterModel = [];
-		for (var i = 0; i < $scope.statCategories.length; ++i) {
-			$scope.availableFilters.push({name: $scope.statCategories[i].name, msGroup: true});
-			for (var j = 0; j < $scope.statCategories[i].stats.length; ++j) {
-				var index = $scope.statCategories[i].stats[j];
-				var optionObj = {id: index, name: $scope.statInfo[index].display, filterString: $scope.statInfo[index].filterString};
-				$scope.availableFilters.push(optionObj);
-				if ($scope.statInfo[index].filter) {
-					$scope.filterModel.push(optionObj);
-				}
-			}
-			$scope.availableFilters.push({msGroup: false});
-		}
-		
-		$scope.filterSettings = {scrollableHeight: '250px', scrollable: true, enableSearch: true, groupBy: 'category', selectedToTop: true, buttonClasses: 'btn btn-outline-primary'};
-		$scope.loadCookies();
-		$scope.loadFiltersFromUrl();
-
-		var filterOn = false;
-		for (var i = 0; i < $scope.statInfo.length; ++i) {
-			if ($scope.statInfo[i]["filter"]) {
-				filterOn = true;
-				break;
-			}
-		}
-		
-		if (categories.hasSelectedCategory() || filterOn || $scope.searchString) {
-			$scope.search();
-		}
-		else {
-			$scope.getRecentItems();
-		}
-	}
-
-	$scope.filterGroupBy = function(groupValue) {
-		return groupValue;
-	}
-	
-	$scope.search = function() {
+	var search = function() {
 		$http({
 			url: '/php/items/getItems.php',
 			method: 'POST',
@@ -125,11 +110,11 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 		}, function errorCallback(response){
 
 		});
-	}
+	};
 
 	$scope.onSearchClicked = function() {
 		window.location = $scope.getSearchUrl();
-	}
+	};
 
 	$scope.getSearchUrl = function(categoryId) {
 		var url = "/items/index.html?";
@@ -140,33 +125,36 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 		else if (categories.hasSelectedCategory()) {
 			url += "slotId=" + categories.getCategoryId() + "&";
 		}
-		
-		var filtersUrl = $scope.saveFiltersToUrl();
+
+		var filtersUrl = saveFiltersToUrl();
 		if (filtersUrl) {
 			url += "filters=" + filtersUrl + "&";
 		}
 
 		url += "search=" + $scope.searchString;
 		return url;
-	}
+	};
 
-	$scope.saveFiltersToUrl = function() {
+	var saveFiltersToUrl = function() {
 		var url = "";
 		if (!$scope.statInfo) {
 			return;
 		}
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
-			if ($scope.statInfo[i]["filter"]) {
+            if (getIsFilterEnabled($scope.statInfo[i])) {
 				if (url) {
 					url += ",";
 				}
 				url += $scope.statInfo[i]["var"];
+                if ($scope.statInfo[i]["type"] === "select") {
+                   url += "_" + $scope.statInfo[i]["filter"];
+                }
 			}
 		}
 		return url;
-	}
+	};
 
-	$scope.loadFiltersFromUrl = function() {
+	var loadFiltersFromUrl = function() {
 		var url = getUrlParameter("filters");
 		$scope.filters = [];
 		var urlParts = url.split(',');
@@ -174,17 +162,26 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 		{
 			if (urlParts[i]) {
 				for (var j = 0; j < $scope.statInfo.length; ++j) {
-					if ($scope.statInfo[j]["var"] == urlParts[i]) {
-						$scope.statInfo[j]["filter"] = true;
-						$scope.filters.push(j);
+                    var filterData = urlParts[i].split('_');
+					if ($scope.statInfo[j]["var"] == filterData[0]) {
+                        if ($scope.statInfo[j]["type"] === "select") {
+						    $scope.statInfo[j]["filter"] = Number(filterData[1]);
+                        }
+                        else {
+                            $scope.statInfo[j]["filter"] = true;
+                        }
+                        var filterStr = j;
+                        for (var k = 1; k < filterData.length; ++k) {
+                            filterStr += "_" + filterData[k];
+                        }
+						$scope.filters.push(filterStr);
 					}
 				}
 			}
 		}
+	};
 
-	}
-
-	$scope.loadCookies = function() {
+	var loadCookies = function() {
 		var columnCookie = $cookies.get("sc1");
 		if (columnCookie) {
 			// wipe initial values
@@ -201,7 +198,8 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 				}
 			}
 		}
-	}
+	};
+
 	$scope.saveCookies = function() {
 		var cookieDate = new Date();
 		cookieDate.setFullYear(cookieDate.getFullYear() + 20);
@@ -213,29 +211,29 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 			}
 		}
 		$cookies.put("sc1", $savedColumns, {"path": "/", 'expires': cookieDate});
-	}
+	};
 
 	$scope.onPreviousClicked = function() {
 		$scope.currentPage -= 1;
 		if ($scope.currentPage < 1) {
 			$scope.currentPage = 1;
 		}
-	}
+	};
 
 	$scope.onNextClicked = function() {
 		$scope.currentPage += 1;
 		if ($scope.currentPage > $scope.totalPages) {
 			$scope.currentPage = $scope.totalPages;
 		}
-	}
+	};
 
 	$scope.onPageClicked = function(num) {
 		$scope.currentPage = num;
-	}
+	};
 
 	$scope.onItemClicked = function(item) {
 		window.location = "/items/details.html?id=" + item.Id;
-	}
+	};
 
 	$scope.getPageArray = function() {
 		var nums = [];
@@ -260,7 +258,7 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 			}
 		}
 		return nums;
-	}
+	};
 
 	$scope.onColumnHeaderClicked = function(statVar) {
 		if ($scope.sortProperty == statVar) {
@@ -270,33 +268,33 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 			$scope.sortProperty = statVar;
 			$scope.sortReverse = true;
 		}
-	}
+	};
 
-	$scope.sortClass = function(statVar) {
+	$scope.getSortClass = function(statVar) {
 		if (!$scope.sortProperty) {
 			return "fas fa-sort";
 		}
 		else if ($scope.sortProperty == statVar) {
 			return $scope.sortReverse ? "fas fa-sort-down" : "fas fa-sort-up";
 		}
-	}
+	};
 
-	$scope.listFilters = function() {
+	$scope.getFilterListString = function() {
 		if (!$scope.statInfo) {
 			return "";
 		}
 
 		var filters = [];
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
-			if ($scope.statInfo[i].filter) {
+            if (getIsFilterEnabled($scope.statInfo[i])) {
 				filters.push($scope.statInfo[i].display);
-			}
+            }
 		}
 
 		if (filters.length == 0) {
 			return "";
 		}
-		
+
 		if (filters.length <= 5) {
 			var msg = "The following filters are enabled: ";
 			for (var j = 0; j < filters.length; ++j) {
@@ -310,7 +308,7 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 		else {
 			return filters.length + " filters are enabled.";
 		}
-	}
+	};
 
 	getUrlParameter = function(name) {
 		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
@@ -320,4 +318,4 @@ app.controller('items', function($scope, $cookies, $http, itemConstants, categor
 	};
 
 	$scope.init();
-});
+}]);

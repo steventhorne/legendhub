@@ -54,7 +54,7 @@
 						<h1 class="col-12">Items</h1>
 					</div>
 					<div class="px-0 px-md-5" id="searchAccordian" ng-cloak>
-						<span class="text-info">{{listFilters()}}</span>
+						<span class="text-info">{{getFilterListString()}}</span>
 						<form ng-submit="onSearchClicked()">
 							<div class="row">
 								<span class="text-danger" ng-show="searchError != ''">{{searchError}}</span>
@@ -69,65 +69,13 @@
 									</div>
 									<input type="text" ng-model="searchString" class="form-control" placeholder="Search by name..." lh-autofocus>
 									<div class="input-group-append">
-										<button class="btn btn-outline-primary" type="button" data-toggle="collapse" data-target="#collapseHideColumns" aria-expanded="false"
-										    aria-controls="collapseHideColumns"><span class="d-none d-md-inline-block">Columns</span><i class="d-inline-block d-md-none fas fa-columns"></i></button>
-										<button class="btn btn-outline-primary" type="button" data-toggle="collapse" data-target="#collapseFilters" aria-expanded="false"
-										    aria-controls="collapseFilters"><span class="d-none d-md-inline-block">Filters</span><i class="d-inline-block d-md-none fas fa-filter"></i></button>
-										<!--<div isteven-multi-select input-model="availableFilters" output-model="filterModel" button-label="name" item-label="name filterString" tick-property="ticked" output-properties="id name" max-labels="0" max-height="250px" helper-elements="all filter none" group-property="msGroup"></div>-->
+										<button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#columnsModal" aria-expanded="false"><span class="d-none d-md-inline-block">Columns</span><i class="d-inline-block d-md-none fas fa-columns"></i></button>
+										<button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#filtersModal" aria-expanded="false"><span class="d-none d-md-inline-block">Filters</span><i class="d-inline-block d-md-none fas fa-filter"></i></button>
 										<button class="btn btn-outline-success" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
 									</div>
 								</div>
 							</div>
 						</form>
-						<div class="row">
-							<div class="collapse col-12" id="collapseHideColumns" data-parent="#searchAccordian">
-								<div class="card card-body">
-									<div class="row">
-										<p class="text-info">Use these to hide columns from the search result grid.</p>
-									</div>
-									<div ng-repeat="category in statCategories">
-										<div class="row">
-											<h4>{{category["name"]}}</h4>
-										</div>
-										<div class="row">
-											<div class="form-check col-4 col-md-2" ng-repeat="stat in category['stats']">
-												<input class="form-check-input" type="checkbox" ng-model="statInfo[stat]['showColumn']" id="{{statInfo[stat]['var']}}check"
-												    ng-change="saveCookies()">
-												<label class="form-check-label" for="{{statInfo[stat]['var']}}check">
-													{{statInfo[stat]["display"]}}
-												</label>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="row">
-							<div class="collapse col-12" id="collapseFilters" data-parent="#searchAccordian">
-								<div class="card card-body">
-									<div class="row">
-										<span class="text-info">Use these to only show results with those stats.</span>
-									</div>
-									<div class="row">
-										<span class="text-info">Search again after selecting.</span>
-									</div>
-									<br />
-									<div ng-repeat="category in statCategories">
-										<div class="row">
-											<h4>{{category["name"]}}</h4>
-										</div>
-										<div class="row">
-											<div class="form-check col-4 col-md-2" ng-repeat="stat in category['stats']">
-												<input class="form-check-input" type="checkbox" ng-model="statInfo[stat]['filter']" id="{{statInfo[stat]['var']}}filtercheck">
-												<label class="form-check-label" for="{{statInfo[stat]['var']}}filtercheck">
-													{{statInfo[stat]["display"]}}
-												</label>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
 					</div>
 					<br />
 					<div class="row" ng-show="resultWarning != ''" ng-cloak>
@@ -153,11 +101,11 @@
 									<table class="table table-sm table-md table-hover table-striped table-bordered" ng-cloak>
 										<thead class="thead-dark">
 											<tr>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" ng-if="recent" nowrap>Modified By&nbsp;<i ng-class="sortClass('ModifiedBy')"></i></th>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('Slot')" nowrap>Slot&nbsp;<i ng-class="sortClass('Slot')"></i></th>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="sortClass('Name')"></i></th>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('AlignRestriction')" nowrap>Align&nbsp;<i ng-class="sortClass('AlignRestriction')"></i></th>
-												<th ng-repeat="stat in statInfo" class="text-center" ng-if="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="sortClass(stat.var)"></i></th>
+												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" ng-if="recent" nowrap>Modified By&nbsp;<i ng-class="getSortClass('ModifiedBy')"></i></th>
+												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('Slot')" nowrap>Slot&nbsp;<i ng-class="getSortClass('Slot')"></i></th>
+												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="getSortClass('Name')"></i></th>
+												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('AlignRestriction')" nowrap>Align&nbsp;<i ng-class="getSortClass('AlignRestriction')"></i></th>
+												<th ng-repeat="stat in statInfo" class="text-center" ng-if="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
 											</tr>
 										</thead>
 										<tbody>
@@ -170,7 +118,10 @@
 													<span ng-if="stat.type == 'bool'">
 														<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
 													</span>
-													<span ng-if="stat.type != 'bool'">{{item[stat.var]}}</span>
+                                                    <span ng-if="stat.type === 'select'">
+                                                        {{ selectShortOptions[stat.var][item[stat.var]] }}
+                                                    </span>
+													<span ng-if="stat.type === 'int' || stat.type === 'decimal' || stat.type === 'string'">{{item[stat.var]}}</span>
 												</td>
 											</tr>
 										</tbody>
@@ -209,6 +160,8 @@
 			</div>
 		</div>
 	</div>
+    <div ng-include="'/shared/columnsModal.html'"></div>
+    <div ng-include="'/shared/filtersModal.html'"></div>
 
 	<lh-footer></lh-footer>
 
