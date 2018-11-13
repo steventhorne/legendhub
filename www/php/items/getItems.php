@@ -16,7 +16,11 @@ $sql = "SELECT * FROM Items WHERE (:searchString = '' OR Name LIKE :likeSearchSt
 $params = array();
 for ($i = 0; $i < count($filterColumns); $i++)
 {
-	$sql = $sql . " AND (" . $itemStats[$filterColumns[$i]]->var . " " . $itemStats[$filterColumns[$i]]->filterString . ")";
+  $filterData = explode("_", $filterColumns[$i]);
+  $filterIndex = (int)$filterData[0];
+  $filterValues = array_slice($filterData, 1);
+  $itemStat = $itemStats[$filterIndex];
+	$sql = $sql . " AND (" . $itemStat->var . " " . vsprintf($itemStat->filterString, $filterValues) . ")";
 }
 if ($slotId >= 0) {
 	$sql = $sql . " AND (Slot = :SlotId)";
