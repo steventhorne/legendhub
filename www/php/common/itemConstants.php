@@ -2,14 +2,14 @@
 header( "Access-Control-Allow-Origin: http://legendhub.org" );
 header( "Content-Type: application/json; charset=UTF-8" );
 
-$itemCategories = [(object) ['name' => 'Basic', 'stats' => [31, 32, 33, 34, 35, 36, 37, 38, 39, 40]],
-					(object) ['name' => 'Main', 'stats' => [0, 1, 2, 3, 4, 5, 6]],
+$itemCategories = [(object) ['name' => 'Basic', 'stats' => [41, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]],
+					(object) ['name' => 'Main', 'stats' => [42, 0, 1, 2, 3, 4, 5, 6]],
 					(object) ['name' => 'Regen', 'stats' => [7, 8, 9, 10, 11, 12]],
 					(object) ['name' => 'Melee', 'stats' => [13, 14]],
 					(object) ['name' => 'Mage', 'stats' => [15, 16, 17, 18]],
 					(object) ['name' => 'Tank', 'stats' => [19, 20]],
 					(object) ['name' => 'Ranged', 'stats' => [21, 22, 23]],
-					(object) ['name' => 'Weapon', 'stats' => [24, 25, 26, 27, 28, 29, 30]],
+					(object) ['name' => 'Weapon', 'stats' => [24, 25, 26, 27, 28, 29, 30, 43, 44]],
 ];
 
 $itemStats = [(object) ["display" => "Strength", "short" => "Str", "var" => "Strength", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 1],
@@ -35,7 +35,7 @@ $itemStats = [(object) ["display" => "Strength", "short" => "Str", "var" => "Str
 			  (object) ["display" => "Parry", "short" => "Parry", "var" => "Parry", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 2],
 			  (object) ["display" => "Accuracy", "short" => "Accu", "var" => "Accuracy", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
 			  (object) ["display" => "Ammo Limit", "short" => "Ammo", "var" => "Ammo", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
-			  (object) ["display" => "Accuracy Bonus", "short" => "AccuBonus", "var" => "RangedAccuracy", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0], // TODO: netStat???
+        (object) ["display" => "Accuracy Bonus", "short" => "AccuBonus", "var" => "RangedAccuracy", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0], // TODO: netStat???
 			  (object) ["display" => "Two Handed", "short" => "2H", "var" => "TwoHanded", "type" => "bool", "filterString" => "= 1", "default" => false, "netStat" => 0],
 			  (object) ["display" => "Quality", "short" => "Quality", "var" => "Quality", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
 			  (object) ["display" => "Speed Factor", "short" => "Speed", "var" => "SpeedFactor", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
@@ -52,16 +52,18 @@ $itemStats = [(object) ["display" => "Strength", "short" => "Str", "var" => "Str
 			  (object) ["display" => "Sell Price", "short" => "Sell", "var" => "Value", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 0],
               (object) ["display" => "Rent", "short" => "Rent", "var" => "Rent", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 0],
               (object) ["display" => "Light", "short" => "Light", "var" => "IsLight", "type" => "bool", "filterString" => "= 1", "default" => false, "netStat" => 0],
-              (object) ["display" => "Heroic", "short" => "Heroic", "var" => "IsHeroic", "type" => "bool", "filterString" => "= 1", "default" => false, "netStat" => 0]];
+              (object) ["display" => "Heroic", "short" => "Heroic", "var" => "IsHeroic", "type" => "bool", "filterString" => "= 1", "default" => false, "netStat" => 0],
+              (object) ["display" => "Slot", "short" => "Slot", "var" => "Slot", "type" => "select", "showColumn" => true, "filterString" => "= %d", "default" => 0, "netStat" => 0],
+              (object) ["display" => "Alignment", "short" => "Align", "var" => "AlignRestriction", "type" => "select", "showColumn" => true, "filterString" => "= %d", "default" => 0, "netStat" => 0],
+              (object) ["display" => "Weapon Type", "short" => "Type", "var" => "WeaponType", "type" => "select", "filterString" => "= %d", "default" => 0, "netStat" => 0],
+              (object) ["display" => "Weapon Stat", "short" => "Stat","var" => "WeaponStat", "type" => "select", "filterString" => "= %d", "default" => 0, "netStat" => 0]];
 
 // NOT INCLUDED
 // | Id                  | int(11)     | NO   | PRI | NULL    | auto_increment |
 // | Name                | varchar(45) | NO   |     | NULL    |                |
-// | Slot                | int(11)     | NO   |     | NULL    |                |
 // | Notes               | text        | YES  |     | NULL    |                |
 // | ModifiedBy          | varchar(45) | NO   |     | NULL    |                |
 // | ModifiedOn          | datetime    | NO   |     | NULL    |                |
 // | ModifiedByIP        | varchar(45) | YES  |     | NULL    |                |
 // | ModifiedByIPForward | varchar(45) | YES  |     | NULL    |                |
-// | AlignRestriction    | int(11)     | NO   |     | NULL    |                |
 ?>
