@@ -108,7 +108,7 @@
 										<tbody>
 											<tr ng-repeat="item in items | orderBy:sortProperty:sortReverse | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onItemClicked(item)" style="cursor: pointer;">
 												<td ng-if="recent" class="text-center">{{item.ModifiedBy}}</td>
-                                                <td ng-class="{'text-center': stat.var !== 'Name'}" ng-repeat="stat in statInfo" ng-class="{'text-primary': stat.var === 'Name', 'font-weight-bold': stat.var === 'Name', 'text-monospace': stat.var === 'AlignRestriction'}" ng-trim="!stat.var === 'AlignRestriction'" ng-if="stat.showColumn">
+                                                <td ng-repeat="stat in statInfo" ng-class="{'text-center': stat.var !== 'Name', 'text-primary': stat.var === 'Name', 'font-weight-bold': stat.var === 'Name', 'text-monospace': stat.var === 'AlignRestriction'}" ng-trim="!stat.var === 'AlignRestriction'" ng-if="stat.showColumn">
 													<span ng-if="stat.type == 'bool'">
 														<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
 													</span>
