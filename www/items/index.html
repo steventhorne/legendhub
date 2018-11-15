@@ -54,6 +54,9 @@
 						<h1 class="col-12">Items</h1>
 					</div>
 					<div class="px-0 px-md-5" id="searchAccordian" ng-cloak>
+						<div>
+							<a href="" ng-click="removeFilter(filter)" ng-repeat="filter in getFilterList() track by $index">{{ filter.display }} <i class="fas fa-times"></i></a>
+						</div>
 						<span class="text-info">{{getFilterListString()}}</span>
 						<form ng-submit="onSearchClicked()">
 							<div class="row">
