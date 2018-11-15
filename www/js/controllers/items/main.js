@@ -316,7 +316,7 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 	$scope.removeFilter = function(statInfo) {
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
 			if ($scope.statInfo[i].var === statInfo.var) {
-				$scope.splice(i, 1);
+				$scope.statInfo.splice(i, 1);
 				break;
 			}
 		}
