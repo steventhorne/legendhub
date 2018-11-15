@@ -77,7 +77,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 
 	$scope.loadCookies = function() {
 		// delete old cookies
-		$cookies.remove("sc1");
+		$cookies.remove("sc1", {"path": "/"});
 
 		// load columns
 		var columnCookie = $cookies.get("sc2");
