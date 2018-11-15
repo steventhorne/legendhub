@@ -182,7 +182,11 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 	};
 
 	var loadCookies = function() {
-		var columnCookie = $cookies.get("sc1");
+		// delete old cookies
+		$cookies.remove("sc1");
+
+		// load new cookies
+		var columnCookie = $cookies.get("sc2");
 		if (columnCookie) {
 			// wipe initial values
 			for (var i = 0; i < $scope.statInfo.length; ++i) {
@@ -210,7 +214,7 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 				$savedColumns += $scope.statInfo[i]["short"] + "-";
 			}
 		}
-		$cookies.put("sc1", $savedColumns, {"path": "/", 'expires': cookieDate});
+		$cookies.put("sc2", $savedColumns, {"path": "/", 'expires': cookieDate});
 	};
 
 	$scope.onPreviousClicked = function() {
