@@ -10,7 +10,10 @@
       <div class="modal-body">
         <div class="row">
 				  <p class="col-12 text-info">Use these to hide columns from the search result grid.</p>
-				</div>
+        </div>
+        <div class="row">
+          <button class="col-12 btn btn-primary btn-block" ng-click="resetColumns()">Reset to defaults</button>
+        </div>
         <div class="list-group">
           <div ng-repeat="category in statCategories" class="list-group-item flex-column align-items-start">
             <h4 class="mb-3">{{ ::category["name"] }}</h4>
