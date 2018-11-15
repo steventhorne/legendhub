@@ -183,7 +183,7 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 
 	var loadCookies = function() {
 		// delete old cookies
-		$cookies.remove("sc1");
+		$cookies.remove("sc1", {"path": "/"});
 
 		// load new cookies
 		var columnCookie = $cookies.get("sc2");
@@ -316,7 +316,7 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 	$scope.removeFilter = function(statInfo) {
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
 			if ($scope.statInfo[i].var === statInfo.var) {
-				$scope.statInfo.splice(i, 1);
+				$scope.statInfo[i].filter = false;
 				break;
 			}
 		}
