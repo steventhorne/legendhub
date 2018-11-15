@@ -46,6 +46,7 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 			url: '/php/items/getItemStats.php'
 		}).then(function succcessCallback(response) {
 			$scope.statInfo = response.data;
+			$scope.defaultStatInfo = angular.copy(response.data);
 		}, function errorCallback(response){
 		});
 	};
@@ -283,6 +284,14 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 		}
 	};
 
+	$scope.resetColumns = function() {
+		for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
+			for (var j = 0; j < $scope.statInfo.length; ++j) {
+				$scope.statInfo[j].showColumn = $scope.defaultStatInfo[i].showColumn;
+			}
+		}
+	};
+
 	$scope.getFilterList = function() {
 		if (!$scope.statInfo) {
 			return [];
@@ -311,7 +320,7 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 		}
 
 		return count;
-	}
+	};
 
 	$scope.removeFilter = function(statInfo) {
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
@@ -322,36 +331,13 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 		}
 
 		$scope.saveCookies();
-	}
+	};
 
-	$scope.getFilterListString = function() {
-		if (!$scope.statInfo) {
-			return "";
-		}
-
-		var filters = [];
-		for (var i = 0; i < $scope.statInfo.length; ++i) {
-            if (getIsFilterEnabled($scope.statInfo[i])) {
-				filters.push($scope.statInfo[i].display);
-            }
-		}
-
-		if (filters.length == 0) {
-			return "";
-		}
-
-		if (filters.length <= 5) {
-			var msg = "The following filters are enabled: ";
-			for (var j = 0; j < filters.length; ++j) {
-				msg += filters[j];
-				if (j < filters.length - 1) {
-					msg += ", ";
-				}
+	$scope.resetFilters = function() {
+		for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
+			for (var j = 0; j < $scope.statInfo.length; ++j) {
+				$scope.statInfo[j].filter = $scope.defaultStatInfo[i].filter;
 			}
-			return msg;
-		}
-		else {
-			return filters.length + " filters are enabled.";
 		}
 	};
 
