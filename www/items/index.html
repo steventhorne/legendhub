@@ -102,25 +102,17 @@
 										<thead class="thead-dark">
 											<tr>
 												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" ng-if="recent" nowrap>Modified By&nbsp;<i ng-class="getSortClass('ModifiedBy')"></i></th>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('Slot')" nowrap>Slot&nbsp;<i ng-class="getSortClass('Slot')"></i></th>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="getSortClass('Name')"></i></th>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('AlignRestriction')" nowrap>Align&nbsp;<i ng-class="getSortClass('AlignRestriction')"></i></th>
 												<th ng-repeat="stat in statInfo" class="text-center" ng-if="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
 											</tr>
 										</thead>
 										<tbody>
 											<tr ng-repeat="item in items | orderBy:sortProperty:sortReverse | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onItemClicked(item)" style="cursor: pointer;">
 												<td ng-if="recent" class="text-center">{{item.ModifiedBy}}</td>
-												<td class="text-center">{{slots[item.Slot]}}</td>
-												<th scope="row" class="text-primary">{{item.Name}}</th>
-												<td class="text-center text-monospace" ng-trim="false" style="white-space: pre">{{shortAligns[item.AlignRestriction]}}</td>
-												<td class="text-center" ng-repeat="stat in statInfo" ng-if="stat.showColumn">
+                                                <td class="text-center" ng-repeat="stat in statInfo" ng-class="{'text-primary': stat.var === 'Name', 'font-weight-bold': stat.var === 'Name', 'text-monospace': stat.var === 'AlignRestriction'}" ng-trim="!stat.var === 'AlignRestriction'" ng-if="stat.showColumn">
 													<span ng-if="stat.type == 'bool'">
 														<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
 													</span>
-                                                    <span ng-if="stat.type === 'select'">
-                                                        {{ selectShortOptions[stat.var][item[stat.var]] }}
-                                                    </span>
+                                                    <span ng-if="stat.type === 'select'" ng-style="stat.var === 'AlignRestriction' && {'white-space':'pre'}">{{ selectShortOptions[stat.var][item[stat.var]] }}</span>
 													<span ng-if="stat.type === 'int' || stat.type === 'decimal' || stat.type === 'string'">{{item[stat.var]}}</span>
 												</td>
 											</tr>

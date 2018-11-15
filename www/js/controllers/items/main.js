@@ -1,8 +1,8 @@
 app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "categories", function($scope, $q, $cookies, $http, itemConstants, categories) {
 	$scope.init = function() {
-		$scope.slots = itemConstants.slots;
-		$scope.aligns = itemConstants.aligns;
-		$scope.shortAligns = itemConstants.shortAligns;
+		$scope.slots = itemConstants.selectShortOptions.Slot;
+		$scope.aligns = itemConstants.selectOptions.AlignRestriction;
+		$scope.shortAligns = itemConstants.selectShortOptions.AlignRestriction;
         $scope.selectShortOptions = itemConstants.selectShortOptions;
 
 		$scope.itemsPerPage = 20;

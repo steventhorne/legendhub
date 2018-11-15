@@ -1,10 +1,9 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
 app.controller('items-details', function($scope, $http, itemConstants, breadcrumb) {
-	$scope.slots = itemConstants.slots;
-	$scope.weaponTypes = ['No Weapon Type', 'Bladed Weapon', 'Piercing Weapon', 'Blunt Weapon'];
-    $scope.weaponStats = ['None', 'Str', 'Dex', 'Con'];
-	$scope.aligns = itemConstants.aligns;
+	$scope.slots = itemConstants.selectOptions.Slot;
+	$scope.aligns = itemConstants.selectOptions.AlignRestriction;
+    $scope.selectShortOptions = itemConstants.selectShortOptions;
 
 	$scope.getItem = function() {
 		$http({
@@ -87,8 +86,20 @@ app.controller('items-details', function($scope, $http, itemConstants, breadcrum
 		}, function errorCallback(response) {
 
 		});
-		$scope.getStatInfo();
+		$scope.getStatCategories();
 	}
+
+    $scope.getStatCategories = function() {
+		$http({
+			url: '/php/items/getItemCategories.php'
+		}).then(function succcessCallback(response) {
+			$scope.statCategories = response.data;
+
+			$scope.getStatInfo();
+		}, function errorCallback(response){
+
+		});
+    }
 
 	$scope.getStatInfo = function() {
 		$http({
@@ -96,37 +107,41 @@ app.controller('items-details', function($scope, $http, itemConstants, breadcrum
 		}).then(function succcessCallback(response) {
 			$scope.statInfo = response.data;
 
-			// remove special items
-			var i = $scope.statInfo.length;
-			while (i--) {
-				if ($scope.statInfo[i]['var'] == "Strength" ||
-					$scope.statInfo[i]['var'] == "Mind" ||
-					$scope.statInfo[i]['var'] == "Dexterity" ||
-					$scope.statInfo[i]['var'] == "Constitution" ||
-					$scope.statInfo[i]['var'] == "Perception" ||
-					$scope.statInfo[i]['var'] == "Spirit" ||
-					$scope.statInfo[i]['var'] == "Ac" ||
-					$scope.statInfo[i]['var'] == "Value" ||
-					$scope.statInfo[i]['var'] == "UniqueWear" ||
-					$scope.statInfo[i]['var'] == "Rent" ||
-					$scope.statInfo[i]['var'] == "NetStat") {
-					$scope.statInfo.splice(i, 1);
-				}
-			}
-
 			$scope.getItem();
 		}, function errorCallback(response){
 		});
 	}
 
 	$scope.showStat = function(item, stat) {
-		if (stat['type'] == 'int' || stat['type'] == 'bool') {
+        if (stat == undefined ||
+            stat['var'] === "Slot" ||
+            stat['var'] === "Name" ||
+            stat['var'] === "AlignRestriction" ||
+            stat['var'] === "Strength" ||
+            stat['var'] === "Mind" ||
+            stat['var'] === "Dexterity" ||
+            stat['var'] === "Constitution" ||
+            stat['var'] === "Perception" ||
+            stat['var'] === "Spirit" ||
+            stat['var'] === "Ac" ||
+            stat['var'] === "Value" ||
+            stat['var'] === "UniqueWear" ||
+            stat['var'] === "Rent" ||
+            stat['var'] === "NetStat") {
+            return false;
+        }
+
+		if (stat['type'] === 'int' || stat['type'] == 'bool') {
 			return item != 0;
 		}
 
-		if (stat['type'] == 'string') {
+		if (stat['type'] === 'string') {
 			return item != '' && item != null;
 		}
+
+        if (stat['type'] === 'select') {
+            return item != null && item >= 0;
+        }
 
 		return false;
 	}

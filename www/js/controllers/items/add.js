@@ -1,10 +1,10 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
 app.controller('items-add', function($scope, $http, itemConstants, breadcrumb) {
-	$scope.slots = itemConstants.slots;
-	$scope.weaponTypes = ['Choose a type', 'Bladed', 'Piercing', 'Blunt'];
-    $scope.weaponStats = ['Choose a stat', 'Strength', 'Dexterity', 'Constitution'];
-	$scope.aligns = itemConstants.aligns;
+	$scope.slots = itemConstants.selectOptions.Slot;
+	$scope.aligns = itemConstants.selectOptions.AlignRestriction;
+    $scope.selectOptions = itemConstants.selectOptions;
+
 	$scope.itemModel = {};
 
 	breadcrumb.links = [{'display': 'Items', 'href': '/items/'},
@@ -35,12 +35,14 @@ app.controller('items-add', function($scope, $http, itemConstants, breadcrumb) {
 			}
 			$scope.itemModel["AlignRestriction"] = 0;
 			$scope.itemModel["ModifiedBy"] = "UNKNOWN";
+            console.log($scope.statInfo);
 		}, function errorCallback(response){
 		});
 	}
 
 	$scope.submitItem = function() {
 		$scope.calcNetStat();
+
 		$http({
 			url: '/php/items/insertItem.php',
 			method: 'POST',

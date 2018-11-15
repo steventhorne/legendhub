@@ -15,7 +15,7 @@
           <div ng-repeat="category in statCategories" class="list-group-item flex-column align-items-start">
             <h4 class="mb-3">{{ ::category["name"] }}</h4>
             <div class="list-group list-group-flush">
-              <button ng-repeat="stat in category['stats']" ng-click="statInfo[stat]['showColumn'] = !statInfo[stat]['showColumn'];saveCookies()" type="button" class="list-group-item list-group-item-action list-group-item-light">
+              <button ng-repeat="stat in category['stats']" ng-if="statInfo[stat]['var'] !== 'Name' && statInfo[stat]['var'] !== 'Slot'" ng-click="statInfo[stat]['showColumn'] = !statInfo[stat]['showColumn'];saveCookies()" type="button" class="list-group-item list-group-item-action list-group-item-light">
                 <div class="d-flex col justify-content-between">
                   <h5>{{ ::statInfo[stat]["display"] }}</h5>
                   <span><i ng-class="{'text-success': statInfo[stat]['showColumn'], 'fa-check': statInfo[stat]['showColumn'], 'text-danger': !statInfo[stat]['showColumn'], 'fa-times': !statInfo[stat]['showColumn']}" class="fas"></i></span>

@@ -1,10 +1,9 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
 app.controller('items-edit', function($scope, $http, itemConstants, breadcrumb) {
-	$scope.slots = itemConstants.slots;
-	$scope.weaponTypes = ['Choose a type', 'Bladed', 'Piercing', 'Blunt'];
-    $scope.weaponStats = ['Choose a stat', 'Strength', 'Dexterity', 'Constitution'];
-	$scope.aligns = itemConstants.aligns;
+	$scope.slots = itemConstants.selectOptions.Slot;
+	$scope.aligns = itemConstants.selectOptions.AlignRestriction;
+    $scope.selectOptions = itemConstants.selectOptions;
 
 	$scope.itemModel = {};
 
@@ -51,11 +50,15 @@ app.controller('items-edit', function($scope, $http, itemConstants, breadcrumb) 
 			data: {"id": getUrlParameter("id")}
 		}).then(function succcessCallback(response) {
 			$scope.itemModel = response.data;
-			$scope.itemModel.TwoHanded = Boolean($scope.itemModel.TwoHanded);
-			$scope.itemModel.Holdable = Boolean($scope.itemModel.Holdable);
-			$scope.itemModel.UniqueWear = Boolean($scope.itemModel.UniqueWear);
-			$scope.itemModel.Bonded = Boolean($scope.itemModel.Bonded);
-			$scope.itemModel.Weight = Number($scope.itemModel.Weight);
+
+            for (var i = 0; i < $scope.statInfo.length; ++i) {
+                if ($scope.statInfo[i].type === "bool") {
+                    $scope.itemModel[$scope.statInfo[i].var] = Boolean($scope.itemModel[$scope.statInfo[i].var]);
+                }
+                else if ($scope.statInfo[i].type === "decimal") {
+                    $scope.itemModel[$scope.statInfo[i].var] = Number($scope.itemModel[$scope.statInfo[i].var]);
+                }
+            }
 			$scope.initialItemModel = angular.copy($scope.itemModel);
 
 			breadcrumb.links = [{'display': 'Items', 'href': '/items/'},

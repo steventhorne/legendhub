@@ -306,15 +306,15 @@ app.constant('itemConstants', {
 	"Familiar",
 	"Other"],
 	aligns: [
-    "No Align Restriction",
+        "No Align Restriction",
 		"Good Only Align",
 		"Neutral Only Align",
 		"Evil Only Align",
 		"Non-Good Align",
-    "Non-Neutral Align",
+        "Non-Neutral Align",
 		"Non-Evil Align"],
 	shortAligns: [
-    "     ",
+        "     ",
 		"G    ",
 		"  N  ",
 		"    E",
@@ -347,6 +347,7 @@ app.constant('itemConstants', {
 	    "Other"
     ],
     AlignRestriction: [
+      "No Align Restriction",
       "Good Only Align",
       "Neutral Only Align",
       "Evil Only Align",
@@ -355,11 +356,13 @@ app.constant('itemConstants', {
       "Non-Evil Align"
     ],
     WeaponType: [
+      "",
       "Bladed Weapon",
       "Piercing Weapon",
       "Blunt Weapon"
     ],
     WeaponStat: [
+      "",
       "Strength",
       "Dexterity",
       "Constitution"
@@ -367,8 +370,8 @@ app.constant('itemConstants', {
   },
   selectShortOptions: {
     Slot: [
-      "Light",
-	    "Finger",
+        "Light",
+        "Finger",
 	    "Neck",
 	    "Body",
 	    "Head",
@@ -391,6 +394,7 @@ app.constant('itemConstants', {
 	    "Other"
     ],
     AlignRestriction: [
+      "     ",
       "G    ",
       "  N  ",
       "    E",
@@ -399,11 +403,13 @@ app.constant('itemConstants', {
       "G N  "
     ],
     WeaponType: [
+      "",
       "Bladed",
       "Piercing",
       "Blunt"
     ],
     WeaponStat: [
+      "",
       "Str",
       "Dex",
       "Con"

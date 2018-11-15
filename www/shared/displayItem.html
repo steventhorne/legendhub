@@ -72,26 +72,22 @@
 				<dd class="col-sm-2 col-4">{{item.NetStat}}</dd>
 			</dl>
 			<br /><br />
-			<div class="row">
-				<div class="col-sm-6 col-12" ng-repeat="stat in statInfo" ng-show="showStat(item[stat['var']], stat)">
+			<dl class="row mb-0" ng-repeat="category in statCategories track by $index" ng-if="category.name !== 'Weapon' || item.Slot === 14">
+				<div class="col-sm-6 col-12 mb-1" ng-repeat="stat in category['stats'] track by $index" ng-if="showStat(item[statInfo[stat]['var']], statInfo[stat])">
 					<div class="row">
-						<dt class="col-8">{{stat['display']}}</dt>
-						<dd class="col-4" ng-if="stat['type'] != 'bool'">{{item[stat['var']]}}</dd>
-						<dt class="col-4" ng-if="stat['type'] == 'bool'" ng-class="{'text-success': item[stat['var']] == 1, 'text-danger': item[stat['var']] == 0}">{{item[stat['var']] == 1 ? 'yes' : 'no'}}</dt>
+						<dt class="col-8">{{statInfo[stat]['display']}}</dt>
+						<dd class="col-4" ng-if="statInfo[stat]['type'] === 'int' || statInfo[stat]['type'] === 'string' || statInfo[stat]['type'] === 'decimal'">{{item[statInfo[stat]['var']]}}</dd>
+						<dd class="col-4" ng-if="statInfo[stat]['type'] === 'bool'" ng-class="{'text-success': item[statInfo[stat]['var']] == 1, 'text-danger': item[statInfo[stat]['var']] == 0}">{{item[statInfo[stat]['var']] == 1 ? 'yes' : 'no'}}</dd>
+                        <dd class="col-4" ng-if="statInfo[stat]['type'] === 'select'">{{ selectShortOptions[statInfo[stat]['var']][item[statInfo[stat]['var']]] }}</dd>
 					</div>
 				</div>
-			</div>
+			</dl>
 		</div>
 		<div class="card-footer">
 			<div class="row">
 				<div class="col-sm-6 col-12">
 					<div class="row">
 						<dt class="col-12">{{aligns[item.AlignRestriction]}}</dt>
-					</div>
-				</div>
-				<div class="col-sm-6 col-12" ng-if="item.Slot == 14">
-					<div class="row">
-                        <dt class="col-12" ng-class="{'text-danger': item.WeaponType == 0}">{{::weaponTypes[item.WeaponType]}} ({{::weaponStats[item.WeaponStat]}})</dt>
 					</div>
 				</div>
 			</div>
