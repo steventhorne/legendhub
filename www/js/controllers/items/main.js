@@ -285,11 +285,16 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 	};
 
 	$scope.resetColumns = function() {
-		for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
+        for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
 			for (var j = 0; j < $scope.statInfo.length; ++j) {
-				$scope.statInfo[j].showColumn = $scope.defaultStatInfo[i].showColumn;
+                if ($scope.defaultStatInfo[i].var === $scope.statInfo[j].var) {
+				    $scope.statInfo[j].showColumn = $scope.defaultStatInfo[i].showColumn;
+                    break;
+                }
 			}
 		}
+
+        $scope.saveCookies();
 	};
 
 	$scope.getFilterList = function() {
@@ -336,7 +341,10 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 	$scope.resetFilters = function() {
 		for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
 			for (var j = 0; j < $scope.statInfo.length; ++j) {
-				$scope.statInfo[j].filter = $scope.defaultStatInfo[i].filter;
+                if ($scope.defaultStatInfo[i].var === $scope.statInfo[j].var) {
+				    $scope.statInfo[j].filter = $scope.defaultStatInfo[i].filter;
+                    break;
+                }
 			}
 		}
 	};
