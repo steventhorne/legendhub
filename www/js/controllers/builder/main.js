@@ -49,6 +49,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			url: '/php/items/getItemStats.php'
 		}).then(function succcessCallback(response) {
 			$scope.statInfo = response.data;
+			$scope.defaultStatInfo = angular.copy(response.data);
 
 			$scope.loadCookies();
 		}, function errorCallback(response){
@@ -930,6 +931,22 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 		}
 
 	}
+
+	$scope.resetColumns = function() {
+		for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
+			for (var j = 0; j < $scope.statInfo.length; ++j) {
+				$scope.statInfo[j].showColumn = $scope.defaultStatInfo[i].showColumn;
+			}
+		}
+	};
+
+	$scope.resetFilters = function() {
+		for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
+			for (var j = 0; j < $scope.statInfo.length; ++j) {
+				$scope.statInfo[j].filter = $scope.defaultStatInfo[i].filter;
+			}
+		}
+	};
 
 	$scope.getNumberArray = function(num) {
 		return new Array(num);
