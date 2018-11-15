@@ -298,6 +298,21 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 		return filters;
 	}
 
+	$scope.getFilterCount = function() {
+		if (!scope.statInfo) {
+			return 0;
+		}
+
+		var filters = [];
+		for (var i = 0; i < $scope.statInfo.length; ++i) {
+            if (getIsFilterEnabled($scope.statInfo[i])) {
+				filters.push($scope.statInfo[i]);
+            }
+		}
+
+		return filters.length;
+	}
+
 	$scope.removeFilter = function(statInfo) {
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
 			if ($scope.statInfo[i].var === statInfo.var) {
