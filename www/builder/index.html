@@ -117,29 +117,8 @@
 		<div class="row">
 			<div class="col-12">
 				<div class="card">
-					<div class="card-header" style="cursor: pointer;" data-toggle="collapse" data-target="#collapseMainHideColumns">
+					<div class="card-header" style="cursor: pointer;" data-toggle="modal" data-target="#columnsModal">
 						Hide/Show Columns
-					</div>
-					<div class="collapse" id="collapseMainHideColumns" data-parent="#searchAccordian">
-						<div class="card-body">
-							<div class="row">
-								<p class="text-info">Use these to hide columns from the search result grid.</p>
-							</div>
-							<div ng-repeat="category in statCategories">
-								<div class="row">
-									<h4>{{category["name"]}}</h4>
-								</div>
-								<div class="row">
-									<div class="form-check col-4 col-md-2" ng-repeat="stat in category['stats']">
-										<input class="form-check-input" type="checkbox" ng-model="statInfo[stat]['showColumn']" id="{{statInfo[stat]['var']}}check"
-											ng-change="saveCookies()">
-										<label class="form-check-label" for="{{statInfo[stat]['var']}}check">
-											{{statInfo[stat]["display"]}}
-										</label>
-									</div>
-								</div>
-							</div>
-						</div>
 					</div>
 				</div>
 			</div>
@@ -152,40 +131,38 @@
 						<tr>
 							<th scope="col" class="text-center">Slot</th>
 							<th scope="col" class="text-center">Name</th>
-							<th scope="col" class="text-center">Align</th>
-							<th scope="col" ng-repeat="stat in statInfo" ng-show="stat.showColumn" class="text-center">{{stat.short}}</th>
+							<th scope="col" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center">{{stat.short}}</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr class="bg-secondary text-white">
 							<td></td>
 							<td class="text-center">Total</td>
-							<td class="text-center text-monospace" ng-trim="false" style="white-space: pre">{{sumStats('AlignRestriction')}}</td>
-							<td ng-repeat="stat in statInfo" ng-show="stat.showColumn" class="text-center">{{sumStats(stat.var)}}</td>
+                            <td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center" ng-class="{'text-monospace': stat.var === 'AlignRestriction'}" ng-style="stat.var === 'AlignRestriction && {'white-space':'pre'}'" ng-trim="!stat.var === 'AlignRestriction'">{{sumStats(stat.var)}}</td>
 						</tr>
 						<tr ng-repeat="item in selectedList.items track by $index">
 							<td ng-class="anyItemRestrictions($index) ? 'bg-danger' : 'bg-primary'" class="bg-primary text-white text-center py-md-1 py-lg-0" data-toggle="tooltip" title="{{getItemRestrictionText($index)}}" nowrap lh-tooltip><span ng-show="anyItemRestrictions($index)"><i class="fas fa-question-circle"></i>&nbsp;</span>{{::slots[item.Slot]}}</td>
 							<th scope="row" ng-click="onRowClicked($index)" style="cursor: pointer;" class="py-1 py-lg-0">
 								<a href="/items/details.html?id={{item.Id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.Id"><i class="fas fa-link fa-lg"></i></a>&nbsp;{{item.Name}}</th>
-							<td ng-click="onRowClicked($index)" style="cursor: pointer;" class="text-center text-monospace py-1 py-lg-0" ng-trim="false" style="white-space: pre">{{aligns[item.AlignRestriction]}}</td>
-							<td ng-repeat="stat in statInfo" ng-show="stat.showColumn" class="text-center py-1 py-lg-0" ng-click="onRowClicked($parent.$index)" style="cursor: pointer;">
+							<td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center py-1 py-lg-0" ng-click="onRowClicked($parent.$parent.$index)" style="cursor: pointer;" ng-class="{'text-monospace': stat.var === 'AlignRestriction'}" ng-style="stat.var === 'AlignRestriction && {'white-space':'pre'}'" ng-trim="!stat.var === 'AlignRestriction'">
 								<span ng-if="stat.type == 'bool'">
 									<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
 								</span>
-								<span ng-if="stat.type != 'bool'">{{item[stat.var]}}</span>
+								<span ng-if="stat.type === 'int' || stat.type === 'decimal' || stat.type === 'string'">{{item[stat.var]}}</span>
+                                <span ng-if="stat.type === 'select'">
+                                    {{ selectShortOptions[stat.var][item[stat.var]] }}
+                                </span>
 							</td>
 						</tr>
 						<tr class="bg-dark text-white">
 							<td class="text-center">Slot</td>
 							<td class="text-center">Name</td>
-							<td class="text-center">Align</td>
-							<td ng-repeat="stat in statInfo" ng-show="stat.showColumn" class="text-center">{{stat.short}}</td>
+							<td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center">{{stat.short}}</td>
 						</tr>
 						<tr class="bg-secondary text-white">
 							<td></td>
 							<td class="text-center">Total</td>
-							<td class="text-center text-monospace" ng-trim="false" style="white-space: pre">{{sumStats('AlignRestriction')}}</td>
-							<td ng-repeat="stat in statInfo" ng-show="stat.showColumn" class="text-center">{{sumStats(stat.var)}}</td>
+							<td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center">{{sumStats(stat.var)}}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -215,36 +192,11 @@
 										</div>
 										<input type="text" ng-model="searchString" ng-model-options="{debounce: 250}" id="itemChoiceSearch" class="form-control" placeholder="Search..." ng-change="onSearchChange()" />
 										<div class="input-group-append">
-											<button class="btn btn-outline-secondary" type="button" data-toggle="collapse" data-target="#collapseHideColumns" aria-expanded="false"
-											    aria-controls="collapseHideColumns">Columns</button>
 											<button class="btn btn-outline-primary" type="submit">Search</button>
 										</div>
 									</div>
 								</div>
 							</form>
-							<div class="row">
-								<div class="collapse col-12" id="collapseHideColumns" data-parent="#searchAccordian">
-									<div class="card card-body">
-										<div class="row">
-											<p class="text-info">Use these to hide columns from the search result grid.</p>
-										</div>
-										<div ng-repeat="category in statCategories">
-											<div class="row">
-												<h4>{{category["name"]}}</h4>
-											</div>
-											<div class="row">
-												<div class="form-check col-4 col-md-2" ng-repeat="stat in category['stats']">
-													<input class="form-check-input" type="checkbox" ng-model="statInfo[stat]['showColumn']" id="{{statInfo[stat]['var']}}check"
-													    ng-change="saveCookies()">
-													<label class="form-check-label" for="{{statInfo[stat]['var']}}check">
-														{{statInfo[stat]["display"]}}
-													</label>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
 							<br />
 							<br />
 							<div class="row">
@@ -253,20 +205,21 @@
 										<thead class="thead-dark">
 											<tr>
 												<th scope="col" class="clickable" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="sortClass('Name')"></i></th>
-												<th scope="col" class="clickable" ng-click="onColumnHeaderClicked('AlignRestriction')" nowrap>Align&nbsp;<i ng-class="sortClass('AlignRestriction')"></i></th>
-												<th scope="col" class="clickable" ng-repeat="stat in statInfo" ng-show="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="sortClass(stat.var)"></i></th>
+												<th scope="col" class="clickable" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="sortClass(stat.var)"></i></th>
 											</tr>
 										</thead>
 										<tbody>
 											<tr ng-repeat="item in getFilteredSearchResults()" style="cursor: pointer;" ng-click="onSearchRowClicked(item)">
 												<td scope="row">
 													<a href="/items/details.html?id={{item.Id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.Id"><i class="fas fa-link fa-lg"></i></a>&nbsp;{{item['Name']}}</td>
-												<td class="text-center text-monospace" ng-strip="false" style="white-space: pre">{{aligns[item['AlignRestriction']]}}</td>
-												<td ng-repeat="stat in statInfo" ng-show="stat.showColumn">
+                                                <td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" ng-class="{'text-monospace': stat.var === 'AlignRestriction'}" ng-style="stat.var === AlignRestriction && {'white-space': 'pre'}" ng-trim="stat.var !== 'AlignRestriction'}">
 													<span ng-if="stat.type == 'bool'">
 														<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
 													</span>
-													<span ng-if="stat.type != 'bool'">{{item[stat.var]}}</span>
+													<span ng-if="stat.type === 'int' || stat.type === 'decimal' || stat.type === 'string'">{{item[stat.var]}}</span>
+                                                    <span ng-if="stat.type === 'select'">
+                                                        {{ selectShortOptions[stat.var][item[stat.var]] }}
+                                                    </span>
 												</td>
 											</tr>
 										</tbody>
@@ -274,7 +227,7 @@
 								</div>
 							</div>
                             <div class="row">
-							    <nav class="col-12" aria-label="Item result navigation" ng-show="totalPages > 1">
+							    <nav class="col-12" aria-label="Item result navigation" ng-if="totalPages > 1">
 								    <ul class="pagination">
 									    <li class="page-item">
 										    <a class="page-link" ng-click="onPreviousClicked()" href aria-label="Previous">
@@ -377,6 +330,7 @@
 			</div>
 		</div>
 	</div>
+    <div ng-include="'/shared/columnsModal.html'"></div>
 
 	<lh-footer></lh-footer>
 
