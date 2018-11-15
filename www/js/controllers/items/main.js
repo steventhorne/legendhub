@@ -299,18 +299,18 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 	}
 
 	$scope.getFilterCount = function() {
-		if (!scope.statInfo) {
+		if (!$scope.statInfo) {
 			return 0;
 		}
 
-		var filters = [];
+		var count = 0;
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
             if (getIsFilterEnabled($scope.statInfo[i])) {
-				filters.push($scope.statInfo[i]);
+				count++;
             }
 		}
 
-		return filters.length;
+		return count;
 	}
 
 	$scope.removeFilter = function(statInfo) {

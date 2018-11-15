@@ -55,9 +55,8 @@
 					</div>
 					<div class="px-0 px-md-5" id="searchAccordian" ng-cloak>
 						<div ng-if="getFilterCount() > 0">
-							<span>Filters: </span><a href="" ng-click="removeFilter(filter)" class="badge badge-info" ng-repeat="filter in getFilterList() track by $index">{{ filter.display }} <i class="fas fa-times"></i></a>
+							<span class="text-info">Filters: </span><a href="" ng-click="removeFilter(filter)" class="badge badge-info" ng-repeat="filter in getFilterList() track by $index">{{ filter.display }} <i class="fas fa-times"></i></a>
 						</div>
-						<span class="text-info">{{getFilterListString()}}</span>
 						<form ng-submit="onSearchClicked()">
 							<div class="row">
 								<span class="text-danger" ng-show="searchError != ''">{{searchError}}</span>
