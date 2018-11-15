@@ -316,7 +316,12 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 	$scope.removeFilter = function(statInfo) {
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
 			if ($scope.statInfo[i].var === statInfo.var) {
-				$scope.statInfo[i].filter = false;
+				if ($scope.statInfo[i].type === "select") {
+					$scope.statInfo[i].filter = null;
+				}
+				else {
+					$scope.statInfo[i].filter = false;
+				}
 				break;
 			}
 		}
