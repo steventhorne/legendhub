@@ -932,18 +932,25 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 
 	}
 
-	$scope.resetColumns = function() {
-		for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
+    $scope.resetColumns = function() {
+        for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
 			for (var j = 0; j < $scope.statInfo.length; ++j) {
-				$scope.statInfo[j].showColumn = $scope.defaultStatInfo[i].showColumn;
+                if ($scope.defaultStatInfo[i].var === $scope.statInfo[j].var) {
+				    $scope.statInfo[j].showColumn = $scope.defaultStatInfo[i].showColumn;
+                    break;
+                }
 			}
 		}
+
+        $scope.saveCookies();
 	};
 
-	$scope.resetFilters = function() {
+    $scope.resetFilters = function() {
 		for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
 			for (var j = 0; j < $scope.statInfo.length; ++j) {
-				$scope.statInfo[j].filter = $scope.defaultStatInfo[i].filter;
+                if ($scope.defaultStatInfo[i].var === $scope.statInfo[j].var) {
+				    $scope.statInfo[j].filter = $scope.defaultStatInfo[i].filter;
+                }
 			}
 		}
 	};
