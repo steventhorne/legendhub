@@ -76,8 +76,11 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 	//#region ~~~~~~~~~ SAVING / LOADING ~~~~~~~~~
 
 	$scope.loadCookies = function() {
+		// delete old cookies
+		$cookies.remove("sc1");
+
 		// load columns
-		var columnCookie = $cookies.get("sc1");
+		var columnCookie = $cookies.get("sc2");
 		if (columnCookie) {
 			// wipe initial values
 			for (var i = 0; i < $scope.statInfo.length; ++i) {
@@ -193,7 +196,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				$savedColumns += $scope.statInfo[i]["short"] + "-";
 			}
 		}
-		$cookies.put("sc1", $savedColumns, {"path": "/", 'expires': cookieDate});
+		$cookies.put("sc2", $savedColumns, {"path": "/", 'expires': cookieDate});
 
 		// save lists
 		listCookieStr = "";
