@@ -283,6 +283,32 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 		}
 	};
 
+	$scope.getFilterList = function() {
+		if (!$scope.statInfo) {
+			return [];
+		}
+
+		var filters = [];
+		for (var i = 0; i < $scope.statInfo.length; ++i) {
+            if (getIsFilterEnabled($scope.statInfo[i])) {
+				filters.push($scope.statInfo[i]);
+            }
+		}
+
+		return filters;
+	}
+
+	$scope.removeFilter = function(statInfo) {
+		for (var i = 0; i < $scope.statInfo.length; ++i) {
+			if ($scope.statInfo[i].var === statInfo.var) {
+				$scope.splice(i, 1);
+				break;
+			}
+		}
+
+		$scope.saveCookies();
+	}
+
 	$scope.getFilterListString = function() {
 		if (!$scope.statInfo) {
 			return "";
