@@ -3,7 +3,7 @@
   "version": "1.6.2",
   "description": "A resource hub for LegendMUD",
   "scripts": {
-    "build:all": "npm-run-all build:css --parallel build:web build:python",
+    "build": "npm-run-all build:css --parallel build:web build:python",
     "build:web": "npm-run-all --sequential build:web:prereqs build:web:concat-js build:web:deploy",
     "build:web:prereqs": "shx cp -n www/php/common/config-example.php www/php/common/config.php",
     "build:web:concat-js": "concat -o www/js/apps/legendwiki-app.js www/js/apps/src/*",
@@ -12,11 +12,12 @@
     "build:python:prereqs": "shx cp -n python/sql/sql_engine_config_example.py python/sql/sql_engine_config.py",
     "build:python:dependencies": "pip3 install -r python/requirements.txt",
     "build:python:lint": "pylint python/notification_listener.py",
-    "build:css": "npm-run-all --parallel build:css:lint build:css:compile --sequential build:css:prefix build:css:minify",
-    "build:css:compile": "node-sass --output-style expanded --source-map true --source-map-contents true --precision 6 css/scss/bootstrap.scss css/dist/css/bootstrap.css",
+    "build:css": "npm-run-all --parallel build:css:lint build:css:compile --sequential build:css:prefix build:css:minify build:css:copy",
+    "build:css:compile": "node-sass --output-style expanded --source-map true --source-map-contents true --precision 6 --output css/dist/css/ css/scss",
     "build:css:lint": "stylelint --syntax scss \"css/scss/**/*.scss\"",
     "build:css:prefix": "postcss --config css/build/postcss.config.js --replace \"css/dist/css/*.css\" \"!css/dist/css/*.min.css\"",
-    "build:css:minify": "cleancss --level 1 --source-map --source-map-inline-sources --output css/dist/css/bootstrap.min.css css/dist/css/bootstrap.csst.css",
+    "build:css:minify": "cleancss --level 1 --source-map --source-map-inline-sources --output css/dist/css/bootstrap-light.min.css css/dist/css/bootstrap-light.css && cleancss --level 1 --source-map --source-map-inline-sources --output css/dist/css/bootstrap-dark.min.css css/dist/css/bootstrap-dark.css && cleancss --level 1 --source-map --source-map-inline-sources --output css/dist/css/bootstrap-solarized-dark.min.css css/dist/css/bootstrap-solarized-dark.css",
+    "build:css:copy": "shx cp css/dist/css/*.min.css www/css/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
