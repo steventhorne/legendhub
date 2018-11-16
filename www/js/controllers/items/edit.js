@@ -36,13 +36,6 @@ app.controller('items-edit', function($scope, $http, itemConstants, breadcrumb) 
 		});
 	}
 
-	getUrlParameter = function(name) {
-		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-		var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-		var results = regex.exec(location.search);
-		return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-	};
-
 	$scope.getItem = function() {
 		$http({
 			url: '/php/items/getItem.php',

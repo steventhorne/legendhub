@@ -36,24 +36,11 @@
 	<div class="container-fluid">
 		<div class="px-0">
 			<div class="row">
-				<div class="categoryListContainer col-md-3 col-lg-2 border-right" ng-class="{active: categoryActive}">
-					<h2>Slots
-						<button class="btn btn-outline-danger float-right d-block d-md-none" type="button" ng-click="categoryActive = false">
-							<i class="fas fa-times"></i>
-						</button>
-					</h2>
-					<ul class="categoryList">
-						<li ng-repeat="category in catService.categories" ng-cloak>
-							<a ng-class="{'text-primary font-weight-bold': category.Id == catService.getCategoryId(), 'text-secondary': category.Id != catService.getCategoryId()}"
-							    ng-href="{{getSearchUrl(category.Id)}}">{{category.Name}}</a>
-						</li>
-					</ul>
-				</div>
-				<div class="col-12 col-md-9 col-lg-10">
+				<div class="col-12">
 					<div class="row text-center">
 						<h1 class="col-12">Items</h1>
 					</div>
-					<div class="px-0 px-md-5" id="searchAccordian" ng-cloak>
+					<div class="px-0 px-md-5" ng-cloak>
 						<div ng-if="getFilterCount() > 0">
 							<span class="text-info">Filters: <span ng-repeat="filter in getFilterList() track by $index"> <a href="" ng-click="removeFilter(filter)" class="badge badge-pill badge-info">{{ filter.display }} <i class="fas fa-times"></i></a></span></span>
 						</div>
@@ -63,12 +50,6 @@
 							</div>
 							<div class="row">
 								<div class="input-group col-12">
-									<div class="input-group-prepend d-block d-md-none">
-										<button class="btn btn-outline-primary" type="button" ng-click="categoryActive = true">&nbsp;<i class="fas fa-caret-right"></i>&nbsp;
-									</div>
-									<div class="input-group-prepend" ng-if="catService.getActiveCategory()">
-										<button class="btn btn-outline-primary" type="button" ng-click="catService.clearSelectedCategories()">{{catService.getActiveCategory()}}&nbsp;&nbsp;<i class="fas fa-times"></i></button>
-									</div>
 									<input type="text" ng-model="searchString" class="form-control" placeholder="Search by name..." lh-autofocus>
 									<div class="input-group-append">
 										<button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#columnsModal" aria-expanded="false"><span class="d-none d-md-inline-block">Columns</span><i class="d-inline-block d-md-none fas fa-columns"></i></button>

@@ -3,7 +3,7 @@ app.controller('mobs', function($scope, $http, categories) {
 		$scope.mobsPerPage = 20;
 		$scope.sortProperty = "";
 		$scope.sortReverse = false;
-		
+
 		$scope.catService = categories;
 
 		categories.setSelectedCategory(getUrlParameter('eraId'));
@@ -32,12 +32,12 @@ app.controller('mobs', function($scope, $http, categories) {
 				}
 				response.data[i].CategoryId = response.data[i].EraId;
 			}
-			
+
 			var eraCategories = [];
 			for (var i = 1; i < eras.length; ++i) {
 				eraCategories.push({Id: i, Name: eras[i]});
 			}
-			
+
 			categories.setCategories(eraCategories);
 			categories.setSubcategories(response.data);
 		})
@@ -164,13 +164,6 @@ app.controller('mobs', function($scope, $http, categories) {
 			return $scope.sortReverse ? "fas fa-sort-down" : "fas fa-sort-up";
 		}
 	}
-
-	getUrlParameter = function(name) {
-		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-		var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-		var results = regex.exec(location.search);
-		return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-	};
 
 	$scope.init();
 });

@@ -79,7 +79,7 @@ app.controller('wiki', function($scope, $http, categories) {
 
 	$scope.getSearchUrl = function(categoryId, subcategoryId) {
 		var url = "/wiki/index.html?";
-		
+
 		if (categoryId !== undefined) {
 			url += "categoryId=" + categoryId + "&";
 		}
@@ -163,13 +163,6 @@ app.controller('wiki', function($scope, $http, categories) {
 			return $scope.sortReverse ? "fas fa-sort-down" : "fas fa-sort-up";
 		}
 	}
-
-	getUrlParameter = function(name) {
-		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-		var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-		var results = regex.exec(location.search);
-		return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-	};
 
 	$scope.init();
 });
