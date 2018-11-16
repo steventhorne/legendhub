@@ -13,3 +13,6 @@ python/__pycache__/
 python/**/*.py[cod]
 python/**/*$py.class
 python/sql/sql_engine_config.py
+
+# NPM
+node_modules/

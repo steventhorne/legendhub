@@ -4,16 +4,9 @@ app.controller('mobs-edit', function($scope, $http, breadcrumb) {
 	$scope.initialize = function() {
 		$scope.mobModel = {"Xp": 0, "Gold": 0, "Aggro": false, "Notes": null};
 		$scope.areas = [];
-		
+
 		$scope.getAreas();
 	}
-
-	getUrlParameter = function(name) {
-		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-		var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-		var results = regex.exec(location.search);
-		return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-	};
 
 	$scope.getAreas = function() {
 		$http({

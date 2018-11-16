@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#navigate to this script's dir
+cd "${0%/*}"
+
 #declare variables
 configCreated=n
 deployDir=""
@@ -23,25 +26,27 @@ if [ -f "deploy.sh.conf" ]; then
 fi
 
 #Reminders
-msg="Have you created your php config?"
-if [[ $configCreated != ""  ]]; then
-    msg+="[$configCreated]: "
-else
-    msg+=": "
-fi
-
-read -p "$msg" input
-if [[ $input = "" ]]; then
-    if [[ $configCreated != "" ]]; then
-        input=$configCreated
+if [[ $configCreated != "y" && $configCreated != "Y" ]]; then
+    msg="Did you setup your php config?"
+    if [[ $configCreated != ""  ]]; then
+        msg+="[$configCreated]: "
+    else
+        msg+=": "
     fi
-else
-    configCreated=$input
-fi
 
-if [[ $input == "" || ($input != "y" && $input != "Y") ]]; then
-	echo "Please create your php config file using the template provided."
-	exit 1
+    read -p "$msg" input
+    if [[ $input = "" ]]; then
+        if [[ $configCreated != "" ]]; then
+            input=$configCreated
+        fi
+    else
+        configCreated=$input
+    fi
+
+    if [[ $input == "" || ($input != "y" && $input != "Y") ]]; then
+	    echo "Please create your php config file using the template provided."
+	    exit 1
+    fi
 fi
 
 # Choose directory
