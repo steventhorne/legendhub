@@ -6,7 +6,7 @@ app.controller('wiki-edit', function($scope, $http, breadcrumb) {
 		$scope.categories = [];
 		$scope.allsubcategories = [];
 		$scope.subcategories = [];
-		
+
 		$scope.loadingProgress = 0;
 		$scope.getWikiPage();
 		$scope.getCategories();
@@ -100,7 +100,7 @@ app.controller('wiki-edit', function($scope, $http, breadcrumb) {
 		$scope.wikiModel.SubCategoryId = 0;
 		$scope.loadSubcategories();
 	}
-	
+
 	$scope.saveDisabled = function() {
 		return !$scope.form.$valid || angular.toJson($scope.wikiModel) === angular.toJson($scope.initialWikiModel);
 	}
@@ -116,13 +116,6 @@ app.controller('wiki-edit', function($scope, $http, breadcrumb) {
 
 		});
 	}
-
-	getUrlParameter = function(name) {
-		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-		var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-		var results = regex.exec(location.search);
-		return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-	};
 
 	$scope.initialize();
 });

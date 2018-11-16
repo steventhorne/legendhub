@@ -1,4 +1,4 @@
-app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "categories", function($scope, $q, $cookies, $http, itemConstants, categories) {
+app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", function($scope, $q, $cookies, $http, itemConstants) {
 	$scope.init = function() {
 		$scope.slots = itemConstants.selectShortOptions.Slot;
 		$scope.aligns = itemConstants.selectOptions.AlignRestriction;
@@ -9,14 +9,6 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 		$scope.sortProperty = "";
 		$scope.sortReverse = false;
 
-		$scope.catService = categories;
-		var slotCategories = [];
-		for (var i = 0; i < $scope.slots.length; ++i) {
-			slotCategories.push({"Id": i, "Name": $scope.slots[i]});
-		}
-		categories.setCategories(slotCategories);
-
-		categories.setSelectedCategory(getUrlParameter('slotId'));
 		$scope.searchString = getUrlParameter('search');
 
         loadPage();
@@ -54,7 +46,7 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
     var onPageLoaded = function() {
         var isSearchFiltered = getIsSearchFiltered();
 
-		if (categories.hasSelectedCategory() || isSearchFiltered || $scope.searchString) {
+		if (isSearchFiltered || $scope.searchString) {
 			search();
 		}
 		else {
@@ -101,7 +93,7 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 		$http({
 			url: '/php/items/getItems.php',
 			method: 'POST',
-			data: {"searchString": $scope.searchString, "filterColumns": $scope.filters, "slotId": categories.getCategoryId()}
+			data: {"searchString": $scope.searchString, "filterColumns": $scope.filters}
 		}).then(function succcessCallback(response) {
 			$scope.items = response.data;
 			$scope.recent = false;
@@ -114,18 +106,11 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
 	};
 
 	$scope.onSearchClicked = function() {
-		window.location = $scope.getSearchUrl();
+		window.location = getSearchUrl();
 	};
 
-	$scope.getSearchUrl = function(categoryId) {
+	var getSearchUrl = function() {
 		var url = "/items/index.html?";
-
-		if (categoryId !== undefined) {
-			url += "slotId=" + categoryId + "&";
-		}
-		else if (categories.hasSelectedCategory()) {
-			url += "slotId=" + categories.getCategoryId() + "&";
-		}
 
 		var filtersUrl = saveFiltersToUrl();
 		if (filtersUrl) {
@@ -347,13 +332,6 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", "
                 }
 			}
 		}
-	};
-
-	getUrlParameter = function(name) {
-		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-		var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-		var results = regex.exec(location.search);
-		return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 	};
 
 	$scope.init();
