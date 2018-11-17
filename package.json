@@ -7,7 +7,8 @@
     "build:web": "npm-run-all --sequential build:web:prereqs build:web:concat-js build:web:deploy",
     "build:web:prereqs": "shx cp -n www/php/common/config-example.php www/php/common/config.php",
     "build:web:concat-js": "concat -o www/js/apps/legendwiki-app.js www/js/apps/src/*",
-    "build:web:deploy": "./www/deploy.sh",
+    "build:web:deploy": "shx cp -r www/. $npm_package_config_webdevdir",
+    "build:web:deploy-prod": "shx cp -r www/. $npm_package_config_webproddir",
     "build:python": "npm-run-all --sequential build:python:prereqs build:python:dependencies build:python:lint",
     "build:python:prereqs": "shx cp -n python/sql/sql_engine_config_example.py python/sql/sql_engine_config.py",
     "build:python:dependencies": "pip3 install -r python/requirements.txt",
@@ -51,5 +52,9 @@
     "stylelint-config-standard": "^18.2.0",
     "stylelint-order": "^0.8.1",
     "stylelint-scss": "^3.1.3"
+  },
+  "config": {
+    "webdevdir": "../../www/legendbeta",
+    "webproddir": "../../www/legendwiki"
   }
 }
