@@ -43,6 +43,6 @@ The following are not included:
 - Building the css project will copy the new css files to the www directory. You must run `npm run build:web` **afterwards** in order for your new css files to be included in the web build. `npm run build` will automatically build the projects in the correct order.
 
 ## Sql Database Backup
-- The latest backup file can be downloaded from [here]().
+- The latest backup file can be downloaded from [here](https://drive.google.com/open?id=17RJ2vnmmH4G4-DWjlvEBYX-UI8I5RgC5).
 - Unzip the file and use the following command to import the backup.
 - `mysql –u[user name] -p[password] -h[hostname] [database name] < [path-to-file].sql`
