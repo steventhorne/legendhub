@@ -44,5 +44,5 @@ The following are not included:
 
 ## Sql Database Backup
 - The latest backup file can be downloaded from [here](https://drive.google.com/open?id=17RJ2vnmmH4G4-DWjlvEBYX-UI8I5RgC5).
-- Use the following command to import the backup.
-- `mysql –u[user name] -p[password] -h[hostname] [database name] < [path-to-file].sql`
+- Use the following command to import the backup:
+    - `mysql –u[user name] -p[password] -h[hostname] [database name] < [path-to-file].sql`
