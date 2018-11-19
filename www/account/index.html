@@ -121,7 +121,7 @@
                 </div>
                 <div class="row" ng-show="editingNotifications">
                     <div class="col-12 col-md-6">
-                        <button type="button" class="btn btn-primary btn-block" ng-click="saveNotifications()">Save</button>
+                        <button type="button" class="btn btn-primary btn-block" ng-click="saveNotifications(notificationSettings)">Save</button>
                     </div>
                     <div class="col-12 col-md-6">
                         <button type="button" class="btn btn-link btn-block" ng-click="cancelNotifications()">Cancel</button>
@@ -170,7 +170,7 @@
                 </div>
                 <div class="row" ng-show="editingPassword">
                     <div class="col-12 col-md-6">
-                        <button type="button" class="btn btn-primary btn-block" ng-disabled="!editPasswordForm.$valid" ng-click="savePassword()">Save</button>
+                        <button type="button" class="btn btn-primary btn-block" ng-disabled="!editPasswordForm.$valid" ng-click="savePassword(oldPassword, newPassword)">Save</button>
                     </div>
                     <div class="col-12 col-md-6">
                         <button type="button" class="btn btn-link btn-block" ng-click="editingPassword = false">Cancel</button>
