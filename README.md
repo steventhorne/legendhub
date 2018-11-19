@@ -1,7 +1,7 @@
 # [LegendHUB](https://www.legendhub.org)
 > A resource hub for [LegendMUD](www.legendmud.org).
 
-[![Version 1.5.1](http://img.shields.io/badge/version-1.5.1-brightgreen.svg?style=flat-square)](https://www.legendhub.org) [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+[![Version 1.6.4](http://img.shields.io/badge/version-1.6.4-brightgreen.svg?style=flat-square)](https://www.legendhub.org) [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 ## Table of Contents
 - [Not Included](#not-included)
@@ -26,9 +26,9 @@ The following are not included:
 - [Download and install the latest version of Python 3](https://www.python.org/downloads/) - Used for the notification process.
 - Clone this repo to your local machine using `git clone https://github.com/SvarturH/legendhub.git`
 - Navigate to the root directory of the cloned repo and run `npm install` to install the necessary dependencies.
-- Run `npm run prepare` - this will create two files:
-- www/php/common/config.php
-- python/sql/sql_engine_config.py
+- This will create two files:
+    - www/php/common/config.php
+    - python/sql/sql_engine_config.py
 - Replace the default values in the config files with your sql database information.
 - Open the package.json file and replace the `webdevdir` and `webproddir` config values with the absolute or relative paths of your deployment directories. (Where your HTTP server expects your web files to be placed)
 

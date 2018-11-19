@@ -11,4 +11,6 @@ RewriteRule ^(.*)$ https://www.legendhub.org/$1 [L,R=301,NC]
 </IfModule>
 ErrorDocument 503 /maintenance.html
 ErrorDocument 404 /error/404.html
+<IfModule mod_headers.c>
 Header Set Cache-Control "max-age=0, no-store"
+</IfModule>
