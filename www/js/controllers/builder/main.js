@@ -1,13 +1,14 @@
-app.controller('builder', function($scope, $cookies, $http, itemConstants) {
+app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants", function($scope, $cookies, $http, $q, itemConstants) {
 	//#region ~~~~~~~~~ INITIALIZATION ~~~~~~~~~
-	// constants
+
+    /** Initializes the controller. */
 	$scope.initialize = function() {
 		$scope.slots = itemConstants.selectShortOptions.Slot;
         $scope.selectShortOptions = itemConstants.selectShortOptions;
 
 		$scope.itemsPerPage = 20;
 
-		$scope.slotOrder = [0, 1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21];
+		$scope.slotOrder = [0,1,1,2,2,3,4,5,6,7,8,9,11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21];
 		$scope.longhouseList = ["Bear -- ( spi - min )",
 								"Beaver -- ( min - dex )",
 								"Eagle -- ( per - str )",
@@ -29,33 +30,70 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			$scope.itemsBySlot[i] = [];
 		}
 
-		$scope.getStatCategories();
-	}
+        loadPage();
+	};
 
-	$scope.getStatCategories = function() {
+    /**
+     * Loads information necessary for displaying the page
+     */
+    var loadPage = function() {
+        $q.all([getStatCategories(), getStatInfo()]).then(
+            function(data) {
+                $scope.statCategories = data[0];
+                $scope.statInfo = data[1]
+                $scope.defaultStatInfo = angular.copy(data[1])
+
+                loadClientSideData();
+            }
+        );
+    };
+
+    /**
+     * Gets the stat category information from the server.
+     *
+     * @return {Promise} the promise that contains the category info.
+     */
+	var getStatCategories = function() {
+        var deferred = $q.defer();
+
 		$http({
 			url: '/php/items/getItemCategories.php'
-		}).then(function succcessCallback(response) {
-			$scope.statCategories = response.data;
-
-			$scope.getStatInfo();
+		}).then(function successCallback(response) {
+            deferred.resolve(response.data);
+			//$scope.statCategories = response.data;
 		}, function errorCallback(response){
-
+            deferred.reject(response);
 		});
-	}
 
-	$scope.getStatInfo = function() {
+        return deferred.promise;
+	};
+
+    /**
+     * Gets the stat information from the server.
+     *
+     * @return {Promise} the promise that contains the stat info.
+     */
+	var getStatInfo = function() {
+        var deferred = $q.defer();
+
 		$http({
 			url: '/php/items/getItemStats.php'
-		}).then(function succcessCallback(response) {
-			$scope.statInfo = response.data;
-			$scope.defaultStatInfo = angular.copy(response.data);
-
-			$scope.loadCookies();
+		}).then(function successCallback(response) {
+            deferred.resolve(response.data);
+			// $scope.statInfo = response.data;
+			// $scope.defaultStatInfo = angular.copy(response.data);
 		}, function errorCallback(response){
+            deferred.reject(response);
 		});
-	}
 
+        return deferred.promise;
+	};
+
+    /**
+     * Gets a blank list for use when adding a new list
+     *
+     * @param {string} name - the name for the list.
+     */
 	$scope.getDefaultList = function(name) {
 		list = {};
 		list.Name = name;
@@ -70,123 +108,241 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 		}
 
 		return list;
-	}
+	};
 
 	//#endregion
 
 	//#region ~~~~~~~~~ SAVING / LOADING ~~~~~~~~~
-
-	$scope.loadCookies = function() {
-		// delete old cookies
-		$cookies.remove("sc1", {"path": "/"});
-
-		// load columns
-		var columnCookie = $cookies.get("sc2");
-		if (columnCookie) {
+    /**
+     * Loads the selected columns from a cookie and
+     * replaces the info in the provided array.
+     *
+     * @param {string} cookie - the cookie for loading the columns
+     * @param {array} statInfo - the statInfo array to set the settings in
+     */
+    var loadSelectedColumns = function(cookie, statInfo) {
+        if (cookie) {
 			// wipe initial values
-			for (var i = 0; i < $scope.statInfo.length; ++i) {
-				$scope.statInfo[i]["showColumn"] = false;
+			for (var i = 0; i < statInfo.length; ++i) {
+				statInfo[i]["showColumn"] = false;
 			}
 
-			var columns = columnCookie.split("-");
+			var columns = cookie.split("-");
 			for (var i = 0; i < columns.length; ++i) {
-				for (var j = 0; j < $scope.statInfo.length; ++j) {
-					if (columns[i] == $scope.statInfo[j]["short"]) {
-						$scope.statInfo[j]["showColumn"] = true;
+				for (var j = 0; j < statInfo.length; ++j) {
+					if (columns[i] == statInfo[j]["short"]) {
+						statInfo[j]["showColumn"] = true;
 					}
 				}
 			}
 		}
+    };
 
-		// load lists
-		$scope.allLists = [];
+    /**
+     * Loads the users lists from the cookie
+     *
+     * @param {string} listCookie - the cookie string that contains the saved lists.
+     * @return {array} The array of character lists.
+     */
+    var loadCharacterLists = function(listCookie) {
+        var lists = [];
 
-		var listCookieStr = localStorage.getItem("cl");
-		if (!listCookieStr) {
-			listCookieStr = $cookies.get("cl1");
-		}
-		if (listCookieStr) {
-			var listStrs = listCookieStr.split("*").filter(function(el) {return el.length != 0});;
+        if (listCookie) {
+			var listStrs = listCookie.split("*").filter(function(el) {return el.length != 0});;
 			for (var i = 0; i < listStrs.length; ++i) {
-				$scope.allLists.push({});
+				lists.push({});
 
 				var listStr = listStrs[i];
 				var each = listStr.split("_");
 
 				// name
-				$scope.allLists[i].Name = each[0];
+				lists[i].Name = each[0];
 				each.shift();
 
 				// base stats
-				$scope.allLists[i].baseStats = {};
-				$scope.allLists[i].baseStats.Strength = Number(each[0]);
+				lists[i].baseStats = {};
+				lists[i].baseStats.Strength = Number(each[0]);
 				each.shift();
 
-				$scope.allLists[i].baseStats.Mind = Number(each[0]);
+				lists[i].baseStats.Mind = Number(each[0]);
 				each.shift();
 
-				$scope.allLists[i].baseStats.Dexterity = Number(each[0]);
+				lists[i].baseStats.Dexterity = Number(each[0]);
 				each.shift();
 
-				$scope.allLists[i].baseStats.Constitution = Number(each[0]);
+				lists[i].baseStats.Constitution = Number(each[0]);
 				each.shift();
 
-				$scope.allLists[i].baseStats.Perception = Number(each[0]);
+				lists[i].baseStats.Perception = Number(each[0]);
 				each.shift();
 
-				$scope.allLists[i].baseStats.Spirit = Number(each[0]);
+				lists[i].baseStats.Spirit = Number(each[0]);
 				each.shift();
 
-				$scope.allLists[i].baseStats.Longhouse = Number(each[0]);
+				lists[i].baseStats.Longhouse = Number(each[0]);
 				each.shift();
 
-				$scope.allLists[i].baseStats.Amulet = Number(each[0]);
+				lists[i].baseStats.Amulet = Number(each[0]);
 				each.shift();
 
 				// items
-				$scope.allLists[i].items = [];
+				lists[i].items = [];
 				for (var j = 0; j < each.length; ++j) {
-					$scope.allLists[i].items.push({"Id": Number(each[j]), "Slot": $scope.slotOrder[j]});
+					lists[i].items.push({"Id": Number(each[j]), "Slot": $scope.slotOrder[j]});
 				}
 
 				if (each.length < 29) {
 					for (var k = 0; k < (29 - each.length); ++k) {
-						$scope.allLists[i].items.push({"Id": Number(each[j]), "Slot": 21});
+						lists[i].items.push({"Id": Number(each[j]), "Slot": 21});
 					}
 				}
 			}
 		}
-		if ($scope.allLists.length > 0) {
-			var selectedListCookie = localStorage.getItem("scl");
-			if (!selectedListCookie) {
-				selectedListCookie = $cookies.get("scl1");
-			}
-			if (selectedListCookie) {
-				var found = false;
+
+        return lists;
+    };
+
+    /**
+     * Selects a character list via the name of the character.
+     *
+     * @param {string} name - The name of the character.
+     */
+    var selectListByName = function(name) {
+        var listIndex = 0;
+        if ($scope.allLists.length > 0) {
+			if (name) {
 				for (var i = 0; i < $scope.allLists.length; ++i) {
-					if ($scope.allLists[i].Name == selectedListCookie) {
-						$scope.selectedListIndex = i;
-						found = true;
+					if ($scope.allLists[i].Name == name) {
+						listIndex = i;
 						break;
 					}
 				}
-
-				if (!found) {
-					$scope.selectedListIndex = 0;
-				}
-			}
-			else {
-				$scope.selectedListIndex = 0;
 			}
 		}
 		else {
 			$scope.allLists.push($scope.getDefaultList("Untitled"));
-			$scope.selectedListIndex = 0;
 		}
-		$scope.selectList();
-	}
 
-	$scope.saveCookies = function() {
+        selectListByIndex(listIndex);
+    };
+
+    /**
+     * Selects a character list via the index of the list in the array.
+     *
+     * @param {int} index - The index of the list in the character list array.
+     */
+    selectListByIndex = function(index) {
+        $scope.selectedListIndex = index;
+        $scope.selectedList = $scope.allLists[index];
+		$scope.editCharacterModel = {"Name": $scope.selectedList.Name};
+		var list = $scope.selectedList;
+
+		var ids = [];
+		for (var i = 0; i < list.items.length; ++i) {
+			if (list.items[i].Id > 0) {
+				if (!list.items[i].Name) {
+					var slotItems = $scope.itemsBySlot[list.items[i].Slot];
+					var found = false;
+					if (slotItems.length > 0) {
+						for (var j = 0; j < slotItems.length; ++j) {
+							if (slotItems[j].Id == list.items[i].Id) {
+								found = true;
+								list.items[i] = slotItems[j];
+								break;
+							}
+						}
+					}
+
+					if (!found) {
+						list.items[i].Name = "Loading...";
+						ids.push(list.items[i].Id);
+					}
+				}
+			}
+			else {
+				list.items[i].Name = "-";
+			}
+		}
+
+		if (ids.length > 0) {
+            getItemsInId(ids).then(
+                function(data) {
+                    for (var i = 0; i < list.items.length; ++i) {
+                        for (var j = 0; j < data.length; ++j) {
+                            if (list.items[i].Id == data[j].Id) {
+                                list.items[i] = angular.copy(data[j]);
+                                list.items[i].Slot = $scope.slotOrder[i];
+                                break;
+                            }
+                        }
+
+                        if (list.items[i].Name == "Loading...") {
+                            list.items[i].Name = "DELETED";
+                        }
+                    }
+
+                    applyItemRestrictions(); // to apply restrictions
+                }
+            );
+		}
+		applyItemRestrictions(); // to apply restrictions
+
+		$scope.characterName = list.Name;
+		$scope.saveClientSideData();
+    };
+
+    /**
+     * Gets the items for each id provided
+     *
+     * @param {array} ids - the array of ids for each item needed.
+     * @return {Promise} the promise that contains the item response.
+     */
+    var getItemsInId = function(ids) {
+        var deferred = $q.defer();
+
+        $http({
+            url: '/php/items/getItemsInIds.php',
+            method: 'POST',
+            data: {"ids": ids}
+        }).then(function successCallback(response) {
+            deferred.resolve(response.data);
+        }, function errorCallback(response){
+            deferred.reject(response);
+        });
+
+        return deferred.promise;
+    };
+
+    /**
+     * Loads the user data from cookies and local storage
+     */
+	var loadClientSideData = function() {
+		// remove old cookies
+		$cookies.remove("sc1", {"path": "/"});
+
+		// load columns
+		var columnCookie = $cookies.get("sc2");
+        loadSelectedColumns(columnCookie, $scope.statInfo);
+
+		// load lists
+		var listCookieStr = localStorage.getItem("cl");
+		if (!listCookieStr) {
+			listCookieStr = $cookies.get("cl1");
+		}
+        $scope.allLists = loadCharacterLists(listCookieStr);
+
+        // load selected list
+        var selectedListCookie = localStorage.getItem("scl");
+        if (!selectedListCookie) {
+            selectedListCookie = $cookies.get("scl1");
+        }
+        selectListByName(selectedListCookie);
+	};
+
+    /**
+     * Saves the user info to client side storage
+     */
+	$scope.saveClientSideData = function() {
 		// save columns
 		var cookieDate = new Date();
 		cookieDate.setFullYear(cookieDate.getFullYear() + 20);
@@ -230,12 +386,17 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			$cookies.remove("scl1");
 			console.log("Migrated lists successfully.");
 		}
-	}
-
+	};
 	//#endregion
 
 	//#region ~~~~~~~~~ EVENTS ~~~~~~~~~
-	$scope.onStatChanged = function(index) {
+    /** Event for when a different character list is chosen from the dropdown. */
+    $scope.onListChanged = function() {
+        selectListByIndex($scope.selectedListIndex);
+    };
+
+    /** Event for when a stat is changed in the view. */
+	$scope.onStatChanged = function() {
 		// check stat total
 		$scope.showStatError = false;
 		if ($scope.selectedList.baseStats) {
@@ -246,71 +407,131 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			}
 		}
 
-		$scope.applyItemRestrictions();
-		$scope.saveCookies();
-	}
+		applyItemRestrictions();
+		$scope.saveClientSideData();
+	};
+
+    /**
+     * Event for when a row is clicked in the builder.
+     * Opens the item search modal
+     *
+     * @param {int} index - the index of the item slot.
+     */
 	$scope.onRowClicked = function(index) {
 		var item = $scope.selectedList.items[index];
+
 		$scope.loadingModal = false;
 		$scope.searchString = "";
 		$scope.sortStat = "";
 		$scope.sortDir = "";
 		$scope.currentItem = item;
 		$scope.currentItemIndex = index;
+
 		if ($scope.itemsBySlot[item.Slot].length == 0) {
 			$scope.loadingModal = true;
-			$http({
-				url: '/php/items/getItemsBySlot.php',
-				method: 'POST',
-				data: {"slot": item.Slot}
-			}).then(function succcessCallback(response) {
-				// force the items coming in to be the slot we want (for weapons/hold slot shenanigans)
-				for (var i = 0; i < response.data.length; ++i) {
-					response.data[i].Slot = item.Slot;
-				}
+            getItemsBySlotAsync(item.Slot).then(
+                function(data) {
+				    // force the items coming in to be the slot we want (for weapons/hold slot shenanigans)
+                    for (var i = 0; i < data.length; ++i) {
+                        data[i].Slot = item.Slot;
+                    }
 
-				$scope.itemsBySlot[item.Slot] = response.data;
-				$scope.itemsBySlot[item.Slot].splice(0, 0, {"Slot": item.Slot, "Id": 0, "Name": "-"});
-				$scope.loadingModal = true;
+                    $scope.itemsBySlot[item.Slot] = data;
+                    $scope.itemsBySlot[item.Slot].splice(0, 0,
+                        {
+                            "Slot": item.Slot,
+                            "Id": 0,
+                            "Name": "-"
+                        }
+                    );
 
-				$scope.filterSearchResults();
-			}, function errorCallback(response){
-			});
+                    $scope.loadingModal = true;
+				    $scope.filterSearchResults();
+                }
+            );
 		}
 
 		$('#itemChoiceModal').modal();
-	}
+	};
 
+    /**
+     * Gets the items for a specified slot
+     *
+     * @param {int} slot - the slot you want to get items for.
+     * @return {Promise} the promise containing the items.
+     */
+    var getItemsBySlotAsync = function(slot) {
+        var deferred = $q.defer();
+
+        $http({
+            url: '/php/items/getItemsBySlot.php',
+            method: 'POST',
+            data: {"slot": slot}
+        }).then(function successCallback(response) {
+            deferred.resolve(response.data);
+        }, function errorCallback(response){
+            deferred.reject(response);
+        });
+
+        return deferred.promise;
+    };
+
+    /**
+     * Event for when the previous page button is clicked in pagination.
+     */
 	$scope.onPreviousClicked = function() {
 		$scope.currentPage -= 1;
 		if ($scope.currentPage < 1) {
 			$scope.currentPage = 1;
 		}
-	}
+	};
 
+    /**
+     * Event for when the next page button is clicked in pagination.
+     */
 	$scope.onNextClicked = function() {
 		$scope.currentPage += 1;
 		if ($scope.currentPage > $scope.totalPages) {
 			$scope.currentPage = $scope.totalPages;
 		}
-	}
+	};
 
+    /**
+     * Event for when a particular page button is clicked in pagination.
+     *
+     * @param {int} num - the page number that was clicked.
+     */
 	$scope.onPageClicked = function(num) {
 		$scope.currentPage = num + 1;
-	}
+	};
 
+    /**
+     * Event for when an item row is clicked when searching for an
+     * item in the item search modal.
+     *
+     * @param {object} item - the item that was selected.
+     */
 	$scope.onSearchRowClicked = function(item) {
 		$scope.selectedList.items[$scope.currentItemIndex] = item;
-		$scope.saveCookies();
-		$scope.applyItemRestrictions();
+		$scope.saveClientSideData();
+		applyItemRestrictions();
 		$('#itemChoiceModal').modal('hide');
-	}
+	};
 
+    /**
+     * Event for when the text changes in the item search modal.
+     */
 	$scope.onSearchChange = function() {
 		$scope.currentPage = 1;
 		$scope.filterSearchResults();
-	}
+	};
 
+    /**
+     * Event for when a column header is clicked in the item search modal.
+     * This is used for sorting the item results.
+     *
+     * @param {string} statVar - the variable name for the stat that was clicked.
+     */
 	$scope.onColumnHeaderClicked = function(statVar) {
 		if ($scope.sortStat != statVar) {
 			$scope.sortStat = statVar;
@@ -325,9 +546,15 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			}
 		}
 		$scope.filteredItems.sort($scope.dynamicSort($scope.sortDir + $scope.sortStat));
-	}
+	};
 
-	$scope.sortClass = function(statVar) {
+    /**
+     * Gets the html class for sorting the given stat.
+     *
+     * @param {string} statVar - the variable name for the specified stat.
+     * @return {string} the html class for the font awesome arrow needed to display sorting.
+     */
+	$scope.getSortClass = function(statVar) {
 		if ($scope.sortStat == "") {
 			return "fas fa-sort";
 		}
@@ -341,7 +568,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 		}
 
 		return "fas fa-sort-down";
-	}
+	};
 
 	$('#itemChoiceModal').on('shown.bs.modal', function() {
 		$scope.currentPage = 1;
@@ -359,134 +586,83 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 	//#endregion
 
 	//#region ~~~~~~~~~ COMMANDS ~~~~~~~~~
-	$scope.selectList = function() {
-		$scope.selectedList = $scope.allLists[$scope.selectedListIndex];
-		$scope.editCharacterModel = {"Name": $scope.selectedList.Name};
-		var list = $scope.selectedList;
-
-		var ids = [];
-		for (var i = 0; i < list.items.length; ++i) {
-			if (list.items[i].Id > 0) {
-				if (!list.items[i].Name) {
-					var slotItems = $scope.itemsBySlot[list.items[i].Slot];
-					var found = false;
-					if (slotItems.length > 0) {
-						for (var j = 0; j < slotItems.length; ++j) {
-							if (slotItems[j].Id == list.items[i].Id) {
-								found = true;
-								list.items[i] = slotItems[j];
-								break;
-							}
-						}
-					}
-
-					if (!found) {
-						list.items[i].Name = "Loading...";
-						ids.push(list.items[i].Id);
-					}
-				}
-			}
-			else {
-				list.items[i].Name = "-";
-			}
-		}
-
-		if (ids.length > 0) {
-			$http({
-				url: '/php/items/getItemsInIds.php',
-				method: 'POST',
-				data: {"ids": ids}
-			}).then(function succcessCallback(response) {
-				for (var i = 0; i < list.items.length; ++i) {
-					for (var j = 0; j < response.data.length; ++j) {
-						if (list.items[i].Id == response.data[j].Id) {
-							list.items[i] = angular.copy(response.data[j]);
-							list.items[i].Slot = $scope.slotOrder[i];
-							break;
-						}
-					}
-
-					if (list.items[i].Name == "Loading...") {
-						list.items[i].Name = "DELETED";
-					}
-				}
-				$scope.onStatChanged(); // to apply restrictions
-			}, function errorCallback(response){
-			});
-		}
-		$scope.onStatChanged(); // to apply restrictions
-
-		$scope.characterName = list.Name;
-		$scope.saveCookies();
-	}
-
+    /** Opens the modal for adding a new character. */
 	$scope.addCharacter = function() {
 		// add new list
 		$scope.allLists.push($scope.getDefaultList($scope.addCharacterModel.Name));
-		$scope.selectedListIndex = $scope.allLists.length - 1;
-		$scope.selectList();
+		selectListByIndex($scope.allLists.length - 1);
 
 		// reset modal
 		$("#addCharacterModal").modal("hide");
 		$scope.addCharacterModel.Name = "";
-	}
+	};
 
+    /** Opens the modal for editing an existing character. */
 	$scope.editCharacter = function() {
 		$scope.selectedList.Name = $scope.editCharacterModel.Name;
 
 		$("#editCharacterModal").modal("hide");
-	}
+	};
 
+    /** Deletes the currently selected character. */
 	$scope.deleteCharacter = function() {
 		var index = $scope.allLists.indexOf($scope.selectedList);
 		if (index > -1) {
 			$scope.allLists.splice(index, 1);
 			if ($scope.allLists.length == 0) {
 				$scope.allLists.push($scope.getDefaultList("Untitled"));
-				$scope.selectedListIndex = 0;
+                selectListByIndex(0);
 			}
-			if ($scope.selectedListIndex >= $scope.allLists.length) {
-				$scope.selectedListIndex = $scope.allLists.length - 1;
+            else if ($scope.selectedListIndex >= $scope.allLists.length) {
+                selectListByIndex($scope.allLists.length - 1);
 			}
-			$scope.selectList();
+            else {
+                selectListByIndex($scope.selectedListIndex);
+            }
 		}
 	}
 
+    /** Opens the modal for deleting an existing character. */
 	$scope.openDeleteModal = function() {
 		$scope.confirmMessage = "Are you sure you want to delete " + $scope.selectedList.Name + "?";
 
 		$scope.confirmFunc = $scope.deleteCharacter;
 		$("#confirmModal").modal("show");
-	}
+	};
 
+    /** Clears all items from the currently selected character list. */
 	$scope.clearItemsFromList = function() {
 		for (var i = 0; i < $scope.selectedList.items.length; ++i) {
 			$scope.selectedList.items[i] = {"Slot": $scope.selectedList.items[i].Slot, "Id": 0, "Name": "-"};
 		}
-		$scope.saveCookies();
-	}
+		$scope.saveClientSideData();
+	};
 
+    /** Opens the modal for clearing items from a list. */
 	$scope.openClearModal = function() {
 		$scope.confirmMessage = "Are you sure you want to clear all of " + $scope.selectedList.Name + "'s items?";
 
 		$scope.confirmFunc = $scope.clearItemsFromList;
 		$("#confirmModal").modal("show");
-	}
+	};
 
+    /** Closes the confirm modal and calls the confirm callback. */
 	$scope.confirm = function() {
 		$scope.confirmFunc();
 
 		$("#confirmModal").modal("hide");
-	}
+	};
 
+    /** Deletes all lists. */
 	$scope.deleteAllLists = function() {
 		localStorage.remove("cl")
 		localStorage.remove("scl");
 		window.location.reload();
-	}
+	};
 	//#endregion
 
 	//#region ~~~~~~~~~ VALIDATION ~~~~~~~~~
+    /** Validates the add character form. */
 	$scope.validateAddCharacter = function() {
 		$scope.addCharacterForm.nameInput.$setValidity("duplicate", null);
 		$scope.addCharacterForm.nameInput.$setValidity("limit", null);
@@ -499,8 +675,9 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 		if ($scope.allLists.length == 20000) {
 			$scope.addCharacterForm.nameInput.$setValidity("limit", false);
 		}
-	}
+	};
 
+    /** Validates the edit character form. */
 	$scope.validateEditCharacter = function() {
 		$scope.editCharacterForm.nameInput.$setValidity("duplicate", null);
 		for (var i = 0; i < $scope.allLists.length; ++i) {
@@ -512,74 +689,67 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				break;
 			}
 		}
-	}
+	};
 	//#endregion
 
-	$scope.sumStats = function(statName) {
-		if (!$scope.selectedList) {
-			return;
-		}
+    /**
+     * Gets the total for alignment. This is a special case.
+     *
+     * @return {string} The total alignment restriction for the list.
+     */
+    var getAlignmentTotal = function() {
+        var canUseG = true;
+        var canUseN = true;
+        var canUseE = true;
 
-		if (statName == 'AlignRestriction') {
-			var canUseG = true;
-			var canUseN = true;
-			var canUseE = true;
+        for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+            switch($scope.selectedList.items[i].AlignRestriction) {
+                case 0:
+                    break;
+                case 1:
+                    canUseN = false;
+                    canUseE = false;
+                    break;
+                case 2:
+                    canUseG = false;
+                    canUseE = false;
+                    break;
+                case 3:
+                    canUseG = false;
+                    canUseN = false;
+                    break;
+                case 4:
+                    canUseG = false;
+                    break;
+                case 5:
+                    canUseN = false;
+                    break;
+                case 6:
+                    canUseE = false;
+                    break;
+                default:
+                    break;
+            }
+        }
 
-			for (var i = 0; i < $scope.selectedList.items.length; ++i) {
-				switch($scope.selectedList.items[i].AlignRestriction) {
-					case 0:
-						break;
-					case 1:
-						canUseN = false;
-						canUseE = false;
-						break;
-					case 2:
-						canUseG = false;
-						canUseE = false;
-						break;
-					case 3:
-						canUseG = false;
-						canUseN = false;
-						break;
-					case 4:
-						canUseG = false;
-						break;
-					case 5:
-						canUseN = false;
-						break;
-					case 6:
-						canUseE = false;
-						break;
-					default:
-						break;
-				}
-			}
+        if (!canUseG && !canUseN && !canUseE) {
+            return "ERROR";
+        }
 
-			if (!canUseG && !canUseN && !canUseE) {
-				return "ERROR";
-			}
+        return (canUseG ? "G " : "  ") + (canUseN ? "N " : "  ") + (canUseE ? "E" : " ");
+    };
 
-			return (canUseG ? "G " : "  ") + (canUseN ? "N " : "  ") + (canUseE ? "E" : " ");
-		}
-
-		for (var i = 0; i < $scope.statInfo.length; ++i) {
-			if ($scope.statInfo[i].var == statName) {
-				if ($scope.statInfo[i].type != "int") {
-					return "";
-				}
-				break;
-			}
-		}
-
-		var fromBaseStats = 0;
-		if ($scope.selectedList.baseStats[statName]) {
-			fromBaseStats += $scope.selectedList.baseStats[statName];
-		}
+    /** Calculates the total from stat quests for a given stat.
+     *
+     * @param {string} statName - the variable name of the stat to be totalled.
+     * @return {int} the total acquired via stat quests.
+     */
+    var getTotalFromStatQuests = function(statName) {
+        var fromStatQuests = 0;
 
 		var totalBaseStats = $scope.selectedList.baseStats.Strength + $scope.selectedList.baseStats.Mind + $scope.selectedList.baseStats.Dexterity + $scope.selectedList.baseStats.Constitution + $scope.selectedList.baseStats.Perception + $scope.selectedList.baseStats.Spirit;
 
-		var fromStatQuests = 0;
-		switch (statName) {
+        switch (statName) {
 			case "Strength":
 				if (totalBaseStats < 244) {
 					fromStatQuests += 3;
@@ -664,37 +834,38 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 					fromStatQuests += 3;
 				}
 				break;
+            default:
+                break;
 		}
 
-		var fromItems = 0;
-		for (var i = 0; i < $scope.selectedList.items.length; ++i) {
-			if ($scope.selectedList.items[i][statName]) {
-				fromItems += $scope.selectedList.items[i][statName];
-			}
-		}
+        return fromStatQuests;
+    };
 
-		// limit stats from items
-		switch (statName) {
-			default:
-				break;
-		}
+    /**
+     * Gets the total bonuses generated by other stats.
+     * WARNING: be careful of stack overflow errors when calling getStatTotal in here.
+     *
+     * @param {string} statName - the variable name of the stat to be totalled.
+     * @return {int} the total bonuses gained from other stats.
+     */
+    var getTotalFromStatBonuses = function(statName) {
+        var fromBonus = 0;
 
-		var fromBonus = 0;
 		switch (statName)
 		{
 			case "Spelldam":
-			fromBonus += parseInt(($scope.sumStats("Mind") - 52) / 2);
+			    fromBonus += parseInt(($scope.getStatTotal("Mind") - 52) / 2);
 				break;
 			case "Spellcrit":
-				fromBonus += parseInt(($scope.sumStats("Mind") - 60) / 4);
-				fromBonus += parseInt(Math.max($scope.sumStats("Perception") - 60, 0) / 8);
-				fromBonus += parseInt(Math.max($scope.sumStats("Spirit") - 60, 0) / 8);
+				fromBonus += parseInt(($scope.getStatTotal("Mind") - 60) / 4);
+				fromBonus += parseInt(Math.max($scope.getStatTotal("Perception") - 60, 0) / 8);
+				fromBonus += parseInt(Math.max($scope.getStatTotal("Spirit") - 60, 0) / 8);
 				fromBonus += 5;
 				break;
 			case "Hit":
-				var str = $scope.sumStats("Strength");
-				var dex = $scope.sumStats("Dexterity");
-				var con = $scope.sumStats("Constitution");
+				var str = $scope.getStatTotal("Strength");
+				var dex = $scope.getStatTotal("Dexterity");
+				var con = $scope.getStatTotal("Constitution");
 
 				var bestStat = dex;
 				var wearingStrWeap = false;
@@ -720,10 +891,10 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				fromBonus += parseInt(Math.max(dex - 70, 0) / 6);
 				break;
 			case "Dam":
-				fromBonus += parseInt(($scope.sumStats("Strength") - 30) / 3);
+				fromBonus += parseInt(($scope.getStatTotal("Strength") - 30) / 3);
 				break;
 			case "Mitigation":
-				var con = $scope.sumStats("Constitution");
+				var con = $scope.getStatTotal("Constitution");
 				var hasBattleTraining = false;
 				for (var i = 25; i < $scope.selectedList.items.length; ++i) { // loop through Other slots
 					if ($scope.selectedList.items[i].Id == 1144 || $scope.selectedList.items[i].Id == 1137) {
@@ -737,10 +908,10 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				}
 				break;
 			case "Ac":
-				var str = $scope.sumStats("Strength");
-				var dex = $scope.sumStats("Dexterity");
-				var con = $scope.sumStats("Constitution");
-				var per = $scope.sumStats("Perception");
+				var str = $scope.getStatTotal("Strength");
+				var dex = $scope.getStatTotal("Dexterity");
+				var con = $scope.getStatTotal("Constitution");
+				var per = $scope.getStatTotal("Perception");
 
 				var totalAC = 83;
 				totalAC += parseInt(Math.max(dex - 40, 0) * -0.5);
@@ -754,11 +925,56 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 
 				fromBonus += totalAC;
 				break;
+            default:
+                break;
 		}
 
-		var overallCap = 0;
-		// apply overallCap
+        return fromBonus;
+    };
+
+    /**
+     * Gets the max total from items for a given stat.
+     *
+     * @param {string} statNAme - the variable name of the stat to get the max item total for.
+     * @return {int} the max total a stat can gain from items.
+     */
+    var getItemTotalMax = function(statName) {
+        var max = null;
+
+        switch (statName) {
+            case "Hit":
+            case "Dam":
+                max = 27;
+			default:
+				break;
+		}
+
+        return max;
+    };
+
+    /**
+     * Gets the max total for a given stat.
+     *
+     * @param {string} statName - the variable name of the stat to get the max total for.
+     * @return {int} the max total for the given stat.
+     */
+    var getStatTotalMax = function(statName) {
+    	var max = null;
+
 		switch (statName) {
+            case "Strength":
+            case "Mind":
+            case "Dexterity":
+            case "Constitution":
+            case "Perception":
+            case "Spirit":
+                max = 110;
+                break;
+            case "Spelldam":
+            case "Spellcrit":
+            case "ManaReduction":
+                max = 50;
+                break;
 			case "Mitigation":
 				var hasBattleTraining = false;
 				for (var i = 25; i < $scope.selectedList.items.length; ++i) { // loop through Other slots
@@ -768,21 +984,109 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 					}
 				}
 
-				var overallCap = parseInt(Math.max(Math.min($scope.sumStats("Constitution"), 70) - 30, 0) / 2);
+				var max = parseInt(Math.max(Math.min($scope.getStatTotal("Constitution"), 70) - 30, 0) / 2);
 				if (hasBattleTraining) {
-					overallCap += 10;
+					max += 10;
 				}
 				break;
 		}
 
-		var total = fromBaseStats + fromStatQuests + fromItems + fromBonus;
-		if (overallCap > 0) {
-			total = Math.min(total, overallCap);
-		}
-		return total;
-	}
+        return max;
+    };
 
-	$scope.applyItemRestrictions = function() {
+    /**
+     * Gets the min total for a given stat.
+     *
+     * @param {string} statName - the variable name of the stat to get the min total for.
+     * @return {int} the min total for the given stat.
+     */
+    var getStatTotalMin = function(statName) {
+        var min = null;
+
+        switch (statName) {
+            case "Ac":
+                min = -250;
+                break;
+            default:
+                break;
+        }
+
+        return min;
+    };
+
+    /**
+     * Calculates the total for a given stat.
+     * Applies bonuses from items, spells, and other stats.
+     *
+     * @param {string} statName - the variable name of the stat to be totalled.
+     * @return {int|string|decimal} the total for the given stat.
+     */
+	$scope.getStatTotal = function(statName) {
+		if (!$scope.selectedList) {
+			return '';
+		}
+
+        // Handle special case.
+		if (statName == 'AlignRestriction') {
+			return getAlignmentTotal();
+		}
+
+        // Only get totals for number fields.
+		for (var i = 0; i < $scope.statInfo.length; ++i) {
+			if ($scope.statInfo[i].var == statName) {
+				if ($scope.statInfo[i].type != "int") {
+					return "";
+				}
+				break;
+			}
+		}
+
+        // Base stats
+		var fromBaseStats = 0;
+		if ($scope.selectedList.baseStats[statName]) {
+			fromBaseStats += $scope.selectedList.baseStats[statName];
+		}
+
+        // Stat quests
+		var fromStatQuests = getTotalFromStatQuests(statName);
+
+        // Item stats
+		var fromItems = 0;
+		for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+			if ($scope.selectedList.items[i][statName]) {
+				fromItems += $scope.selectedList.items[i][statName];
+			}
+		}
+
+		// limit stats from items
+        itemTotalMax = getItemTotalMax(statName);
+        if (itemTotalMax != null) {
+            fromItems = Math.min(fromItems, itemTotalMax);
+        }
+
+        // stat bonuses
+		var fromBonus = getTotalFromStatBonuses(statName);
+
+        // sum up the different sections
+		var total = fromBaseStats + fromStatQuests + fromItems + fromBonus;
+
+        // apply min and max
+        totalMax = getStatTotalMax(statName);
+        totalMin = getStatTotalMin(statName);
+
+        if (totalMax != null) {
+            total = Math.min(total, totalMax);
+        }
+
+		if (totalMin != null) {
+			total = Math.max(total, totalMin);
+		}
+
+		return total;
+	};
+
+    /** Applies item restrictions. */
+	var applyItemRestrictions = function() {
 		// initialize restriction array
 		$scope.itemRestrictions = [];
 		for (var i = 0; i < $scope.selectedList.items.length; ++i) {
@@ -808,7 +1112,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				}
 			}
 
-			var strength = $scope.sumStats("Strength");
+			var strength = $scope.getStatTotal("Strength");
 
 			// weight
 			if (curItem.Slot == 14) {
@@ -838,15 +1142,15 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 				}
 			}
 		}
-	}
+	};
 
 	$scope.anyItemRestrictions = function(index) {
 		return $scope.itemRestrictions[index].length > 0;
-	}
+	};
 
 	$scope.hasItemRestriction = function(index, name) {
 		return $scope.itemRestrictions[index].includes(name);
-	}
+	};
 
 	$scope.getItemRestrictionText = function(index) {
 		var text = "";
@@ -874,7 +1178,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			}
 		}
 		return text;
-	}
+	};
 
 	$scope.dynamicSort = function(property) {
 		var sortOrder = 1;
@@ -904,14 +1208,14 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			var result = (a < b) ? -1 : (a > b) ? 1 : 0;
 			return result * sortOrder;
 		}
-	}
+	};
 
 	$scope.getFilteredSearchResults = function() {
 		$scope.totalPages = Math.floor(($scope.filteredItems.length - 1) / $scope.itemsPerPage) + 1;
 
 		var start = ($scope.currentPage - 1) * $scope.itemsPerPage;
 		return $scope.filteredItems.slice(start, start + $scope.itemsPerPage);
-	}
+	};
 
 	$scope.filterSearchResults = function() {
 		var items = $scope.itemsBySlot[$scope.currentItem.Slot];
@@ -930,7 +1234,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			$scope.filteredItems = items;
 		}
 
-	}
+	};
 
     $scope.resetColumns = function() {
         for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
@@ -942,7 +1246,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 			}
 		}
 
-        $scope.saveCookies();
+        $scope.saveClientSideData();
 	};
 
     $scope.resetFilters = function() {
@@ -957,7 +1261,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 
 	$scope.getNumberArray = function(num) {
 		return new Array(num);
-	}
+	};
 
 	$scope.showStatQuests = function() {
 		if (!$scope.selectedList || !$scope.selectedList.baseStats) {
@@ -966,7 +1270,7 @@ app.controller('builder', function($scope, $cookies, $http, itemConstants) {
 		var total = $scope.selectedList.baseStats.Strength + $scope.selectedList.baseStats.Mind + $scope.selectedList.baseStats.Dexterity + $scope.selectedList.baseStats.Constitution + $scope.selectedList.baseStats.Perception + $scope.selectedList.baseStats.Spirit;
 
 		return total < 244;
-	}
+	};
 
 	$scope.initialize();
-});
+}]);

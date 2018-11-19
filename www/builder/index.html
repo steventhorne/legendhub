@@ -37,8 +37,8 @@
 					</div>
 					<div class="card-body py-2">
 						<div class="input-group">
-							<select class="custom-select" ng-model="selectedListIndex" ng-change="selectList()">
-								<option ng-repeat="list in allLists" ng-value="$index">{{list.Name}}</option>
+							<select class="custom-select" ng-model="selectedListIndex" ng-change="onListChanged()">
+								<option ng-repeat="list in allLists track by $index" ng-value="$index">{{list.Name}}</option>
 							</select>
 							<div class="input-group-append">
 								<button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#editCharacterModal"><i class="fas fa-edit"></i></button>
@@ -95,18 +95,18 @@
 								<div class="input-group-prepend">
 									<label class="input-group-text" for="longhouseSelect">Longhouse</label>
 								</div>
-								<select class="custom-select custom-select-sm" id="longhouseSelect" ng-model="selectedList.baseStats.Longhouse" ng-change="saveCookies()" ng-model-options="{debounce:250}">
+								<select class="custom-select custom-select-sm" id="longhouseSelect" ng-model="selectedList.baseStats.Longhouse" ng-change="saveClientSideData()" ng-model-options="{debounce:250}">
 									<option ng-value="-1">-</option>
-									<option ng-repeat="house in longhouseList" ng-value="$index">{{house}}</option>
+									<option ng-repeat="house in longhouseList" ng-value="$index">{{::house}}</option>
 								</select>
 							</div>
 							<div class="input-group input-group-sm col-12 col-sm-6">
 								<div class="input-group-prepend">
 									<label class="input-group-text" for="amuletSelect">Amulet</label>
 								</div>
-								<select class="custom-select custom-select-sm" id="amuletSelect" ng-model="selectedList.baseStats.Amulet" ng-change="saveCookies()" ng-model-options="{debounce:250}">
+								<select class="custom-select custom-select-sm" id="amuletSelect" ng-model="selectedList.baseStats.Amulet" ng-change="saveClientSideData()" ng-model-options="{debounce:250}">
 									<option ng-value="-1">-</option>
-									<option ng-repeat="amulet in amuletList" ng-value="$index">{{amulet}}</option>
+									<option ng-repeat="amulet in amuletList" ng-value="$index">{{::amulet}}</option>
 								</select>
 							</div>
 						</div>
@@ -131,27 +131,25 @@
 						<tr>
 							<th scope="col" class="text-center">Slot</th>
 							<th scope="col" class="text-center">Name</th>
-							<th scope="col" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center">{{stat.short}}</th>
+							<th scope="col" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center">{{::stat.short}}</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr class="bg-secondary text-white">
 							<td></td>
 							<td class="text-center">Total</td>
-                            <td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center" ng-class="{'text-monospace': stat.var === 'AlignRestriction'}" ng-style="stat.var === 'AlignRestriction && {'white-space':'pre'}'" ng-trim="!stat.var === 'AlignRestriction'">{{sumStats(stat.var)}}</td>
+                            <td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center" ng-class="{'text-monospace': stat.var === 'AlignRestriction'}" ng-style="stat.var === 'AlignRestriction' && {'white-space':'pre'}" ng-trim="!stat.var === 'AlignRestriction'">{{getStatTotal(stat.var)}}</td>
 						</tr>
 						<tr ng-repeat="item in selectedList.items track by $index">
 							<td ng-class="anyItemRestrictions($index) ? 'bg-danger' : 'bg-primary'" class="bg-primary text-white text-center py-md-1 py-lg-0" data-toggle="tooltip" title="{{getItemRestrictionText($index)}}" nowrap lh-tooltip><span ng-show="anyItemRestrictions($index)"><i class="fas fa-question-circle"></i>&nbsp;</span>{{::slots[item.Slot]}}</td>
 							<th scope="row" ng-click="onRowClicked($index)" style="cursor: pointer;" class="py-1 py-lg-0">
 								<a href="/items/details.html?id={{item.Id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.Id"><i class="fas fa-link fa-lg"></i></a>&nbsp;{{item.Name}}</th>
-							<td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center py-1 py-lg-0" ng-click="onRowClicked($parent.$parent.$index)" style="cursor: pointer;" ng-class="{'text-monospace': stat.var === 'AlignRestriction'}" ng-style="stat.var === 'AlignRestriction && {'white-space':'pre'}'" ng-trim="!stat.var === 'AlignRestriction'">
+							<td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center py-1 py-lg-0" ng-click="onRowClicked($parent.$parent.$index)" style="cursor: pointer;">
 								<span ng-if="stat.type == 'bool'">
 									<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
 								</span>
 								<span ng-if="stat.type === 'int' || stat.type === 'decimal' || stat.type === 'string'">{{item[stat.var]}}</span>
-                                <span ng-if="stat.type === 'select'">
-                                    {{ selectShortOptions[stat.var][item[stat.var]] }}
-                                </span>
+                                <span ng-if="stat.type === 'select'" ng-class="{'text-monospace': stat.var === 'AlignRestriction'}" ng-style="stat.var === 'AlignRestriction' && {'white-space':'pre'}" ng-trim="!stat.var === 'AlignRestriction'">{{ selectShortOptions[stat.var][item[stat.var]] }}</span>
 							</td>
 						</tr>
 						<tr class="bg-dark text-white">
@@ -162,7 +160,7 @@
 						<tr class="bg-secondary text-white">
 							<td></td>
 							<td class="text-center">Total</td>
-							<td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center">{{sumStats(stat.var)}}</td>
+							<td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center">{{getStatTotal(stat.var)}}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -204,8 +202,8 @@
 									<table class="table table-striped table-sm table-hover">
 										<thead class="thead-dark">
 											<tr>
-												<th scope="col" class="clickable" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="sortClass('Name')"></i></th>
-												<th scope="col" class="clickable" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="sortClass(stat.var)"></i></th>
+												<th scope="col" class="clickable" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="getSortClass('Name')"></i></th>
+												<th scope="col" class="clickable" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
 											</tr>
 										</thead>
 										<tbody>
