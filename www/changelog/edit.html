@@ -37,7 +37,7 @@
 			<div ng-include="'/shared/displayChangelogEdit.html'"></div>
 			<br />
 			<div class="row">
-				<button class="btn btn-primary col-2 col-md-1 offset-md-10 offset-9" ng-class="{disabled: saveDisabled()}" type="button" ng-click="form.$valid && submitChangelog()">Save</button>
+				<button class="btn btn-primary col-2 col-md-1 offset-md-10 offset-9" ng-class="{disabled: saveDisabled()}" type="button" ng-click="form.$valid && submitChangelog($scope.changelogModel)">Save</button>
 			</div>
 		</form>
 	</lh-perm-check>
