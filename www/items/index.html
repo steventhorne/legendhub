@@ -42,7 +42,7 @@
 					</div>
 					<div class="px-0 px-md-5" ng-cloak>
 						<div ng-if="getFilterCount() > 0">
-							<span class="text-info">Filters: <span ng-repeat="filter in getFilterList() track by $index"> <a href="" ng-click="removeFilter(filter)" class="badge badge-pill badge-info">{{ filter.display }} <i class="fas fa-times"></i></a></span></span>
+							<span class="text-info">Filters: <span ng-repeat="filter in getFilterList() track by $index"> <a href="" ng-click="removeFilter(filter.var)" class="badge badge-pill badge-info">{{ filter.display }} <i class="fas fa-times"></i></a></span></span>
 						</div>
 						<form ng-submit="onSearchClicked()">
 							<div class="row">
@@ -85,7 +85,7 @@
 										<thead class="thead-dark">
 											<tr>
 												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" ng-if="recent" nowrap>Modified By&nbsp;<i ng-class="getSortClass('ModifiedBy')"></i></th>
-												<th ng-repeat="stat in statInfo" class="text-center" ng-if="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
+												<th ng-repeat="stat in statInfo" class="text-center" ng-if="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{::stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
 											</tr>
 										</thead>
 										<tbody>
