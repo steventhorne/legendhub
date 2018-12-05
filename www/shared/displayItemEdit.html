@@ -1,56 +1,61 @@
-<div ng-repeat="category in statCategories" ng-show="showCategory(category)">
-	<div class="row">
-		<h4>{{category.name}}</h4>
-	</div>
-	<div class="row">
-		<div class="form-group col-12 col-md-8 col-lg-4" ng-if="category['name'] == 'Basic'">
-			<div class="input-group">
-				<div class="input-group-prepend">
-					<span class="input-group-text">Name</span>
-				</div>
-				<input type="text" id="nameControl" ng-model="itemModel.Name" class="form-control" ng-class="{'is-invalid': itemModel.Name === undefined || itemModel.Name === ''}" required lh-autofocus>
-			</div>
-		</div>
-		<div class="form-group col-6 col-md-4 col-lg-2" ng-repeat="item in category['stats']" ng-if="statInfo[item]['editable'] != false">
-			<div class="input-group">
-				<div class="input-group-prepend">
-					<span class="input-group-text">{{statInfo[item]['short']}}</span>
-				</div>
-				<input type="number" ng-attr-name="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]" class="form-control" ng-class="{'is-invalid': !form[statInfo[item]['var'] + 'Control'].$valid}" ng-if="statInfo[item].type == 'int'" required>
-				<input type="number" ng-attr-name="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]" class="form-control" ng-class="{'is-invalid': !form[statInfo[item]['var'] + 'Control'].$valid}" ng-if="statInfo[item].type == 'decimal'" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" step="0.01" required>
-                <input type="text" ng-attr-name="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]" class="form-control" ng-class="{'is-invalid': !form[statInfo[item]['var'] + 'Control'].$valid}" ng-if="statInfo[item].type == 'string'">
-                <select ng-attr-name="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]" class="form-control" ng-if="statInfo[item].type === 'select'" ng-class="{'is-invalid': !form[statInfo[item]['var'] + 'Control'].$valid}" ng-required="category.name !== 'Weapon' || itemModel.Slot === 14">
-                    <option value>Choose a {{ statInfo[item]['short'] }}</option>
-					<option ng-repeat="option in selectOptions[statInfo[item]['var']] track by $index" ng-value="$index">{{::option}}</option>
-				</select>
-				<div class="input-group-append" ng-if="statInfo[item].type == 'bool'">
-					<div class="input-group-text">
-						<input type="checkbox" ng-attr-name="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]">
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="form-group col-12 col-md-4 col-lg-3" ng-if="category['name'] == 'Basic'">
-			<button class="btn btn-outline-secondary col-12 text-truncate" data-toggle="modal" data-target="#mobModal">{{itemModel.MobName ? itemModel.MobName : "Choose a Mob"}}</button>
-		</div>
-		<div class="form-group col-12 col-md-4 col-lg-3" ng-if="category['name'] == 'Basic'">
-			<button class="btn btn-outline-secondary col-12 text-truncate" data-toggle="modal" data-target="#questModal">{{itemModel.QuestTitle ? itemModel.QuestTitle : "Choose a Quest"}}</button>
-		</div>
-	</div>
+<div ng-show="itemModel === null">
+    <h1><span class="text-danger">Item Not Found</span></h1>
 </div>
-<br /><br />
-<span>This field supports <a href="https://github.com/showdownjs/showdown/wiki/Showdown's-Markdown-syntax" target="_blank">markdown</a> and <a href="https://github.com/showdownjs/showdown/wiki/Emojis" target="_blank">emoji</a>.</span>
-<div class="row">
-	<div class="col-12 col-lg-6">
-		<div class="input-group">
-			<div class="input-group-prepend">
-				<span class="input-group-text">Notes</span>
-			</div>
-			<textarea class="form-control" rows="5" ng-model="itemModel.Notes"></textarea>
-		</div>
-		<div class="card">
-			<div class="card-header">Preview</div>
-			<div class="card-body" markdown-to-html="itemModel.Notes"></div>
-		</div>
-	</div>
+<div ng-show="!!itemModel">
+    <div ng-repeat="category in statCategories" ng-show="shouldShowCategory(category, itemModel)">
+        <div class="row">
+            <h4>{{category.name}}</h4>
+        </div>
+        <div class="row">
+            <div class="form-group col-12 col-md-8 col-lg-4" ng-if="category['name'] == 'Basic'">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Name</span>
+                    </div>
+                    <input type="text" id="nameControl" ng-model="itemModel.Name" class="form-control" ng-class="{'is-invalid': itemModel.Name === undefined || itemModel.Name === ''}" required lh-autofocus>
+                </div>
+            </div>
+            <div class="form-group col-6 col-md-4 col-lg-2" ng-repeat="item in category['stats']" ng-if="statInfo[item]['editable'] != false">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">{{statInfo[item]['short']}}</span>
+                    </div>
+                    <input type="number" ng-attr-name="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]" class="form-control" ng-class="{'is-invalid': !form[statInfo[item]['var'] + 'Control'].$valid}" ng-if="statInfo[item].type == 'int'" required>
+                    <input type="number" ng-attr-name="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]" class="form-control" ng-class="{'is-invalid': !form[statInfo[item]['var'] + 'Control'].$valid}" ng-if="statInfo[item].type == 'decimal'" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" step="0.01" required>
+                    <input type="text" ng-attr-name="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]" class="form-control" ng-class="{'is-invalid': !form[statInfo[item]['var'] + 'Control'].$valid}" ng-if="statInfo[item].type == 'string'">
+                    <select ng-attr-name="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]" class="form-control" ng-if="statInfo[item].type === 'select'" ng-class="{'is-invalid': !form[statInfo[item]['var'] + 'Control'].$valid}" ng-required="category.name !== 'Weapon' || itemModel.Slot === 14">
+                        <option value>Choose a {{ statInfo[item]['short'] }}</option>
+                        <option ng-repeat="option in selectOptions[statInfo[item]['var']] track by $index" ng-value="$index">{{::option}}</option>
+                    </select>
+                    <div class="input-group-append" ng-if="statInfo[item].type == 'bool'">
+                        <div class="input-group-text">
+                            <input type="checkbox" ng-attr-name="{{statInfo[item]['var']}}Control" ng-model="itemModel[statInfo[item]['var']]">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-12 col-md-4 col-lg-3" ng-if="category['name'] == 'Basic'">
+                <button class="btn btn-outline-secondary col-12 text-truncate" data-toggle="modal" data-target="#mobModal">{{itemModel.MobName ? itemModel.MobName : "Choose a Mob"}}</button>
+            </div>
+            <div class="form-group col-12 col-md-4 col-lg-3" ng-if="category['name'] == 'Basic'">
+                <button class="btn btn-outline-secondary col-12 text-truncate" data-toggle="modal" data-target="#questModal">{{itemModel.QuestTitle ? itemModel.QuestTitle : "Choose a Quest"}}</button>
+            </div>
+        </div>
+    </div>
+    <br /><br />
+    <span>This field supports <a href="https://github.com/showdownjs/showdown/wiki/Showdown's-Markdown-syntax" target="_blank">markdown</a> and <a href="https://github.com/showdownjs/showdown/wiki/Emojis" target="_blank">emoji</a>.</span>
+    <div class="row">
+        <div class="col-12 col-lg-6">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Notes</span>
+                </div>
+                <textarea class="form-control" rows="5" ng-model="itemModel.Notes"></textarea>
+            </div>
+            <div class="card">
+                <div class="card-header">Preview</div>
+                <div class="card-body" markdown-to-html="itemModel.Notes"></div>
+            </div>
+        </div>
+    </div>
 </div>
