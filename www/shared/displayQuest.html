@@ -1,59 +1,64 @@
-<div class="row">
-	<h1>
-		<span class="text-primary">{{quest.Title}}</span>
-		<sup style="white-space: nowrap">&nbsp;&nbsp;&nbsp;
-			<lh-perm-check lh-perm-name="Quest" lh-perm-update ng-cloak>
-				<a ng-href="/quests/edit.html?id={{::quest.Id}}"><i class="far fa-edit"></i> Edit</a>
-			</lh-perm-check>
-			<lh-perm-check lh-perm-name="Quest" lh-perm-update lh-perm-inverse ng-cloak>
-				<a ng-href="/login.html?returnUrl=/quests/edit.html?id={{::quest.Id}}"><i class="far fa-edit"></i> Edit</a></sup>
-			</lh-perm-check>
-		</sup>
-	</h1>
+<div ng-show="quest === null" ng-cloak>
+    <h1><span class="text-danger">Quest Not Found</span></h1>
 </div>
-<div class="row">
-	<span>
-		<small>
-			<strong>Modified On</strong> {{quest.ModifiedOn}}
-			<strong>by</strong> {{quest.ModifiedBy}}</small>
-	</span>
-</div>
-<br />
-<br />
-<div class="row">
-	<strong class="col-2">Area</strong>
-	<div class="col-10 text-right text-md-left"><span class="text-info">{{quest.AreaEra ? '(' + quest.AreaEra + ') ' : ''}}</span>{{quest.AreaName}}<span ng-if="quest.Stat">&nbsp;&nbsp;(<span class="text-danger">stat quest</span>)</span></div>
-</div>
-<div class="row" ng-repeat="whois in whoises">
-		<strong class="col-2" ng-if="$index == 0">Whois</strong>
-		<div class="col-10 text-right text-md-left" ng-class="{'offset-2': $index != 0}">{{whois}}</div>
-</div>
-<div class="row" ng-repeat="item in items">
-	<strong class="col-2" ng-if="$index == 0">EQ</strong>
-	<div class="col-10 text-right text-md-left" ng-class="{'offset-2': $index != 0}"><span class="text-info">&lt;{{item.SlotName}}&gt;</span> <a href="/items/details.html?id={{item.Id}}">{{item.Name}}</a></div>
-</div>
-<br />
-<br />
-<div ng-show="quest.Content">
-	<div class="card">
-		<div class="card-header">Content</div>
-		<div class="card-body" markdown-to-html="quest.Content"></div>
-	</div>
-</div>
-<br />
-<div class="col-12 col-md-6" ng-show="history.length > 0">
-	<div class="card">
-		<div class="card-header list-group-item-action" data-toggle="collapse" data-target="#historyCollapse">Show Previous Versions&nbsp;&nbsp;
-			<span class="badge badge-dark">{{history.length}}</span>
-			<span class="float-right">
-				<i class="far fa-plus-square"></i>
-			</span>
-		</div>
-		<div id="historyCollapse" class="collapse">
-			<ul class="list-group list-group-flush">
-				<a href="/quests/history.html?id={{record.Id}}" class="list-group-item list-group-item-action" ng-repeat="record in history">{{record.ModifiedOn}}
-					<strong>by</strong> {{record.ModifiedBy}}</a>
-			</ul>
-		</div>
-	</div>
+<div ng-show="!!quest" ng-cloak>
+    <div class="row">
+        <h1>
+            <span class="text-primary">{{::quest.Title}}</span>
+            <sup style="white-space: nowrap">&nbsp;&nbsp;&nbsp;
+                <lh-perm-check lh-perm-name="Quest" lh-perm-update ng-cloak>
+                    <a ng-href="/quests/edit.html?id={{::quest.Id}}"><i class="far fa-edit"></i> Edit</a>
+                </lh-perm-check>
+                <lh-perm-check lh-perm-name="Quest" lh-perm-update lh-perm-inverse ng-cloak>
+                    <a ng-href="/login.html?returnUrl=/quests/edit.html?id={{::quest.Id}}"><i class="far fa-edit"></i> Edit</a></sup>
+                </lh-perm-check>
+            </sup>
+        </h1>
+    </div>
+    <div class="row">
+        <span>
+            <small>
+                <strong>Modified On</strong> {{::quest.ModifiedOn}}
+                <strong>by</strong> {{::quest.ModifiedBy}}</small>
+        </span>
+    </div>
+    <br />
+    <br />
+    <div class="row">
+        <strong class="col-2">Area</strong>
+        <div class="col-10 text-right text-md-left"><span class="text-info">{{::quest.AreaEra ? '(' + quest.AreaEra + ') ' : ''}}</span>{{::quest.AreaName}}<span ng-if="quest.Stat">&nbsp;&nbsp;(<span class="text-danger">stat quest</span>)</span></div>
+    </div>
+    <div class="row" ng-repeat="whois in whoises">
+            <strong class="col-2" ng-if="$index == 0">Whois</strong>
+            <div class="col-10 text-right text-md-left" ng-class="{'offset-2': $index != 0}">{{::whois}}</div>
+    </div>
+    <div class="row" ng-repeat="item in items">
+        <strong class="col-2" ng-if="$index == 0">EQ</strong>
+        <div class="col-10 text-right text-md-left" ng-class="{'offset-2': $index != 0}"><span class="text-info">&lt;{{::item.SlotName}}&gt;</span> <a href="/items/details.html?id={{::item.Id}}">{{::item.Name}}</a></div>
+    </div>
+    <br />
+    <br />
+    <div ng-show="quest.Content">
+        <div class="card">
+            <div class="card-header">Content</div>
+            <div class="card-body" markdown-to-html="quest.Content"></div>
+        </div>
+    </div>
+    <br />
+    <div class="col-12 col-md-6" ng-show="history.length > 0">
+        <div class="card">
+            <div class="card-header list-group-item-action" data-toggle="collapse" data-target="#historyCollapse">Show Previous Versions&nbsp;&nbsp;
+                <span class="badge badge-dark">{{::history.length}}</span>
+                <span class="float-right">
+                    <i class="far fa-plus-square"></i>
+                </span>
+            </div>
+            <div id="historyCollapse" class="collapse">
+                <ul class="list-group list-group-flush">
+                    <a href="/quests/history.html?id={{::record.Id}}" class="list-group-item list-group-item-action" ng-repeat="record in history">{{::record.ModifiedOn}}
+                        <strong>by</strong> {{::record.ModifiedBy}}</a>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
