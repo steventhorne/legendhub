@@ -27,10 +27,11 @@ $result = $query->fetch(PDO::FETCH_OBJ);
 
 if (password_verify($oldPassword, $result->Password)) {
     $sql = "UPDATE Members
-            SET Password = :newPassword";
+            SET Password = :newPassword
+            WHERE Id = :memberId";
 
     $query = $pdo->prepare($sql);
-    $query->execute(array('newPassword' => password_hash($newPassword, PASSWORD_DEFAULT)));
+    $query->execute(array('newPassword' => password_hash($newPassword, PASSWORD_DEFAULT), 'memberId' => $_SESSION['UserId']));
 
     // delete all remember-me tokens
     $sql = "DELETE FROM AuthTokens WHERE MemberId = :memberId";
