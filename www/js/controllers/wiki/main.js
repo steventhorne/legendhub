@@ -1,5 +1,6 @@
-app.controller('wiki', function($scope, $http, categories) {
-	$scope.init = function() {
+app.controller('wiki', ['$scope', '$http', '$q', 'categories', function($scope, $http, $q, categories) {
+    /** Initializes the controller. */
+	var initialize = function() {
 		$scope.wikiPagesPerPage = 20;
 		$scope.sortProperty = "";
 		$scope.sortReverse = false;
@@ -11,71 +12,107 @@ app.controller('wiki', function($scope, $http, categories) {
 		categories.setSelectedSubcategory(getUrlParameter('subcategoryId'));
 		$scope.searchString = getUrlParameter('search');
 
-		$scope.getCategories();
-		$scope.getSubcategories();
+        loadPage();
+	};
 
-		if (categories.hasSelectedCategory() || $scope.searchString) {
-			$scope.search();
-		}
-		else {
-			$scope.getRecentWikiPages();
-		}
-	}
+    /** Calls the async functions needed before displaying the page. */
+    var loadPage = function() {
+        $q.all([getCategoriesAsync(), getSubcategoriesAsync()]).then(
+            function(data) {
+                // getCategoriesAsync
+			    categories.setCategories(data[0]);
 
-	$scope.getCategories = function() {
+                // getSubcategoriesAsync
+                categories.setSubcategories(data[1]);
+
+                if (categories.hasSelectedCategory() || $scope.searchString) {
+                    searchAsync($scope.searchString, categories.getCategoryId(), categories.getSubcategoryId()).then(
+                        function(data) {
+                            $scope.wikiPages = data;
+                            $scope.recent = false;
+
+                            $scope.totalPages = Math.floor(($scope.wikiPages.length - 1) / $scope.wikiPagesPerPage) + 1;
+                            $scope.currentPage = 1;
+                        }
+                    );
+                }
+                else {
+                    getRecentWikiPagesAsync().then(
+                        function(data) {
+                            $scope.wikiPages = data;
+                            $scope.recent = true;
+
+                            $scope.totalPages = Math.floor(($scope.wikiPages.length - 1) / $scope.wikiPagesPerPage) + 1;
+                            $scope.currentPage = 1;
+                        }
+                    );
+                }
+            }
+        );
+    };
+
+	var getCategoriesAsync = function() {
+        var deferred = $q.defer();
+
 		$http({
 			url: '/php/wiki/getCategories.php'
 		}).then(function succcessCallback(response) {
-			categories.setCategories(response.data);
+            deferred.resolve(response.data);
 		}, function errorCallback(response){
-
+            deferred.reject(response.data);
 		});
-	}
 
-	$scope.getSubcategories = function() {
+        return deferred.promise;
+	};
+
+	var getSubcategoriesAsync = function() {
+        var deferred = $q.defer();
+
 		$http({
 			url: '/php/wiki/getSubCategories.php'
 		}).then(function succcessCallback(response) {
-			categories.setSubcategories(response.data);
+            deferred.resolve(response.data);
 		}, function errorCallback(response){
-
+            deferred.reject(response);
 		});
-	}
 
-	$scope.getRecentWikiPages = function() {
+        return deferred.promise;
+	};
+
+	var getRecentWikiPagesAsync = function() {
+        var deferred = $q.defer();
+
 		$http({
 			url: '/php/wiki/getRecentWikiPages.php',
 			method: 'POST'
 		}).then(function succcessCallback(response) {
-			$scope.wikiPages = response.data;
-			$scope.recent = true;
-
-			$scope.totalPages = Math.floor(($scope.wikiPages.length - 1) / $scope.wikiPagesPerPage) + 1;
-			$scope.currentPage = 1;
+            deferred.resolve(response.data);
 		}, function errorCallback(response){
-
+            deferred.reject(response);
 		});
-	}
 
-	$scope.search = function() {
+        return deferred.promise;
+	};
+
+	var searchAsync = function(searchString, categoryId, subcategoryId) {
+        var deferred = $q.defer();
+
 		$http({
 			url: '/php/wiki/getWikiPages.php',
 			method: 'POST',
-			data: {"searchString": $scope.searchString, "categoryId": categories.getCategoryId(), "subcategoryId": categories.getSubcategoryId()}
+			data: {"searchString": searchString, "categoryId": categoryId, "subcategoryId": subcategoryId}
 		}).then(function succcessCallback(response) {
-			$scope.wikiPages = response.data;
-			$scope.recent = false;
-
-			$scope.totalPages = Math.floor(($scope.wikiPages.length - 1) / $scope.wikiPagesPerPage) + 1;
-			$scope.currentPage = 1;
+            deferred.resolve(response.data);
 		}, function errorCallback(response){
-
+            deferred.reject(response);
 		});
-	}
+
+        return deferred.promise;
+	};
 
 	$scope.onSearchClicked = function() {
 		window.location = $scope.getSearchUrl();
-	}
+	};
 
 	$scope.getSearchUrl = function(categoryId, subcategoryId) {
 		var url = "/wiki/index.html?";
@@ -96,29 +133,29 @@ app.controller('wiki', function($scope, $http, categories) {
 
 		url += "search=" + $scope.searchString;
 		return url;
-	}
+	};
 
 	$scope.onPreviousClicked = function() {
 		$scope.currentPage -= 1;
 		if ($scope.currentPage < 1) {
 			$scope.currentPage = 1;
 		}
-	}
+	};
 
 	$scope.onNextClicked = function() {
 		$scope.currentPage += 1;
 		if ($scope.currentPage > $scope.totalPages) {
 			$scope.currentPage = $scope.totalPages;
 		}
-	}
+	};
 
 	$scope.onPageClicked = function(num) {
 		$scope.currentPage = num;
-	}
+	};
 
 	$scope.onWikiPageClicked = function(item) {
 		window.location = "/wiki/details.html?id=" + item.Id;
-	}
+	};
 
 	$scope.getPageArray = function() {
 		var nums = [];
@@ -143,7 +180,7 @@ app.controller('wiki', function($scope, $http, categories) {
 			}
 		}
 		return nums;
-	}
+	};
 
 	$scope.onColumnHeaderClicked = function(statVar) {
 		if ($scope.sortProperty == statVar) {
@@ -153,7 +190,7 @@ app.controller('wiki', function($scope, $http, categories) {
 			$scope.sortProperty = statVar;
 			$scope.sortReverse = true;
 		}
-	}
+	};
 
 	$scope.sortClass = function(statVar) {
 		if (!$scope.sortProperty) {
@@ -162,7 +199,7 @@ app.controller('wiki', function($scope, $http, categories) {
 		else if ($scope.sortProperty == statVar) {
 			return $scope.sortReverse ? "fas fa-sort-down" : "fas fa-sort-up";
 		}
-	}
+	};
 
-	$scope.init();
-});
+    initialize();
+}]);

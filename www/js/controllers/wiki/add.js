@@ -1,38 +1,57 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
-app.controller('wiki-add', function($scope, $http, breadcrumb) {
-	$scope.initialize = function() {
+app.controller('wiki-add', ['$scope', '$http', '$q', 'breadcrumb', function($scope, $http, $q, breadcrumb) {
+	var initialize = function() {
 		$scope.wikiModel = {Title: "", CategoryId: 0, SubCategoryId: 0, Tags: "", Content: ""};
 		$scope.categories = [];
 		$scope.allsubcategories = [];
 		$scope.subcategories = [];
 
-		$scope.getCategories();
-		$scope.getSubcategories();
+        loadPage();
+	};
 
-		breadcrumb.links = [{'display': 'Wiki', 'href': '/wiki/'},
-						{'display': 'Add', 'href': '', 'active': true}];
-	}
+    var loadPage = function() {
+        $q.all([getCategoriesAsync(), getSubcategoriesAsync()]).then(
+            function(data) {
+                // getCategoriesAsync
+			    $scope.categories = data[0];
 
-	$scope.getCategories = function() {
+                // getSubcategoriesAsync
+			    $scope.allsubcategories = data[1];
+
+                breadcrumb.links = [{'display': 'Wiki', 'href': '/wiki/'},
+						            {'display': 'Add', 'href': '', 'active': true}];
+            }
+        );
+    };
+
+	var getCategoriesAsync = function() {
+        var deferred = $q.defer();
+
 		$http({
 			url: '/php/wiki/getCategories.php'
 		}).then(function succcessCallback(response) {
-			$scope.categories = response.data;
+            deferred.resolve(response.data);
 		}, function errorCallback(response){
-
+            deferred.reject(response);
 		});
-	}
 
-	$scope.getSubcategories = function() {
+        return deferred.promise;
+	};
+
+	var getSubcategoriesAsync = function() {
+        var deferred = $q.defer();
+
 		$http({
 			url: '/php/wiki/getSubCategories.php'
 		}).then(function succcessCallback(response) {
-			$scope.allsubcategories = response.data;
+            deferred.resolve(response.data);
 		}, function errorCallback(response){
-
+            deferred.reject(response);
 		});
-	}
+
+        return deferred.promise;
+	};
 
 	$scope.onCategoryChanged = function() {
 		$scope.subcategories = [];
@@ -42,7 +61,7 @@ app.controller('wiki-add', function($scope, $http, breadcrumb) {
 				$scope.subcategories.push($scope.allsubcategories[i]);
 			}
 		}
-	}
+	};
 
 	$scope.submitWiki = function() {
 		$http({
@@ -54,7 +73,7 @@ app.controller('wiki-add', function($scope, $http, breadcrumb) {
 		}, function errorCallback(response){
 
 		});
-	}
+	};
 
-	$scope.initialize();
-});
+	initialize();
+}]);
