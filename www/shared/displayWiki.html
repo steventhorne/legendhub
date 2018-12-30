@@ -1,42 +1,47 @@
-<div class="row">
-	<h1>
-		<span class="text-primary">{{wikiModel.Title}}</span>
-		<sup style="white-space: nowrap">&nbsp;&nbsp;&nbsp;
-			<lh-perm-check lh-perm-name="Wiki" lh-perm-update ng-cloak>
-				<a ng-href="/wiki/edit.html?id={{::wikiModel.Id}}"><i class="far fa-edit"></i> Edit</a>
-			</lh-perm-check>
-			<lh-perm-check lh-perm-name="Wiki" lh-perm-update lh-perm-inverse ng-cloak>
-				<a ng-href="/login.html?returnUrl=/wiki/edit.html?id={{::wikiModel.Id}}"><i class="far fa-edit"></i> Edit</a></sup>
-			</lh-perm-check>
-		</sup>
-	</h1>
+<div ng-show="wikiModel === null" ng-cloak>
+    <h1><span class="text-danger">Wiki Not Found</span></h1>
 </div>
-<div class="row">
-	<span>
-		<small>
-			<strong>Modified On</strong> {{wikiModel.ModifiedOn}}
-			<strong>by</strong> {{wikiModel.ModifiedBy}}</small>
-	</span>
-</div>
-<br />
-<br />
-<div class="card row" ng-show="wikiModel.Content">
-	<div class="card-body" markdown-to-html="wikiModel.Content"></div>
-</div>
-<br />
-<div class="col-12 col-md-6" ng-show="history.length > 0">
-	<div class="card">
-		<div class="card-header list-group-item-action" data-toggle="collapse" data-target="#historyCollapse">Show Previous Versions&nbsp;&nbsp;
-			<span class="badge badge-dark">{{history.length}}</span>
-			<span class="float-right">
-				<i class="far fa-plus-square"></i>
-			</span>
-		</div>
-		<div id="historyCollapse" class="collapse">
-			<ul class="list-group list-group-flush">
-				<a href="/wiki/history.html?id={{record.Id}}" class="list-group-item list-group-item-action" ng-repeat="record in history">{{record.ModifiedOn}}
-					<strong>by</strong> {{record.ModifiedBy}}</a>
-			</ul>
-		</div>
-	</div>
+<div ng-show="!!wikiModel" ng-cloak>
+    <div class="row">
+        <h1>
+            <span class="text-primary">{{wikiModel.Title}}</span>
+            <sup style="white-space: nowrap">&nbsp;&nbsp;&nbsp;
+                <lh-perm-check lh-perm-name="Wiki" lh-perm-update ng-cloak>
+                    <a ng-href="/wiki/edit.html?id={{::wikiModel.Id}}"><i class="far fa-edit"></i> Edit</a>
+                </lh-perm-check>
+                <lh-perm-check lh-perm-name="Wiki" lh-perm-update lh-perm-inverse ng-cloak>
+                    <a ng-href="/login.html?returnUrl=/wiki/edit.html?id={{::wikiModel.Id}}"><i class="far fa-edit"></i> Edit</a></sup>
+                </lh-perm-check>
+            </sup>
+        </h1>
+    </div>
+    <div class="row">
+        <span>
+            <small>
+                <strong>Modified On</strong> {{wikiModel.ModifiedOn}}
+                <strong>by</strong> {{wikiModel.ModifiedBy}}</small>
+        </span>
+    </div>
+    <br />
+    <br />
+    <div class="card row" ng-show="wikiModel.Content">
+        <div class="card-body" markdown-to-html="wikiModel.Content"></div>
+    </div>
+    <br />
+    <div class="col-12 col-md-6" ng-show="history.length > 0">
+        <div class="card">
+            <div class="card-header list-group-item-action" data-toggle="collapse" data-target="#historyCollapse">Show Previous Versions&nbsp;&nbsp;
+                <span class="badge badge-dark">{{history.length}}</span>
+                <span class="float-right">
+                    <i class="far fa-plus-square"></i>
+                </span>
+            </div>
+            <div id="historyCollapse" class="collapse">
+                <ul class="list-group list-group-flush">
+                    <a href="/wiki/history.html?id={{record.Id}}" class="list-group-item list-group-item-action" ng-repeat="record in history">{{record.ModifiedOn}}
+                        <strong>by</strong> {{record.ModifiedBy}}</a>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,76 +1,95 @@
 angular.module("legendwiki-app").requires.push('ng-showdown');
 
-app.controller('wiki-details', ['$scope', '$http', 'breadcrumb', function($scope, $http, breadcrumb) {
-	$scope.initialize = function() {
+app.controller('wiki-details', ['$scope', '$http', '$q', 'breadcrumb', function($scope, $http, $q, breadcrumb) {
+	var initialize = function() {
 		$scope.categories = [];
 		$scope.subcategories = [];
 
-		$scope.loadingProgress = 0;
-		$scope.getWikiPage();
-		$scope.getCategories();
-		$scope.getSubcategories();
-		$http({
-			url: '/php/login/getLoggedInUser.php'
-		}).then(function succcessCallback(response) {
-			$scope.isLoggedIn = response.data.success;
-		}, function errorCallback(response) {
+        loadPage();
+	};
 
-		});
-	}
+    var loadPage = function() {
+        var id = getUrlParameter("id");
+        $q.all([getCategoriesAsync(), getSubcategoriesAsync(), getWikiPageAsync(id), getWikiPageHistoryAsync(id)]).then(
+            function(data) {
+                // getCategoriesAsync
+                $scope.categories = data[0];
 
-	$scope.getWikiPage = function() {
+                // getSubcategoriesAsync
+			    $scope.subcategories = data[1];
+
+                // getWikiPageAsync
+                $scope.wikiModel = data[2];
+                if (data[2] == null) {
+                    breadcrumb.links = [{'display': 'Wiki', 'href': '/wiki/'},
+                                        {'display': 'Not Found', 'href': '', 'active': true}];
+                    return;
+                }
+                $scope.wikiModel.ModifiedOn = (new Date($scope.wikiModel.ModifiedOn + " UTC")).toString().slice(4, 24);
+
+		        $scope.tags = $scope.wikiModel.Tags.split(';');
+
+                // getWikiPageHistoryAsync
+                $scope.history = data[3].slice(0, 9);
+                for (let i = 0; i < $scope.history.length; i++) {
+                    $scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + " UTC")).toString().slice(4, 24);
+                }
+
+                breadcrumb.links = [{'display': 'Wiki', 'href': '/wiki/'},
+                                    {'display': $scope.getCategory($scope.wikiModel.CategoryId), 'href': '/wiki/index.html?categoryId=' + $scope.wikiModel.CategoryId}];
+
+                if ($scope.wikiModel.SubCategoryId > 0) {
+                    breadcrumb.links.push({'display': $scope.getSubcategory($scope.wikiModel.SubCategoryId), 'href': '/wiki/index.html?categoryId=' + $scope.wikiModel.CategoryId + '&subcategoryId=' + $scope.wikiModel.SubCategoryId});
+                }
+
+                breadcrumb.links.push({'display': $scope.wikiModel.Title, 'href': '', 'active': true});
+            }
+        );
+    };
+
+	var getWikiPageAsync = function(id) {
+        var deferred = $q.defer();
+
 		$http({
 			url: '/php/wiki/getWikiPage.php',
 			method: 'POST',
-			data: {"id": getUrlParameter("id")}
+			data: {"id": id}
 		}).then(function succcessCallback(response) {
-			$scope.wikiModel = response.data;
-			$scope.wikiModel.ModifiedOn = (new Date(response.data.ModifiedOn + " UTC")).toString().slice(4, 24);
-			$scope.getWikiPageHistory();
-			$scope.splitTags();
-
-			if (++$scope.loadingProgress == 3) {
-				$scope.addBreadcrumbs();
-			}
+            deferred.resolve(response.data);
 		}, function errorCallback(response){
-
+            deferred.reject(response);
 		});
-	}
 
-	$scope.getCategories = function() {
+        return deferred.promise;
+	};
+
+	var getCategoriesAsync = function() {
+        var deferred = $q.defer();
+
 		$http({
 			url: '/php/wiki/getCategories.php'
 		}).then(function succcessCallback(response) {
-			$scope.categories = response.data;
-			if (++$scope.loadingProgress == 3) {
-				$scope.addBreadcrumbs();
-			}
+            deferred.resolve(response.data);
 		}, function errorCallback(response){
-
+            deferred.reject(response);
 		});
-	}
 
-	$scope.getSubcategories = function() {
+        return deferred.promise;
+	};
+
+	var getSubcategoriesAsync = function() {
+        var deferred = $q.defer();
+
 		$http({
 			url: '/php/wiki/getSubCategories.php'
 		}).then(function succcessCallback(response) {
-			$scope.subcategories = response.data;
-			if (++$scope.loadingProgress == 3) {
-				$scope.addBreadcrumbs();
-			}
+            deferred.resolve(response.data);
 		}, function errorCallback(response){
-
+            deferred.reject(response);
 		});
-	}
 
-	$scope.addBreadcrumbs = function() {
-		breadcrumb.links = [{'display': 'Wiki', 'href': '/wiki/'},
-						{'display': $scope.getCategory($scope.wikiModel.CategoryId), 'href': '/wiki/index.html?categoryId=' + $scope.wikiModel.CategoryId}];
-		if ($scope.wikiModel.SubCategoryId > 0) {
-			breadcrumb.links.push({'display': $scope.getSubcategory($scope.wikiModel.SubCategoryId), 'href': '/wiki/index.html?categoryId=' + $scope.wikiModel.CategoryId + '&subcategoryId=' + $scope.wikiModel.SubCategoryId});
-		}
-		breadcrumb.links.push({'display': $scope.wikiModel.Title, 'href': '', 'active': true});
-	}
+        return deferred.promise;
+	};
 
 	$scope.getCategory = function(id) {
 		for (var i = 0; i < $scope.categories.length; ++i) {
@@ -79,7 +98,7 @@ app.controller('wiki-details', ['$scope', '$http', 'breadcrumb', function($scope
 			}
 		}
 		return "";
-	}
+	};
 
 	$scope.getSubcategory = function(id) {
 		for (var i = 0; i < $scope.subcategories.length; ++i) {
@@ -88,27 +107,25 @@ app.controller('wiki-details', ['$scope', '$http', 'breadcrumb', function($scope
 			}
 		}
 		return "No Subcategory";
-	}
+	};
 
-	$scope.splitTags = function() {
-		$scope.tags = $scope.wikiModel.Tags.split(';');
-	}
+	var getWikiPageHistoryAsync = function(id) {
+        var deferred = $q.defer();
 
-	$scope.getWikiPageHistory = function() {
 		$http({
 			url: '/php/wiki/getWikiPageHistory.php',
 			method: 'POST',
-			data: {"id": getUrlParameter("id")}
+			data: {"id": id}
 		}).then(function succcessCallback(response) {
-			$scope.history = response.data;
-			var i;
-			for (i = 0; i < $scope.history.length; i++) {
-				$scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + " UTC")).toString().slice(4, 24);
-			}
+            deferred.resolve(response.data);
+
 		}, function errorCallback(response){
+            deferred.reject(response);
 
 		});
-	}
 
-	$scope.initialize();
+        return deferred.promise;
+	};
+
+	initialize();
 }]);
