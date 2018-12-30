@@ -1,6 +1,10 @@
-app.controller('login', function($scope, $cookies, $http) {
-	$scope.registerFailed = false;
-	$scope.loginFailed = false;
+app.controller('login', ['$scope', '$cookies', '$http', function($scope, $cookies, $http) {
+    /** Initializes the controller */
+    var initialize = function() {
+	    $scope.registerFailed = false;
+	    $scope.loginFailed = false;
+    };
+
 
 	$scope.checkUsername = function() {
 		$scope.registerForm.usernameInput.$setValidity("length", null);
@@ -82,4 +86,6 @@ app.controller('login', function($scope, $cookies, $http) {
 			}
 		})
 	}
-});
+
+    initialize();
+}]);
