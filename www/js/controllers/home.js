@@ -1,3 +1,2 @@
-app.controller('home', ['$scope',
-	function($scope) {
-	}]);
+app.controller('home', ['$scope', function($scope) {
+}]);
