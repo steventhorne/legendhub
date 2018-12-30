@@ -88,7 +88,7 @@ app.factory('permissions', ['$http', '$q', function($http, $q) {
 	Permissions.prototype.checkAsync = function(permissionName, mustCreate, mustRead, mustUpdate, mustDelete) {
 		return $q((resolve, reject) => {
 			if (this.retrieved) {
-				resolve(this._check(permissionsName, mustCreate, mustRead, mustUpdate, mustDelete));
+				resolve(this._check(permissionName, mustCreate, mustRead, mustUpdate, mustDelete));
 			}
 			else {
 				if (!this.retrievePromise) {
