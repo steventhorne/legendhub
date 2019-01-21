@@ -46,6 +46,7 @@ app.controller('mobs-add', ['$scope', '$http', '$q', 'breadcrumb', function($sco
      * @param {object} mob - the mob to be submitted.
      */
 	$scope.submitMob = function(mob) {
+        console.log(mob);
 		$http({
 			url: '/php/mobs/insertMob.php',
 			method: 'POST',
