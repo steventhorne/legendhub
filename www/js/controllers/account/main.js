@@ -7,7 +7,7 @@ app.controller('account', ['$scope', '$http', '$q', function($scope, $http, $q) 
             function (data) {
                 $scope.notificationSettings = data;
             });
-	}
+	};
 
     /**
      * Gets the notification settings for the current user.
@@ -26,7 +26,7 @@ app.controller('account', ['$scope', '$http', '$q', function($scope, $http, $q) 
 		});
 
         return deferred.promise;
-    }
+    };
 
     /**
      * Updates the notification settings for the current user in the DB
@@ -43,7 +43,7 @@ app.controller('account', ['$scope', '$http', '$q', function($scope, $http, $q) 
             $scope.editingNotifications = false;
         }, function errorCallback(response) {
         });
-    }
+    };
 
     /**
      * Cancels the editing of the notification settings.
@@ -53,7 +53,7 @@ app.controller('account', ['$scope', '$http', '$q', function($scope, $http, $q) 
     $scope.cancelNotifications = function() {
         $scope.getNotificationSettingsAsync();
         $scope.editingNotifications = false;
-    }
+    };
 
     /**
      * Checks the new passwords to see if they match and sets the validity
@@ -62,7 +62,16 @@ app.controller('account', ['$scope', '$http', '$q', function($scope, $http, $q) 
     $scope.onPasswordChanged = function() {
         $scope.editPasswordForm.confirmPasswordInput.$setValidity("matches",
             $scope.newPassword === $scope.confirmPassword);
-    }
+    };
+
+    /**
+     * Checks the new passwords to see if they match and sets the validity
+     * on the form if they do not.
+     */
+    $scope.onResetPasswordChanged = function() {
+        $scope.resetPasswordForm.resetConfirmPasswordInput.$setValidity("matches",
+            $scope.resetNewPassword === $scope.resetConfirmPassword);
+    };
 
     /**
      * Updates the user's password to the $scope's new password.
@@ -84,7 +93,25 @@ app.controller('account', ['$scope', '$http', '$q', function($scope, $http, $q) 
             }
         }, function errorCallback(response) {
         });
-    }
+    };
+
+    /**
+     * Resets the password for the specified user.
+     *
+     * @param {string} username - The username of the account to reset
+     * @param {string} newPassword - The new password
+     */
+    $scope.resetPassword = function(username, newPassword) {
+        $http({
+            url: '/php/login/resetPassword.php',
+            method: 'POST',
+            data: {'username': username, 'password': newPassword}
+        }).then(function successCallback(response) {
+
+        }, function errorCallback(response) {
+
+        });
+    };
 
 	$scope.init();
 }]);

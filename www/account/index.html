@@ -178,6 +178,54 @@
                 </div>
             </div>
         </div>
+        <lh-perm-check lh-perm-name="Password" lh-perm-read lh-perm-update class="row py-3">
+            <div class="col-lh-4" ng-class="{'col-4': !resettingPassword, 'col-12': resettingPassword}">
+                <!-- display heading -->
+                <h4>Reset Password</h4>
+            </div>
+            <div ng-class="{'offset-4 col-4': !resettingPassword, 'col-12 col-lg-8': resettingPassword}">
+                <div class="row no-gutters">
+                    <!-- display edit button -->
+                    <button type="button" class="btn btn-default btn-block" ng-show="!resettingPassword" ng-click="resettingPassword = true">Change</button>
+                    <!-- edit password -->
+                    <form name="resetPasswordForm" class="col-12 offset-md-6 col-md-6" ng-show="resettingPassword">
+                        <div class="row mb-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="usernameInput">Username</label>
+                                </div>
+                                <input type="text" class="form-control" name="usernameInput" id="usernameInput" ng-model="resetUsername" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="resetPasswordInput">New Password</label>
+                                </div>
+                                <input type="password" class="form-control" name="resetPasswordInput" id="resetPasswordInput" ng-model="resetNewPassword" ng-change="onResetPasswordChanged()" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="resetConfirmPasswordInput">Confirm Password</label>
+                                </div>
+                                <input type="password" class="form-control" name="resetConfirmPasswordInput" id="resetConfirmPasswordInput" ng-model="resetConfirmPassword" ng-change="onResetPasswordChanged()" required>
+                            </div>
+                            <p class="text-danger" ng-show="resetPasswordForm.resetConfirmPasswordInput.$error.matches">New passwords do not match.</p>
+                        </div>
+                    </form>
+                </div>
+                <div class="row" ng-show="resettingPassword">
+                    <div class="col-12 col-md-6">
+                        <button type="button" class="btn btn-primary btn-block" ng-disabled="!resetPasswordForm.$valid" ng-click="resetPassword(resetUsername, resetNewPassword)">Save</button>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <button type="button" class="btn btn-link btn-block" ng-click="resettingPassword = false">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </lh-perm-check>
 	</lh-perm-check>
 	<lh-footer></lh-footer>
 
