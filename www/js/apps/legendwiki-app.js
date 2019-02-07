@@ -103,9 +103,13 @@ app.run(function($templateCache) {
 			'</div>' +
 		'</div>' +
 	'</div>' +
-'</div>');
+'</div>' +
+'<lh-cookie-consent></lh-cookie-consent>');
 
 });
+
+$templateCache.put('cookieConsent.html',
+'');
 
 // http interceptor to redirect all 401/403 responses to the 401 page
 app.factory('unauthorizedInterceptor', function($q) {
@@ -767,6 +771,13 @@ app.directive('lhFooter', function() {
 	return {
 		restrict: 'E',
 		templateUrl: 'footer.html'
+	}
+});
+
+app.directive('lhCookieConsent', function() {
+	return {
+		restrict: 'E',
+		templateUrl: 'cookieConsent.html'
 	}
 });
 
