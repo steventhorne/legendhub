@@ -89,6 +89,7 @@ app.run(function($templateCache) {
 			'</div>' +
 		'</div>' +
 	'</div>' +
-'</div>');
+'</div>' +
+'<lh-cookie-consent></lh-cookie-consent>');
 
 });
