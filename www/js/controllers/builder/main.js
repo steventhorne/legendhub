@@ -353,7 +353,9 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 				$savedColumns += $scope.statInfo[i]["short"] + "-";
 			}
 		}
-		$cookies.put("sc2", $savedColumns, {"path": "/", 'expires': cookieDate});
+		if ($cookies.get("cookie-consent")) {
+			$cookies.put("sc2", $savedColumns, {"path": "/", 'expires': cookieDate});
+		}
 
 		// save lists
 		listCookieStr = "";

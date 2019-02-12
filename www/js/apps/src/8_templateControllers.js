@@ -30,11 +30,13 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 	}
 
 	$scope.setTheme = function(theme) {
-        theme = theme.toLowerCase().replace(/\s/g, '-');
-		var cookieDate = new Date();
-		cookieDate.setFullYear(cookieDate.getFullYear() + 20);
-		$cookies.put("theme", theme, {"path": "/", 'expires': cookieDate});
-		$('link[id="theme"]').attr('href', '/css/bootstrap-' + theme + '.min.css');
+        if ($cookies.get("cookie-consent")) {
+            theme = theme.toLowerCase().replace(/\s/g, '-');
+            var cookieDate = new Date();
+            cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+            $cookies.put("theme", theme, {"path": "/", 'expires': cookieDate});
+            $('link[id="theme"]').attr('href', '/css/bootstrap-' + theme + '.min.css');
+        }
 	}
 
     /**

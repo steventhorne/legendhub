@@ -67,7 +67,7 @@ app.controller('login', ['$scope', '$cookies', '$http', function($scope, $cookie
 		}).then(function succcessCallback(response) {
 			if (response.data.success) {
 				// save stayLoggedIn token
-				if (response.data.token) {
+				if (response.data.token && $cookies.get("cookie-consent")) {
 					var cookieDate = new Date();
 					cookieDate.setDate(cookieDate.getDate() + 30);
 					$cookies.put("loginToken", response.data.token, {"path": "/", 'expires': cookieDate});
