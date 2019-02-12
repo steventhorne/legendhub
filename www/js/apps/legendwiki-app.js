@@ -144,12 +144,12 @@ app.factory('httpRequestInterceptor', function($cookies) {
 app.factory('httpResponseInterceptor', function($cookies) {
     return {
         response: function(response) {
-            var token = response.headers('login-token');
+			var token = response.headers('login-token');
             if (token && $cookies.get("cookie-consent")) {
                 var cookieDate = new Date();
 				cookieDate.setDate(cookieDate.getDate() + 30);
 				$cookies.put("loginToken", token, {"path": "/", 'expires': cookieDate});
-				console.log("Login restored.");
+                console.log("Login restored.");
             }
             return response;
         }
@@ -610,13 +610,13 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 	}
 
 	$scope.setTheme = function(theme) {
-		if ($cookies.get("cookie-consent")) {
-			theme = theme.toLowerCase().replace(/\s/g, '-');
-			var cookieDate = new Date();
-			cookieDate.setFullYear(cookieDate.getFullYear() + 20);
-			$cookies.put("theme", theme, {"path": "/", 'expires': cookieDate});
-			$('link[id="theme"]').attr('href', '/css/bootstrap-' + theme + '.min.css');
-		}
+        if ($cookies.get("cookie-consent")) {
+            theme = theme.toLowerCase().replace(/\s/g, '-');
+            var cookieDate = new Date();
+            cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+            $cookies.put("theme", theme, {"path": "/", 'expires': cookieDate});
+            $('link[id="theme"]').attr('href', '/css/bootstrap-' + theme + '.min.css');
+        }
 	}
 
     /**
@@ -783,15 +783,17 @@ app.directive('lhCookieConsent', function($compile, $cookies) {
 			if (!consent) {
 				var msg = 'This website uses cookies, which are necessary to its functioning and required to achieve the purposes illustrated in the <a href="/cookies.html">cookie policy</a>. If you want to know more or withdraw your consent to all or some of the cookies, please refer to the cookie policy. By closing this banner, you agree to the use of cookies. Should you choose not to close this banner, it will persist on every page and certain features will not function as expected.';
 
-				var template = "<div ng-init='test=1' class='cookie-consent-banner' style='position:fixed;left:0;right:0;bottom:0;background-color:#111417;padding:10px 0'>" +
+				var template = "<div ng-init='test=1' class='cookie-consent-banner'>" +
                     "<div class='container'><div class='row'>" +
                     "<p class='col'>" + msg + "</p>" +
-                    "<button class='btn btn-primary' style='margin-top:auto;margin-bottom:auto' ng-click='consentToCookies()'>Ok</button>" +
+                    "<button class='btn btn-primary cookie-consent-button' ng-click='consentToCookies()'>Ok</button>" +
                     "</div></div></div>";
 
 				scope.consentToCookies = function() {
-					$cookies.put("cookie-consent", true);
-					element.html(null);
+					var cookieDate = new Date();
+					cookieDate.setTime(2144232732000);
+					$cookies.put("cookie-consent", true, {"path": "/", "expires": cookieDate});
+					location.reload();
 				};
 
                 var linkFn = $compile(template);
