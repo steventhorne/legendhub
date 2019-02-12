@@ -771,23 +771,29 @@ app.directive('lhFooter', function() {
 	}
 });
 
-app.directive('lhCookieConsent', function($cookies) {
+app.directive('lhCookieConsent', function($compile, $cookies) {
 	return {
 		restrict: 'E',
 		link: function(scope, element, attrs) {
 			var consent = $cookies.get("cookie-consent");
 			if (!consent) {
-				var msg = 'This website or its third-party tools use cookies, which are necessary to its functioning and required to achieve the purposes illustrated in the cookie policy. If you want to know more or withdraw your consent to all or some of the cookies, please refer to the cookie policy.' +
-				'By closing this banner, scrolling this page, clicking a link or continuing to browse otherwise, you agree to the use of cookies.';
-			
-				var template = "<div class='cookie-consent-banner'><p>" + msg + "</p><button ng-click='consentToCookies()'>Ok</button></div>";
+				var msg = 'This website uses cookies, which are necessary to its functioning and required to achieve the purposes illustrated in the <a href="/cookies.html">cookie policy</a>. If you want to know more or withdraw your consent to all or some of the cookies, please refer to the cookie policy. By closing this banner, you agree to the use of cookies. Should you choose not to close this banner, it will persist on every page and certain features will not function as expected.';
+
+				var template = "<div ng-init='test=1' class='cookie-consent-banner' style='position:fixed;left:0;right:0;bottom:0;background-color:#111417;padding:10px 0'>" +
+                    "<div class='container'><div class='row'>" +
+                    "<p class='col'>" + msg + "</p>" +
+                    "<button class='btn btn-primary' style='margin-top:auto;margin-bottom:auto' ng-click='consentToCookies()'>Ok</button>" +
+                    "</div></div></div>";
 
 				scope.consentToCookies = function() {
 					$cookies.put("cookie-consent", true);
 					element.html(null);
 				};
 
-				element.html(template);
+                var linkFn = $compile(template);
+                var content = linkFn(scope);
+
+				element.html(content);
 			}
 		}
 	};
