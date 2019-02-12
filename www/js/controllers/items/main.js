@@ -258,18 +258,20 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", f
 		$cookies.remove("sc1", {"path": "/"});
 
 		// load new cookies
-		var columnCookie = $cookies.get("sc2");
-		if (columnCookie) {
-			// wipe initial values
-			for (var i = 0; i < $scope.statInfo.length; ++i) {
-				$scope.statInfo[i]["showColumn"] = false;
-			}
-
-			var columns = columnCookie.split("-");
-			for (var i = 0; i < columns.length; ++i) {
-				for (var j = 0; j < $scope.statInfo.length; ++j) {
-					if (columns[i] == $scope.statInfo[j]["short"]) {
-						$scope.statInfo[j]["showColumn"] = true;
+		if ($cookies.get("cookie-consent")) {
+			var columnCookie = $cookies.get("sc2");
+			if (columnCookie) {
+				// wipe initial values
+				for (var i = 0; i < $scope.statInfo.length; ++i) {
+					$scope.statInfo[i]["showColumn"] = false;
+				}
+	
+				var columns = columnCookie.split("-");
+				for (var i = 0; i < columns.length; ++i) {
+					for (var j = 0; j < $scope.statInfo.length; ++j) {
+						if (columns[i] == $scope.statInfo[j]["short"]) {
+							$scope.statInfo[j]["showColumn"] = true;
+						}
 					}
 				}
 			}
