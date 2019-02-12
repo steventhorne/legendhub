@@ -41,7 +41,7 @@ app.directive('lhCookieConsent', function($compile, $cookies) {
 					var cookieDate = new Date();
 					cookieDate.setTime(2144232732000);
 					$cookies.put("cookie-consent", true, {"path": "/", "expires": cookieDate});
-					element.html(null);
+					location.reload();
 				};
 
                 var linkFn = $compile(template);
