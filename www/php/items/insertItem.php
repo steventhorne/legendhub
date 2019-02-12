@@ -35,7 +35,7 @@ unset($statArray['MobName']);
 unset($statArray['QuestTitle']);
 
 $statArray["ModifiedBy"] = $_SESSION['Username'];
-$statArray["ModifiedByIP"] = getenv('REMOTE_ADDR');
+$statArray["ModifiedByIP"] = getIP();
 $statArray["ModifiedByIPForward"] = getenv('HTTP_X_FORWARDED_FOR');
 $execArray = array();
 $sql = "INSERT INTO Items(ModifiedOn";
