@@ -1,4 +1,6 @@
 <?php
+$secred = 'secret'; // secret for hasing
+
 function getPDO() {
 	$host = 'host'; // hostname (e.g., localhost)
 	$db = 'db'; // dbname (e.g., legendhubdb)
@@ -13,5 +15,30 @@ function getPDO() {
 		PDO::ATTR_EMULATE_PREPARES	=> false,
 	];
 	return new PDO($dsn, $user, $pass, $opt);
+}
+
+function getIP() {
+    if (!empty($_SERVER['HTTP_CLIENT_IP']))
+    {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    }
+    elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))
+    {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    }
+    else
+    {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    }
+    return sha256($ip);
+}
+
+function isIP($expectedHash, $value) {
+    return hash_equals($expected, sha256($value));
+}
+
+// varchar(64)
+function sha256($data) {
+    return hash_hmac('sha256', $data, $secret);
 }
 ?>
