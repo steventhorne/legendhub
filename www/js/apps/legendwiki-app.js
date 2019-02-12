@@ -143,11 +143,11 @@ app.factory('httpResponseInterceptor', function($cookies) {
     return {
         response: function(response) {
             var token = response.headers('login-token');
-            if (token) {
+            if (token && $cookies.get("cookie-consent")) {
                 var cookieDate = new Date();
 				cookieDate.setDate(cookieDate.getDate() + 30);
 				$cookies.put("loginToken", token, {"path": "/", 'expires': cookieDate});
-                console.log("Login restored.");
+				console.log("Login restored.");
             }
             return response;
         }
@@ -608,11 +608,13 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
 	}
 
 	$scope.setTheme = function(theme) {
-        theme = theme.toLowerCase().replace(/\s/g, '-');
-		var cookieDate = new Date();
-		cookieDate.setFullYear(cookieDate.getFullYear() + 20);
-		$cookies.put("theme", theme, {"path": "/", 'expires': cookieDate});
-		$('link[id="theme"]').attr('href', '/css/bootstrap-' + theme + '.min.css');
+		if ($cookies.get("cookie-consent")) {
+			theme = theme.toLowerCase().replace(/\s/g, '-');
+			var cookieDate = new Date();
+			cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+			$cookies.put("theme", theme, {"path": "/", 'expires': cookieDate});
+			$('link[id="theme"]').attr('href', '/css/bootstrap-' + theme + '.min.css');
+		}
 	}
 
     /**
