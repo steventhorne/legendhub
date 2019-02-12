@@ -127,9 +127,11 @@ app.factory('unauthorizedInterceptor', function($q) {
 app.factory('httpRequestInterceptor', function($cookies) {
     return {
         request: function (config) {
-            var loginToken = $cookies.get("loginToken");
-			if (loginToken) {
-                config.headers['login-token'] = loginToken;
+			if ($cookies.get("cookie-consent")) {
+				var loginToken = $cookies.get("loginToken");
+				if (loginToken) {
+					config.headers['login-token'] = loginToken;
+				}
 			}
 
             return config;
