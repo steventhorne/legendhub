@@ -321,21 +321,27 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 		$cookies.remove("sc1", {"path": "/"});
 
 		// load columns
-		var columnCookie = $cookies.get("sc2");
+		if ($cookies.get("cookie-consent")) {
+			var columnCookie = $cookies.get("sc2");
+		}
         loadSelectedColumns(columnCookie, $scope.statInfo);
 
 		// load lists
-		var listCookieStr = localStorage.getItem("cl");
-		if (!listCookieStr) {
-			listCookieStr = $cookies.get("cl1");
+		if ($cookies.get("cookie-consent")) {
+			var listCookieStr = localStorage.getItem("cl");
+			if (!listCookieStr) {
+				listCookieStr = $cookies.get("cl1");
+			}
 		}
-        $scope.allLists = loadCharacterLists(listCookieStr);
+		$scope.allLists = loadCharacterLists(listCookieStr);
 
-        // load selected list
-        var selectedListCookie = localStorage.getItem("scl");
-        if (!selectedListCookie) {
-            selectedListCookie = $cookies.get("scl1");
-        }
+		// load selected list
+		if ($cookies.get("cookie-consent")) {
+			var selectedListCookie = localStorage.getItem("scl");
+			if (!selectedListCookie) {
+				selectedListCookie = $cookies.get("scl1");
+			}
+		}
         selectListByName(selectedListCookie);
 	};
 
@@ -343,6 +349,9 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
      * Saves the user info to client side storage
      */
 	$scope.saveClientSideData = function() {
+		if (!$cookies.get("cookie-consent")) {
+			return;
+		}
 		// save columns
 		var cookieDate = new Date();
 		cookieDate.setFullYear(cookieDate.getFullYear() + 20);
@@ -353,9 +362,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 				$savedColumns += $scope.statInfo[i]["short"] + "-";
 			}
 		}
-		if ($cookies.get("cookie-consent")) {
-			$cookies.put("sc2", $savedColumns, {"path": "/", 'expires': cookieDate});
-		}
+		$cookies.put("sc2", $savedColumns, {"path": "/", 'expires': cookieDate});
 
 		// save lists
 		listCookieStr = "";
@@ -657,9 +664,11 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 
     /** Deletes all lists. */
 	$scope.deleteAllLists = function() {
-		localStorage.remove("cl")
-		localStorage.remove("scl");
-		window.location.reload();
+		if ($cookies.get("cookie-consent")) {
+			localStorage.remove("cl")
+			localStorage.remove("scl");
+			window.location.reload();
+		}
 	};
 	//#endregion
 
