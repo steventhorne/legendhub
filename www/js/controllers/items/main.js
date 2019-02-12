@@ -287,7 +287,9 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", f
 				$savedColumns += $scope.statInfo[i]["short"] + "-";
 			}
 		}
-		$cookies.put("sc2", $savedColumns, {"path": "/", 'expires': cookieDate});
+		if ($cookies.get("cookie-consent")) {
+			$cookies.put("sc2", $savedColumns, {"path": "/", 'expires': cookieDate});
+		}
 	};
 
     /** Event for when the previous button is clicked in the pagination. */

@@ -32,8 +32,8 @@ app.factory('httpRequestInterceptor', function($cookies) {
 app.factory('httpResponseInterceptor', function($cookies) {
     return {
         response: function(response) {
-            var token = response.headers('login-token');
-            if (token) {
+			var token = response.headers('login-token');
+            if (token && $cookies.get("cookie-consent")) {
                 var cookieDate = new Date();
 				cookieDate.setDate(cookieDate.getDate() + 30);
 				$cookies.put("loginToken", token, {"path": "/", 'expires': cookieDate});
