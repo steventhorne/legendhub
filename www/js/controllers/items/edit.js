@@ -131,8 +131,8 @@ app.controller('items-edit', ['$scope', '$http', '$q', 'itemConstants', 'breadcr
 		var postData = angular.copy(itemModel);
 		delete postData.ModifiedOn;
 		delete postData.ModifiedBy;
-		delete postData.ModifiedByIP;
-		delete postData.ModifiedByIPForward;
+        delete postData.ModifiedByIP;
+        
 		$http({
 			url: '/php/items/updateItem.php',
 			method: 'POST',

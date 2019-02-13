@@ -34,7 +34,6 @@ else {
 $sql = "UPDATE Quests SET ModifiedOn = NOW(),
 			ModifiedBy = :ModifiedBy,
 			ModifiedByIP = :ModifiedByIP,
-			ModifiedByIPForward = :ModifiedByIPForward,
 			Title = :Title,
 			AreaId = :AreaId,
 			Whoises = :Whoises,
@@ -43,8 +42,7 @@ $sql = "UPDATE Quests SET ModifiedOn = NOW(),
 	WHERE Id = :Id";
 $query = $pdo->prepare($sql);
 $query->execute(array("ModifiedBy" => $_SESSION['Username'],
-			"ModifiedByIP" => getenv('REMOTE_ADDR'),
-			"ModifiedByIPForward" => getenv('HTTP_X_FORWARDED_FOR'),
+			"ModifiedByIP" => getIP(),
 			"Title" => $postdata->Title,
 			"AreaId" => $postdata->AreaId,
 			"Whoises" => $postdata->Whoises,

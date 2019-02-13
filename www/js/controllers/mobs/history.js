@@ -120,8 +120,8 @@ app.controller('mobs-history', ['$scope', '$http', '$q', 'itemConstants', 'bread
 		delete postData.MobId;
 		delete postData.ModifiedOn;
 		delete postData.ModifiedBy;
-		delete postData.ModifiedByIP;
-		delete postData.ModifiedByIPForward;
+        delete postData.ModifiedByIP;
+        
 		$http({
 			url: '/php/mobs/updateMob.php',
 			method: 'POST',

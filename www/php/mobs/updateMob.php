@@ -34,7 +34,6 @@ else {
 $sql = "UPDATE Mobs SET ModifiedOn = NOW(),
 			ModifiedBy = :ModifiedBy,
 			ModifiedByIP = :ModifiedByIP,
-			ModifiedByIPForward = :ModifiedByIPForward,
 			Name = :Name,
 			Xp = :Xp,
 			Gold = :Gold,
@@ -44,8 +43,7 @@ $sql = "UPDATE Mobs SET ModifiedOn = NOW(),
 	WHERE Id = :Id";
 $query = $pdo->prepare($sql);
 $query->execute(array("ModifiedBy" => $_SESSION['Username'],
-			"ModifiedByIP" => getenv('REMOTE_ADDR'),
-			"ModifiedByIPForward" => getenv('HTTP_X_FORWARDED_FOR'),
+			"ModifiedByIP" => getIP(),
 			"Name" => $postdata->Name,
 			"Xp" => $postdata->Xp,
 			"Gold" => $postdata->Gold,
