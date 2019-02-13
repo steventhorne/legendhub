@@ -33,8 +33,8 @@ function getIP() {
     return sha256($ip);
 }
 
-function isIP($expectedHash, $value) {
-    return hash_equals($expected, sha256($value));
+function isIP($expected, $value) {
+    return hash_equals(sha256($expected), sha256($value));
 }
 
 // varchar(64)
