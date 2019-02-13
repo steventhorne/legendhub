@@ -29,8 +29,8 @@ if (strlen($password) < 8 || $password != $confirmPassword) {
 	echo('{"success": false}');
 }
 
-$query = $pdo->prepare("SELECT Id FROM BannedIPs WHERE :IP REGEXP Pattern");
-$query->execute(array("IP" => getenv('REMOTE_ADDR')));
+$query = $pdo->prepare("SELECT Id FROM BannedIPs WHERE Pattern = :IP");
+$query->execute(array("IP" => getIP()));
 if ($res = $query->fetch())
 {
 	echo('{"success": false}');
