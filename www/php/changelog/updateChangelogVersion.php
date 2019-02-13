@@ -24,8 +24,7 @@ $sql = "UPDATE ChangelogVersions
             Notes = :notes,
             ModifiedOn = NOW(),
             ModifiedBy = :modifiedBy,
-            ModifiedByIP = :modifiedByIP,
-            ModifiedByIPForward = :modifiedByIPForward
+            ModifiedByIP = :modifiedByIP
         where Id = :id";
 $query = $pdo->prepare($sql);
 
@@ -33,8 +32,7 @@ $execArray = array("id" => $id,
                     "version" => $version,
                     "notes" => $notes,
                     "modifiedBy" => $_SESSION['Username'],
-                    "modifiedByIP" => getenv('REMOTE_ADDR'),
-                    "modifiedByIPForward" => getenv('HTTP_X_FORWARDED_FOR'));
+                    "modifiedByIP" => getIP());
 $query->execute($execArray);
 
 echo($id);

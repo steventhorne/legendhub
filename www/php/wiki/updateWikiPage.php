@@ -43,7 +43,6 @@ if ($res = $query->fetchAll(PDO::FETCH_CLASS)[0]) {
 $sql = "UPDATE WikiPages SET ModifiedOn = NOW(),
 			ModifiedBy = :ModifiedBy,
 			ModifiedByIP = :ModifiedByIP,
-			ModifiedByIPForward = :ModifiedByIPForward,
 			Title = :Title,
 			CategoryId = :CategoryId,
 			SubCategoryId = :SubCategoryId,
@@ -52,8 +51,7 @@ $sql = "UPDATE WikiPages SET ModifiedOn = NOW(),
 	WHERE Id = :Id";
 $query = $pdo->prepare($sql);
 $query->execute(array("ModifiedBy" => $_SESSION['Username'],
-			"ModifiedByIP" => getenv('REMOTE_ADDR'),
-			"ModifiedByIPForward" => getenv('HTTP_X_FORWARDED_FOR'),
+			"ModifiedByIP" => getIP(),
 			"Title" => $postdata->Title,
 			"CategoryId" => $postdata->CategoryId,
 			"SubCategoryId" => $postdata->SubCategoryId,

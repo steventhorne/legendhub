@@ -26,8 +26,8 @@ if (strlen(trim($mobName)) > 0) {
 		$statArray['MobId'] = $res->Id;
 	}
 	if ($statArray['MobId'] == 0) {
-		$addMobQuery = $pdo->prepare("INSERT INTO Mobs (Name, ModifiedOn, ModifiedBy, ModifiedByIP, ModifiedByIPForward) VALUES (:Name, NOW(), :ModifiedBy, :ModifiedByIP, :ModifiedByIPForward)");
-		$addMobQuery->execute(array("Name" => $mobName, "ModifiedBy" => $_SESSION['Username'], "ModifiedByIP" => getenv('REMOTE_ADDR'), "ModifiedByIPForward" => getenv('HTTP_X_FORWARDED_FOR')));
+		$addMobQuery = $pdo->prepare("INSERT INTO Mobs (Name, ModifiedOn, ModifiedBy, ModifiedByIP) VALUES (:Name, NOW(), :ModifiedBy, :ModifiedByIP)");
+		$addMobQuery->execute(array("Name" => $mobName, "ModifiedBy" => $_SESSION['Username'], "ModifiedByIP" => getIP()));
 		$statArray['MobId'] = $pdo->lastInsertId();
 	}
 }
@@ -36,7 +36,7 @@ unset($statArray['QuestTitle']);
 
 $statArray["ModifiedBy"] = $_SESSION['Username'];
 $statArray["ModifiedByIP"] = getIP();
-$statArray["ModifiedByIPForward"] = getenv('HTTP_X_FORWARDED_FOR');
+
 $execArray = array();
 $sql = "INSERT INTO Items(ModifiedOn";
 foreach ($statArray as $key => $value) 

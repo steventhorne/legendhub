@@ -31,8 +31,8 @@ else {
 	return;
 }
 
-$sql = "INSERT INTO WikiPages(Title, CategoryId, SubCategoryId, Tags, Content, ModifiedOn, ModifiedBy, ModifiedByIP, ModifiedByIPForward)
-VALUES (:Title, :CategoryId, :SubCategoryId, :Tags, :Content, NOW(), :ModifiedBy, :ModifiedByIP, :ModifiedByIPForward)";
+$sql = "INSERT INTO WikiPages(Title, CategoryId, SubCategoryId, Tags, Content, ModifiedOn, ModifiedBy, ModifiedByIP)
+VALUES (:Title, :CategoryId, :SubCategoryId, :Tags, :Content, NOW(), :ModifiedBy, :ModifiedByIP)";
 $query = $pdo->prepare($sql);
 $query->execute(array("Title" => $postdata->Title,
 			"CategoryId" => $postdata->CategoryId,
@@ -40,8 +40,7 @@ $query->execute(array("Title" => $postdata->Title,
 			"Tags" => $postdata->Tags,
 			"Content" => $postdata->Content,
 			"ModifiedBy" => $_SESSION['Username'],
-			"ModifiedByIP" => getenv('REMOTE_ADDR'),
-			"ModifiedByIPForward" => getenv('HTTP_X_FORWARDED_FOR')));
+			"ModifiedByIP" => getIP()));
 
 echo($pdo->lastInsertId());
 

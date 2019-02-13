@@ -204,7 +204,6 @@ app.controller('items-history', ['$scope', '$http', '$q', 'itemConstants', 'brea
 		delete postData.ModifiedOn;
 		delete postData.ModifiedBy;
 		delete postData.ModifiedByIP;
-		delete postData.ModifiedByIPForward;
 
 		$http({
 			url: '/php/items/updateItem.php',

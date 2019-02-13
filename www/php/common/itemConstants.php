@@ -91,5 +91,4 @@ $itemStats = [
 // | ModifiedBy          | varchar(45) | NO   |     | NULL    |                |
 // | ModifiedOn          | datetime    | NO   |     | NULL    |                |
 // | ModifiedByIP        | varchar(45) | YES  |     | NULL    |                |
-// | ModifiedByIPForward | varchar(45) | YES  |     | NULL    |                |
 ?>
