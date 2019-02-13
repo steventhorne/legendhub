@@ -33,10 +33,6 @@ function getIP() {
     return sha256($ip);
 }
 
-function isIP($expected, $value) {
-    return hash_equals(sha256($expected), sha256($value));
-}
-
 // varchar(64)
 function sha256($data) {
     return hash_hmac('sha256', $data, $secret);
