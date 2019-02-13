@@ -135,7 +135,6 @@ app.controller('wiki-history', ['$scope', '$http', '$q', 'breadcrumb', function(
         delete postData.ModifiedOn;
         delete postData.ModifiedBy;
         delete postData.ModifiedByIP;
-        delete postData.ModifiedByIPForward;
 
         $http({
             url: '/php/wiki/updateWikiPage.php',

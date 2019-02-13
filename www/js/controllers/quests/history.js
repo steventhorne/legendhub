@@ -118,8 +118,8 @@ app.controller('quests-history', ['$scope', '$http', '$q', 'itemConstants', 'bre
 		delete postData.QuestId;
 		delete postData.ModifiedOn;
 		delete postData.ModifiedBy;
-		delete postData.ModifiedByIP;
-		delete postData.ModifiedByIPForward;
+        delete postData.ModifiedByIP;
+        
 		$http({
 			url: '/php/quests/updateQuest.php',
 			method: 'POST',

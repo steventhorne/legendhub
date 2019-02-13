@@ -15,8 +15,8 @@ if (!Permissions::Check("Mob", true, false, false, false)) {
 	return;
 }
 
-$sql = "INSERT INTO Mobs(Name, AreaId, Gold, Xp, Aggro, Notes, ModifiedOn, ModifiedBy, ModifiedByIP, ModifiedByIPForward)
-VALUES (:Name, :AreaId, :Gold, :Xp, :Aggro, :Notes, NOW(), :ModifiedBy, :ModifiedByIP, :ModifiedByIPForward)";
+$sql = "INSERT INTO Mobs(Name, AreaId, Gold, Xp, Aggro, Notes, ModifiedOn, ModifiedBy, ModifiedByIP)
+VALUES (:Name, :AreaId, :Gold, :Xp, :Aggro, :Notes, NOW(), :ModifiedBy, :ModifiedByIP)";
 $query = $pdo->prepare($sql);
 $query->execute(array("Name" => $postdata->Name,
 			"AreaId" => $postdata->AreaId,
@@ -25,8 +25,7 @@ $query->execute(array("Name" => $postdata->Name,
 			"Aggro" => $postdata->Aggro,
 			"Notes" => $postdata->Notes,
 			"ModifiedBy" => $_SESSION['Username'],
-			"ModifiedByIP" => getenv('REMOTE_ADDR'),
-			"ModifiedByIPForward" => getenv('HTTP_X_FORWARDED_FOR')));
+			"ModifiedByIP" => getIP()));
 
 echo($pdo->lastInsertId());
 

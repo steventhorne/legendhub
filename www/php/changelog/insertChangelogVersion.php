@@ -18,14 +18,13 @@ if (!Permissions::Check("ChangelogVersion", true, false, false, false)) {
 $version = $postdata->Version;
 $notes = $postdata->Notes;
 
-$sql = "INSERT INTO ChangelogVersions (Version, Notes, CreatedOn, ModifiedOn, ModifiedBy, ModifiedByIP, ModifiedByIPForward) VALUES (:version, :notes, NOW(), NOW(), :modifiedBy, :modifiedByIP, :modifiedByIPForward)";
+$sql = "INSERT INTO ChangelogVersions (Version, Notes, CreatedOn, ModifiedOn, ModifiedBy, ModifiedByIP) VALUES (:version, :notes, NOW(), NOW(), :modifiedBy, :modifiedByIP)";
 $query = $pdo->prepare($sql);
 
 $execArray = array("version" => $version,
                     "notes" => $notes,
                     "modifiedBy" => $_SESSION['Username'],
-                    "modifiedByIP" => getenv('REMOTE_ADDR'),
-                    "modifiedByIPForward" => getenv("HTTP_X_FORWARDED_FOR"));
+                    "modifiedByIP" => getIP());
 $query->execute($execArray);
 
 echo($pdo->lastInsertId());
