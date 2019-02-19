@@ -33,9 +33,10 @@ app.directive('lhCookieConsent', function($compile, $cookies) {
 
 				var template = "<div ng-init='test=1' class='cookie-consent-banner'>" +
                     "<div class='container'><div class='row'>" +
-                    "<p class='col'>" + msg + "</p>" +
-                    "<button class='btn btn-primary cookie-consent-button' ng-click='consentToCookies()'>Ok</button>" +
-                    "</div></div></div>";
+                    "<p class='col-12 col-lg-10 text-justify'>" + msg + "</p>" +
+                    "<div class='col-12 col-lg-2'>" +
+                    "<button class='btn btn-block btn-primary cookie-consent-button' ng-click='consentToCookies()'>Agree</button>" +
+                    "</div></div></div></div>";
 
 				scope.consentToCookies = function() {
 					var cookieDate = new Date();
