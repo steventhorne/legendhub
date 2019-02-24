@@ -188,7 +188,11 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 				// items
 				lists[i].items = [];
 				for (var j = 0; j < each.length; ++j) {
-					lists[i].items.push({"Id": Number(each[j]), "Slot": $scope.slotOrder[j]});
+                    var isLocked = each[j][0] === "!";
+                    if (isLocked) {
+                        each[j] = each[j].substr(1);
+                    }
+					lists[i].items.push({"Id": Number(each[j]), "Slot": $scope.slotOrder[j], "Locked": isLocked});
 				}
 
 				if (each.length < 29) {
@@ -247,7 +251,9 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 						for (var j = 0; j < slotItems.length; ++j) {
 							if (slotItems[j].Id == list.items[i].Id) {
 								found = true;
+                                var isLocked = list.items[i].Locked;
 								list.items[i] = slotItems[j];
+                                list.items[i].Locked = isLocked;
 								break;
 							}
 						}
@@ -270,7 +276,9 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
                     for (var i = 0; i < list.items.length; ++i) {
                         for (var j = 0; j < data.length; ++j) {
                             if (list.items[i].Id == data[j].Id) {
+                                var isLocked = list.items[i].Locked;
                                 list.items[i] = angular.copy(data[j]);
+                                list.items[i].Locked = isLocked;
                                 list.items[i].Slot = $scope.slotOrder[i];
                                 break;
                             }
@@ -378,7 +386,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 			listCookieStr += $scope.allLists[i].baseStats.Amulet;
 			for (var j = 0; j < $scope.allLists[i].items.length; ++j) {
 				if ($scope.allLists[i].items[j].Id) {
-					listCookieStr += "_" + $scope.allLists[i].items[j].Id;
+					listCookieStr += "_" + ($scope.allLists[i].items[j].Locked ? "!" : "") + $scope.allLists[i].items[j].Id;
 				}
 				else {
 					listCookieStr += "_0";
@@ -464,6 +472,19 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 	};
 
     /**
+     * Event for when the lock button is clicked.
+     * Used on each row of the builder and in
+     * the item search modal.
+     *
+     * @param {int} index - the index of the item slot.
+     */
+    $scope.onRowLockClicked = function(index) {
+        var item = $scope.selectedList.items[index];
+        item.Locked = !item.Locked;
+		$scope.saveClientSideData();
+    };
+
+    /**
      * Gets the items for a specified slot
      *
      * @param {int} slot - the slot you want to get items for.
@@ -521,6 +542,9 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
      * @param {object} item - the item that was selected.
      */
 	$scope.onSearchRowClicked = function(item) {
+        if ($scope.currentItem.Locked) {
+            return;
+        }
 		$scope.selectedList.items[$scope.currentItemIndex] = item;
 		$scope.saveClientSideData();
 		applyItemRestrictions();
