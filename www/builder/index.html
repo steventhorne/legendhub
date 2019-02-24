@@ -188,7 +188,7 @@
 							<br />
 							<div class="row">
 								<div class="table-responsive" ng-cloak>
-									<table class="table table-striped table-sm table-hover">
+									<table class="table table-striped table-sm">
 										<thead class="thead-dark">
 											<tr>
 												<th scope="col" class="text-center">Slot</th>
@@ -203,8 +203,8 @@
 												<td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center" ng-class="{'text-monospace': stat.var === 'AlignRestriction'}" ng-style="stat.var === 'AlignRestriction' && {'white-space':'pre'}" ng-trim="!stat.var === 'AlignRestriction'">{{getStatTotal(stat.var)}}</td>
 											</tr>
 											<tr>
-												<td class="bg-primary text-white text-center py-md-1 py-lg-0" nowrap>{{::slots[currentItem.Slot]}}</td>
-												<th scope="row" style="cursor: pointer;" class="py-1 py-lg-0">
+												<td class="bg-primary text-white text-center py-md-1 py-lg-0" nowrap>{{slots[currentItem.Slot]}}</td>
+												<th scope="row" class="py-1 py-lg-0">
 													<a href="/items/details.html?id={{currentItem.Id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="currentItem.Id"><i class="fas fa-link fa-lg"></i></a>&nbsp;{{currentItem.Name}}</th>
 												<td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center py-1 py-lg-0" style="cursor: pointer;">
 													<span ng-if="stat.type == 'bool'">
