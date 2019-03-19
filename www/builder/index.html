@@ -31,13 +31,24 @@
 								<option ng-repeat="list in allLists track by $index" ng-value="$index">{{list.Name}}</option>
 							</select>
 							<div class="input-group-append">
-								<button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#editCharacterModal"><i class="fas fa-edit"></i></button>
-								<button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#addCharacterModal"><i class="fas fa-plus"></i></button>
 								<button class="btn btn-outline-danger" type="button" ng-click="openDeleteModal()" data-toggle="modal" data-target="#deleteCharacterModal"><i class="fas fa-trash"></i></button>
+								<button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#editCharacterModal"><i class="fas fa-edit"></i></button>
+								<button class="btn btn-outline-success" type="button" data-toggle="modal" data-target="#addCharacterModal"><i class="fas fa-plus"></i></button>
 							</div>
 						</div>
 						<br />
-						<button type="button" class="btn btn-primary float-right" ng-click="openClearModal()">Clear Items</button>
+                        <div class="input-group">
+                            <select class="custom-select" ng-model="selectedListVariantIndex" ng-change="onListVariantChanged()">
+                                <option ng-repeat="variant in allLists[selectedListIndex].Variants track by $index" ng-value="$index">{{variant.Name}} Variant</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-danger" type="button" ng-click="openDeleteVariantModal()"><i class="fas fa-trash"></i></button>
+								<button class="btn btn-outline-secondary" type="button"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-outline-success" type="button" ng-click="addCharacterVariant(selectedListIndex)"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <br />
+						<button type="button" class="btn btn-outline-danger float-right" ng-click="openClearModal()">Clear Items</button>
 					</div>
 				</div>
 			</div>
@@ -85,7 +96,7 @@
 								<div class="input-group-prepend">
 									<label class="input-group-text" for="longhouseSelect">Longhouse</label>
 								</div>
-								<select class="custom-select custom-select-sm" id="longhouseSelect" ng-model="selectedList.baseStats.Longhouse" ng-change="saveClientSideData()" ng-model-options="{debounce:250}">
+								<select class="custom-select custom-select-sm" id="longhouseSelect" ng-model="selectedList.baseStats.Longhouse" ng-change="saveClientSideData()" ng-model-options="{debounce:250}" ng-disabled="!showStatQuests()">
 									<option ng-value="-1">-</option>
 									<option ng-repeat="house in longhouseList" ng-value="$index">{{::house}}</option>
 								</select>
@@ -94,7 +105,7 @@
 								<div class="input-group-prepend">
 									<label class="input-group-text" for="amuletSelect">Amulet</label>
 								</div>
-								<select class="custom-select custom-select-sm" id="amuletSelect" ng-model="selectedList.baseStats.Amulet" ng-change="saveClientSideData()" ng-model-options="{debounce:250}">
+								<select class="custom-select custom-select-sm" id="amuletSelect" ng-model="selectedList.baseStats.Amulet" ng-change="saveClientSideData()" ng-model-options="{debounce:250}" ng-disabled="!showStatQuests()">
 									<option ng-value="-1">-</option>
 									<option ng-repeat="amulet in amuletList" ng-value="$index">{{::amulet}}</option>
 								</select>
@@ -128,7 +139,7 @@
 					<tbody>
 						<tr class="bg-secondary text-white">
 							<td></td>
-                            <td></td>
+                            <td class="text-center" ng-click="onColumnLockClicked()"><i class="fas " ng-class="getColumnLockedClasses()"></i></td>
 							<td class="text-center">Total</td>
                             <td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center" ng-class="{'text-monospace': stat.var === 'AlignRestriction'}" ng-style="stat.var === 'AlignRestriction' && {'white-space':'pre'}" ng-trim="!stat.var === 'AlignRestriction'">{{getStatTotal(stat.var)}}</td>
 						</tr>
@@ -153,7 +164,7 @@
 						</tr>
 						<tr class="bg-secondary text-white">
 							<td></td>
-							<td></td>
+                            <td class="text-center" ng-click="onColumnLockClicked()"><i class="fas " ng-class="getColumnLockedClasses()"></i></td>
 							<td class="text-center">Total</td>
 							<td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center">{{getStatTotal(stat.var)}}</td>
 						</tr>
@@ -214,7 +225,7 @@
                                                     </tr>
                                                     <tr>
                                                         <td class="bg-primary text-white text-center py-md-1 py-lg-0" nowrap>{{slots[currentItem.Slot]}}</td>
-                                                        <td class="text-center" ng-click="onRowLockClicked(currentItemIndex)"><i class="fas" ng-class="currentItem.Locked ? 'fa-lock text-success' : 'fa-unlock text-secondary'"></i></td>
+                                                        <td class="text-center" ng-click="onRowLockClicked(currentItemIndex)"><i id="itemSearchLock" class="fas" ng-class="currentItem.Locked ? 'fa-lock text-success' : 'fa-unlock text-secondary'"></i></td>
                                                         <th scope="row" class="py-1 py-lg-0">
                                                             <a href="/items/details.html?id={{currentItem.Id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="currentItem.Id"><i class="fas fa-link fa-lg"></i></a>&nbsp;{{currentItem.Name}}</th>
                                                         <td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center py-1 py-lg-0">
@@ -242,7 +253,7 @@
 											</tr>
 										</thead>
 										<tbody>
-                                            <tr ng-repeat="item in getFilteredSearchResults()" ng-style="{'cursor': currentItem.Locked ? 'not-allowed' : 'pointer'}" ng-click="onSearchRowClicked(item)">
+                                            <tr ng-repeat="item in getFilteredSearchResults()" ng-click="onSearchRowClicked(item)">
 												<td scope="row">
 													<a href="/items/details.html?id={{item.Id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.Id"><i class="fas fa-link fa-lg"></i></a>&nbsp;{{item['Name']}}</td>
                                                 <td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" ng-class="{'text-monospace': stat.var === 'AlignRestriction'}" ng-style="stat.var === AlignRestriction && {'white-space': 'pre'}" ng-trim="stat.var !== 'AlignRestriction'}">
