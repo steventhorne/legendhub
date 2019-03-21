@@ -31,9 +31,9 @@
 								<option ng-repeat="list in allLists track by $index" ng-value="$index">{{list.Name}}</option>
 							</select>
 							<div class="input-group-append">
-								<button class="btn btn-outline-danger" type="button" ng-click="openDeleteModal()" data-toggle="modal" data-target="#deleteCharacterModal"><i class="fas fa-trash"></i></button>
-								<button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#editCharacterModal"><i class="fas fa-edit"></i></button>
-								<button class="btn btn-outline-success" type="button" data-toggle="modal" data-target="#addCharacterModal"><i class="fas fa-plus"></i></button>
+								<button class="btn btn-outline-danger" type="button" ng-click="openDeleteModal()"><i class="fas fa-trash"></i></button>
+								<button class="btn btn-outline-secondary" type="button" ng-click="openEditCharacterModal()"><i class="fas fa-edit"></i></button>
+								<button class="btn btn-outline-success" type="button" ng-click="openAddCharacterModal()"><i class="fas fa-plus"></i></button>
 							</div>
 						</div>
 						<br />
@@ -43,12 +43,16 @@
                             </select>
                             <div class="input-group-append">
                                 <button class="btn btn-outline-danger" type="button" ng-click="openDeleteVariantModal()"><i class="fas fa-trash"></i></button>
-								<button class="btn btn-outline-secondary" type="button"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-outline-success" type="button" ng-click="addCharacterVariant(selectedListIndex)"><i class="fas fa-plus"></i></button>
+								<button class="btn btn-outline-secondary" type="button" ng-click="openEditVariantModal()"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-outline-success" type="button" ng-click="addCharacterVariant(selectedListIndex)"><i class="fas fa-clone"></i></button>
                             </div>
                         </div>
                         <br />
-						<button type="button" class="btn btn-outline-danger float-right" ng-click="openClearModal()">Clear Items</button>
+                        <div class="btn-group col" role="group" aria-label="Character Options">
+                            <button type="button" class="btn btn-outline-secondary col" ng-click="openImportModal()">Import</button>
+                            <button type="button" class="btn btn-outline-secondary col" ng-click="openExportModal()">Export</button>
+                            <button type="button" class="btn btn-outline-danger col" ng-click="openClearModal()">Clear Items</button>
+                        </div>
 					</div>
 				</div>
 			</div>
@@ -294,63 +298,32 @@
 				</div>
 			</div>
 		</div>
-		<div class="modal" tabindex="-1" role="dialog" id="addCharacterModal">
+		<div class="modal" tabindex="-1" role="dialog" id="textInputModal">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title">Add Character</h5>
+                        <h5 class="modal-title">{{textInputModalModel.Title}}</h5>
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
 					<div class="modal-body">
-						<form name="addCharacterForm" ng-submit="addCharacter()">
+						<form name="textInputModalForm" ng-submit="textInputModalModel.Action()">
 							<div class="row">
 								<div class="input-group col-12">
 									<div class="input-group-prepend">
-										<span class="input-group-text">Name</span>
+                                        <span class="input-group-text">{{textInputModalModel.Label}}</span>
 									</div>
-									<input name="nameInput" id="addCharacterModalName" type="text" ng-model="addCharacterModel.Name" class="form-control" ng-pattern="/^[A-Za-z\s\d]*$/" ng-change="validateAddCharacter()" ng-model-options="{debounce: 250}" />
+									<input name="textInput" id="textInputModalInput" type="text" ng-model="textInputModalModel.Input" class="form-control" ng-pattern="textInputModalModel.Pattern" ng-change="textInputModalModel.Validate()" ng-model-options="{debounce: 250}" />
 									<div class="input-group-append">
-										<button class="btn btn-outline-primary" type="submit" ng-disabled="!addCharacterForm.$valid">Add</button>
+										<button class="btn btn-outline-primary" type="submit" ng-disabled="!textInputModalForm.$valid">Add</button>
 									</div>
 								</div>
 							</div>
 							<div class="row">
-								<p ng-show="addCharacterForm.nameInput.$error.pattern" class="text-danger">Invalid characters.</p>
-								<p ng-show="addCharacterForm.nameInput.$error.duplicate" class="text-danger">Duplicate character name.</p>
-								<p ng-show="addCharacterForm.nameInput.$error.limit" class="text-danger">Limit of 20,000 lists reached.</p>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="modal" tabindex="-1" role="dialog" id="editCharacterModal">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">Edit Character</h5>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<form name="editCharacterForm" ng-submit="editCharacter()">
-							<div class="row">
-								<div class="input-group col-12">
-									<div class="input-group-prepend">
-										<span class="input-group-text">Name</span>
-									</div>
-									<input name="nameInput" id="editCharacterModalName" type="text" ng-model="editCharacterModel.Name" class="form-control" ng-pattern="/^[A-Za-z]*$/" ng-change="validateEditCharacter()" ng-model-options="{debounce: 250}" />
-									<div class="input-group-append">
-										<button class="btn btn-outline-primary" type="submit" ng-disabled="!editCharacterForm.$valid">Save</button>
-									</div>
-								</div>
-							</div>
-							<div class="row">
-								<p ng-show="editCharacterForm.nameInput.$error.pattern" class="text-danger">Invalid characters.</p>
-								<p ng-show="editCharacterForm.nameInput.$error.duplicate" class="text-danger">Duplicate character name.</p>
+								<p ng-show="textInputModalForm.textInput.$error.pattern" class="text-danger">Invalid characters.</p>
+								<p ng-show="textInputModalForm.textInput.$error.duplicate" class="text-danger">Duplicate entry.</p>
+								<p ng-show="textInputModalForm.textInput.$error.limit" class="text-danger">Limit reached.</p>
 							</div>
 						</form>
 					</div>
