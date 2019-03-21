@@ -159,7 +159,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
                     var variantName = nameParts[1];
                 }
                 else {
-                    var variantName = "Untitled";
+                    var variantName = "Original";
                 }
 
                 var found = false;
@@ -437,16 +437,19 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
     var addCharacterList = function(name) {
 		$scope.allLists.push({Name: name, Variants: []});
+        $scope.selectedListIndex = $scope.allLists.length - 1;
         $scope.addCharacterVariant($scope.allLists.length - 1);
     };
 
     $scope.addCharacterVariant = function(listIndex) {
-        if (listIndex === $scope.selectedListIndex) {
+        var variantCount = $scope.allLists[$scope.selectedListIndex].Variants.length;
+
+        if (listIndex === $scope.selectedListIndex && variantCount > 0) {
             var variantCopy = angular.copy($scope.allLists[$scope.selectedListIndex].Variants[$scope.selectedListVariantIndex]);
             variantCopy.Name += " Copy";
         }
         else {
-            var variantCopy = $scope.getDefaultList("Untitled");
+            var variantCopy = $scope.getDefaultList("Original");
         }
 
         $scope.allLists[listIndex].Variants.push(variantCopy);
@@ -742,28 +745,81 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 	//#endregion
 
 	//#region ~~~~~~~~~ COMMANDS ~~~~~~~~~
-    /** Opens the modal for adding a new character. */
-	$scope.addCharacter = function() {
-		// add new list
-        addCharacterList($scope.addCharacterModel.Name);
-		selectListByIndex($scope.allLists.length - 1);
 
-		// reset modal
-		$("#addCharacterModal").modal("hide");
-		$scope.addCharacterModel.Name = "";
+    /** Confirm function for the edit character modal. */
+	var editCharacter = function() {
+        if (validateEditCharacter()) {
+            $scope.allLists[$scope.selectedListIndex].Name = $scope.textInputModalModel.Input;
+            $scope.saveClientSideData();
+
+            $("#textInputModal").modal("hide");
+        }
 	};
 
-    /** Opens the modal for editing an existing character. */
-	$scope.editCharacter = function() {
-        $scope.allLists[$scope.selectedListIndex].Name = $scope.editCharacterModel.Name;
-		$("#editCharacterModal").modal("hide");
+    /** Opens the modal for editing characters. */
+    $scope.openEditCharacterModal = function() {
+        $scope.textInputModalModel = {
+            Title: "Edit Character",
+            Action: editCharacter,
+            Label: "Name",
+            Pattern: /^[A-Za-z\s\d]+$/,
+            Validate: validateEditCharacter,
+            Input: $scope.allLists[$scope.selectedListIndex].Name
+        };
 
-		$scope.saveClientSideData();
-	};
+        $("#textInputModal").modal("show");
+    };
+
+    /** Confirm function for the add character modal. */
+	var addCharacter = function() {
+        if (validateAddCharacter()) {
+            addCharacterList($scope.textInputModalModel.Input);
+
+            $("#textInputModal").modal("hide");
+	    }
+    };
+
+    /** Opens the modal for adding characters. */
+    $scope.openAddCharacterModal = function() {
+        $scope.textInputModalModel = {
+            Title: "Add Character",
+            Action: addCharacter,
+            Label: "Name",
+            Pattern: /^[A-Za-z\s\d]+$/,
+            Validate: validateAddCharacter,
+            Input: ""
+        };
+
+        $("#textInputModal").modal("show");
+    };
+
+    /** Confirm function for the edit variant modal. */
+    var editVariant = function() {
+        if (validateEditVariant()) {
+            $scope.selectedList.Name = $scope.textInputModalModel.Input;
+            $scope.saveClientSideData();
+
+            $("#textInputModal").modal("hide");
+        }
+    };
+
+    /** Opens the modal for editing variants. */
+    $scope.openEditVariantModal = function() {
+        $scope.textInputModalModel = {
+            Title: "Edit Variant",
+            Action: editVariant,
+            Label: "Name",
+            Pattern: /^[A-Za-z\s\d]+$/,
+            Validate: validateEditVariant,
+            Input: $scope.selectedList.Name
+        };
+
+        $("#textInputModal").modal("show");
+    };
 
     /** Deletes the currently selected character. */
-	$scope.deleteCharacter = function() {
-		var index = $scope.allLists.indexOf($scope.selectedList);
+	var deleteCharacter = function() {
+		var index = $scope.selectedListIndex;
 		if (index > -1) {
 			$scope.allLists.splice(index, 1);
 			if ($scope.allLists.length == 0) {
@@ -781,9 +837,9 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
     /** Opens the modal for deleting an existing character. */
 	$scope.openDeleteModal = function() {
-		$scope.confirmMessage = "Are you sure you want to delete " + $scope.selectedList.Name + "?";
+		$scope.confirmMessage = "Are you sure you want to delete " + $scope.allLists[$scope.selectedListIndex].Name + "?";
 
-		$scope.confirmFunc = $scope.deleteCharacter;
+		$scope.confirmFunc = deleteCharacter;
 		$("#confirmModal").modal("show");
 	};
 
@@ -850,33 +906,73 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
 	//#region ~~~~~~~~~ VALIDATION ~~~~~~~~~
     /** Validates the add character form. */
-	$scope.validateAddCharacter = function() {
-		$scope.addCharacterForm.nameInput.$setValidity("duplicate", null);
-		$scope.addCharacterForm.nameInput.$setValidity("limit", null);
-		for (var i = 0; i < $scope.allLists.length; ++i) {
-			if ($scope.allLists[i].Name === $scope.addCharacterModel.Name) {
-				$scope.addCharacterForm.nameInput.$setValidity("duplicate", false);
-				break;
+	var validateAddCharacter = function() {
+		$scope.textInputModalForm.textInput.$setValidity("duplicate", null);
+		$scope.textInputModalForm.textInput.$setValidity("limit", null);
+
+        if ($scope.textInputModalModel.Input.length === 0) {
+            return false;
+        }
+
+		for (let i = 0; i < $scope.allLists.length; ++i) {
+			if ($scope.allLists[i].Name === $scope.textInputModalModel.Input) {
+				$scope.textInputModalForm.textInput.$setValidity("duplicate", false);
+                return false;
 			}
 		}
 		if ($scope.allLists.length == 20000) {
-			$scope.addCharacterForm.nameInput.$setValidity("limit", false);
+			$scope.textInputModalForm.textInput.$setValidity("limit", false);
+            return false;
 		}
+
+        return true;
 	};
 
     /** Validates the edit character form. */
-	$scope.validateEditCharacter = function() {
-		$scope.editCharacterForm.nameInput.$setValidity("duplicate", null);
-		for (var i = 0; i < $scope.allLists.length; ++i) {
-			if ($scope.allLists[i].Name === $scope.selectedList.Name) {
+	var validateEditCharacter = function() {
+		$scope.textInputModalForm.textInput.$setValidity("duplicate", null);
+		$scope.textInputModalForm.textInput.$setValidity("limit", null);
+
+        if ($scope.textInputModalModel.Input.length === 0) {
+            return false;
+        }
+
+		for (let i = 0; i < $scope.allLists.length; ++i) {
+			if ($scope.allLists[i].Name === $scope.allLists[$scope.selectedListIndex].Name) {
 				continue;
 			}
-			if ($scope.allLists[i].Name === $scope.editCharacterModel.Name) {
-				$scope.editCharacterForm.nameInput.$setValidity("duplicate", false);
-				break;
+			if ($scope.allLists[i].Name === $scope.textInputModalModel.Input) {
+				$scope.textInputModalForm.textInput.$setValidity("duplicate", false);
+                return false;
 			}
 		}
+
+        return true;
 	};
+
+    /** Validates the edit variant modal. */
+    var validateEditVariant = function() {
+        $scope.textInputModalForm.textInput.$setValidity("duplicate", null);
+		$scope.textInputModalForm.textInput.$setValidity("limit", null);
+
+        if ($scope.textInputModalModel.Input.length === 0) {
+            return false;
+        }
+
+        var variants = $scope.allLists[$scope.selectedListIndex].Variants;
+        for (let i = 0; i < variants.length; ++i) {
+            if (variants[i].Name === $scope.selectedList.Name) {
+                continue;
+            }
+
+            if (variants[i].Name === $scope.textInputModalModel.Input) {
+                $scope.textInputModalForm.textInput.$setValidity("duplicate", false);
+                return false;
+            }
+        }
+
+        return true;
+    };
 	//#endregion
 
     /**
