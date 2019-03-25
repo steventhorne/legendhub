@@ -148,23 +148,13 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         var lists = [];
 
         if (listCookie) {
-			var listStrs = listCookie.split("*").filter(function(el) {return el.length != 0});;
+			var listStrs = listCookie.split("*").filter(function(el) {return el.length != 0});
 			for (var i = 0; i < listStrs.length; ++i) {
-				var listStr = listStrs[i];
-				var each = listStr.split("_");
-
-                var nameParts = each[0].split("!");
-                var name = nameParts[0];
-                if (nameParts.length === 2) {
-                    var variantName = nameParts[1];
-                }
-                else {
-                    var variantName = "Original";
-                }
+				var newList = createListFromString(listStrs[i]);
 
                 var found = false;
                 for (let j = 0; j < lists.length; ++j) {
-                    if (lists[j].Name === name) {
+                    if (newList.Name === lists[j].Name) {
                         foundList = lists[j];
                         found = true;
                         break;
@@ -172,61 +162,77 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
                 }
 
                 if (!found) {
-                    lists.push({Name: name, Variants: []});
+                    lists.push({Name: newList.Name, Variants: []});
                     foundList = lists[lists.length - 1];
                 }
 
-				// name
-				newList = {Name: variantName};
-				each.shift();
-
-				// base stats
-				newList.baseStats = {};
-				newList.baseStats.Strength = Number(each[0]);
-				each.shift();
-
-				newList.baseStats.Mind = Number(each[0]);
-				each.shift();
-
-				newList.baseStats.Dexterity = Number(each[0]);
-				each.shift();
-
-				newList.baseStats.Constitution = Number(each[0]);
-				each.shift();
-
-				newList.baseStats.Perception = Number(each[0]);
-				each.shift();
-
-				newList.baseStats.Spirit = Number(each[0]);
-				each.shift();
-
-				newList.baseStats.Longhouse = Number(each[0]);
-				each.shift();
-
-				newList.baseStats.Amulet = Number(each[0]);
-				each.shift();
-
-				// items
-				newList.items = [];
-				for (var j = 0; j < each.length; ++j) {
-                    var isLocked = each[j][0] === "!";
-                    if (isLocked) {
-                        each[j] = each[j].substr(1);
-                    }
-					newList.items.push({"Id": Number(each[j]), "Slot": $scope.slotOrder[j], "Locked": isLocked});
-				}
-
-				if (each.length < 29) {
-					for (var k = 0; k < (29 - each.length); ++k) {
-						newList.items.push({"Id": Number(each[j]), "Slot": 21});
-					}
-				}
-
-                foundList.Variants.push(newList);
+                foundList.Variants.push(newList.Variants[0]);
 			}
 		}
 
+
         return lists;
+    };
+
+    var createListFromString = function(listStr) {
+        var each = listStr.split("_");
+
+        var nameParts = each[0].split("!");
+        var name = nameParts[0];
+        if (nameParts.length === 2) {
+            var variantName = nameParts[1];
+        }
+        else {
+            var variantName = "Original";
+        }
+
+        // name
+        newList = {Name: variantName};
+        each.shift();
+
+        // base stats
+        newList.baseStats = {};
+        newList.baseStats.Strength = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Mind = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Dexterity = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Constitution = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Perception = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Spirit = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Longhouse = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Amulet = Number(each[0]);
+        each.shift();
+
+        // items
+        newList.items = [];
+        for (var j = 0; j < each.length; ++j) {
+            var isLocked = each[j][0] === "!";
+            if (isLocked) {
+                each[j] = each[j].substr(1);
+            }
+            newList.items.push({"Id": Number(each[j]), "Slot": $scope.slotOrder[j], "Locked": isLocked});
+        }
+
+        if (each.length < 29) {
+            for (var k = 0; k < (29 - each.length); ++k) {
+                newList.items.push({"Id": Number(each[j]), "Slot": 21});
+            }
+        }
+
+        return {Name: name, Variants: [newList]};
     };
 
     /**
@@ -234,13 +240,23 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      *
      * @param {string} name - The name of the character.
      */
-    var selectListByName = function(name) {
+    var selectListByName = function(name, variantName) {
         var listIndex = 0;
+        var variantIndex = 0;
         if ($scope.allLists.length > 0) {
 			if (name) {
-				for (var i = 0; i < $scope.allLists.length; ++i) {
-					if ($scope.allLists[i].Name == name) {
+				for (let i = 0; i < $scope.allLists.length; ++i) {
+					if ($scope.allLists[i].Name === name) {
 						listIndex = i;
+
+                        if (variantName) {
+                            for (let j = 0; j < $scope.allLists[i].Variants.length; ++j) {
+                                if ($scope.allLists[i].Variants[j].Name === variantName) {
+                                    variantIndex = j;
+                                    break;
+                                }
+                            }
+                        }
 						break;
 					}
 				}
@@ -250,7 +266,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 			addCharacterList("Untitled");
 		}
 
-        selectListByIndex(listIndex);
+        selectListByIndex(listIndex, variantIndex);
     };
 
     /**
@@ -258,12 +274,18 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      *
      * @param {int} index - The index of the list in the character list array.
      */
-    var selectListByIndex = function(index) {
+    var selectListByIndex = function(index, variantIndex = 0) {
         $scope.selectedListIndex = index;
-        selectListVariantByIndex(index, 0);
+        selectListVariantByIndex(index, variantIndex);
 
     };
 
+    /**
+     * Selects a character variant list via the index of both the list and variant in the arrays.
+     *
+     * @param {int} listIndex - The index of the list in the character list array.
+     * @param {int} variantIndex - The index of the variant in the variant array of the character list.
+     */
     var selectListVariantByIndex = function(listIndex, variantIndex) {
         $scope.selectedListVariantIndex = variantIndex;
         $scope.selectedList = $scope.allLists[listIndex].Variants[variantIndex];
@@ -379,7 +401,20 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				selectedListCookie = $cookies.get("scl1");
 			}
 		}
-        selectListByName(selectedListCookie);
+
+        if (selectedListCookie) {
+            var splitListCookie = selectedListCookie.split("!");
+            if (splitListCookie.length === 1) {
+                selectListByName(splitListCookie[0]);
+            }
+            else if (splitListCookie.length === 2) {
+                selectListByName(splitListCookie[0], splitListCookie[1]);
+            }
+        }
+        else {
+            selectListByName();
+        }
+
 	};
 
     /**
@@ -405,35 +440,45 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		listCookieStr = "";
 		for (let i = 0; i < $scope.allLists.length; ++i) {
             for (let j = 0; j < $scope.allLists[i].Variants.length; ++j) {
-                listCookieStr += $scope.allLists[i].Name + "!" + $scope.allLists[i].Variants[j].Name + "_";
-                listCookieStr += $scope.allLists[i].Variants[j].baseStats.Strength + "_";
-                listCookieStr += $scope.allLists[i].Variants[j].baseStats.Mind + "_";
-                listCookieStr += $scope.allLists[i].Variants[j].baseStats.Dexterity + "_";
-                listCookieStr += $scope.allLists[i].Variants[j].baseStats.Constitution + "_";
-                listCookieStr += $scope.allLists[i].Variants[j].baseStats.Perception + "_";
-                listCookieStr += $scope.allLists[i].Variants[j].baseStats.Spirit + "_";
-                listCookieStr += $scope.allLists[i].Variants[j].baseStats.Longhouse + "_";
-                listCookieStr += $scope.allLists[i].Variants[j].baseStats.Amulet;
-                for (let k = 0; k < $scope.allLists[i].Variants[j].items.length; ++k) {
-                    if ($scope.allLists[i].Variants[j].items[k].Id) {
-                        listCookieStr += "_" + ($scope.allLists[i].Variants[j].items[k].Locked ? "!" : "") + $scope.allLists[i].Variants[j].items[k].Id;
-                    }
-                    else {
-                        listCookieStr += "_0";
-                    }
-                }
+                listCookieStr += createStringFromList(
+                    $scope.allLists[i].Name,
+                    $scope.allLists[i].Variants[j]
+                );
+
                 listCookieStr += "*";
             }
         }
 
 		localStorage.setItem("cl", listCookieStr);
-		localStorage.setItem("scl", $scope.selectedList.Name);
+		localStorage.setItem("scl", $scope.allLists[$scope.selectedListIndex].Name + "!" + $scope.selectedList.Name);
 
 		if ($cookies.get("cl1")) {
 			$cookies.remove("cl1");
 			$cookies.remove("scl1");
 		}
 	};
+
+    var createStringFromList = function(listName, list) {
+        var listCookieStr = listName + "!" + list.Name + "_";
+        listCookieStr += list.baseStats.Strength + "_";
+        listCookieStr += list.baseStats.Mind + "_";
+        listCookieStr += list.baseStats.Dexterity + "_";
+        listCookieStr += list.baseStats.Constitution + "_";
+        listCookieStr += list.baseStats.Perception + "_";
+        listCookieStr += list.baseStats.Spirit + "_";
+        listCookieStr += list.baseStats.Longhouse + "_";
+        listCookieStr += list.baseStats.Amulet;
+        for (let k = 0; k < list.items.length; ++k) {
+            if (list.items[k].Id) {
+                listCookieStr += "_" + (list.items[k].Locked ? "!" : "") + list.items[k].Id;
+            }
+            else {
+                listCookieStr += "_0";
+            }
+        }
+
+        return listCookieStr;
+    };
 
     var addCharacterList = function(name) {
 		$scope.allLists.push({Name: name, Variants: []});
@@ -558,6 +603,144 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         $scope.confirmMessage = "Are you sure you want to " + (allLocked ? "unlock" : "lock") + " all items?";
         $scope.confirmFunc = toggleColumnLock;
         $("#confirmModal").modal("show");
+    };
+
+    /** Event for when the Import button is clicked. */
+    $scope.onImportClicked = function() {
+        $scope.importModel = {Input: "", Lists: [], Message: "", Loading: true};
+        $("#importModal").modal("show");
+    };
+
+    /** Event for when the Import input changes. */
+    $scope.onImportInputChanged = function() {
+        $scope.importModel.Lists = [];
+        $scope.importModel.Loading = true;
+        if ($scope.importModel.Input) {
+			var listStrs = $scope.importModel.Input.split("*").filter(function(el) {return el.length != 0});;
+			for (let i = 0; i < listStrs.length; ++i) {
+				var newList = createListFromString(listStrs[i]);
+
+                // check if list exists
+                for (let j = 0; j < $scope.allLists.length; ++j) {
+                    if ($scope.allLists[j].Name === newList.Name) {
+                        for (let k = 0; k < $scope.allLists[j].Variants.length; ++k) {
+                            if ($scope.allLists[j].Variants[k].Name === newList.Variants[0].Name) {
+                                newList.Exists = true;
+                                newList.Overwrite = true;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                $scope.importModel.Lists.push(newList);
+            }
+        }
+
+        if ($scope.importModel.Lists.filter(l => l.Exists).length > 0) {
+            $scope.importModel.Exists = true;
+            $scope.importModel.Message = "The following lists already exist and will be overwritten unless otherwise specified:";
+        }
+
+        $scope.importModel.Loading = false;
+    };
+
+    /** Event for when the user submits the import. */
+    $scope.onImportSubmitClicked = function() {
+        var lists = $scope.importModel.Lists;
+        for (let i = 0; i < lists.length; ++i) {
+            if (!lists[i].Exists || lists[i].Overwrite) {
+                var foundList = false;
+                for (let j = 0; j < $scope.allLists.length; ++j) {
+                    if ($scope.allLists[j].Name === lists[i].Name) {
+                        foundList = true;
+                        var foundVariant = false;
+                        for (let k = 0; k < $scope.allLists[j].Variants.length; ++k) {
+                            if ($scope.allLists[j].Variants[k].Name === lists[i].Variants[0].Name) {
+                                foundVariant = true;
+                                $scope.allLists[j].Variants[k] = angular.copy(lists[i].Variants[0]);
+
+                                break;
+                            }
+                        }
+
+                        if (!foundVariant) {
+                            $scope.allLists[j].Variants.push(angular.copy(lists[i].Variants[0]));
+                        }
+
+                        break;
+                    }
+                }
+
+                if (!foundList) {
+                    $scope.allLists.push(
+                        {
+                            Name: lists[i].Name,
+                            Variants: [angular.copy(lists[i].Variants[0])]
+                        }
+                    );
+                }
+            }
+        }
+
+        $scope.saveClientSideData();
+        selectListVariantByIndex(
+            $scope.selectedListIndex,
+            $scope.selectedListVariantIndex
+        );
+        $("#importModal").modal("hide");
+    };
+
+    /** Event for when the Export button is clicked. */
+    $scope.onExportClicked = function() {
+        // generate all lists string
+        var allListsStr = "";
+		for (let i = 0; i < $scope.allLists.length; ++i) {
+            for (let j = 0; j < $scope.allLists[i].Variants.length; ++j) {
+                allListsStr += createStringFromList(
+                    $scope.allLists[i].Name,
+                    $scope.allLists[i].Variants[j]
+                );
+
+                allListsStr += "*";
+            }
+        }
+
+        var curListStr = "";
+        for (let i = 0; i < $scope.allLists[$scope.selectedListIndex].Variants.length; ++i) {
+            curListStr += createStringFromList(
+                $scope.allLists[$scope.selectedListIndex].Name,
+                $scope.allLists[$scope.selectedListIndex].Variants[i]
+            );
+
+            curListStr += "*";
+        }
+
+        var curVariantStr = createStringFromList(
+            $scope.allLists[$scope.selectedListIndex].Name,
+            $scope.selectedList
+        );
+
+        $scope.exportModel = {
+            "allLists": allListsStr,
+            "curList": curListStr,
+            "curVariant": curVariantStr
+        };
+
+        $("#exportModal").modal("show");
+    };
+
+    /** Event for when a copy button is clicked. */
+    $scope.onCopyClicked = function(elemId, clickEvent) {
+        var copyText = document.getElementById(elemId);
+        copyText.select();
+        document.execCommand("copy");
+
+        if (clickEvent) {
+            clickEvent.target.innerHTML = "Copied!";
+            $timeout(() => clickEvent.target.innerHTML = "Copy", 1500);
+        }
     };
 
     /** Toggles the locks on all items. */
@@ -1216,9 +1399,32 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     };
 
     /**
+     * Gets the bonus that should be applied to the stat total.
+     *
+     * @param {string} statName - the variable name of the stat to get the total bonus for.
+     * @param {int} curTotal - the current total for the stat.
+     * @return {int} the bonus amount based on the current total.
+     */
+    var getStatTotalBonus = function(statName, curTotal) {
+        switch (statName) {
+            case "Dam":
+                for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+					if ($scope.selectedList.items[i].Slot == 14 && $scope.selectedList.items[i].TwoHanded) {
+                        return parseInt(curTotal / 3);
+					}
+				}
+                break;
+            default:
+                break;
+        }
+
+        return 0;
+    };
+
+    /**
      * Gets the max total from items for a given stat.
      *
-     * @param {string} statNAme - the variable name of the stat to get the max item total for.
+     * @param {string} statName - the variable name of the stat to get the max item total for.
      * @return {int} the max total a stat can gain from items.
      */
     var getItemTotalMax = function(statName) {
@@ -1335,7 +1541,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
         // Item stats
 		var fromItems = 0;
-		for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+		for (let i = 0; i < 24; ++i) {
 			if ($scope.selectedList.items[i][statName]) {
 				fromItems += $scope.selectedList.items[i][statName];
 			}
@@ -1347,11 +1553,22 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
             fromItems = Math.min(fromItems, itemTotalMax);
         }
 
+        // Spell/Familiar stats
+        var fromSpells = 0;
+        for (let i = 24; i < $scope.selectedList.items.length; ++i) {
+            if ($scope.selectedList.items[i][statName]) {
+				fromItems += $scope.selectedList.items[i][statName];
+			}
+        }
+
         // stat bonuses
 		var fromBonus = getTotalFromStatBonuses(statName);
 
         // sum up the different sections
-		var total = fromBaseStats + fromStatQuests + fromItems + fromBonus;
+		var total = fromBaseStats + fromStatQuests + fromItems + fromSpells + fromBonus;
+
+        // apply total bonuses
+        total += getStatTotalBonus(statName, total);
 
         // apply min and max
         totalMax = getStatTotalMax(statName);
