@@ -28,8 +28,8 @@ app.controller('notifications', ['$scope', '$http', '$sanitize', '$q', function(
                     }
 
                     $scope.allNotifications[i].Message = message;
-                    $scope.allNotifications[i].CreatedOnDate = (new Date($scope.allNotifications[i].CreatedOn + " UTC")).toString().slice(4, 15);
-                    $scope.allNotifications[i].CreatedOnTime = (new Date($scope.allNotifications[i].CreatedOn + " UTC")).toString().slice(16, 24);
+                    $scope.allNotifications[i].CreatedOnDate = (new Date($scope.allNotifications[i].CreatedOn + "Z")).toString().slice(4, 15);
+                    $scope.allNotifications[i].CreatedOnTime = (new Date($scope.allNotifications[i].CreatedOn + "Z")).toString().slice(16, 24);
                     if ($scope.allNotifications[i].ObjectPage && $scope.allNotifications[i].ObjectId) {
                         $scope.allNotifications[i].Link = "/" + objectPage + "/details.html?id=" + objectId;
                     }

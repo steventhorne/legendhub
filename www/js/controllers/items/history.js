@@ -28,7 +28,7 @@ app.controller('items-history', ['$scope', '$http', '$q', 'itemConstants', 'brea
                             return;
                         }
 
-                        $scope.item.ModifiedOn = (new Date($scope.item.ModifiedOn + " UTC")).toString().slice(4, 24);
+                        $scope.item.ModifiedOn = (new Date($scope.item.ModifiedOn + "Z")).toString().slice(4, 24);
                         $scope.item.Id = $scope.item.ItemId;
 
                         breadcrumb.links = [{'display': 'Items', 'href': '/items/'},
@@ -42,7 +42,7 @@ app.controller('items-history', ['$scope', '$http', '$q', 'itemConstants', 'brea
 
                                 var i;
                                 for (i = 0; i < $scope.history.length; i++) {
-                                    $scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + " UTC")).toString().slice(4, 24);
+                                    $scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + "Z")).toString().slice(4, 24);
                                 }
 
                                 if ($scope.item.MobId && $scope.item.MobId >= 0) {

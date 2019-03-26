@@ -20,7 +20,7 @@ app.controller('mobs-history', ['$scope', '$http', '$q', 'itemConstants', 'bread
                     return;
                 }
 
-                $scope.mob.ModifiedOn = (new Date($scope.mob.ModifiedOn + " UTC")).toString().slice(4, 24);
+                $scope.mob.ModifiedOn = (new Date($scope.mob.ModifiedOn + "Z")).toString().slice(4, 24);
                 $scope.mob.Id = $scope.mob.MobId;
 
                 breadcrumb.links = [{'display': 'Mobs', 'href': '/mobs/'},
@@ -34,7 +34,7 @@ app.controller('mobs-history', ['$scope', '$http', '$q', 'itemConstants', 'bread
                         // getMobHistoryAsync
                         $scope.history = data[0].slice(0, 9);
                         for (let i = 0; i < $scope.history.length; i++) {
-                            $scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + " UTC")).toString().slice(4, 24);
+                            $scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + "Z")).toString().slice(4, 24);
                         }
 
                         // getItemsAsync
