@@ -15,7 +15,7 @@ app.controller('quests-history', ['$scope', '$http', '$q', 'itemConstants', 'bre
             function(data) {
                 // getQuestAsync
                 $scope.quest = data;
-                $scope.quest.ModifiedOn = (new Date($scope.quest.ModifiedOn + " UTC")).toString().slice(4, 24);
+                $scope.quest.ModifiedOn = (new Date($scope.quest.ModifiedOn + "Z")).toString().slice(4, 24);
                 $scope.quest.Stat = Boolean($scope.quest.Stat);
                 $scope.quest.Id = $scope.quest.QuestId;
 
@@ -32,7 +32,7 @@ app.controller('quests-history', ['$scope', '$http', '$q', 'itemConstants', 'bre
                         // getQuestHistoryAsync
                         $scope.history = data[0].slice(0, 9);
                         for (let i = 0; i < $scope.history.length; ++i) {
-                            $scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + " UTC")).toString().slice(4, 24);
+                            $scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + "Z")).toString().slice(4, 24);
                         }
 
                         // getItemsAsync
