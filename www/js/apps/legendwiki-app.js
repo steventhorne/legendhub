@@ -669,8 +669,8 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
                 }
 
                 $scope.notifications[i].Message = message;
-                $scope.notifications[i].CreatedOnDate = (new Date($scope.notifications[i].CreatedOn + " UTC")).toString().slice(4, 15);
-                $scope.notifications[i].CreatedOnTime = (new Date($scope.notifications[i].CreatedOn + " UTC")).toString().slice(16, 24);
+                $scope.notifications[i].CreatedOnDate = (new Date($scope.notifications[i].CreatedOn + "Z")).toString().slice(4, 15);
+                $scope.notifications[i].CreatedOnTime = (new Date($scope.notifications[i].CreatedOn + "Z")).toString().slice(16, 24);
                 if ($scope.notifications[i].ObjectPage && $scope.notifications[i].ObjectId) {
                     $scope.notifications[i].Link = "/" + objectPage + "/details.html?id=" + objectId;
                 }

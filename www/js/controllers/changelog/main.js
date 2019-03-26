@@ -6,7 +6,7 @@ app.controller('changelog', ['$scope', '$cookies', '$http', '$q', function($scop
                 $scope.versions = data;
 
                 for (var i = 0; i < $scope.versions.length; ++i) {
-			        $scope.versions[i].CreatedOn = (new Date($scope.versions[i].CreatedOn + " UTC")).toString().slice(4, 15);
+			        $scope.versions[i].CreatedOn = (new Date($scope.versions[i].CreatedOn + "Z")).toString().slice(4, 15);
                 }
             }
         );

@@ -25,14 +25,14 @@ app.controller('wiki-details', ['$scope', '$http', '$q', 'breadcrumb', function(
                                         {'display': 'Not Found', 'href': '', 'active': true}];
                     return;
                 }
-                $scope.wikiModel.ModifiedOn = (new Date($scope.wikiModel.ModifiedOn + " UTC")).toString().slice(4, 24);
+                $scope.wikiModel.ModifiedOn = (new Date($scope.wikiModel.ModifiedOn + "Z")).toString().slice(4, 24);
 
 		        $scope.tags = $scope.wikiModel.Tags.split(';');
 
                 // getWikiPageHistoryAsync
                 $scope.history = data[3].slice(0, 9);
                 for (let i = 0; i < $scope.history.length; i++) {
-                    $scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + " UTC")).toString().slice(4, 24);
+                    $scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + "Z")).toString().slice(4, 24);
                 }
 
                 breadcrumb.links = [{'display': 'Wiki', 'href': '/wiki/'},
