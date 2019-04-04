@@ -556,12 +556,14 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
                 function(data) {
 				    // force the items coming in to be the slot we want (for weapons/hold slot shenanigans)
                     for (var i = 0; i < data.length; ++i) {
+                        data[i].RealSlot = data[i].Slot;
                         data[i].Slot = item.Slot;
                     }
 
                     $scope.itemsBySlot[item.Slot] = data;
                     $scope.itemsBySlot[item.Slot].splice(0, 0,
                         {
+                            "RealSlot": -1,
                             "Slot": item.Slot,
                             "Id": 0,
                             "Name": "-"
@@ -1455,6 +1457,8 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
             case "Mind":
             case "Dexterity":
             case "Constitution":
+                max = 105;
+                break;
             case "Perception":
             case "Spirit":
                 max = 110;
@@ -1521,7 +1525,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		}
 
         // Only get totals for number fields.
-		for (var i = 0; i < $scope.statInfo.length; ++i) {
+		for (let i = 0; i < $scope.statInfo.length; ++i) {
 			if ($scope.statInfo[i].var == statName) {
 				if ($scope.statInfo[i].type != "int") {
 					return "";
@@ -1529,6 +1533,15 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				break;
 			}
 		}
+
+        // Clear stat restrictions
+        if (!$scope.statRestrictions) {
+            $scope.statRestrictions = [];
+            for (let i = 0; i < $scope.statInfo.length; ++i) {
+                $scope.statRestrictions[$scope.statInfo[i].var] = [];
+            }
+        }
+        $scope.statRestrictions[statName] = [];
 
         // Base stats
 		var fromBaseStats = 0;
@@ -1550,7 +1563,15 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		// limit stats from items
         itemTotalMax = getItemTotalMax(statName);
         if (itemTotalMax != null) {
-            fromItems = Math.min(fromItems, itemTotalMax);
+            if (fromItems > itemTotalMax) {
+                console.log("fromItems", statName);
+                $scope.statRestrictions[statName].push({
+                    restriction: "fromItems",
+                    amount: fromItems,
+                    limit: itemTotalMax
+                });
+                fromItems = itemTotalMax;
+            }
         }
 
         // Spell/Familiar stats
@@ -1575,11 +1596,26 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         totalMin = getStatTotalMin(statName);
 
         if (totalMax != null) {
-            total = Math.min(total, totalMax);
+            if (total > totalMax) {
+                console.log("fromTotalMax", statName);
+                $scope.statRestrictions[statName].push({
+                    restriction: "fromTotalMax",
+                    amount: total,
+                    limit: totalMax
+                });
+                total = totalMax;
+            }
         }
 
 		if (totalMin != null) {
-			total = Math.max(total, totalMin);
+            if (total < totalMin) {
+                console.log("fromTotalMin", statName);
+                $scope.statRestrictions[statName].push({
+                    restriction: "fromTotalMin",
+                    amount: total,
+                    limit: totalMin
+                });
+            }
 		}
 
 		return total;
@@ -1652,6 +1688,10 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		return $scope.itemRestrictions[index].includes(name);
 	};
 
+    $scope.anyStatRestrictions = function(statName) {
+        return $scope.statRestrictions[statName].length > 0;
+    }
+
 	$scope.getItemRestrictionText = function(index) {
 		var text = "";
 		for (var i = 0; i < $scope.itemRestrictions[index].length; ++i) {
@@ -1679,6 +1719,28 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		}
 		return text;
 	};
+
+    $scope.getStatRestrictionText = function(statName) {
+        var text = "";
+        for (let i = 0; i < $scope.statRestrictions[statName].length; ++i) {
+            let res = $scope.statRestrictions[statName][i];
+            switch(res.restriction) {
+                case "fromItems":
+                    text += "The item limit for this stat is " + res.limit + ". You currently have " + res.amount + ".";
+                    break;
+                case "fromTotalMin":
+                    text += "The overall limit for this stat is " + res.limit + ". You currently have " + res.amount + ".";
+                    break;
+                case "fromTotalMax":
+                    text += "The overall limit for this stat is " + res.limit + ". You currently have " + res.amount + ".";
+                    break;
+                default:
+                    break;
+            }
+        }
+        console.log(statName, text);
+        return text;
+    };
 
 	$scope.dynamicSort = function(property) {
 		var sortOrder = 1;
@@ -1718,12 +1780,24 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 	};
 
 	$scope.filterSearchResults = function() {
-		var items = $scope.itemsBySlot[$scope.currentItem.Slot];
+		let items = $scope.itemsBySlot[$scope.currentItem.Slot];
 		if (items) {
-			var filteredItems = items.slice(0);
-			var i = filteredItems.length;
+			let filteredItems = items.slice(0);
+			let i = filteredItems.length;
 			while (i--) {
-				if ($scope.searchString != '' && !filteredItems[i].Name.toLowerCase().includes($scope.searchString.toLowerCase())) {
+                let filteredBySearch = $scope.searchString && !filteredItems[i].Name.toLowerCase().includes($scope.searchString.toLowerCase());
+
+                let filteredByWield = false;
+                if ($scope.currentItem.Slot == 14 || $scope.currentItem.Slot == 15) {
+                    if ($scope.wieldSlotFilter == 1 && filteredItems[i].RealSlot == 15) {
+                        filteredByWield = true;
+                    }
+                    else if ($scope.wieldSlotFilter == 2 && filteredItems[i].RealSlot == 14) {
+                        filteredByWield = true;
+                    }
+                }
+
+				if (filteredBySearch || filteredByWield) {
 					filteredItems.splice(i, 1);
 				}
 			}
