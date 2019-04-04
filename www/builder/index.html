@@ -52,11 +52,13 @@
                             <div class="btn-group d-none d-md-flex col" role="group" aria-label="Character Options">
                                 <button type="button" class="btn btn-outline-secondary col" ng-click="onImportClicked()">Import</button>
                                 <button type="button" class="btn btn-outline-secondary col" ng-click="onExportClicked()">Export</button>
+                                <button type="button" class="btn btn-outline-secondary col" data-toggle="modal" data-target="#columnsModal">Hide/Show Columns</button>
                                 <button type="button" class="btn btn-outline-danger col" ng-click="openClearModal()">Clear Items</button>
                             </div>
                             <div class="btn-group-vertical d-flex d-md-none col" role="group" aria-label="Character Options">
                                 <button type="button" class="btn btn-outline-secondary col" ng-click="onImportClicked()">Import</button>
                                 <button type="button" class="btn btn-outline-secondary col" ng-click="onExportClicked()">Export</button>
+                                <button type="button" class="btn btn-outline-secondary col" data-toggle="modal" data-target="#columnsModal">Hide/Show Columns</button>
                                 <button type="button" class="btn btn-outline-danger col" ng-click="openClearModal()">Clear Items</button>
                             </div>
                         </div>
@@ -127,21 +129,11 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-12">
-				<div class="card">
-					<div class="card-header" style="cursor: pointer;" data-toggle="modal" data-target="#columnsModal">
-						Hide/Show Columns
-					</div>
-				</div>
-			</div>
-		</div>
-		<br />
-		<div class="row">
 			<div class="table-responsive" ng-cloak>
 				<table class="table table-striped table-hover table-sm table-bordered">
 					<thead class="thead-dark">
 						<tr>
-							<th scope="col" class="text-center">Slot</th>
+							<th scope="col" class="text-center">Sl2t</th>
                             <th scope="col" class="text-center">Lock</th>
 							<th scope="col" class="text-center">Name</th>
 							<th scope="col" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center">{{::stat.short}}</th>
@@ -152,10 +144,10 @@
 							<td></td>
                             <td class="text-center" ng-click="onColumnLockClicked()"><i class="fas " ng-class="getColumnLockedClasses()"></i></td>
 							<td class="text-center">Total</td>
-                            <td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center" ng-class="{'text-monospace': stat.var === 'AlignRestriction'}" ng-style="stat.var === 'AlignRestriction' && {'white-space':'pre'}" ng-trim="!stat.var === 'AlignRestriction'">{{getStatTotal(stat.var)}}</td>
+                            <td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center" ng-class="{'bg-danger': anyStatRestrictions(stat.var), 'text-monospace': stat.var === 'AlignRestriction'}" ng-style="stat.var === 'AlignRestriction' && {'white-space':'pre'}" ng-trim="!stat.var === 'AlignRestriction'" data-toggle="tooltip" ng-attr-data-original-title="{{getStatRestrictionText(stat.var)}}" nowrap lh-tooltip><span ng-if="anyStatRestrictions(stat.var)" data-toggle="tooltip"><i class="fas fa-question-circle"></i>&nbsp;</span>{{getStatTotal(stat.var)}}</td>
 						</tr>
 						<tr ng-repeat="item in selectedList.items track by $index">
-							<td ng-class="anyItemRestrictions($index) ? 'bg-danger' : 'bg-primary'" class="bg-primary text-white text-center py-md-1 py-lg-0" data-toggle="tooltip" title="{{getItemRestrictionText($index)}}" nowrap lh-tooltip><span ng-show="anyItemRestrictions($index)"><i class="fas fa-question-circle"></i>&nbsp;</span>{{::slots[item.Slot]}}</td>
+							<td ng-class="anyItemRestrictions($index) ? 'bg-danger' : 'bg-primary'" class="bg-primary text-white text-center py-md-1 py-lg-0" data-toggle="tooltip" ng-attr-data-original-title="{{getItemRestrictionText($index)}}" nowrap lh-tooltip><span ng-show="anyItemRestrictions($index)"><i class="fas fa-question-circle"></i>&nbsp;</span>{{::slots[item.Slot]}}</td>
                             <td class="text-center" ng-click="onRowLockClicked($index)"><i class="fas" ng-class="item.Locked ? 'fa-lock text-success' : 'fa-unlock text-secondary'"></i></td>
 							<th scope="row" ng-click="onRowClicked($index)" style="cursor: pointer;" class="py-1 py-lg-0">
 								<a href="/items/details.html?id={{item.Id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.Id"><i class="fas fa-link fa-lg"></i></a>&nbsp;{{item.Name}}</th>
@@ -177,7 +169,7 @@
 							<td></td>
                             <td class="text-center" ng-click="onColumnLockClicked()"><i class="fas " ng-class="getColumnLockedClasses()"></i></td>
 							<td class="text-center">Total</td>
-							<td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center">{{getStatTotal(stat.var)}}</td>
+                            <td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" class="text-center" ng-class="{'bg-danger': anyStatRestrictions(stat.var), 'text-monospace': stat.var === 'AlignRestriction'}" ng-style="stat.var === 'AlignRestriction' && {'white-space':'pre'}" ng-trim="!stat.var === 'AlignRestriction'" data-toggle="tooltip" ng-attr-data-original-title="{{getStatRestrictionText(stat.var)}}" nowrap lh-tooltip><span ng-if="anyStatRestrictions(stat.var)" data-toggle="tooltip"><i class="fas fa-question-circle"></i>&nbsp;</span>{{getStatTotal(stat.var)}}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -213,7 +205,7 @@
 								</div>
 							</form>
 							<br />
-							<div class="row">
+							<div class="row mb-3">
                                 <div class="col-12">
                                     <div class="card">
                                         <h4 class="ml-3 mt-2">Current Item and Stats</h4>
@@ -253,7 +245,15 @@
                                     </div>
                                 </div>
 							</div>
-							<br />
+                            <div class="row mb-3" ng-if="currentItem.Slot == 14 || currentItem.Slot == 15">
+                                <div class="col-12">
+                                    <select class="custom-select" ng-model="$parent.$parent.wieldSlotFilter" ng-change="filterSearchResults()" ng-init="$parent.$parent.wieldSlotFilter = '0'">
+                                        <option value="0">Wield &amp; Hold slots</option>
+                                        <option value="1">Wield slot only</option>
+                                        <option value="2">Hold slot only</option>
+                                    </select>
+                                </div>
+                            </div>
 							<div class="row">
 								<div class="table-responsive" ng-cloak>
 									<table class="table table-striped table-sm table-hover">
@@ -263,7 +263,12 @@
 												<th scope="col" class="clickable" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'Name' && stat.var !== 'Slot'" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
 											</tr>
 										</thead>
-										<tbody>
+                                        <tbody ng-show="itemsBySlot[currentItem.Slot].length === 0">
+                                            <tr>
+                                                <td class="text-center font-weight-bold" colspan="100%" style="font-size:2rem">Loading...</td>
+                                            </tr>
+                                        </tbody>
+                                        <tbody ng-show="itemsBySlot[currentItem.Slot].length > 0">
                                             <tr ng-repeat="item in getFilteredSearchResults()" ng-click="onSearchRowClicked(item)">
 												<td scope="row">
 													<a href="/items/details.html?id={{item.Id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.Id"><i class="fas fa-link fa-lg"></i></a>&nbsp;{{item['Name']}}</td>
