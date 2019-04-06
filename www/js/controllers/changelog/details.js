@@ -7,8 +7,8 @@ app.controller('changelog-details', ['$scope', '$http', '$q', 'breadcrumb', func
             function(data) {
                 $scope.changelogModel = data;
 
-                $scope.changelogModel.ModifiedOn = (new Date(data.ModifiedOn + " UTC")).toString().slice(4, 24);
-                $scope.changelogModel.CreatedOn = (new Date(data.CreatedOn + " UTC")).toString().slice(4, 15);
+                $scope.changelogModel.ModifiedOn = (new Date(data.ModifiedOn + "Z")).toString().slice(4, 24);
+                $scope.changelogModel.CreatedOn = (new Date(data.CreatedOn + "Z")).toString().slice(4, 15);
 
                 $scope.addBreadcrumb();
             }
