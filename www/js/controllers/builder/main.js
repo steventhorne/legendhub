@@ -1,4 +1,4 @@
-app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants", function($scope, $cookies, $http, $q, itemConstants) {
+app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "itemConstants", function($scope, $cookies, $http, $q, $timeout, itemConstants) {
 	//#region ~~~~~~~~~ INITIALIZATION ~~~~~~~~~
 
     /** Initializes the controller. */
@@ -148,58 +148,91 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
         var lists = [];
 
         if (listCookie) {
-			var listStrs = listCookie.split("*").filter(function(el) {return el.length != 0});;
+			var listStrs = listCookie.split("*").filter(function(el) {return el.length != 0});
 			for (var i = 0; i < listStrs.length; ++i) {
-				lists.push({});
+				var newList = createListFromString(listStrs[i]);
 
-				var listStr = listStrs[i];
-				var each = listStr.split("_");
+                var found = false;
+                for (let j = 0; j < lists.length; ++j) {
+                    if (newList.Name === lists[j].Name) {
+                        foundList = lists[j];
+                        found = true;
+                        break;
+                    }
+                }
 
-				// name
-				lists[i].Name = each[0];
-				each.shift();
+                if (!found) {
+                    lists.push({Name: newList.Name, Variants: []});
+                    foundList = lists[lists.length - 1];
+                }
 
-				// base stats
-				lists[i].baseStats = {};
-				lists[i].baseStats.Strength = Number(each[0]);
-				each.shift();
-
-				lists[i].baseStats.Mind = Number(each[0]);
-				each.shift();
-
-				lists[i].baseStats.Dexterity = Number(each[0]);
-				each.shift();
-
-				lists[i].baseStats.Constitution = Number(each[0]);
-				each.shift();
-
-				lists[i].baseStats.Perception = Number(each[0]);
-				each.shift();
-
-				lists[i].baseStats.Spirit = Number(each[0]);
-				each.shift();
-
-				lists[i].baseStats.Longhouse = Number(each[0]);
-				each.shift();
-
-				lists[i].baseStats.Amulet = Number(each[0]);
-				each.shift();
-
-				// items
-				lists[i].items = [];
-				for (var j = 0; j < each.length; ++j) {
-					lists[i].items.push({"Id": Number(each[j]), "Slot": $scope.slotOrder[j]});
-				}
-
-				if (each.length < 29) {
-					for (var k = 0; k < (29 - each.length); ++k) {
-						lists[i].items.push({"Id": Number(each[j]), "Slot": 21});
-					}
-				}
+                foundList.Variants.push(newList.Variants[0]);
 			}
 		}
 
+
         return lists;
+    };
+
+    var createListFromString = function(listStr) {
+        var each = listStr.split("_");
+
+        var nameParts = each[0].split("!");
+        var name = nameParts[0];
+        if (nameParts.length === 2) {
+            var variantName = nameParts[1];
+        }
+        else {
+            var variantName = "Original";
+        }
+
+        // name
+        newList = {Name: variantName};
+        each.shift();
+
+        // base stats
+        newList.baseStats = {};
+        newList.baseStats.Strength = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Mind = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Dexterity = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Constitution = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Perception = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Spirit = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Longhouse = Number(each[0]);
+        each.shift();
+
+        newList.baseStats.Amulet = Number(each[0]);
+        each.shift();
+
+        // items
+        newList.items = [];
+        for (var j = 0; j < each.length; ++j) {
+            var isLocked = each[j][0] === "!";
+            if (isLocked) {
+                each[j] = each[j].substr(1);
+            }
+            newList.items.push({"Id": Number(each[j]), "Slot": $scope.slotOrder[j], "Locked": isLocked});
+        }
+
+        if (each.length < 29) {
+            for (var k = 0; k < (29 - each.length); ++k) {
+                newList.items.push({"Id": Number(each[j]), "Slot": 21});
+            }
+        }
+
+        return {Name: name, Variants: [newList]};
     };
 
     /**
@@ -207,23 +240,33 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
      *
      * @param {string} name - The name of the character.
      */
-    var selectListByName = function(name) {
+    var selectListByName = function(name, variantName) {
         var listIndex = 0;
+        var variantIndex = 0;
         if ($scope.allLists.length > 0) {
 			if (name) {
-				for (var i = 0; i < $scope.allLists.length; ++i) {
-					if ($scope.allLists[i].Name == name) {
+				for (let i = 0; i < $scope.allLists.length; ++i) {
+					if ($scope.allLists[i].Name === name) {
 						listIndex = i;
+
+                        if (variantName) {
+                            for (let j = 0; j < $scope.allLists[i].Variants.length; ++j) {
+                                if ($scope.allLists[i].Variants[j].Name === variantName) {
+                                    variantIndex = j;
+                                    break;
+                                }
+                            }
+                        }
 						break;
 					}
 				}
 			}
 		}
 		else {
-			$scope.allLists.push($scope.getDefaultList("Untitled"));
+			addCharacterList("Untitled");
 		}
 
-        selectListByIndex(listIndex);
+        selectListByIndex(listIndex, variantIndex);
     };
 
     /**
@@ -231,10 +274,22 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
      *
      * @param {int} index - The index of the list in the character list array.
      */
-    selectListByIndex = function(index) {
+    var selectListByIndex = function(index, variantIndex = 0) {
         $scope.selectedListIndex = index;
-        $scope.selectedList = $scope.allLists[index];
-		$scope.editCharacterModel = {"Name": $scope.selectedList.Name};
+        selectListVariantByIndex(index, variantIndex);
+
+    };
+
+    /**
+     * Selects a character variant list via the index of both the list and variant in the arrays.
+     *
+     * @param {int} listIndex - The index of the list in the character list array.
+     * @param {int} variantIndex - The index of the variant in the variant array of the character list.
+     */
+    var selectListVariantByIndex = function(listIndex, variantIndex) {
+        $scope.selectedListVariantIndex = variantIndex;
+        $scope.selectedList = $scope.allLists[listIndex].Variants[variantIndex];
+		$scope.editCharacterModel = {"Name": $scope.allLists[listIndex].Name};
 		var list = $scope.selectedList;
 
 		var ids = [];
@@ -247,7 +302,9 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 						for (var j = 0; j < slotItems.length; ++j) {
 							if (slotItems[j].Id == list.items[i].Id) {
 								found = true;
+                                var isLocked = list.items[i].Locked;
 								list.items[i] = slotItems[j];
+                                list.items[i].Locked = isLocked;
 								break;
 							}
 						}
@@ -270,7 +327,9 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
                     for (var i = 0; i < list.items.length; ++i) {
                         for (var j = 0; j < data.length; ++j) {
                             if (list.items[i].Id == data[j].Id) {
+                                var isLocked = list.items[i].Locked;
                                 list.items[i] = angular.copy(data[j]);
+                                list.items[i].Locked = isLocked;
                                 list.items[i].Slot = $scope.slotOrder[i];
                                 break;
                             }
@@ -342,7 +401,20 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 				selectedListCookie = $cookies.get("scl1");
 			}
 		}
-        selectListByName(selectedListCookie);
+
+        if (selectedListCookie) {
+            var splitListCookie = selectedListCookie.split("!");
+            if (splitListCookie.length === 1) {
+                selectListByName(splitListCookie[0]);
+            }
+            else if (splitListCookie.length === 2) {
+                selectListByName(splitListCookie[0], splitListCookie[1]);
+            }
+        }
+        else {
+            selectListByName();
+        }
+
 	};
 
     /**
@@ -366,42 +438,79 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 
 		// save lists
 		listCookieStr = "";
-		for (var i = 0; i < $scope.allLists.length; ++i) {
-			listCookieStr += $scope.allLists[i].Name + "_";
-			listCookieStr += $scope.allLists[i].baseStats.Strength + "_";
-			listCookieStr += $scope.allLists[i].baseStats.Mind + "_";
-			listCookieStr += $scope.allLists[i].baseStats.Dexterity + "_";
-			listCookieStr += $scope.allLists[i].baseStats.Constitution + "_";
-			listCookieStr += $scope.allLists[i].baseStats.Perception + "_";
-			listCookieStr += $scope.allLists[i].baseStats.Spirit + "_";
-			listCookieStr += $scope.allLists[i].baseStats.Longhouse + "_";
-			listCookieStr += $scope.allLists[i].baseStats.Amulet;
-			for (var j = 0; j < $scope.allLists[i].items.length; ++j) {
-				if ($scope.allLists[i].items[j].Id) {
-					listCookieStr += "_" + $scope.allLists[i].items[j].Id;
-				}
-				else {
-					listCookieStr += "_0";
-				}
-			}
-			listCookieStr += "*";
-		}
+		for (let i = 0; i < $scope.allLists.length; ++i) {
+            for (let j = 0; j < $scope.allLists[i].Variants.length; ++j) {
+                listCookieStr += createStringFromList(
+                    $scope.allLists[i].Name,
+                    $scope.allLists[i].Variants[j]
+                );
+
+                listCookieStr += "*";
+            }
+        }
 
 		localStorage.setItem("cl", listCookieStr);
-		localStorage.setItem("scl", $scope.selectedList.Name);
+		localStorage.setItem("scl", $scope.allLists[$scope.selectedListIndex].Name + "!" + $scope.selectedList.Name);
 
 		if ($cookies.get("cl1")) {
 			$cookies.remove("cl1");
 			$cookies.remove("scl1");
-			console.log("Migrated lists successfully.");
 		}
 	};
+
+    var createStringFromList = function(listName, list) {
+        var listCookieStr = listName + "!" + list.Name + "_";
+        listCookieStr += list.baseStats.Strength + "_";
+        listCookieStr += list.baseStats.Mind + "_";
+        listCookieStr += list.baseStats.Dexterity + "_";
+        listCookieStr += list.baseStats.Constitution + "_";
+        listCookieStr += list.baseStats.Perception + "_";
+        listCookieStr += list.baseStats.Spirit + "_";
+        listCookieStr += list.baseStats.Longhouse + "_";
+        listCookieStr += list.baseStats.Amulet;
+        for (let k = 0; k < list.items.length; ++k) {
+            if (list.items[k].Id) {
+                listCookieStr += "_" + (list.items[k].Locked ? "!" : "") + list.items[k].Id;
+            }
+            else {
+                listCookieStr += "_0";
+            }
+        }
+
+        return listCookieStr;
+    };
+
+    var addCharacterList = function(name) {
+		$scope.allLists.push({Name: name, Variants: []});
+        $scope.selectedListIndex = $scope.allLists.length - 1;
+        $scope.addCharacterVariant($scope.allLists.length - 1);
+    };
+
+    $scope.addCharacterVariant = function(listIndex) {
+        var variantCount = $scope.allLists[$scope.selectedListIndex].Variants.length;
+
+        if (listIndex === $scope.selectedListIndex && variantCount > 0) {
+            var variantCopy = angular.copy($scope.allLists[$scope.selectedListIndex].Variants[$scope.selectedListVariantIndex]);
+            variantCopy.Name += " Copy";
+        }
+        else {
+            var variantCopy = $scope.getDefaultList("Original");
+        }
+
+        $scope.allLists[listIndex].Variants.push(variantCopy);
+        selectListVariantByIndex(listIndex, $scope.allLists[listIndex].Variants.length - 1);
+    };
 	//#endregion
 
 	//#region ~~~~~~~~~ EVENTS ~~~~~~~~~
     /** Event for when a different character list is chosen from the dropdown. */
     $scope.onListChanged = function() {
         selectListByIndex($scope.selectedListIndex);
+    };
+
+    /** Event for when a different character variant list is chosen from the dropdown. */
+    $scope.onListVariantChanged = function() {
+        selectListVariantByIndex($scope.selectedListIndex, $scope.selectedListVariantIndex);
     };
 
     /** Event for when a stat is changed in the view. */
@@ -414,6 +523,11 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 			if (total != 198 && total != 244) {
 				$scope.showStatError = true;
 			}
+
+            if (total === 244) {
+                $scope.selectedList.baseStats.Longhouse = -1;
+                $scope.selectedList.baseStats.Amulet = -1;
+            }
 		}
 
 		applyItemRestrictions();
@@ -442,12 +556,14 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
                 function(data) {
 				    // force the items coming in to be the slot we want (for weapons/hold slot shenanigans)
                     for (var i = 0; i < data.length; ++i) {
+                        data[i].RealSlot = data[i].Slot;
                         data[i].Slot = item.Slot;
                     }
 
                     $scope.itemsBySlot[item.Slot] = data;
                     $scope.itemsBySlot[item.Slot].splice(0, 0,
                         {
+                            "RealSlot": -1,
                             "Slot": item.Slot,
                             "Id": 0,
                             "Name": "-"
@@ -462,6 +578,211 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 
 		$('#itemChoiceModal').modal();
 	};
+
+    /**
+     * Event for when the lock button is clicked.
+     * Used on each row of the builder and in
+     * the item search modal.
+     *
+     * @param {int} index - the index of the item slot.
+     */
+    $scope.onRowLockClicked = function(index) {
+        var item = $scope.selectedList.items[index];
+        item.Locked = !item.Locked;
+		$scope.saveClientSideData();
+    };
+
+    /** Event for when the lock button is clicked for the whole column. */
+    $scope.onColumnLockClicked = function() {
+        var allLocked = true;
+        for (let i = 0; i < $scope.selectedList.items.length; ++i) {
+            if (!$scope.selectedList.items[i].Locked) {
+                allLocked = false;
+                break;
+            }
+        }
+
+        $scope.confirmMessage = "Are you sure you want to " + (allLocked ? "unlock" : "lock") + " all items?";
+        $scope.confirmFunc = toggleColumnLock;
+        $("#confirmModal").modal("show");
+    };
+
+    /** Event for when the Import button is clicked. */
+    $scope.onImportClicked = function() {
+        $scope.importModel = {Input: "", Lists: [], Message: "", Loading: true};
+        $("#importModal").modal("show");
+    };
+
+    /** Event for when the Import input changes. */
+    $scope.onImportInputChanged = function() {
+        $scope.importModel.Lists = [];
+        $scope.importModel.Loading = true;
+        if ($scope.importModel.Input) {
+			var listStrs = $scope.importModel.Input.split("*").filter(function(el) {return el.length != 0});;
+			for (let i = 0; i < listStrs.length; ++i) {
+				var newList = createListFromString(listStrs[i]);
+
+                // check if list exists
+                for (let j = 0; j < $scope.allLists.length; ++j) {
+                    if ($scope.allLists[j].Name === newList.Name) {
+                        for (let k = 0; k < $scope.allLists[j].Variants.length; ++k) {
+                            if ($scope.allLists[j].Variants[k].Name === newList.Variants[0].Name) {
+                                newList.Exists = true;
+                                newList.Overwrite = true;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                $scope.importModel.Lists.push(newList);
+            }
+        }
+
+        if ($scope.importModel.Lists.filter(l => l.Exists).length > 0) {
+            $scope.importModel.Exists = true;
+            $scope.importModel.Message = "The following lists already exist and will be overwritten unless otherwise specified:";
+        }
+
+        $scope.importModel.Loading = false;
+    };
+
+    /** Event for when the user submits the import. */
+    $scope.onImportSubmitClicked = function() {
+        var lists = $scope.importModel.Lists;
+        for (let i = 0; i < lists.length; ++i) {
+            if (!lists[i].Exists || lists[i].Overwrite) {
+                var foundList = false;
+                for (let j = 0; j < $scope.allLists.length; ++j) {
+                    if ($scope.allLists[j].Name === lists[i].Name) {
+                        foundList = true;
+                        var foundVariant = false;
+                        for (let k = 0; k < $scope.allLists[j].Variants.length; ++k) {
+                            if ($scope.allLists[j].Variants[k].Name === lists[i].Variants[0].Name) {
+                                foundVariant = true;
+                                $scope.allLists[j].Variants[k] = angular.copy(lists[i].Variants[0]);
+
+                                break;
+                            }
+                        }
+
+                        if (!foundVariant) {
+                            $scope.allLists[j].Variants.push(angular.copy(lists[i].Variants[0]));
+                        }
+
+                        break;
+                    }
+                }
+
+                if (!foundList) {
+                    $scope.allLists.push(
+                        {
+                            Name: lists[i].Name,
+                            Variants: [angular.copy(lists[i].Variants[0])]
+                        }
+                    );
+                }
+            }
+        }
+
+        $scope.saveClientSideData();
+        selectListVariantByIndex(
+            $scope.selectedListIndex,
+            $scope.selectedListVariantIndex
+        );
+        $("#importModal").modal("hide");
+    };
+
+    /** Event for when the Export button is clicked. */
+    $scope.onExportClicked = function() {
+        // generate all lists string
+        var allListsStr = "";
+		for (let i = 0; i < $scope.allLists.length; ++i) {
+            for (let j = 0; j < $scope.allLists[i].Variants.length; ++j) {
+                allListsStr += createStringFromList(
+                    $scope.allLists[i].Name,
+                    $scope.allLists[i].Variants[j]
+                );
+
+                allListsStr += "*";
+            }
+        }
+
+        var curListStr = "";
+        for (let i = 0; i < $scope.allLists[$scope.selectedListIndex].Variants.length; ++i) {
+            curListStr += createStringFromList(
+                $scope.allLists[$scope.selectedListIndex].Name,
+                $scope.allLists[$scope.selectedListIndex].Variants[i]
+            );
+
+            curListStr += "*";
+        }
+
+        var curVariantStr = createStringFromList(
+            $scope.allLists[$scope.selectedListIndex].Name,
+            $scope.selectedList
+        );
+
+        $scope.exportModel = {
+            "allLists": allListsStr,
+            "curList": curListStr,
+            "curVariant": curVariantStr
+        };
+
+        $("#exportModal").modal("show");
+    };
+
+    /** Event for when a copy button is clicked. */
+    $scope.onCopyClicked = function(elemId, clickEvent) {
+        var copyText = document.getElementById(elemId);
+        copyText.select();
+        document.execCommand("copy");
+
+        if (clickEvent) {
+            clickEvent.target.innerHTML = "Copied!";
+            $timeout(() => clickEvent.target.innerHTML = "Copy", 1500);
+        }
+    };
+
+    /** Toggles the locks on all items. */
+    var toggleColumnLock = function() {
+        var allLocked = true;
+        for (let i = 0; i < $scope.selectedList.items.length; ++i) {
+            if (!$scope.selectedList.items[i].Locked) {
+                allLocked = false;
+                break;
+            }
+        }
+
+        for (let i = 0; i < $scope.selectedList.items.length; ++i) {
+            $scope.selectedList.items[i].Locked = !allLocked;
+        }
+
+        $scope.saveClientSideData();
+    };
+
+    /** Returns the classes for the column lock symbol. */
+    $scope.getColumnLockedClasses = function() {
+        if (!$scope.selectedList) {
+            return "";
+        }
+
+        var allLocked = true;
+        for (let i = 0; i < $scope.selectedList.items.length; ++i) {
+            if (!$scope.selectedList.items[i].Locked) {
+                allLocked = false;
+                break;
+            }
+        }
+
+        if (allLocked) {
+            return "fa-lock text-success";
+        }
+        else {
+            return "fa-unlock text-white";
+        }
+    };
 
     /**
      * Gets the items for a specified slot
@@ -521,6 +842,20 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
      * @param {object} item - the item that was selected.
      */
 	$scope.onSearchRowClicked = function(item) {
+        if ($scope.currentItem.Locked) {
+            var lockElem = document.getElementById("itemSearchLock");
+
+            lockElem.classList.remove("shake-horizontal");
+            void lockElem.offsetWidth;
+            lockElem.classList.add("shake-horizontal");
+
+            if ($scope.shakeTimeout) {
+                $timeout.cancel($scope.shakeTimeout);
+            }
+            $scope.shakeTimeout = $timeout(() => lockElem.classList.remove("shake-horizontal"), 600);
+
+            return;
+        }
 		$scope.selectedList.items[$scope.currentItemIndex] = item;
 		$scope.saveClientSideData();
 		applyItemRestrictions();
@@ -595,31 +930,85 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 	//#endregion
 
 	//#region ~~~~~~~~~ COMMANDS ~~~~~~~~~
-    /** Opens the modal for adding a new character. */
-	$scope.addCharacter = function() {
-		// add new list
-		$scope.allLists.push($scope.getDefaultList($scope.addCharacterModel.Name));
-		selectListByIndex($scope.allLists.length - 1);
 
-		// reset modal
-		$("#addCharacterModal").modal("hide");
-		$scope.addCharacterModel.Name = "";
+    /** Confirm function for the edit character modal. */
+	var editCharacter = function() {
+        if (validateEditCharacter()) {
+            $scope.allLists[$scope.selectedListIndex].Name = $scope.textInputModalModel.Input;
+            $scope.saveClientSideData();
+
+            $("#textInputModal").modal("hide");
+        }
 	};
 
-    /** Opens the modal for editing an existing character. */
-	$scope.editCharacter = function() {
-		$scope.selectedList.Name = $scope.editCharacterModel.Name;
+    /** Opens the modal for editing characters. */
+    $scope.openEditCharacterModal = function() {
+        $scope.textInputModalModel = {
+            Title: "Edit Character",
+            Action: editCharacter,
+            Label: "Name",
+            Pattern: /^[A-Za-z\s\d]+$/,
+            Validate: validateEditCharacter,
+            Input: $scope.allLists[$scope.selectedListIndex].Name
+        };
 
-		$("#editCharacterModal").modal("hide");
-	};
+        $("#textInputModal").modal("show");
+    };
+
+    /** Confirm function for the add character modal. */
+	var addCharacter = function() {
+        if (validateAddCharacter()) {
+            addCharacterList($scope.textInputModalModel.Input);
+
+            $("#textInputModal").modal("hide");
+	    }
+    };
+
+    /** Opens the modal for adding characters. */
+    $scope.openAddCharacterModal = function() {
+        $scope.textInputModalModel = {
+            Title: "Add Character",
+            Action: addCharacter,
+            Label: "Name",
+            Pattern: /^[A-Za-z\s\d]+$/,
+            Validate: validateAddCharacter,
+            Input: ""
+        };
+
+        $("#textInputModal").modal("show");
+    };
+
+    /** Confirm function for the edit variant modal. */
+    var editVariant = function() {
+        if (validateEditVariant()) {
+            $scope.selectedList.Name = $scope.textInputModalModel.Input;
+            $scope.saveClientSideData();
+
+            $("#textInputModal").modal("hide");
+        }
+    };
+
+    /** Opens the modal for editing variants. */
+    $scope.openEditVariantModal = function() {
+        $scope.textInputModalModel = {
+            Title: "Edit Variant",
+            Action: editVariant,
+            Label: "Name",
+            Pattern: /^[A-Za-z\s\d]+$/,
+            Validate: validateEditVariant,
+            Input: $scope.selectedList.Name
+        };
+
+        $("#textInputModal").modal("show");
+    };
 
     /** Deletes the currently selected character. */
-	$scope.deleteCharacter = function() {
-		var index = $scope.allLists.indexOf($scope.selectedList);
+	var deleteCharacter = function() {
+		var index = $scope.selectedListIndex;
 		if (index > -1) {
 			$scope.allLists.splice(index, 1);
 			if ($scope.allLists.length == 0) {
-				$scope.allLists.push($scope.getDefaultList("Untitled"));
+				addCharacterList("Untitled");
                 selectListByIndex(0);
 			}
             else if ($scope.selectedListIndex >= $scope.allLists.length) {
@@ -633,17 +1022,19 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 
     /** Opens the modal for deleting an existing character. */
 	$scope.openDeleteModal = function() {
-		$scope.confirmMessage = "Are you sure you want to delete " + $scope.selectedList.Name + "?";
+		$scope.confirmMessage = "Are you sure you want to delete " + $scope.allLists[$scope.selectedListIndex].Name + "?";
 
-		$scope.confirmFunc = $scope.deleteCharacter;
+		$scope.confirmFunc = deleteCharacter;
 		$("#confirmModal").modal("show");
 	};
 
     /** Clears all items from the currently selected character list. */
 	$scope.clearItemsFromList = function() {
 		for (var i = 0; i < $scope.selectedList.items.length; ++i) {
-			$scope.selectedList.items[i] = {"Slot": $scope.selectedList.items[i].Slot, "Id": 0, "Name": "-"};
-		}
+            if (!$scope.selectedList.items[i].Locked) {
+			    $scope.selectedList.items[i] = {"Slot": $scope.selectedList.items[i].Slot, "Id": 0, "Name": "-"};
+		    }
+        }
 		$scope.saveClientSideData();
 	};
 
@@ -654,6 +1045,32 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 		$scope.confirmFunc = $scope.clearItemsFromList;
 		$("#confirmModal").modal("show");
 	};
+
+    /** Deletes the currently selected list variant. */
+    var deleteVariant = function() {
+        var index = $scope.selectedListVariantIndex;
+        if (index > -1) {
+            $scope.allLists[$scope.selectedListIndex].Variants.splice(index, 1);
+
+            if ($scope.allLists[$scope.selectedListIndex].Variants.length === 0) {
+                $scope.addCharacterVariant($scope.selectedListIndex);
+            }
+            else if ($scope.selectedListVariantIndex >= $scope.allLists[$scope.selectedListIndex].Variants.length) {
+                selectListVariantByIndex($scope.selectedListIndex, $scope.allLists[$scope.selectedListIndex].Variants.length - 1);
+            }
+            else {
+                selectListVariantByIndex($scope.selectedListIndex, $scope.selectedListVariantIndex);
+            }
+        }
+    };
+
+    /** Opens the confirm modal for deleting a list variant. */
+    $scope.openDeleteVariantModal = function() {
+        $scope.confirmMessage = "Are you sure you want to delete the current list variant?";
+
+        $scope.confirmFunc = deleteVariant;
+        $("#confirmModal").modal("show");
+    };
 
     /** Closes the confirm modal and calls the confirm callback. */
 	$scope.confirm = function() {
@@ -674,33 +1091,73 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 
 	//#region ~~~~~~~~~ VALIDATION ~~~~~~~~~
     /** Validates the add character form. */
-	$scope.validateAddCharacter = function() {
-		$scope.addCharacterForm.nameInput.$setValidity("duplicate", null);
-		$scope.addCharacterForm.nameInput.$setValidity("limit", null);
-		for (var i = 0; i < $scope.allLists.length; ++i) {
-			if ($scope.allLists[i].Name === $scope.addCharacterModel.Name) {
-				$scope.addCharacterForm.nameInput.$setValidity("duplicate", false);
-				break;
+	var validateAddCharacter = function() {
+		$scope.textInputModalForm.textInput.$setValidity("duplicate", null);
+		$scope.textInputModalForm.textInput.$setValidity("limit", null);
+
+        if ($scope.textInputModalModel.Input.length === 0) {
+            return false;
+        }
+
+		for (let i = 0; i < $scope.allLists.length; ++i) {
+			if ($scope.allLists[i].Name === $scope.textInputModalModel.Input) {
+				$scope.textInputModalForm.textInput.$setValidity("duplicate", false);
+                return false;
 			}
 		}
 		if ($scope.allLists.length == 20000) {
-			$scope.addCharacterForm.nameInput.$setValidity("limit", false);
+			$scope.textInputModalForm.textInput.$setValidity("limit", false);
+            return false;
 		}
+
+        return true;
 	};
 
     /** Validates the edit character form. */
-	$scope.validateEditCharacter = function() {
-		$scope.editCharacterForm.nameInput.$setValidity("duplicate", null);
-		for (var i = 0; i < $scope.allLists.length; ++i) {
-			if ($scope.allLists[i].Name === $scope.selectedList.Name) {
+	var validateEditCharacter = function() {
+		$scope.textInputModalForm.textInput.$setValidity("duplicate", null);
+		$scope.textInputModalForm.textInput.$setValidity("limit", null);
+
+        if ($scope.textInputModalModel.Input.length === 0) {
+            return false;
+        }
+
+		for (let i = 0; i < $scope.allLists.length; ++i) {
+			if ($scope.allLists[i].Name === $scope.allLists[$scope.selectedListIndex].Name) {
 				continue;
 			}
-			if ($scope.allLists[i].Name === $scope.editCharacterModel.Name) {
-				$scope.editCharacterForm.nameInput.$setValidity("duplicate", false);
-				break;
+			if ($scope.allLists[i].Name === $scope.textInputModalModel.Input) {
+				$scope.textInputModalForm.textInput.$setValidity("duplicate", false);
+                return false;
 			}
 		}
+
+        return true;
 	};
+
+    /** Validates the edit variant modal. */
+    var validateEditVariant = function() {
+        $scope.textInputModalForm.textInput.$setValidity("duplicate", null);
+		$scope.textInputModalForm.textInput.$setValidity("limit", null);
+
+        if ($scope.textInputModalModel.Input.length === 0) {
+            return false;
+        }
+
+        var variants = $scope.allLists[$scope.selectedListIndex].Variants;
+        for (let i = 0; i < variants.length; ++i) {
+            if (variants[i].Name === $scope.selectedList.Name) {
+                continue;
+            }
+
+            if (variants[i].Name === $scope.textInputModalModel.Input) {
+                $scope.textInputModalForm.textInput.$setValidity("duplicate", false);
+                return false;
+            }
+        }
+
+        return true;
+    };
 	//#endregion
 
     /**
@@ -944,9 +1401,32 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
     };
 
     /**
+     * Gets the bonus that should be applied to the stat total.
+     *
+     * @param {string} statName - the variable name of the stat to get the total bonus for.
+     * @param {int} curTotal - the current total for the stat.
+     * @return {int} the bonus amount based on the current total.
+     */
+    var getStatTotalBonus = function(statName, curTotal) {
+        switch (statName) {
+            case "Dam":
+                for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+					if ($scope.selectedList.items[i].Slot == 14 && $scope.selectedList.items[i].TwoHanded) {
+                        return parseInt(curTotal / 3);
+					}
+				}
+                break;
+            default:
+                break;
+        }
+
+        return 0;
+    };
+
+    /**
      * Gets the max total from items for a given stat.
      *
-     * @param {string} statNAme - the variable name of the stat to get the max item total for.
+     * @param {string} statName - the variable name of the stat to get the max item total for.
      * @return {int} the max total a stat can gain from items.
      */
     var getItemTotalMax = function(statName) {
@@ -977,6 +1457,8 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
             case "Mind":
             case "Dexterity":
             case "Constitution":
+                max = 105;
+                break;
             case "Perception":
             case "Spirit":
                 max = 110;
@@ -1043,7 +1525,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 		}
 
         // Only get totals for number fields.
-		for (var i = 0; i < $scope.statInfo.length; ++i) {
+		for (let i = 0; i < $scope.statInfo.length; ++i) {
 			if ($scope.statInfo[i].var == statName) {
 				if ($scope.statInfo[i].type != "int") {
 					return "";
@@ -1051,6 +1533,15 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 				break;
 			}
 		}
+
+        // Clear stat restrictions
+        if (!$scope.statRestrictions) {
+            $scope.statRestrictions = [];
+            for (let i = 0; i < $scope.statInfo.length; ++i) {
+                $scope.statRestrictions[$scope.statInfo[i].var] = [];
+            }
+        }
+        $scope.statRestrictions[statName] = [];
 
         // Base stats
 		var fromBaseStats = 0;
@@ -1063,7 +1554,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 
         // Item stats
 		var fromItems = 0;
-		for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+		for (let i = 0; i < 24; ++i) {
 			if ($scope.selectedList.items[i][statName]) {
 				fromItems += $scope.selectedList.items[i][statName];
 			}
@@ -1072,25 +1563,59 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 		// limit stats from items
         itemTotalMax = getItemTotalMax(statName);
         if (itemTotalMax != null) {
-            fromItems = Math.min(fromItems, itemTotalMax);
+            if (fromItems > itemTotalMax) {
+                console.log("fromItems", statName);
+                $scope.statRestrictions[statName].push({
+                    restriction: "fromItems",
+                    amount: fromItems,
+                    limit: itemTotalMax
+                });
+                fromItems = itemTotalMax;
+            }
+        }
+
+        // Spell/Familiar stats
+        var fromSpells = 0;
+        for (let i = 24; i < $scope.selectedList.items.length; ++i) {
+            if ($scope.selectedList.items[i][statName]) {
+				fromItems += $scope.selectedList.items[i][statName];
+			}
         }
 
         // stat bonuses
 		var fromBonus = getTotalFromStatBonuses(statName);
 
         // sum up the different sections
-		var total = fromBaseStats + fromStatQuests + fromItems + fromBonus;
+		var total = fromBaseStats + fromStatQuests + fromItems + fromSpells + fromBonus;
+
+        // apply total bonuses
+        total += getStatTotalBonus(statName, total);
 
         // apply min and max
         totalMax = getStatTotalMax(statName);
         totalMin = getStatTotalMin(statName);
 
         if (totalMax != null) {
-            total = Math.min(total, totalMax);
+            if (total > totalMax) {
+                console.log("fromTotalMax", statName);
+                $scope.statRestrictions[statName].push({
+                    restriction: "fromTotalMax",
+                    amount: total,
+                    limit: totalMax
+                });
+                total = totalMax;
+            }
         }
 
 		if (totalMin != null) {
-			total = Math.max(total, totalMin);
+            if (total < totalMin) {
+                console.log("fromTotalMin", statName);
+                $scope.statRestrictions[statName].push({
+                    restriction: "fromTotalMin",
+                    amount: total,
+                    limit: totalMin
+                });
+            }
 		}
 
 		return total;
@@ -1163,6 +1688,10 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 		return $scope.itemRestrictions[index].includes(name);
 	};
 
+    $scope.anyStatRestrictions = function(statName) {
+        return $scope.statRestrictions[statName].length > 0;
+    }
+
 	$scope.getItemRestrictionText = function(index) {
 		var text = "";
 		for (var i = 0; i < $scope.itemRestrictions[index].length; ++i) {
@@ -1190,6 +1719,28 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 		}
 		return text;
 	};
+
+    $scope.getStatRestrictionText = function(statName) {
+        var text = "";
+        for (let i = 0; i < $scope.statRestrictions[statName].length; ++i) {
+            let res = $scope.statRestrictions[statName][i];
+            switch(res.restriction) {
+                case "fromItems":
+                    text += "The item limit for this stat is " + res.limit + ". You currently have " + res.amount + ".";
+                    break;
+                case "fromTotalMin":
+                    text += "The overall limit for this stat is " + res.limit + ". You currently have " + res.amount + ".";
+                    break;
+                case "fromTotalMax":
+                    text += "The overall limit for this stat is " + res.limit + ". You currently have " + res.amount + ".";
+                    break;
+                default:
+                    break;
+            }
+        }
+        console.log(statName, text);
+        return text;
+    };
 
 	$scope.dynamicSort = function(property) {
 		var sortOrder = 1;
@@ -1229,12 +1780,24 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "itemConstants",
 	};
 
 	$scope.filterSearchResults = function() {
-		var items = $scope.itemsBySlot[$scope.currentItem.Slot];
+		let items = $scope.itemsBySlot[$scope.currentItem.Slot];
 		if (items) {
-			var filteredItems = items.slice(0);
-			var i = filteredItems.length;
+			let filteredItems = items.slice(0);
+			let i = filteredItems.length;
 			while (i--) {
-				if ($scope.searchString != '' && !filteredItems[i].Name.toLowerCase().includes($scope.searchString.toLowerCase())) {
+                let filteredBySearch = $scope.searchString && !filteredItems[i].Name.toLowerCase().includes($scope.searchString.toLowerCase());
+
+                let filteredByWield = false;
+                if ($scope.currentItem.Slot == 14 || $scope.currentItem.Slot == 15) {
+                    if ($scope.wieldSlotFilter == 1 && filteredItems[i].RealSlot == 15) {
+                        filteredByWield = true;
+                    }
+                    else if ($scope.wieldSlotFilter == 2 && filteredItems[i].RealSlot == 14) {
+                        filteredByWield = true;
+                    }
+                }
+
+				if (filteredBySearch || filteredByWield) {
 					filteredItems.splice(i, 1);
 				}
 			}

@@ -21,7 +21,7 @@ app.controller('wiki-edit', ['$scope', '$http', '$q', 'breadcrumb', function($sc
                     return;
                 }
 
-                $scope.wikiModel.ModifiedOn = (new Date($scope.wikiModel.ModifiedOn + " UTC")).toString().slice(4, 24);
+                $scope.wikiModel.ModifiedOn = (new Date($scope.wikiModel.ModifiedOn + "Z")).toString().slice(4, 24);
                 $scope.initialWikiModel = angular.copy($scope.wikiModel);
 
                 // getCateogires

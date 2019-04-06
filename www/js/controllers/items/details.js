@@ -29,7 +29,7 @@ app.controller('items-details', ['$scope', '$http', '$q', 'itemConstants', 'brea
                         }
 
                         // response for getItemAsync
-                        $scope.item.ModifiedOn = (new Date($scope.item.ModifiedOn + " UTC")).toString().slice(4, 24);
+                        $scope.item.ModifiedOn = (new Date($scope.item.ModifiedOn + "Z")).toString().slice(4, 24);
 
                         breadcrumb.links = [{'display': 'Items', 'href': '/items/'},
                                             {'display': $scope.slots[$scope.item.Slot], 'href': '/items/index.html?slotId=' + $scope.item.Slot},
@@ -40,7 +40,7 @@ app.controller('items-details', ['$scope', '$http', '$q', 'itemConstants', 'brea
 
                         var i;
                         for (i = 0; i < $scope.history.length; i++) {
-                            $scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + " UTC")).toString().slice(4, 24);
+                            $scope.history[i].ModifiedOn = (new Date($scope.history[i].ModifiedOn + "Z")).toString().slice(4, 24);
                         }
 
 		                if ($scope.item.MobId && $scope.item.MobId >= 0) {
