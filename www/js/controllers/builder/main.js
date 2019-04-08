@@ -1436,6 +1436,12 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
             case "Hit":
             case "Dam":
                 max = 27;
+                break;
+            case "Hpr":
+            case "Mar":
+            case "Mvr":
+                max = 20;
+                break;
 			default:
 				break;
 		}
