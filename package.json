@@ -1,6 +1,6 @@
 {
   "name": "legendhub",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "A resource hub for LegendMUD",
   "scripts": {
     "prepare": "npm-run-all --parallel prepare:web prepare:python",
