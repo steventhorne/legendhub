@@ -1,7 +1,7 @@
 # [LegendHUB](https://www.legendhub.org)
 > A resource hub for [LegendMUD](www.legendmud.org).
 
-[![Version 1.6.4](http://img.shields.io/badge/version-1.6.4-brightgreen.svg?style=flat-square)](https://www.legendhub.org) [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+[![Version v=1.9.1](http://img.shields.io/badge/version-v=1.9.1-brightgreen.svg?style=flat-square)](https://www.legendhub.org) [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 ## Table of Contents
 - [Not Included](#not-included)
