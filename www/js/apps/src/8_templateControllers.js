@@ -35,7 +35,7 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
             var cookieDate = new Date();
             cookieDate.setFullYear(cookieDate.getFullYear() + 20);
             $cookies.put("theme", theme, {"path": "/", 'expires': cookieDate});
-            $('link[id="theme"]').attr('href', '/css/bootstrap-' + theme + '.min.css');
+            $('link[id="theme"]').attr('href', '/css/bootstrap-' + theme + '.min.css?%%version%%');
         }
 	}
 
