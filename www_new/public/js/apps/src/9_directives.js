@@ -1,0 +1,102 @@
+app.directive('lhAutofocus', ['$timeout', function($timeout) {
+	return {
+		restrict: 'A',
+		link : function($scope, $element) {
+			$timeout(function() {
+				$element[0].focus();
+			});
+		}
+	}
+}]);
+
+app.directive('lhHeader', function() {
+	return {
+		restrict: 'E',
+		templateUrl: 'header.html'
+	}
+});
+
+app.directive('lhFooter', function() {
+	return {
+		restrict: 'E',
+		templateUrl: 'footer.html'
+	}
+});
+
+app.directive('lhCookieConsent', function($compile, $cookies) {
+	return {
+		restrict: 'E',
+		link: function(scope, element, attrs) {
+			var consent = $cookies.get("cookie-consent");
+			if (!consent) {
+				var msg = 'This website uses cookies, which are necessary to its functioning and required to achieve the purposes illustrated in the <a href="/cookies.html">cookie policy</a>. If you want to know more or withdraw your consent to all or some of the cookies, please refer to the cookie policy. By closing this banner, you agree to the use of cookies. Should you choose not to close this banner, it will persist on every page and certain features will not function as expected.';
+
+				var template = "<div ng-init='test=1' class='cookie-consent-banner'>" +
+                    "<div class='container'><div class='row'>" +
+                    "<p class='col-12 col-lg-10 text-justify'>" + msg + "</p>" +
+                    "<div class='col-12 col-lg-2'>" +
+                    "<button class='btn btn-block btn-primary cookie-consent-button' ng-click='consentToCookies()'>Agree</button>" +
+                    "</div></div></div></div>";
+
+				scope.consentToCookies = function() {
+					var cookieDate = new Date();
+					cookieDate.setTime(2144232732000);
+					$cookies.put("cookie-consent", true, {"path": "/", "expires": cookieDate});
+					location.reload();
+				};
+
+                var linkFn = $compile(template);
+                var content = linkFn(scope);
+
+				element.html(content);
+			}
+		}
+	};
+});
+
+app.directive('lhTooltip', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.on('mouseenter', function() {
+				element.tooltip({html: true});
+				element.tooltip('show');
+			});
+			element.on('mouseleave', function() {
+				element.tooltip('hide');
+			});
+		}
+	};
+});
+
+app.directive('lhPopover', function($compile) {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+            element.popover({html: true, trigger: 'focus'});
+            element.on('shown.bs.popover', function() {
+                $compile($(".popover-body").contents())(scope);
+            });
+        }
+    };
+});
+
+app.directive("lhIsolateClick", function() {
+  return {
+    link: function(scope, elem) {
+      elem.on("click", function(e) {
+        e.stopPropagation();
+      });
+    }
+  }
+});
+
+app.directive("lhIsolateScroll", function() {
+  return {
+    link: function(scope, elem) {
+      elem.on("scroll", function(e) {
+        e.stopPropagation();
+      });
+    }
+  }
+});

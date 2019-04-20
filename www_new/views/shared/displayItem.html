@@ -1,0 +1,119 @@
+<div ng-show="item === null" ng-cloak>
+    <h1><span class="text-danger">Item Not Found</span></h1>
+</div>
+<div ng-show="!!item" ng-cloak>
+    <div class="row">
+        <h1><span class="text-primary">{{item.Name}}</span>
+            <sup style="white-space: nowrap">&nbsp;&nbsp;&nbsp;
+                <lh-perm-check lh-perm-name="Item" lh-perm-update ng-cloak>
+                    <a ng-href="/items/edit.html?id={{::item.Id}}"><i class="far fa-edit"></i> Edit</a>
+                </lh-perm-check>
+                <lh-perm-check lh-perm-name="Item" lh-perm-update lh-perm-inverse ng-cloak>
+                    <a ng-href="/login.html?returnUrl=/items/edit.html?id={{::item.Id}}"><i class="far fa-edit"></i> Edit</a></sup>
+                </lh-perm-check>
+            </sup>
+        </h1>
+    </div>
+    <div class="row">
+        <span><small><strong>Modified On</strong> {{item.ModifiedOn}} <strong>by</strong> {{item.ModifiedBy}}</small></span>
+    </div>
+    <br /><br />
+    <div>
+        <div class="row" ng-if="mob && mob.Id >= 0">
+            <span><strong>Mob:</strong>&nbsp;&nbsp;<a href="/mobs/details.html?id={{item.MobId}}">{{mob.Name}} <span ng-class="{'text-danger': !mob.AreaName, 'text-info': mob.AreaName}">({{mob.AreaName ? mob.AreaName : 'Area unspecified'}})</span></a></span>
+        </div>
+        <div class="row" ng-if="quest && quest.Id >= 0">
+            <span><strong>Quest:</strong>&nbsp;&nbsp;<a href="/quests/details.html?id={{item.QuestId}}">{{quest.Title}} <span ng-class="{'text-danger': !quest.AreaName, 'text-info': quest.AreaName}">({{quest.AreaName ? quest.AreaName : 'Area unspecified'}})</span></a></span>
+        </div>
+        <br />
+    </div>
+    <div class="col-12 col-md-10 col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-6 col-12">
+                        <div class="row">
+                            <dt class="col-8">Slot</dt>
+                            <dd class="col-4">{{slots[item.Slot]}}</dd>
+                        </div>
+                        <div class="row">
+                            <dd class="col-4 offset-8 text-info" ng-if="item.UniqueWear">Unique</dd>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-12">
+                        <div class="row">
+                            <dt class="col-8">Rent</dt>
+                            <dd class="col-4">{{item.Rent}}</dd>
+                        </div>
+                        <div class="row">
+                            <dt class="col-8" ng-if="item.Rent !== item.Value && item.Value !== 0">Sells For</dt>
+                            <dd class="col-4" ng-if="item.Rent !== item.Value && item.Value !== 0">{{item.Value}}</dd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4 col-8">Strength</dt>
+                    <dd class="col-sm-2 col-4">{{item.Strength}}</dd>
+                    <dt class="col-sm-4 col-8">Constitution</dt>
+                    <dd class="col-sm-2 col-4">{{item.Constitution}}</dd>
+                    <dt class="col-sm-4 col-8">Mind</dt>
+                    <dd class="col-sm-2 col-4">{{item.Mind}}</dd>
+                    <dt class="col-sm-4 col-8">Perception</dt>
+                    <dd class="col-sm-2 col-4">{{item.Perception}}</dd>
+                    <dt class="col-sm-4 col-8">Dexterity</dt>
+                    <dd class="col-sm-2 col-4">{{item.Dexterity}}</dd>
+                    <dt class="col-sm-4 col-8">Spirit</dt>
+                    <dd class="col-sm-2 col-4">{{item.Spirit}}</dd>
+                </dl>
+                <dl class="row">
+                    <dt class="col-sm-4 col-8">AC</dt>
+                    <dd class="col-sm-2 col-4">{{item.Ac}}</dd>
+                    <dt class="col-sm-4 col-8">Weight</dt>
+                    <dd class="col-sm-2 col-4">{{item.Weight}}</dd>
+                    <dt class="offset-sm-6 col-sm-4 col-8">Net Stat</dt>
+                    <dd class="col-sm-2 col-4">{{item.NetStat}}</dd>
+                </dl>
+                <br /><br />
+                <dl class="row mb-0" ng-repeat="category in statCategories track by $index" ng-if="category.name !== 'Weapon' || item.Slot === 14">
+                    <div class="col-sm-6 col-12 mb-1" ng-repeat="stat in category['stats'] track by $index" ng-if="shouldShowStat(item[statInfo[stat]['var']], statInfo[stat])">
+                        <div class="row">
+                            <dt class="col-8">{{statInfo[stat]['display']}}</dt>
+                            <dd class="col-4" ng-if="statInfo[stat]['type'] === 'int' || statInfo[stat]['type'] === 'string' || statInfo[stat]['type'] === 'decimal'">{{item[statInfo[stat]['var']]}}</dd>
+                            <dd class="col-4" ng-if="statInfo[stat]['type'] === 'bool'" ng-class="{'text-success': item[statInfo[stat]['var']] == 1, 'text-danger': item[statInfo[stat]['var']] == 0}">{{item[statInfo[stat]['var']] == 1 ? 'yes' : 'no'}}</dd>
+                            <dd class="col-4" ng-if="statInfo[stat]['type'] === 'select'">{{ selectShortOptions[statInfo[stat]['var']][item[statInfo[stat]['var']]] }}</dd>
+                        </div>
+                    </div>
+                </dl>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-sm-6 col-12">
+                        <div class="row">
+                            <dt class="col-12">{{aligns[item.AlignRestriction]}}</dt>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-if="item.Notes">
+            <br /><br />
+            <div class="card">
+                <div class="card-header">Notes</div>
+                <div class="card-body" markdown-to-html="item.Notes"></div>
+            </div>
+        </div>
+        <br />
+        <div class="col-12 col-md-6" ng-if="history.length > 0">
+            <div class="card">
+                <div class="card-header list-group-item-action" data-toggle="collapse" data-target="#historyCollapse">Show Previous Versions&nbsp;&nbsp;<span class="badge badge-dark">{{history.length}}</span><span class="float-right"><i class="far fa-plus-square"></i></span></div>
+                <div id="historyCollapse" class="collapse">
+                    <ul class="list-group list-group-flush">
+                        <a href="/items/history.html?id={{record.Id}}" class="list-group-item list-group-item-action" ng-repeat="record in history">{{record.ModifiedOn}} <strong>by</strong> {{record.ModifiedBy}}</a>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
