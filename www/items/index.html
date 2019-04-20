@@ -41,7 +41,7 @@
 									<div class="input-group-append">
 										<button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#columnsModal" aria-expanded="false"><span class="d-none d-md-inline-block">Columns</span><i class="d-inline-block d-md-none fas fa-columns"></i></button>
 										<button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#filtersModal" aria-expanded="false"><span class="d-none d-md-inline-block">Filters</span><i class="d-inline-block d-md-none fas fa-filter"></i></button>
-										<button class="btn btn-outline-success" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
+										<button class="btn btn-primary" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
 									</div>
 								</div>
 							</div>
@@ -68,7 +68,7 @@
 									</lh-perm-check>
 								</div>
 								<div class="table-responsive">
-									<table class="table table-sm table-md table-hover table-striped table-bordered" ng-cloak>
+									<table class="table table-sm table-md table-hover table-striped table-bordered mb-0" ng-cloak>
 										<thead class="thead-dark">
 											<tr>
 												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" ng-if="recent" nowrap>Modified By&nbsp;<i ng-class="getSortClass('ModifiedBy')"></i></th>
@@ -94,7 +94,7 @@
 					</div>
 					<br />
                     <div class="row">
-					    <nav class="col-12" aria-label="Item result navigation" ng-if="totalPages > 1">
+					    <nav class="col" aria-label="Item result navigation" ng-if="totalPages > 1">
 						    <ul class="pagination">
 							    <li class="page-item">
 								    <a class="page-link" ng-click="onPreviousClicked()" href aria-label="Previous">

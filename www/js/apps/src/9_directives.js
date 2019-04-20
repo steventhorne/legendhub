@@ -80,3 +80,23 @@ app.directive('lhPopover', function($compile) {
         }
     };
 });
+
+app.directive("lhIsolateClick", function() {
+  return {
+    link: function(scope, elem) {
+      elem.on("click", function(e) {
+        e.stopPropagation();
+      });
+    }
+  }
+});
+
+app.directive("lhIsolateScroll", function() {
+  return {
+    link: function(scope, elem) {
+      elem.on("scroll", function(e) {
+        e.stopPropagation();
+      });
+    }
+  }
+});

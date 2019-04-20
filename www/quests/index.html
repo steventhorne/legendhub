@@ -18,31 +18,30 @@
 	<title>LegendHUB - Quests</title>
 </head>
 
-<body ng-app="legendwiki-app" ng-controller="quests">
+<body ng-app="legendwiki-app" ng-controller="quests" ng-class="{'modal-open': categoryActive}">
 	<lh-header></lh-header>
 	<div class="container-fluid">
 		<div class="px-0">
 			<div class="row">
-				<div class="categoryListContainer col-md-3 col-lg-2 border-right" ng-class="{active: categoryActive}">
-					<h2>Areas
-						<button class="btn btn-outline-danger float-right d-block d-md-none" type="button" ng-click="categoryActive = false">
-							<i class="fas fa-times"></i>
-						</button>
-					</h2>
-					<ul class="categoryList">
-						<li ng-repeat="category in catService.categories" ng-cloak>
-							<a ng-class="{'text-primary font-weight-bold': category.Id == catService.getCategoryId() && !catService.hasSelectedSubcategory(), 'text-secondary': category.Id != catService.getCategoryId() || catService.hasSelectedSubcategory()}"
-							ng-href="{{getSearchUrl(category.Id, -1)}}">{{category.Name}}</a>
-							<ul ng-if="category.Id == catService.getCategoryId()">
-								<li ng-repeat="subcategory in catService.getFilteredSubcategories()">
-									<a ng-class="{'text-primary font-weight-bold': subcategory.Id == catService.getSubcategoryId(), 'text-secondary': subcategory.Id != catService.getSubcategoryId()}"
-									    ng-href="{{getSearchUrl(category.Id, subcategory.Id)}}">{{subcategory.Name}}</a>
-								</li>
-							</ul>
-						</li>
-					</ul>
-				</div>
-				<div class="col-12 col-md-9 col-lg-10">
+        <div class="categoryListBackground" ng-class="{active: categoryActive}" ng-click="categoryActive = false">
+          <div class="categoryListContainer" lh-isolate-click>
+            <div class="categoryListClose" ng-click="categoryActive = !categoryActive"><i class="fas fa-times"></i></div>
+            <h2>Areas</h2>
+            <ul class="categoryList">
+              <li ng-repeat="category in catService.categories" ng-cloak>
+                <a ng-class="{'active': category.Id == catService.getCategoryId() && !catService.hasSelectedSubcategory()}"
+                ng-href="{{getSearchUrl(category.Id, -1)}}">{{category.Name}}</a>
+                <ul ng-if="category.Id == catService.getCategoryId()">
+                  <li ng-repeat="subcategory in catService.getFilteredSubcategories()">
+                    <a ng-class="{'active': subcategory.Id == catService.getSubcategoryId()}"
+                        ng-href="{{getSearchUrl(category.Id, subcategory.Id)}}">{{subcategory.Name}}</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+				<div class="col">
 					<div class="row text-center">
 						<h1 class="col-12">Quests</h1>
 					</div>
@@ -67,7 +66,7 @@
 										</button>
 									</div>
 									<div class="input-group-append">
-										<button class="btn btn-outline-success" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
+										<button class="btn btn-primary" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
 									</div>
 								</div>
 							</div>
@@ -94,7 +93,7 @@
 									</lh-perm-check>
 								</div>
 								<div class="table-responsive">
-									<table class="table table-sm table-md table-hover table-striped table-bordered" ng-cloak>
+									<table class="table table-sm table-md table-hover table-striped table-bordered mb-0" ng-cloak>
 										<thead class="thead-dark">
 											<tr>
 												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" nowrap ng-if="recent">Modified By&nbsp;<i ng-class="sortClass('ModifiedBy')"></i></th>
@@ -117,7 +116,7 @@
 					</div>
 					<br />
                     <div class="row">
-					    <nav class="row" aria-label="Quest result navigation" ng-show="totalPages > 1">
+					    <nav class="col" aria-label="Quest result navigation" ng-show="totalPages > 1">
 						    <ul class="pagination">
 							    <li class="page-item">
 								    <a class="page-link" ng-click="onPreviousClicked()" href aria-label="Previous">
