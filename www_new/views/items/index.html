@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- CSS -->
+	<script src="/js/js.cookie.min.js"></script>
+	<noscript>
+		<link id="theme" rel="stylesheet" href="/css/bootstrap-light.min.css?%%version%%">
+	</noscript>
+
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+	    crossorigin="anonymous">
+
+	<title>LegendHUB - Items</title>
+</head>
+
+<body ng-app="legendwiki-app" ng-controller="items">
+	<lh-header></lh-header>
+	<div class="container-fluid">
+		<div class="px-0">
+			<div class="row">
+				<div class="col-12">
+					<div class="row text-center">
+						<h1 class="col-12">Items</h1>
+					</div>
+					<div class="px-0 px-md-5" ng-cloak>
+						<div ng-if="getFilterCount() > 0">
+							<span class="text-info">Filters: <span ng-repeat="filter in getFilterList() track by $index"> <a href="" ng-click="removeFilter(filter.var)" class="badge badge-pill badge-info">{{ filter.display }} <i class="fas fa-times"></i></a></span></span>
+						</div>
+						<form ng-submit="onSearchClicked()">
+							<div class="row">
+								<span class="text-danger" ng-show="searchError != ''">{{searchError}}</span>
+							</div>
+							<div class="row">
+								<div class="input-group col-12">
+									<input type="text" ng-model="searchString" class="form-control" placeholder="Search by name..." lh-autofocus>
+									<div class="input-group-append">
+										<button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#columnsModal" aria-expanded="false"><span class="d-none d-md-inline-block">Columns</span><i class="d-inline-block d-md-none fas fa-columns"></i></button>
+										<button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#filtersModal" aria-expanded="false"><span class="d-none d-md-inline-block">Filters</span><i class="d-inline-block d-md-none fas fa-filter"></i></button>
+										<button class="btn btn-primary" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<br />
+					<div class="row" ng-show="resultWarning != ''" ng-cloak>
+						<span class="text-danger">{{resultWarning}}</span>
+					</div>
+					<div class="row" ng-cloak>
+						<div class="col-12">
+							<div class="card">
+								<div class="card-header">
+									<strong class="float-left">{{recent ? "Recently Modified" : "Search Results"}}</strong>
+									<lh-perm-check lh-perm-name="Item" lh-perm-create class="float-right clickable" ng-cloak>
+										<a href="/items/add.html">
+											<i class="fas fa-plus"></i>
+										</a>
+									</lh-perm-check>
+									<lh-perm-check lh-perm-name="Item" lh-perm-create lh-perm-inverse class="float-right clickable" ng-cloak>
+										<a href="/login.html?returnUrl=/items/add.html">
+											<i class="fas fa-plus"></i>
+										</a>
+									</lh-perm-check>
+								</div>
+								<div class="table-responsive">
+									<table class="table table-sm table-md table-hover table-striped table-bordered mb-0" ng-cloak>
+										<thead class="thead-dark">
+											<tr>
+												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" ng-if="recent" nowrap>Modified By&nbsp;<i ng-class="getSortClass('ModifiedBy')"></i></th>
+												<th ng-repeat="stat in statInfo" class="text-center" ng-if="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{::stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="item in items | orderBy:sortProperty:sortReverse | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onItemClicked(item)" style="cursor: pointer;">
+												<td ng-if="recent" class="text-center">{{item.ModifiedBy}}</td>
+                                                <td ng-repeat="stat in statInfo" ng-class="{'text-center': stat.var !== 'Name', 'text-primary': stat.var === 'Name', 'font-weight-bold': stat.var === 'Name', 'text-monospace': stat.var === 'AlignRestriction'}" ng-trim="!stat.var === 'AlignRestriction'" ng-if="stat.showColumn">
+													<span ng-if="stat.type == 'bool'">
+														<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
+													</span>
+                                                    <span ng-if="stat.type === 'select'" ng-style="stat.var === 'AlignRestriction' && {'white-space':'pre'}">{{ selectShortOptions[stat.var][item[stat.var]] }}</span>
+													<span ng-if="stat.type === 'int' || stat.type === 'decimal' || stat.type === 'string'">{{item[stat.var]}}</span>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<br />
+                    <div class="row">
+					    <nav class="col" aria-label="Item result navigation" ng-if="totalPages > 1">
+						    <ul class="pagination">
+							    <li class="page-item">
+								    <a class="page-link" ng-click="onPreviousClicked()" href aria-label="Previous">
+									    <span aria-hidden="true">
+										    <i class="fas fa-chevron-left"></i>
+									    </span>
+									    <span class="sr-only">Previous</span>
+								    </a>
+							    </li>
+							    <li class="page-item" ng-repeat="i in getPageArray(totalPages) track by $index" ng-class="{active: i == currentPage}">
+								    <a class="page-link" ng-click="onPageClicked(i)" href>{{i}}</a>
+							    </li>
+							    <li class="page-item">
+								    <a class="page-link" ng-click="onNextClicked()" href aria-label="Next">
+									    <span aria-hidden="true">
+										    <i class="fas fa-chevron-right"></i>
+									    </span>
+									    <span class="sr-only">Next</span>
+								    </a>
+							    </li>
+						    </ul>
+					    </nav>
+                    </div>
+				</div>
+			</div>
+		</div>
+	</div>
+    <div ng-include="'/shared/columnsModal.html'"></div>
+    <div ng-include="'/shared/filtersModal.html'"></div>
+
+	<lh-footer></lh-footer>
+
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+	    crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+	    crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+	    crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
+	<script src="/js/apps/legendwiki-app.js?%%version%%"></script>
+	<script src="/js/controllers/items/main.js?%%version%%"></script>
+</body>
+
+</html>
+
