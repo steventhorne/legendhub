@@ -55,19 +55,31 @@ body {
   }
 }
 
+.categoryListContainer {
+  min-width: 250px;
+  padding: 0 30px 0 15px;
+
+  h2 {
+    text-align: center;
+  }
+}
+
 .categoryList {
-  height: 100%;
-  padding-left: 20px;
+  padding-left: 5px;
   font-size: 1.1em;
   list-style: none;
 
   li {
     a {
+      color: rgba($body-color, .7);
+
       &:hover {
+        color: $body-color;
         text-decoration: none;
       }
 
-      .active {
+      &.active {
+        font-weight: 700;
         color: $link-color;
       }
     }
@@ -78,6 +90,10 @@ body {
       list-style: none;
     }
   }
+}
+
+.categoryListClose {
+  display: none;
 }
 
 .clickable {
@@ -129,24 +145,59 @@ body {
 }
 
 @media (max-width: 767px) {
-  .categoryListContainer {
+  .categoryListBackground {
     position: fixed;
     top: 0;
     bottom: 0;
     left: -250px;
     z-index: 100;
-    width: 250px;
-    padding: 15px;
-    background-color: $gray-800 !important;
+    width: calc(100% + 250px);
+    cursor: default;
+    visibility: hidden;
+    background-color: rgba($black, 0);
 
     &.active {
       left: 0;
+      visibility: visible;
+      background-color: rgba($black, .5);
       @include transition(all 150ms linear);
     }
+  }
+
+  .categoryListContainer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    padding: 0;
+    overflow-x: visible;
+    background-color: $body-bg;
+    border-right: 1px solid $card-border-color;
 
     h2 {
-      color: $white !important;
+      padding: 10px 20px;
+      margin-bottom: 0;
+      background-color: $card-cap-bg;
+      border-bottom: 1px solid $card-border-color;
     }
+  }
+
+  .categoryListClose {
+    position: absolute;
+    left: 250px;
+    display: block;
+    padding: 0 15px;
+    font-size: 2.5rem;
+    color: $white;
+  }
+
+  .categoryList {
+    padding: 10px 15px 50px 15px;
+    margin: 0;
+    overflow-y: auto;
   }
 }
 
