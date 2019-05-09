@@ -42,12 +42,12 @@ $itemStats = [
     (object) ["display" => "Name", "short" => "Name", "var" => "Name", "type" => "string", "showColumn" => true, "filterString" => "<> ''", "default" => "", "netStat" => 0, "editable" => false], // 1
     (object) ["display" => "Light", "short" => "Light", "var" => "IsLight", "type" => "bool", "filterString" => "= 1", "default" => false, "netStat" => 0],
     (object) ["display" => "Heroic", "short" => "Heroic", "var" => "IsHeroic", "type" => "bool", "filterString" => "= 1", "default" => false, "netStat" => 0],
-    (object) ["display" => "Strength", "short" => "Str", "var" => "Strength", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 1],
-	(object) ["display" => "Mind", "short" => "Min", "var" => "Mind", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 1], // 5
-	(object) ["display" => "Dexterity", "short" => "Dex", "var" => "Dexterity", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 1],
-    (object) ["display" => "Constitution", "short" => "Con", "var" => "Constitution", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 1],
-    (object) ["display" => "Perception", "short" => "Per", "var" => "Perception", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 1],
-    (object) ["display" => "Spirit", "short" => "Spi", "var" => "Spirit", "type" => "int", "showColumn" => true, "filterString" => "> 0", "default" => 0, "netStat" => 1],
+    (object) ["display" => "Strength", "short" => "Str", "var" => "Strength", "type" => "int", "showColumn" => true, "filterString" => "<> 0", "default" => 0, "netStat" => 1],
+	(object) ["display" => "Mind", "short" => "Min", "var" => "Mind", "type" => "int", "showColumn" => true, "filterString" => "<> 0", "default" => 0, "netStat" => 1], // 5
+	(object) ["display" => "Dexterity", "short" => "Dex", "var" => "Dexterity", "type" => "int", "showColumn" => true, "filterString" => "<> 0", "default" => 0, "netStat" => 1],
+    (object) ["display" => "Constitution", "short" => "Con", "var" => "Constitution", "type" => "int", "showColumn" => true, "filterString" => "<> 0", "default" => 0, "netStat" => 1],
+    (object) ["display" => "Perception", "short" => "Per", "var" => "Perception", "type" => "int", "showColumn" => true, "filterString" => "<> 0", "default" => 0, "netStat" => 1],
+    (object) ["display" => "Spirit", "short" => "Spi", "var" => "Spirit", "type" => "int", "showColumn" => true, "filterString" => "<> 0", "default" => 0, "netStat" => 1],
     (object) ["display" => "Ac", "short" => "Ac", "var" => "Ac", "type" => "int", "showColumn" => true, "filterString" => "< 0", "default" => null, "netStat" => 0], // 10
     (object) ["display" => "Alignment", "short" => "Align", "var" => "AlignRestriction", "type" => "select", "showColumn" => true, "filterString" => "= %d", "default" => 0, "netStat" => 0], 
     (object) ["display" => "Hp", "short" => "Hp", "var" => "Hp", "type" => "int", "filterString" => "> 0", "default" => 0, "netStat" => 10],
