@@ -44,7 +44,7 @@ class Mob {
     getItems() {
         let mobId = this.id;
         return new Promise(function(resolve, reject) {
-            mysql.query(`${ itemSchema.selectSQL.itemSelectSQL } WHERE MobId = ?`,
+            mysql.query(`${ itemSchema.selectSQL.itemSelectSQL } FROM Items WHERE MobId = ?`,
                 [mobId],
                 function(error, results, fields) {
                     if (error)
