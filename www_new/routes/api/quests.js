@@ -34,7 +34,7 @@ class Quest {
     getItems() {
         let questId = this.id;
         return new Promise(function(resolve, reject) {
-            mysql.query(`${ itemSchema.selectSQL.itemSelectSQL } WHERE QuestId = ?`,
+            mysql.query(`${ itemSchema.selectSQL.itemSelectSQL } FROM Items WHERE QuestId = ?`,
                 [questId],
                 function(error, results, fields) {
                     if (error)
