@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <%- include('shared/meta'); -%>
+
+        <title>LegendHUB | LegendMUD's Community Hub</title>
+    </head>
+    <body ng-app="legendwiki-app" ng-controller="home">
+        <%- include('shared/header'); -%>
+        <div class="container">
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Welcome!<small class="float-right text-info">06-19-2018</small></h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <p>Welcome to LegendHUB, a community-driven resource designed to provide updated information and easily-accessible, user-friendly tools.</p>
+                        <br />
+                        <p>After making an account, anyone can edit any part of LegendHUB without any special privileges. This site, and its data, is made by the community for the community. It also works well on mobile devices!</p>
+                        <br />
+                        <p>Similar to other community-driven resources, vandalism of content is discouraged. Those found to be posting incorrect or inappropriate information will be subject to consequences. For us, it is very easy to identify vandals, revert unwanted changes, and ban those who refuse to act civilly. Therefore, such behavior is futile and we're sure you have better things to do with your time.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%- include('shared/footer'); -%>
+        <%- include('shared/scripts'); -%>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
+        <script src="/js/apps/legendwiki-app.js?%%version%%"></script>
+        <script src="/js/controllers/home.js"></script>
+    </body>
+</html>
