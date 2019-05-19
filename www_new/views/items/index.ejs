@@ -1,25 +1,12 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-	<!-- Required meta tags -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-	<!-- CSS -->
-	<script src="/js/js.cookie.min.js"></script>
-	<noscript>
-		<link id="theme" rel="stylesheet" href="/css/bootstrap-light.min.css?%%version%%">
-	</noscript>
-
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
-	    crossorigin="anonymous">
+    <%- include('../shared/meta') %>
 
 	<title>LegendHUB - Items</title>
 </head>
-
 <body ng-app="legendwiki-app" ng-controller="items">
-	<lh-header></lh-header>
+    <%- include('../shared/header') %>
 	<div class="container-fluid">
 		<div class="px-0">
 			<div class="row">
@@ -71,21 +58,23 @@
 									<table class="table table-sm table-md table-hover table-striped table-bordered mb-0" ng-cloak>
 										<thead class="thead-dark">
 											<tr>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" ng-if="recent" nowrap>Modified By&nbsp;<i ng-class="getSortClass('ModifiedBy')"></i></th>
+												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" nowrap>Modified By&nbsp;<i ng-class="getSortClass('ModifiedBy')"></i></th>
 												<th ng-repeat="stat in statInfo" class="text-center" ng-if="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{::stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
 											</tr>
 										</thead>
 										<tbody>
-											<tr ng-repeat="item in items | orderBy:sortProperty:sortReverse | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onItemClicked(item)" style="cursor: pointer;">
-												<td ng-if="recent" class="text-center">{{item.ModifiedBy}}</td>
-                                                <td ng-repeat="stat in statInfo" ng-class="{'text-center': stat.var !== 'Name', 'text-primary': stat.var === 'Name', 'font-weight-bold': stat.var === 'Name', 'text-monospace': stat.var === 'AlignRestriction'}" ng-trim="!stat.var === 'AlignRestriction'" ng-if="stat.showColumn">
-													<span ng-if="stat.type == 'bool'">
-														<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
-													</span>
-                                                    <span ng-if="stat.type === 'select'" ng-style="stat.var === 'AlignRestriction' && {'white-space':'pre'}">{{ selectShortOptions[stat.var][item[stat.var]] }}</span>
-													<span ng-if="stat.type === 'int' || stat.type === 'decimal' || stat.type === 'string'">{{item[stat.var]}}</span>
-												</td>
-											</tr>
+                                            <% for(var i = 0; i < viewModel.results.length; ++i) { %>
+                                                <tr ng-click="onItemClicked(<%- viewModel.results[i].id _%>)" style="cursor: pointer;">
+                                                    <td class="text-center"><%= viewModel.results[i].name _%></td>
+                                                    <td ng-repeat="stat in statInfo" ng-class="{'text-center': stat.var !== 'Name', 'text-primary': stat.var === 'Name', 'font-weight-bold': stat.var === 'Name', 'text-monospace': stat.var === 'AlignRestriction'}" ng-trim="!stat.var === 'AlignRestriction'" ng-if="stat.showColumn">
+                                                        <span ng-if="stat.type == 'bool'">
+                                                            <i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
+                                                        </span>
+                                                        <span ng-if="stat.type === 'select'" ng-style="stat.var === 'AlignRestriction' && {'white-space':'pre'}">{{ selectShortOptions[stat.var][item[stat.var]] }}</span>
+                                                        <span ng-if="stat.type === 'int' || stat.type === 'decimal' || stat.type === 'string'">{{item[stat.var]}}</span>
+                                                    </td>
+                                                </tr>
+                                            <% } %>
 										</tbody>
 									</table>
 								</div>
@@ -125,19 +114,11 @@
     <div ng-include="'/shared/columnsModal.html'"></div>
     <div ng-include="'/shared/filtersModal.html'"></div>
 
-	<lh-footer></lh-footer>
-
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-	    crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-	    crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-	    crossorigin="anonymous"></script>
+    <%- include('../shared/footer') %>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
 	<script src="/js/apps/legendwiki-app.js?%%version%%"></script>
 	<script src="/js/controllers/items/main.js?%%version%%"></script>
 </body>
-
 </html>
 

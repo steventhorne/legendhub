@@ -77,6 +77,12 @@ for (let i = 0; i < itemColumns.length; ++i) {
     itemSelectSQL += itemColumns[i].name;
 }
 
+let itemFragment = "fragment ItemAll on Item {\n";
+for (let i = 0; i < itemColumns.length; ++i) {
+    itemFragment += itemColumns[i].name[0].toLowerCase() + itemColumns[i].name.slice(1) + "\n";
+}
+itemFragment += "}";
+
 class Item {
     constructor(sqlResult) {
         for (let i = 0; i < itemColumns.length; ++i) {
@@ -600,3 +606,4 @@ module.exports.queryFields = qFields;
 module.exports.types = { itemType, itemHistoryType };
 module.exports.classes = { Item };
 module.exports.selectSQL = { itemSelectSQL };
+module.exports.fragment = itemFragment;
