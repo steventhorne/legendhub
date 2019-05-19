@@ -8570,7 +8570,8 @@ body {
   min-height: 100vh;
 }
 
-body > .container {
+body > .container,
+body > .container-fluid {
   flex: 1 0 auto;
 }
 

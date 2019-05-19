@@ -8,7 +8,8 @@ body {
   flex-direction: column;
   min-height: 100vh;
 
-  > .container {
+  > .container,
+  > .container-fluid {
     flex: 1 0 auto;
   }
 }
