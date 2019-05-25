@@ -3,7 +3,7 @@
 <head>
     <%- include('../shared/meta') %>
 
-	<title>LegendHUB - Items</title>
+	<title>Item Search | LegendHUB</title>
 </head>
 <body ng-app="legendwiki-app" ng-controller="items">
     <%- include('../shared/header') %>
@@ -14,14 +14,15 @@
 					<div class="row text-center">
 						<h1 class="col-12">Items</h1>
 					</div>
-					<div class="px-0 px-md-5" ng-cloak>
-						<div ng-if="getFilterCount() > 0">
-							<span class="text-info">Filters: <span ng-repeat="filter in getFilterList() track by $index"> <a href="" ng-click="removeFilter(filter.var)" class="badge badge-pill badge-info">{{ filter.display }} <i class="fas fa-times"></i></a></span></span>
-						</div>
+					<div class="px-0 px-md-5">
+                        <span class="text-info">Filters:
+                            <%
+                            for (let i = 0; i < vm.itemStatInfo.length; ++i) {
+                            %>
+                            <a href="" ng-if="isFilterEnabled('<%- vm.itemStatInfo[i].var %>', <%- vm.selectedFilters.hasOwnProperty(vm.itemStatInfo[i].var) %>)" ng-click="removeFilter('<%- vm.itemStatInfo[i].var %>')" class="badge badge-pill badge-info"<%- vm.selectedFilters.hasOwnProperty(vm.itemStatInfo[i].var) ? '' : ' ng-cloak' %>><%- vm.itemStatInfo[i].display %>&nbsp;<i class="fas fa-times"></i></a>
+                            <% } %>
+                        </span>
 						<form ng-submit="onSearchClicked()">
-							<div class="row">
-								<span class="text-danger" ng-show="searchError != ''">{{searchError}}</span>
-							</div>
 							<div class="row">
 								<div class="input-group col-12">
 									<input type="text" ng-model="searchString" class="form-control" placeholder="Search by name..." lh-autofocus>
@@ -35,46 +36,69 @@
 						</form>
 					</div>
 					<br />
-					<div class="row" ng-show="resultWarning != ''" ng-cloak>
-						<span class="text-danger">{{resultWarning}}</span>
-					</div>
-					<div class="row" ng-cloak>
+					<div class="row">
 						<div class="col-12">
 							<div class="card">
 								<div class="card-header">
-									<strong class="float-left">{{recent ? "Recently Modified" : "Search Results"}}</strong>
-									<lh-perm-check lh-perm-name="Item" lh-perm-create class="float-right clickable" ng-cloak>
+									<strong class="float-left">Search Results</strong>
+									<lh-perm-check lh-perm-name="Item" lh-perm-create class="float-right clickable">
 										<a href="/items/add.html">
 											<i class="fas fa-plus"></i>
 										</a>
 									</lh-perm-check>
-									<lh-perm-check lh-perm-name="Item" lh-perm-create lh-perm-inverse class="float-right clickable" ng-cloak>
+									<lh-perm-check lh-perm-name="Item" lh-perm-create lh-perm-inverse class="float-right clickable">
 										<a href="/login.html?returnUrl=/items/add.html">
 											<i class="fas fa-plus"></i>
 										</a>
 									</lh-perm-check>
 								</div>
 								<div class="table-responsive">
-									<table class="table table-sm table-md table-hover table-striped table-bordered mb-0" ng-cloak>
+									<table class="table table-sm table-md table-hover table-striped table-bordered mb-0">
 										<thead class="thead-dark">
 											<tr>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" nowrap>Modified By&nbsp;<i ng-class="getSortClass('ModifiedBy')"></i></th>
-												<th ng-repeat="stat in statInfo" class="text-center" ng-if="stat.showColumn" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{::stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
+                                                <% for (let i = 0; i < vm.itemStatInfo.length; ++i) { %>
+                                                <th class="text-center" ng-if="showColumn('<%- vm.itemStatInfo[i].short _%>', <%- vm.selectedColumns.includes(vm.itemStatInfo[i].short) _%>)"ng-click="onColumnHeaderClicked('<%- vm.itemStatInfo[i].short _%>')"<%- vm.selectedColumns.includes(vm.itemStatInfo[i].short) ? '' : ' ng-cloak' %> nowrap><%= vm.itemStatInfo[i].display _%>&nbsp;<i class=""></i></th>
+                                                <% } %>
 											</tr>
 										</thead>
 										<tbody>
-                                            <% for(var i = 0; i < viewModel.results.length; ++i) { %>
-                                                <tr ng-click="onItemClicked(<%- viewModel.results[i].id _%>)" style="cursor: pointer;">
-                                                    <td class="text-center"><%= viewModel.results[i].name _%></td>
-                                                    <td ng-repeat="stat in statInfo" ng-class="{'text-center': stat.var !== 'Name', 'text-primary': stat.var === 'Name', 'font-weight-bold': stat.var === 'Name', 'text-monospace': stat.var === 'AlignRestriction'}" ng-trim="!stat.var === 'AlignRestriction'" ng-if="stat.showColumn">
-                                                        <span ng-if="stat.type == 'bool'">
-                                                            <i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
-                                                        </span>
-                                                        <span ng-if="stat.type === 'select'" ng-style="stat.var === 'AlignRestriction' && {'white-space':'pre'}">{{ selectShortOptions[stat.var][item[stat.var]] }}</span>
-                                                        <span ng-if="stat.type === 'int' || stat.type === 'decimal' || stat.type === 'string'">{{item[stat.var]}}</span>
-                                                    </td>
-                                                </tr>
-                                            <% } %>
+                                        <% for (let i = 0; i < vm.results.length; ++i) { %>
+                                            <tr ng-click="onItemClicked(<%- vm.results[i].id _%>)" style="cursor: pointer;">
+                                                <% for (let j = 0; j < vm.itemStatInfo.length; ++j) {
+                                                    let stat = vm.itemStatInfo[j];
+                                                %>
+                                                <% if (stat.var === "name") { %>
+                                                <td class="text-primary font-weight-bold" ng-if="showColumn('<%- stat.short _%>', <%- vm.selectedColumns.includes(stat.short) _%>)"<%- vm.selectedColumns.includes(stat.short) ? '' : ' ng-cloak' %>>
+                                                <% } else if (stat.var === "alignRestriction") { %>
+                                                <td class="text-center text-monospace" ng-if="showColumn('<%- stat.short _%>', <%- vm.selectedColumns.includes(stat.short) _%>)"<%- vm.selectedColumns.includes(stat.short) ? '' : ' ng-cloak' %>>
+                                                <% } else { %>
+                                                <td class="text-center" ng-if="showColumn('<%- stat.short _%>', <%- vm.selectedColumns.includes(stat.short) _%>)"<%- vm.selectedColumns.includes(stat.short) ? '' : ' ng-cloak' %>>
+                                                <% } %>
+                                                    <%
+                                                        if (stat.type === 'bool') {
+                                                    %>
+                                                    <span>
+                                                        <% if (vm.results[i][stat.var] == 1) { %>
+                                                        <i class="text-success fas fa-check"></i>
+                                                        <% } else { %>
+                                                        <i class="text-danger fas fa-times"></i>
+                                                        <% } %>
+                                                    </span>
+                                                    <% } else if (stat.type === 'select') { %>
+                                                    <% if (stat.var === 'AlignRestriction') { %>
+                                                    <span style="white-space: pre">
+                                                    <% } else { %>
+                                                    <span>
+                                                    <% } %>
+                                                        <%= vm.constants.selectShortOptions[stat.var][vm.results[i][stat.var]] _%>
+                                                    </span>
+                                                    <% } else if (stat.type === 'int' || stat.type === 'decimal' || stat.type === 'string') { %>
+                                                        <span><%= vm.results[i][stat.var] _%>
+                                                    <% } %>
+                                                </td>
+                                                <% } %>
+                                            </tr>
+                                        <% } %>
 										</tbody>
 									</table>
 								</div>
@@ -83,38 +107,46 @@
 					</div>
 					<br />
                     <div class="row">
-					    <nav class="col" aria-label="Item result navigation" ng-if="totalPages > 1">
-						    <ul class="pagination">
-							    <li class="page-item">
-								    <a class="page-link" ng-click="onPreviousClicked()" href aria-label="Previous">
-									    <span aria-hidden="true">
-										    <i class="fas fa-chevron-left"></i>
-									    </span>
-									    <span class="sr-only">Previous</span>
-								    </a>
-							    </li>
-							    <li class="page-item" ng-repeat="i in getPageArray(totalPages) track by $index" ng-class="{active: i == currentPage}">
-								    <a class="page-link" ng-click="onPageClicked(i)" href>{{i}}</a>
-							    </li>
-							    <li class="page-item">
-								    <a class="page-link" ng-click="onNextClicked()" href aria-label="Next">
-									    <span aria-hidden="true">
-										    <i class="fas fa-chevron-right"></i>
-									    </span>
-									    <span class="sr-only">Next</span>
-								    </a>
-							    </li>
-						    </ul>
-					    </nav>
+                        <nav class="col" aria-label="Result navigation">
+                            <ul class="pagination">
+                                <li class="page-item<%- vm.page === 1 ? ' disabled' : '' %>">
+                                    <a href="" class="page-link" aria-label="first">
+                                        <span aria-hidden="true">
+                                            <i class="fas fa-angle-double-left"></i>
+                                        </span>
+                                        <span class="sr-only">First</span>
+                                    </a>
+                                </li>
+                                <li class="page-item<%- vm.page === 1 ? ' disabled' : '' %>">
+                                    <a href="" class="page-link" aria-label="previous">
+                                        <span aria-hidden="true">
+                                            <i class="fas fa-angle-left"></i>
+                                        </span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                </li>
+                                <li class="page-item<%- vm.moreResults ? '' : ' disabled' %>">
+                                    <a href="" class="page-link" aria-label="previous">
+                                        <span aria-hidden="true">
+                                            <i class="fas fa-angle-right"></i>
+                                        </span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">Items: <%- (vm.rows * (vm.page - 1)) + 1 %> - <%- (vm.rows * (vm.page - 1)) + vm.results.length %></span>
+                                </li>
+                            </ul>
+                        </nav>
                     </div>
 				</div>
 			</div>
 		</div>
 	</div>
-    <div ng-include="'/shared/columnsModal.html'"></div>
-    <div ng-include="'/shared/filtersModal.html'"></div>
-
+    <%- include('../shared/columnsModal') %>
+    <%- include('../shared/filtersModal') %>
     <%- include('../shared/footer') %>
+    <%- include('../shared/scripts') %>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
 	<script src="/js/apps/legendwiki-app.js?%%version%%"></script>
