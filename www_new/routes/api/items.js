@@ -70,6 +70,102 @@ let itemColumns = [
     {name: "IsHeroic", type: "TINYINT"}
 ];
 
+let selectOptions = {
+    slot: [
+      "Light",
+	    "Finger",
+	    "Neck",
+	    "Body",
+	    "Head",
+	    "Face",
+	    "Legs",
+	    "Feet",
+	    "Hands",
+	    "Arms",
+	    "Shield",
+	    "About",
+	    "Waist",
+	    "Wrist",
+	    "Wield",
+	    "Hold",
+	    "Ear",
+	    "Arm",
+	    "Amulet",
+	    "Aux",
+	    "Familiar",
+	    "Other"
+    ],
+    alignRestriction: [
+      "No Align Restriction",
+      "Good Only Align",
+      "Neutral Only Align",
+      "Evil Only Align",
+      "Non-Good Align",
+      "Non-Neutral Align",
+      "Non-Evil Align"
+    ],
+    weaponType: [
+      "",
+      "Bladed Weapon",
+      "Piercing Weapon",
+      "Blunt Weapon"
+    ],
+    weaponStat: [
+      "",
+      "Strength",
+      "Dexterity",
+      "Constitution"
+    ]
+  };
+
+let selectShortOptions = {
+    slot: [
+        "Light",
+        "Finger",
+	    "Neck",
+	    "Body",
+	    "Head",
+	    "Face",
+	    "Legs",
+	    "Feet",
+	    "Hands",
+	    "Arms",
+	    "Shield",
+	    "About",
+	    "Waist",
+	    "Wrist",
+	    "Wield",
+	    "Hold",
+	    "Ear",
+	    "Arm",
+	    "Amulet",
+	    "Aux",
+	    "Familiar",
+	    "Other"
+    ],
+    alignRestriction: [
+      "     ",
+      "G    ",
+      "  N  ",
+      "    E",
+      "  N E",
+      "G   E",
+      "G N  "
+    ],
+    weaponType: [
+      "",
+      "Bladed",
+      "Piercing",
+      "Blunt"
+    ],
+    weaponStat: [
+      "",
+      "Str",
+      "Dex",
+      "Con"
+    ]
+  }
+
 let itemSelectSQL = "SELECT ";
 for (let i = 0; i < itemColumns.length; ++i) {
     if (i > 0)
@@ -359,11 +455,10 @@ let getItemStatInfo = function(categoryId, varName) {
             ShowColumnDefault, Editable, CategoryId, SortNumber
             FROM ItemStatInfo WHERE (? IS NULL OR CategoryId = ?)
             AND (? IS NULL OR Var = ?)
-            ORDER BY CategoryId ASC, SortNumber ASC`,
+            ORDER BY SortNumber ASC`,
             [categoryId, categoryId, varName, varName],
             function(error, results, fields) {
                 if (error) reject(error);
-                console.log(error);
 
                 if (results.length > 0) {
                     let response = [];
@@ -379,7 +474,20 @@ let getItemStatInfo = function(categoryId, varName) {
     });
 };
 
-let getItems = function(searchString, filterString) {
+let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows) {
+    // set defaults
+    let noSearch = searchString === undefined && !filterString;
+    if (searchString === undefined)
+        searchString = "";
+    if (sortBy === undefined)
+        sortBy = noSearch ? "ModifiedOn" : "name";
+    if (sortAsc === undefined)
+        sortAsc = !noSearch;
+    if (page === undefined)
+        page = 1;
+    if (rows === undefined)
+        rows = 20;
+
     return new Promise(function(resolve, reject) {
         mysql.query(`SELECT Var, FilterString FROM ItemStatInfo`,
             function(error, results, fields) {
@@ -400,37 +508,46 @@ let getItems = function(searchString, filterString) {
                             let filterClause = filterStrings[filterVar];
 
                             if (filterClause) {
-                                filterQuery += " AND (" + filterVar + " " + filterClause.format(filterData.slice(1)) + ")"
+                                let mysqlVar = filterVar[0].toUpperCase() + filterVar.slice(1);
+                                filterQuery += " AND (" + mysqlVar + " " + filterClause.format(filterData.slice(1)) + ")"
                             }
                         }
                     }
 
-                    if (!searchString)
-                        searchString = "";
+                    // validate sorting
+                    let actualSortBy = "Name";
+                    if (noSearch) {
+                        actualSortBy = "ModifiedOn";
+                    }
+                    else {
+                        for (let i = 0; i < results.length; ++i) {
+                            if (results[i].Var.toLowerCase() === sortBy.toLowerCase())
+                                actualSortBy = results[i].Var;
+                        }
+                    }
 
-                    mysql.query(`${ itemSelectSQL } FROM Items WHERE (? = '' OR Name LIKE ?)${filterQuery} ORDER BY Name ASC`,
+                    mysql.query(`${ itemSelectSQL } FROM Items WHERE (? = '' OR Name LIKE ?)${filterQuery} ORDER BY ${actualSortBy} ${sortAsc ? "ASC" : "DESC"} LIMIT ${(page - 1) * rows}, ${rows + 1}`,
                         [searchString, "%" + searchString + "%"],
                         function(error, results, fields) {
                             if (error) reject(error);
 
                             if (results.length > 0) {
                                 let response = [];
-                                for (let i = 0; i < results.length; ++i) {
+                                for (let i = 0; i < Math.min(results.length, rows); ++i) {
                                     response.push(new Item(results[i]));
                                 }
-                                resolve(response);
+                                resolve({moreResults: results.length > rows, items: response});
                             }
                             else {
-                                resolve([]);
+                                resolve({moreResults: false, items: []});
                             }
                         });
-                            }
-                            else {
-                                reject(Error(`ItemStatInfo not found.`));
-                            }
-                        });
-
-
+                }
+                else {
+                    reject(Error(`ItemStatInfo not found.`));
+                    return;
+                }
+            });
     });
 };
 
@@ -537,6 +654,14 @@ let itemHistoryType = new graphql.GraphQLObjectType({
     })
 });
 
+let itemSearchResultsType = new graphql.GraphQLObjectType({
+    name: "ItemSearchResult",
+    fields: () => ({
+        moreResults: { type: graphql.GraphQLBoolean },
+        items: { type: new graphql.GraphQLList(itemType) }
+    })
+});
+
 let qFields = {
     getItemById: {
         type: itemType,
@@ -591,13 +716,17 @@ let qFields = {
         }
     },
     getItems: {
-        type: new graphql.GraphQLList(itemType),
+        type: itemSearchResultsType,
         args: {
             searchString: { type: graphql.GraphQLString },
-            filterString: { type: graphql.GraphQLString }
+            filterString: { type: graphql.GraphQLString },
+            sortBy: { type: graphql.GraphQLString },
+            sortAsc: { type: graphql.GraphQLBoolean },
+            page: { type: graphql.GraphQLInt },
+            rows: { type: graphql.GraphQLInt }
         },
-        resolve: function(_, {searchString, filterString}) {
-            return getItems(searchString, filterString);
+        resolve: function(_, {searchString, filterString, sortBy, sortAsc, page, rows}) {
+            return getItems(searchString, filterString, sortBy, sortAsc, page, rows);
         }
     }
 };
@@ -607,3 +736,4 @@ module.exports.types = { itemType, itemHistoryType };
 module.exports.classes = { Item };
 module.exports.selectSQL = { itemSelectSQL };
 module.exports.fragment = itemFragment;
+module.exports.constants = { selectOptions, selectShortOptions };

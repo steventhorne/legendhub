@@ -1,193 +1,140 @@
 app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", function($scope, $q, $cookies, $http, itemConstants) {
     /** Initializes the controller. */
 	$scope.init = function() {
-		$scope.slots = itemConstants.selectShortOptions.Slot;
-		$scope.aligns = itemConstants.selectOptions.AlignRestriction;
-		$scope.shortAligns = itemConstants.selectShortOptions.AlignRestriction;
-        $scope.selectShortOptions = itemConstants.selectShortOptions;
-
-		$scope.itemsPerPage = 20;
-		$scope.sortProperty = "";
-		$scope.sortReverse = false;
-
 		$scope.searchString = getUrlParameter('search');
+
+        loadFiltersFromUrl();
+        $scope.multiValueFilters = {};
 
         loadPage();
 	};
 
     /** Calls the async functions needed before displaying the page. */
     var loadPage = function() {
-        $q.all([getStatCategoriesAsync(), getStatInfoAsync()]).then(
-            function(data) {
-                $scope.statCategories = data[0];
+        let queryString =
+            "{\n" +
+                "getItemStatInfo {\n" +
+                    "display\n" +
+                    "short\n" +
+                    "var\n" +
+                    "type\n" +
+                    "filterString\n" +
+                    "showColumnDefault\n" +
+                "}\n" +
+            "}";
 
-                $scope.statInfo = data[1];
-			    $scope.defaultStatInfo = angular.copy(data[1]);
+		$http({
+			url: '/api',
+            method: 'POST',
+            data: { query: queryString }
+		}).then(function succcessCallback(response) {
+            $scope.statInfo = response.data.data.getItemStatInfo;
 
-                loadCookies();
-                loadFiltersFromUrl();
-
-                onPageLoaded();
-            }
-        );
+            loadCookies();
+		}, function errorCallback(response){
+		});
     };
 
-    /**
-     * Gets the stat category information from the server.
+    /*
+     * Checks if a stat column is enabled.
      *
-     * @return {Promise} a promise containing the category info.
+     * @param {string} statShort - the short name of the stat to check against.
+     * @param {bool} def - the default value to return is the columns are not available.
+     * @return {bool} true if the column should be displayed.
      */
-    var getStatCategoriesAsync = function() {
-        var deferred = $q.defer();
+    $scope.showColumn = function(statShort, def) {
+        if (!$scope.columns)
+            return def;
 
-		$http({
-			url: '/php/items/getItemCategories.php'
-		}).then(function succcessCallback(response) {
-            deferred.resolve(response.data);
-		}, function errorCallback(response){
-            deferred.reject(response);
-		});
+        return $scope.columns.includes(statShort);
+    };
 
-        return deferred.promise;
-	};
-
-    /**
-     * Gets the stat information from the server.
+    /*
+     * Toggles whether to display a stat column.
      *
-     * @return {Promise} a promise containing the stat info.
+     * @param {string} statShort - the short name of the stat to check against.
      */
-    var getStatInfoAsync = function() {
-        var deferred = $q.defer();
+    $scope.toggleColumn = function(statShort) {
+        if (!$scope.columns)
+            return;
 
-		$http({
-			url: '/php/items/getItemStats.php'
-		}).then(function succcessCallback(response) {
-            deferred.resolve(response.data);
-		}, function errorCallback(response){
-            deferred.reject(response);
-		});
+        let index = $scope.columns.indexOf(statShort);
+        if (index > -1)
+            $scope.columns.splice(index, 1);
+        else
+            $scope.columns.push(statShort);
 
-        return deferred.promise;
-	};
-
-    /** Event called when the page info is loaded. */
-    var onPageLoaded = function() {
-		if (isSearchFiltered() || $scope.searchString) {
-            searchAsync($scope.searchString, $scope.filters).then(
-                function(data) {
-                    $scope.items = data;
-                    $scope.recent = false;
-
-                    $scope.totalPages = Math.floor((data.length - 1) / $scope.itemsPerPage) + 1;
-                    $scope.currentPage = 1;
-                }
-            );
-		}
-		else {
-            getRecentItemsAsync().then(
-                function(data) {
-                    $scope.items = data;
-                    $scope.recent = true;
-
-                    $scope.totalPages = Math.floor((data.length - 1) / $scope.itemsPerPage) + 1;
-                    $scope.currentPage = 1;
-                }
-            );
-		}
-	};
+        $scope.saveCookies();
+    };
 
     /*
      * Checks if a filter is enabled.
      *
-     * @param {string} statInfo - the variable name of the stat to check against.
+     * @param {string} statVar - the var name of the stat to check against.
+     * @param {bool} def - the default value to return if the filters are not available.
      * @return {bool} true if the filter is enabled for the given stat.
      */
-    var isFilterEnabled = function(statInfo) {
-        if (statInfo.type === "select") {
-            return statInfo.filter !== "" && statInfo.filter >= 0;
-        }
-        else {
-            return statInfo.filter;
-        }
+    $scope.isFilterEnabled = function(statVar, def) {
+        if (!$scope.filters)
+            return def;
 
-        return false;
+        return $scope.filters.hasOwnProperty(statVar);
     };
 
     /*
-     * Checks if the search has any filters enabled.
+     * Toggles whether to use a filter in the search.
      *
-     * @return {bool} true if filters are enabled for any stats.
+     * @param {string} statVar - the var name of the stat to use as a filter.
+     * @param {Array} values - the values for the filter, if any.
      */
-    var isSearchFiltered = function() {
-		for (var i = 0; i < $scope.statInfo.length; ++i) {
-            if (isFilterEnabled($scope.statInfo[i])) {
-                return true;
-			}
-		}
-        return false;
+    $scope.toggleFilter = function(statVar) {
+        if (!$scope.filters)
+            return;
+
+        if ($scope.filters.hasOwnProperty(statVar)) {
+            delete $scope.filters[statVar];
+        }
+        else {
+            $scope.filters[statVar] = [];
+        }
     };
 
     /**
-     * Gets the most recently updated items from the database.
+     * Removes the filter for a specified stat.
      *
-     * @return {Promise} a promise containing the item array.
+     * @param {string} statVar - The var name for the stat to remove the filter for.
      */
-    var getRecentItemsAsync = function() {
-        var deferred = $q.defer();
-
-		$http({
-			url: '/php/items/getRecentItems.php',
-			method: 'POST'
-		}).then(function succcessCallback(response) {
-            deferred.resolve(response.data);
-		}, function errorCallback(response){
-            deferred.reject(response);
-		});
-
-        return deferred.promise;
+	$scope.removeFilter = function(statVar) {
+        delete $scope.filters[statVar];
 	};
 
-    /**
-     * Gets the items based on the search input and filters.
-     *
-     * @param {string} searchString - the search input from the user.
-     * @param {Array} filters - the enabled filters from the url.
-     * @return {Promise} a promise containing the item array.
-     */
-	var searchAsync = function(searchString, filters) {
-        var deferred = $q.defer();
+    $scope.onFilterDropdownChange = function(statVar) {
+        let value = $scope.multiValueFilters[statVar];
 
-		$http({
-			url: '/php/items/getItems.php',
-			method: 'POST',
-			data: {"searchString": searchString, "filterColumns": filters}
-		}).then(function succcessCallback(response) {
-            deferred.resolve(response.data);
-
-
-		}, function errorCallback(response){
-            deferred.reject(response);
-		});
-
-        return deferred.promise;
-	};
+        if (value === undefined || value === "") {
+            delete $scope.filters[statVar];
+        }
+        else {
+            $scope.filters[statVar] = [value];
+        }
+    };
 
     /** Navigates to the items index page with the url query for the search. */
 	$scope.onSearchClicked = function() {
-		window.location = getSearchUrl($scope.searchString, $scope.statInfo);
+		window.location = getSearchUrl($scope.searchString, $scope.filters);
 	};
 
     /**
      * Gets the search url given the search input and filters.
      *
      * @param {string} searchString - the search input from the user.
-     * @param {Array} statInfo - the array of stat information.
+     * @param {Array} filters - the array of filters.
      * @return {string} the url with the query parameters for the search.
      */
-	var getSearchUrl = function(searchString, statInfo) {
-		var url = "/items/index.html?";
+	let getSearchUrl = function(searchString, filters) {
+		let url = "/items/index.html?";
 
-		var filtersUrl = getURLFormattedFilters(statInfo);
+		let filtersUrl = getURLFormattedFilters(filters);
 		if (filtersUrl) {
 			url += "filters=" + filtersUrl + "&";
 		}
@@ -199,82 +146,69 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", f
     /*
      * Gets the URL format for the enabled filters.
      *
-     * @param {Array} statInfo - the array of stat information.
+     * @param {Array} filters - the array of filters.
      * @return {string} the URL formatted string.
      */
-	var getURLFormattedFilters = function(statInfo) {
-		var url = "";
+	let getURLFormattedFilters = function(filters) {
+        if (!filters)
+            return "";
 
-		if (!statInfo) {
-			return;
-		}
+		let url = "";
+        let first = true;
+        for (let key in $scope.filters) {
+            if (!first)
+                url += ",";
 
-		for (var i = 0; i < statInfo.length; ++i) {
-            if (isFilterEnabled(statInfo[i])) {
-				if (url) {
-					url += ",";
-				}
-				url += statInfo[i]["var"];
-                if (statInfo[i]["type"] === "select") {
-                   url += "_" + statInfo[i]["filter"];
+            if ($scope.filters.hasOwnProperty(key)) {
+                url += key;
+                for (let i = 0; i < $scope.filters[key].length; ++i) {
+                    url += "_" + $scope.filters[key][i];
                 }
-			}
-		}
+            }
+            first = false;
+        }
 
 		return url;
 	};
 
     /** Loads the enabled filters from the url into the statInfo array and enabled filters. */
 	var loadFiltersFromUrl = function() {
-		var url = getUrlParameter("filters");
-		$scope.filters = [];
-		var urlParts = url.split(',');
-		for (var i = 0; i < urlParts.length; ++i)
-		{
-			if (urlParts[i]) {
-				for (var j = 0; j < $scope.statInfo.length; ++j) {
-                    var filterData = urlParts[i].split('_');
-					if ($scope.statInfo[j]["var"] == filterData[0]) {
-                        if ($scope.statInfo[j]["type"] === "select") {
-						    $scope.statInfo[j]["filter"] = Number(filterData[1]);
-                        }
-                        else {
-                            $scope.statInfo[j]["filter"] = true;
-                        }
-                        var filterStr = j;
-                        for (var k = 1; k < filterData.length; ++k) {
-                            filterStr += "_" + filterData[k];
-                        }
-						$scope.filters.push(filterStr);
-					}
-				}
-			}
-		}
+		$scope.filters = {};
+
+		let filterString = getUrlParameter("filters");
+        if (filterString) {
+            let filterStrings = filterString.split(",");
+            for (let i = 0; i < filterStrings.length; ++i)
+            {
+                let splitFilter = filterStrings[i].split("_");
+                $scope.filters[splitFilter[0]] = splitFilter.slice(1);
+            }
+        }
 	};
 
     /** Loads the user's client-side saved data. */
-	var loadCookies = function() {
+	let loadCookies = function() {
 		// delete old cookies
 		$cookies.remove("sc1", {"path": "/"});
 
 		// load new cookies
 		if ($cookies.get("cookie-consent")) {
-			var columnCookie = $cookies.get("sc2");
+            $scope.columns = [];
+
+			let columnCookie = $cookies.get("sc2");
 			if (columnCookie) {
-				// wipe initial values
-				for (var i = 0; i < $scope.statInfo.length; ++i) {
-					$scope.statInfo[i]["showColumn"] = false;
-				}
-	
-				var columns = columnCookie.split("-");
-				for (var i = 0; i < columns.length; ++i) {
-					for (var j = 0; j < $scope.statInfo.length; ++j) {
-						if (columns[i] == $scope.statInfo[j]["short"]) {
-							$scope.statInfo[j]["showColumn"] = true;
-						}
-					}
+				let columns = columnCookie.split("-");
+				for (let i = 0; i < columns.length; ++i) {
+                    $scope.columns.push(columns[i]);
 				}
 			}
+            else {
+                for (let i = 0; i < $scope.statInfo.length; ++i) {
+                    if ($scope.statInfo[i].showColumnDefault) {
+                        $scope.columns.push($scope.statInfo[i].short);
+                    }
+                }
+            }
 		}
 	};
 
@@ -283,12 +217,7 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", f
 		var cookieDate = new Date();
 		cookieDate.setFullYear(cookieDate.getFullYear() + 20);
 
-		$savedColumns = "";
-		for (var i = 0; i < $scope.statInfo.length; ++i) {
-			if ($scope.statInfo[i]["showColumn"]) {
-				$savedColumns += $scope.statInfo[i]["short"] + "-";
-			}
-		}
+        $savedColumns = $scope.columns.join("-");
 		if ($cookies.get("cookie-consent")) {
 			$cookies.put("sc2", $savedColumns, {"path": "/", 'expires': cookieDate});
 		}
@@ -390,86 +319,19 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", f
 
     /** Resets the enabled/disabled columns back to the defaults. */
 	$scope.resetColumns = function() {
-        for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
-			for (var j = 0; j < $scope.statInfo.length; ++j) {
-                if ($scope.defaultStatInfo[i].var === $scope.statInfo[j].var) {
-				    $scope.statInfo[j].showColumn = $scope.defaultStatInfo[i].showColumn;
-                    break;
-                }
-			}
-		}
+        $scope.columns = [];
+        for (let i = 0; i < $scope.statInfo.length; ++i) {
+            if ($scope.statInfo[i].showColumnDefault) {
+                $scope.columns.push($scope.statInfo[i].short);
+            }
+        }
 
         $scope.saveCookies();
 	};
 
-    /**
-     * Gets a list of currently selected filters.
-     * Not just the filters that were selected when the page loaded.
-     *
-     * @return {Array} an array of stat information for each currently enabled filter.
-     */
-	$scope.getFilterList = function() {
-		if (!$scope.statInfo) {
-			return [];
-		}
-
-		var filters = [];
-		for (var i = 0; i < $scope.statInfo.length; ++i) {
-            if (isFilterEnabled($scope.statInfo[i])) {
-				filters.push($scope.statInfo[i]);
-            }
-		}
-
-		return filters;
-	}
-
-    /**
-     * Gets a count of currently selected filters.
-     * Not just the filters that were selected when the page loaded.
-     *
-     * @return {Array} an array of stat information for each currently enabled filter.
-     */
-	$scope.getFilterCount = function() {
-		if (!$scope.statInfo) {
-			return 0;
-		}
-
-		var count = 0;
-		for (var i = 0; i < $scope.statInfo.length; ++i) {
-            if (isFilterEnabled($scope.statInfo[i])) {
-				count++;
-            }
-		}
-
-		return count;
-	};
-
-    /**
-     * Removes the filter for a specified stat.
-     *
-     * @param {object} statInfo - the variable name of the stat you want to disable.
-     */
-	$scope.removeFilter = function(statVar) {
-		for (var i = 0; i < $scope.statInfo.length; ++i) {
-			if ($scope.statInfo[i].var === statVar) {
-				delete $scope.statInfo[i].filter;
-				break;
-			}
-		}
-
-		$scope.saveCookies();
-	};
-
     /** Resets the enabled/disabled filters back to the defaults. */
 	$scope.resetFilters = function() {
-		for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
-			for (var j = 0; j < $scope.statInfo.length; ++j) {
-                if ($scope.defaultStatInfo[i].var === $scope.statInfo[j].var) {
-				    $scope.statInfo[j].filter = $scope.defaultStatInfo[i].filter;
-                    break;
-                }
-			}
-		}
+        $scope.filters = {};
 	};
 
 	$scope.init();
