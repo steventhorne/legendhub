@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
     <%- include('../shared/meta') %>
+    <meta property="og:title" content="Item Search<%= vm.searchString ? " Results for '" + vm.searchString + "'" : "" %> | LegendHUB" />
+    <meta property="og:type" content="website" />
 
-	<title>Item Search | LegendHUB</title>
+	<title>Item Search<%= vm.searchString ? " Results for '" + vm.searchString + "'" : "" %> | LegendHUB</title>
 </head>
 <body ng-app="legendwiki-app" ng-controller="items">
     <%- include('../shared/header') %>
@@ -25,7 +27,7 @@
 						<form ng-submit="onSearchClicked()">
 							<div class="row">
 								<div class="input-group col-12">
-									<input type="text" ng-model="searchString" class="form-control" placeholder="Search by name..." lh-autofocus>
+                                    <input type="text" ng-model="searchString" class="form-control" placeholder="Search by name..." value="<%- vm.searchString %>" lh-autofocus>
 									<div class="input-group-append">
 										<button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#columnsModal" aria-expanded="false"><span class="d-none d-md-inline-block">Columns</span><i class="d-inline-block d-md-none fas fa-columns"></i></button>
 										<button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#filtersModal" aria-expanded="false"><span class="d-none d-md-inline-block">Filters</span><i class="d-inline-block d-md-none fas fa-filter"></i></button>
@@ -35,7 +37,48 @@
 							</div>
 						</form>
 					</div>
-					<br />
+					<br>
+                    <%
+                    let searchPart = (vm.query.search !== undefined ? '&search=' + vm.query.search : '');
+                    let filterPart = (vm.query.filters ? '&filters=' + vm.query.filters : '');
+                    let sortByPart = (vm.query.sortBy ? '&sortBy=' + vm.query.sortBy : '');
+                    let sortAscPart = (vm.query.sortAsc ? '&sortAsc=' + vm.query.sortAsc : '');
+                    let pageBaseUrl = '/items/index.html?' + searchPart + filterPart + sortByPart + sortAscPart;
+                    let sortBaseUrl = '/items/index.html?' + searchPart + filterPart;
+                    %>
+                    <div class="row">
+                        <nav class="col" aria-label="Result navigation">
+                            <ul class="pagination">
+                                <li class="page-item<%- vm.page === 1 ? ' disabled' : '' %>">
+                                    <a href="<%- pageBaseUrl %>" class="page-link" aria-label="first">
+                                        <span aria-hidden="true">
+                                            <i class="fas fa-angle-double-left"></i>
+                                        </span>
+                                        <span class="sr-only">First</span>
+                                    </a>
+                                </li>
+                                <li class="page-item<%- vm.page === 1 ? ' disabled' : '' %>">
+                                    <a href="<%- pageBaseUrl + '&page=' + (vm.page - 1) %>" class="page-link" aria-label="previous">
+                                        <span aria-hidden="true">
+                                            <i class="fas fa-angle-left"></i>
+                                        </span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                </li>
+                                <li class="page-item<%- vm.moreResults ? '' : ' disabled' %>">
+                                    <a href="<%- pageBaseUrl + '&page=' + (vm.page + 1) %>" class="page-link" aria-label="previous">
+                                        <span aria-hidden="true">
+                                            <i class="fas fa-angle-right"></i>
+                                        </span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">Items: <%- (vm.rows * (vm.page - 1)) + 1 %> - <%- (vm.rows * (vm.page - 1)) + vm.results.length %></span>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
 					<div class="row">
 						<div class="col-12">
 							<div class="card">
@@ -57,22 +100,29 @@
 										<thead class="thead-dark">
 											<tr>
                                                 <% for (let i = 0; i < vm.itemStatInfo.length; ++i) { %>
-                                                <th class="text-center" ng-if="showColumn('<%- vm.itemStatInfo[i].short _%>', <%- vm.selectedColumns.includes(vm.itemStatInfo[i].short) _%>)"ng-click="onColumnHeaderClicked('<%- vm.itemStatInfo[i].short _%>')"<%- vm.selectedColumns.includes(vm.itemStatInfo[i].short) ? '' : ' ng-cloak' %> nowrap><%= vm.itemStatInfo[i].display _%>&nbsp;<i class=""></i></th>
+                                                <th class="text-center" ng-if="showColumn('<%- vm.itemStatInfo[i].short %>', <%- vm.selectedColumns.includes(vm.itemStatInfo[i].short) %>)"ng-click="onColumnHeaderClicked('<%- sortBaseUrl + "&sortBy=" + vm.itemStatInfo[i].var + "&sortAsc=" + (vm.query.sortBy === vm.itemStatInfo[i].var ? !(vm.query.sortAsc === 'true') : false) %>')"<%- vm.selectedColumns.includes(vm.itemStatInfo[i].short) ? '' : ' ng-cloak' %> nowrap><%= vm.itemStatInfo[i].display %>&nbsp;
+                                                    <% if (vm.query.sortBy === vm.itemStatInfo[i].var) { %>
+                                                    <i class="fas fa-sort-<%- (vm.query.sortAsc === 'true') ? "up" : "down" %>"></i>
+                                                    <% } else if (!vm.query.sortBy) { %>
+                                                    <i class="fas fa-sort"></i>
+                                                    <% } %>
+                                                    <i class=""></i>
+                                                </th>
                                                 <% } %>
 											</tr>
 										</thead>
 										<tbody>
                                         <% for (let i = 0; i < vm.results.length; ++i) { %>
-                                            <tr ng-click="onItemClicked(<%- vm.results[i].id _%>)" style="cursor: pointer;">
+                                            <tr ng-click="onItemClicked(<%- vm.results[i].id %>)" style="cursor: pointer;">
                                                 <% for (let j = 0; j < vm.itemStatInfo.length; ++j) {
                                                     let stat = vm.itemStatInfo[j];
                                                 %>
                                                 <% if (stat.var === "name") { %>
-                                                <td class="text-primary font-weight-bold" ng-if="showColumn('<%- stat.short _%>', <%- vm.selectedColumns.includes(stat.short) _%>)"<%- vm.selectedColumns.includes(stat.short) ? '' : ' ng-cloak' %>>
+                                                <td class="text-primary font-weight-bold" ng-if="showColumn('<%- stat.short %>', <%- vm.selectedColumns.includes(stat.short) %>)"<%- vm.selectedColumns.includes(stat.short) ? '' : ' ng-cloak' %>>
                                                 <% } else if (stat.var === "alignRestriction") { %>
-                                                <td class="text-center text-monospace" ng-if="showColumn('<%- stat.short _%>', <%- vm.selectedColumns.includes(stat.short) _%>)"<%- vm.selectedColumns.includes(stat.short) ? '' : ' ng-cloak' %>>
+                                                <td class="text-center text-monospace" ng-if="showColumn('<%- stat.short %>', <%- vm.selectedColumns.includes(stat.short) %>)"<%- vm.selectedColumns.includes(stat.short) ? '' : ' ng-cloak' %>>
                                                 <% } else { %>
-                                                <td class="text-center" ng-if="showColumn('<%- stat.short _%>', <%- vm.selectedColumns.includes(stat.short) _%>)"<%- vm.selectedColumns.includes(stat.short) ? '' : ' ng-cloak' %>>
+                                                <td class="text-center" ng-if="showColumn('<%- stat.short %>', <%- vm.selectedColumns.includes(stat.short) %>)"<%- vm.selectedColumns.includes(stat.short) ? '' : ' ng-cloak' %>>
                                                 <% } %>
                                                     <%
                                                         if (stat.type === 'bool') {
@@ -85,15 +135,15 @@
                                                         <% } %>
                                                     </span>
                                                     <% } else if (stat.type === 'select') { %>
-                                                    <% if (stat.var === 'AlignRestriction') { %>
-                                                    <span style="white-space: pre">
+                                                    <% if (stat.var === 'alignRestriction') { %>
+                                                    <span style="white-space: pre"><%- vm.constants.selectShortOptions[stat.var][vm.results[i][stat.var]].replace(/\s/g, "&nbsp;") %></span>
                                                     <% } else { %>
                                                     <span>
-                                                    <% } %>
-                                                        <%= vm.constants.selectShortOptions[stat.var][vm.results[i][stat.var]] _%>
+                                                        <%= vm.constants.selectShortOptions[stat.var][vm.results[i][stat.var]] %>
                                                     </span>
+                                                    <% } %>
                                                     <% } else if (stat.type === 'int' || stat.type === 'decimal' || stat.type === 'string') { %>
-                                                        <span><%= vm.results[i][stat.var] _%>
+                                                        <span><%= vm.results[i][stat.var] %>
                                                     <% } %>
                                                 </td>
                                                 <% } %>
@@ -105,12 +155,12 @@
 							</div>
 						</div>
 					</div>
-					<br />
+					<br>
                     <div class="row">
                         <nav class="col" aria-label="Result navigation">
                             <ul class="pagination">
                                 <li class="page-item<%- vm.page === 1 ? ' disabled' : '' %>">
-                                    <a href="" class="page-link" aria-label="first">
+                                    <a href="<%- pageBaseUrl %>" class="page-link" aria-label="first">
                                         <span aria-hidden="true">
                                             <i class="fas fa-angle-double-left"></i>
                                         </span>
@@ -118,7 +168,7 @@
                                     </a>
                                 </li>
                                 <li class="page-item<%- vm.page === 1 ? ' disabled' : '' %>">
-                                    <a href="" class="page-link" aria-label="previous">
+                                    <a href="<%- pageBaseUrl + '&page=' + (vm.page - 1) %>" class="page-link" aria-label="previous">
                                         <span aria-hidden="true">
                                             <i class="fas fa-angle-left"></i>
                                         </span>
@@ -126,7 +176,7 @@
                                     </a>
                                 </li>
                                 <li class="page-item<%- vm.moreResults ? '' : ' disabled' %>">
-                                    <a href="" class="page-link" aria-label="previous">
+                                    <a href="<%- pageBaseUrl + '&page=' + (vm.page + 1) %>" class="page-link" aria-label="previous">
                                         <span aria-hidden="true">
                                             <i class="fas fa-angle-right"></i>
                                         </span>

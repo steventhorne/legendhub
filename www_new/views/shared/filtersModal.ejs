@@ -33,11 +33,14 @@
                                 </div>
                             </button>
                         <% } else { %>
-                            <select class="list-group-item list-group-item-action list-group-item-light" ng-model="multiValueFilters['<%- stat.var %>']" ng-change="onFilterDropdownChange('<%- stat.var %>')">
+                            <select class="list-group-item list-group-item-action list-group-item-light" ng-model="multiValueFilters['<%- stat.var %>']" ng-change="onFilterDropdownChange('<%- stat.var %>')"<%- stat.var === "alignRestriction" ? "style='white-space:pre'" : "" %>>
                                 <option value="">Choose a <%- stat.display %>...</option>
                                 <% for (let k = 0; k < vm.constants.selectShortOptions[stat.var].length; ++k) { %>
+                                <% if (stat.var === "alignRestriction") { %>
+                                <option value="<%- k %>" class="text-monospace"><%- vm.constants.selectShortOptions[stat.var][k].replace(/\s/g, "&nbsp;") %></option>
+                                <% } else { %>
                                 <option value="<%- k %>"><%= vm.constants.selectShortOptions[stat.var][k] %></option>
-                                <% } %>
+                                <% }} %>
                             </select>
                         <% } %>
                         <% } %>

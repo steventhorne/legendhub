@@ -4,7 +4,7 @@ let request = require("request");
 let itemApi = require("./api/items");
 
 router.get(["/", "/index.html"], function(req, res, next) {
-    let page = req.query.page === undefined ? 1 : req.query.page;
+    let page = req.query.page === undefined ? 1 : Number(req.query.page);
     let rows = 20;
     let getItemsQuery = `
     ${itemApi.fragment}
@@ -14,7 +14,7 @@ router.get(["/", "/index.html"], function(req, res, next) {
         ${req.query.search === undefined ? '' : `searchString:"${req.query.search}",`}
         ${req.query.filters === undefined ? '' : `filterString:"${req.query.filters}",`}
         ${req.query.sortBy === undefined ? '' : `sortBy:"${req.query.sortBy}",`}
-        ${req.query.sortAsc === undefined ? '' : `sortAsc:"${req.query.sortAsc}",`}
+        ${req.query.sortAsc === undefined ? '' : `sortAsc:${req.query.sortAsc},`}
         page:${page}
         rows:${rows}) {
             moreResults
@@ -83,6 +83,7 @@ router.get(["/", "/index.html"], function(req, res, next) {
             }
 
             let vm = {
+                query: req.query,
                 searchString: req.query.search,
                 results: items,
                 moreResults: moreResults,
