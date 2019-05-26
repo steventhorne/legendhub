@@ -290,16 +290,10 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", f
     /**
      * Event for when a column header is clicked for sorting.
      *
-     * @param {string} statVar - the variable name of the stat that was clicked.
+     * @param {string} url - the url to visit.
      */
-	$scope.onColumnHeaderClicked = function(statVar) {
-		if ($scope.sortProperty == statVar) {
-			$scope.sortReverse = !$scope.sortReverse;
-		}
-		else {
-			$scope.sortProperty = statVar;
-			$scope.sortReverse = true;
-		}
+	$scope.onColumnHeaderClicked = function(url) {
+        window.location = url;
 	};
 
     /**
