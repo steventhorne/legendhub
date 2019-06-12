@@ -5,7 +5,6 @@ app.controller('login', ['$scope', '$cookies', '$http', function($scope, $cookie
 	    $scope.loginFailed = false;
     };
 
-
 	$scope.checkUsername = function() {
 		$scope.registerForm.usernameInput.$setValidity("length", null);
 		$scope.registerForm.usernameInput.$setValidity("taken", null);
@@ -60,30 +59,31 @@ app.controller('login', ['$scope', '$cookies', '$http', function($scope, $cookie
 
 	$scope.login = function() {
 		$scope.loginMessages = {};
-		$http({
-			url: '/php/login/login.php',
-			method: 'POST',
-			data: $scope.loginModel
-		}).then(function succcessCallback(response) {
-			if (response.data.success) {
-				// save stayLoggedIn token
-				if (response.data.token && $cookies.get("cookie-consent")) {
-					var cookieDate = new Date();
-					cookieDate.setDate(cookieDate.getDate() + 30);
-					$cookies.put("loginToken", response.data.token, {"path": "/", 'expires': cookieDate});
-				}
 
-				var returnUrl = getUrlParameter("returnUrl");
-				if (returnUrl) {
-					window.location = returnUrl;
-				}
-				else {
-					window.location = "/";
-				}
-			}
-			else {
-				$scope.loginMessages[response.data.reason] = true;
-			}
+        let queryString =
+            '{authLogin(username:"' + $scope.loginModel.Username +
+            '",Password:"' + $scope.loginModel.Password +
+            '",stayLoggedIn:' + $scope.loginModel.StayLoggedIn + ')}';
+
+		$http({
+			url: '/api',
+			method: 'POST',
+			data: { query: queryString }
+		}).then(function succcessCallback(response) {
+            if (response.data.errors) {
+                $scope.loginMessages = response.data.errors;
+            }
+            else if (response.data.data) {
+                let data = response.data.data;
+                if (data.authLogin.token && $cookies.get("cookie-consent"))
+                    $cookies.put("loginToken", data.authLogin.token, {"path": "/", "expires": data.authLogin.expires});
+
+                let returnUrl = getUrlParameter("returnUrl");
+                if (returnUrl)
+                    window.location = returnUrl;
+                else
+                    window.location = "/";
+            }
 		})
 	}
 

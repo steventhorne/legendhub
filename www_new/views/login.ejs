@@ -1,19 +1,12 @@
 <!doctype html>
 <html lang="en" style="height: 100%;">
-
 <head>
-	<!-- Required meta tags -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <%- include('../shared/meta') %>
+    <meta property="og:title" content="Login | LegendHUB" />
+    <meta property="og:type" content="website" />
 
-	<!-- Bootstrap CSS -->
-	<script src="/js/js.cookie.min.js"></script>
-	<noscript><link id="theme" rel="stylesheet" href="/css/bootstrap-light.min.css?%%version%%"></noscript>
-
-
-	<title>LegendHUB - Login</title>
+	<title>Login | LegendHUB</title>
 </head>
-
 <body ng-app="legendwiki-app" ng-controller="login" style="height: 100%;">
 	<div class="container h-100">
 		<div class="row h-100 align-items-center">
@@ -26,16 +19,16 @@
 					<div id="loginCollapse" class="collapse show" aria-labelledby="loginHeading" data-parent="#accordion">
 						<div class="card-body">
 							<div class="input-group">
-								<dig class="input-group-prepend">
+								<div class="input-group-prepend">
 									<span class="input-group-text" id="usernameLabel">Username</span>
-								</dig>
+								</div>
 								<input name="username" type="text" class="form-control" aria-label="Username" aria-describedby="usernameLabel" ng-model="loginModel.Username" required lh-autofocus>
 							</div>
 							<br />
 							<div class="input-group">
-								<dig class="input-group-prepend">
+								<div class="input-group-prepend">
 									<span class="input-group-text" id="passwordLabel">Password</span>
-								</dig>
+								</div>
 								<input name="passwordInput" type="password" class="form-control" aria-label="Password" aria-describedby="passwordLabel" ng-model="loginModel.Password" required>
 							</div>
 							<p ng-show="loginMessages.failed" class="text-danger">Incorrect username or password.</p>
@@ -58,9 +51,9 @@
 					<div id="registerCollapse" class="collapse" aria-labelledby="registerHeading" data-parent="#accordion">
 						<div class="card-body">
 							<div class="input-group">
-								<dig class="input-group-prepend">
+								<div class="input-group-prepend">
 									<span class="input-group-text" id="usernameLabel">Username</span>
-								</dig>
+								</div>
 								<input name="usernameInput" ng-pattern="/^[A-Za-z0-9]*$/" type="text" class="form-control" aria-label="Username" aria-describedby="usernameLabel" ng-change="checkUsername()" ng-model="registerModel.Username" ng-model-options="{debounce: 200}" required>
 							</div>
 							<p ng-show="registerForm.usernameInput.$error.length" class="text-danger">Username must be between 5 to 25 characters in length.</p>
@@ -68,17 +61,17 @@
 							<p ng-show="registerForm.usernameInput.$error.pattern" class="text-danger">Username contains invalid characters.</p>
 							<br />
 							<div class="input-group">
-								<dig class="input-group-prepend">
+								<div class="input-group-prepend">
 									<span class="input-group-text" id="passwordLabel">Password</span>
-								</dig>
+								</div>
 								<input name="passwordInput" type="password" class="form-control" aria-label="Password" aria-describedby="passwordLabel" ng-change="checkPassword()" ng-model="registerModel.Password" ng-model-options="{debounce: 200}" required>
 							</div>
 							<p ng-show="registerForm.passwordInput.$error.length" class="text-danger">Password must be at least 8 characters in length.</p>
 							<br />
 							<div class="input-group">
-								<dig class="input-group-prepend">
+								<div class="input-group-prepend">
 									<span class="input-group-text" id="confirmPasswordLabel">Confirm</span>
-								</dig>
+								</div>
 								<input name="confirmPasswordInput" type="password" class="form-control" aria-label="ConfirmPassword" aria-describedby="confirmPasswordLabel" ng-change="checkPassword()" ng-model="registerModel.ConfirmPassword" ng-model-options="{debounce: 200}" required>
 							</div>
 							<p ng-show="registerForm.confirmPasswordInput.$error.length" class="text-danger">Password must be at least 8 characters in length.</p>
@@ -104,5 +97,4 @@
 	<script src="/js/apps/legendwiki-app.js?%%version%%"></script>
 	<script src="/js/controllers/login.js"></script>
 </body>
-
 </html>
