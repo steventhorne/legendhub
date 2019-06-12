@@ -21,7 +21,7 @@
     "build:css:lint": "stylelint --syntax scss \"css/scss/**/*.scss\"",
     "build:css:prefix": "postcss --config css/build/postcss.config.js --replace \"css/dist/css/*.css\" \"!css/dist/css/*.min.css\"",
     "build:css:minify": "cleancss --level 1 --source-map --source-map-inline-sources --output css/dist/css/bootstrap-light.min.css css/dist/css/bootstrap-light.css && cleancss --level 1 --source-map --source-map-inline-sources --output css/dist/css/bootstrap-dark.min.css css/dist/css/bootstrap-dark.css && cleancss --level 1 --source-map --source-map-inline-sources --output css/dist/css/bootstrap-solarized-dark.min.css css/dist/css/bootstrap-solarized-dark.css",
-    "build:css:copy": "shx cp css/dist/css/*.min.css www/css/",
+    "build:css:copy": "shx cp css/dist/css/*.min.css www_new/public/css/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -58,6 +58,7 @@
     "http-errors": "^1.7.2",
     "morgan": "^1.9.1",
     "mysql": "^2.16.0",
+    "node-php-password": "^0.1.2",
     "node-sass": "^4.11.0",
     "npm-run-all": "^4.1.5",
     "postcss-cli": "^5.0.1",
