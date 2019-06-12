@@ -16,14 +16,15 @@
 					<div class="row text-center">
 						<h1 class="col-12">Items</h1>
 					</div>
-					<div class="px-0 px-md-5">
-                        <span class="text-info">Filters:
+                    <div class="px-0 px-md-5">
+                        <p class="text-info" ng-if="showFilters(<%- Object.keys(vm.selectedFilters).length > 0 %>)"<%- Object.keys(vm.selectedFilters).length > 0 ? "" : " ng-cloak" %>>Filters:
                             <%
                             for (let i = 0; i < vm.itemStatInfo.length; ++i) {
                             %>
                             <a href="" ng-if="isFilterEnabled('<%- vm.itemStatInfo[i].var %>', <%- vm.selectedFilters.hasOwnProperty(vm.itemStatInfo[i].var) %>)" ng-click="removeFilter('<%- vm.itemStatInfo[i].var %>')" class="badge badge-pill badge-info"<%- vm.selectedFilters.hasOwnProperty(vm.itemStatInfo[i].var) ? '' : ' ng-cloak' %>><%- vm.itemStatInfo[i].display %>&nbsp;<i class="fas fa-times"></i></a>
                             <% } %>
-                        </span>
+                        </p>
+                        <p class="text-danger" ng-if="filtersUpdated" ng-cloak>You have updated your selection of filters. Please search again to apply them.</p>
 						<form ng-submit="onSearchClicked()">
 							<div class="row">
 								<div class="input-group col-12">
