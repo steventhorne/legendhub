@@ -1,6 +1,7 @@
 let mysql = require("./mysql-connection");
 let graphql = require("graphql");
 let { GraphQLDateTime } = require("graphql-iso-date");
+let auth = require("./auth");
 
 String.prototype.format = function() {
     a = this;
@@ -551,6 +552,160 @@ let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows)
     });
 };
 
+let insertItem = function(args) {
+    let statValues = {};
+    return new Promise(function(resolve, reject) {
+        let authResponse = null;
+        auth.utils.authToken(args["authToken"], auth.utils.getIPFromRequest(args["req"])).then(
+            function(response) {
+                authResponse = response;
+            }
+        ).catch(
+            function(reason) {
+                reject(reason);
+            }
+        );
+        if (!authResponse)
+            return;
+
+        mysql.query(`SELECT Var, DefaultValue, Type FROM ItemStatInfo`,
+            function(error, results, fields) {
+                if (error) {
+                    failed = true;
+                    reject(error);
+                    return;
+                }
+
+                if (results.length > 0) {
+                    for (let i = 0; i < results.length; ++i) {
+                        if (args[results[i].Var] === undefined ||
+                            args[results[i].Var] === null) {
+                            // cast default value to proper type
+                            let defaultValue = null;
+                            if (results[i].Type === "int" ||
+                                results[i].Type === "decimal" ||
+                                results[i].Type === "select") {
+                                defaultValue = Number(results[i].DefaultValue);
+                            }
+                            else if (results[i].Type === "bool") {
+                                defaultValue = (results[i].DefaultValue == "1");
+                            }
+                            else {
+                                defaultValue = results[i].DefaultValue;
+                            }
+
+                            statValues[results[i].Var] = defaultValue;
+                        }
+                        else {
+                            statValues[results[i].Var] = args[results[i].Var];
+                        }
+                    }
+
+                    let keys = [];
+                    let values = [];
+                    for (let key in statValues) {
+                        if (key !== "netStat" && statValues.hasOwnProperty(key)) {
+                            keys.push(key[0].toUpperCase() + key.slice(1));
+                            values.push(statValues[key]);
+                        }
+                    }
+                    keys.push(
+                        "NetStat",
+                        "ModifiedBy",
+                        "ModifiedOn",
+                        "ModifiedByIP"
+                    );
+                    values.push(
+                        0, // TODO: calculate netStat
+                        authResponse.username,
+                        new Date(),
+                        auth.utils.getIPFromRequest(args["req"])
+                    );
+
+                    mysql.query(`INSERT INTO Items (??) VALUES (?)`,
+                        [keys, values],
+                        function(error, results, fields) {
+                            resolve({id: results.insertId, tokenRenewal: {token: authResponse.token, expires: authResponse.expires}});
+                        });
+                }
+            });
+    });
+};
+
+let updateItem = function(args) {
+    let statValues = {};
+    return new Promise(function(resolve, reject) {
+        let authResponse = null;
+        auth.utils.authToken(args["authToken"], auth.utils.getIPFromRequest(args["req"])).then(
+            function(response) {
+                authResponse = response;
+                username = response.username;
+                newToken = response.token;
+                newTokenExpires = response.expires;
+            }
+        ).catch(
+            function(reason) {
+                reject(reason);
+            }
+        );
+        if (!authResponse)
+            return;
+
+        mysql.query(`SELECT Var, DefaultValue, Type FROM ItemStatInfo`,
+            function(error, results, fields) {
+                if (error) reject(error);
+
+                if (results.length > 0) {
+                    for (let i = 0; i < results.length; ++i) {
+                        if (args[results[i].Var] !== undefined &&
+                            args[results[i].Var] !== null) {
+                            statValues[results[i].Var] = args[results[i].Var];
+                        }
+                    }
+
+                    let sqlParts = ["UPDATE Items SET"];
+                    let placeholders = [];
+                    let placeholderValues = [];
+                    for (let key in statValues) {
+                        if (key !== "netStat" && key !== "id" && statValues.hasOwnProperty(key)) {
+                            placeholders.push("?? = ?");
+                            placeholderValues.push(key[0].toUpperCase() + key.slice(1));
+                            placeholderValues.push(statValues[key]);
+                        }
+                    }
+
+                    // Add required columns
+                    placeholders.push(
+                        "?? = ?",
+                        "?? = ?",
+                        "?? = ?",
+                        "?? = ?"
+                    );
+                    placeholderValues.push(
+                        "NetStat",
+                        0, // TODO: calculate netStat
+                        "ModifiedBy",
+                        authResponse.username,
+                        "ModifiedOn",
+                        new Date(),
+                        "ModifiedByIP",
+                        auth.utils.getIPFromRequest(args["req"]),
+                        args["id"]
+                    );
+
+                    sqlParts.push(placeholders.join(", "));
+                    sqlParts.push("WHERE Id = ?");
+
+                    mysql.query(sqlParts.join(" "),
+                        placeholderValues,
+                        function(error, results, fields) {
+                            resolve({token: authResponse.token, expires: authResponse.expires});
+                        });
+                }
+            });
+    });
+};
+
 let itemType = new graphql.GraphQLObjectType({
     name: "Item",
     fields: () => ({
@@ -662,6 +817,14 @@ let itemSearchResultsType = new graphql.GraphQLObjectType({
     })
 });
 
+let idMutationResponseType = new graphql.GraphQLObjectType({
+    name: "IdMutationResponse",
+    fields: () => ({
+        id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt)  },
+        tokenRenewal: { type: new graphql.GraphQLNonNull(auth.types.tokenRenewalType) },
+    })
+});
+
 let qFields = {
     getItemById: {
         type: itemType,
@@ -731,7 +894,336 @@ let qFields = {
     }
 };
 
+let mFields = {
+    insertItem: {
+        type: idMutationResponseType,
+        args: {
+            authToken: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
+            name: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
+            slot: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) },
+            strength: { type: graphql.GraphQLInt },
+            mind: { type: graphql.GraphQLInt },
+            dexterity: { type: graphql.GraphQLInt },
+            constitution: { type: graphql.GraphQLInt },
+            perception: { type: graphql.GraphQLInt },
+            spirit: { type: graphql.GraphQLInt },
+            ac: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) },
+            hit: { type: graphql.GraphQLInt },
+            dam: { type: graphql.GraphQLInt },
+            hp: { type: graphql.GraphQLInt },
+            hpr: { type: graphql.GraphQLInt },
+            ma: { type: graphql.GraphQLInt },
+            mar: { type: graphql.GraphQLInt },
+            mv: { type: graphql.GraphQLInt },
+            mvr: { type: graphql.GraphQLInt },
+            spelldam: { type: graphql.GraphQLInt },
+            spellcrit: { type: graphql.GraphQLInt },
+            manaReduction: { type: graphql.GraphQLInt },
+            mitigation: { type: graphql.GraphQLInt },
+            accuracy: { type: graphql.GraphQLInt },
+            ammo: { type: graphql.GraphQLInt },
+            twoHanded: { type: graphql.GraphQLBoolean },
+            quality: { type: graphql.GraphQLInt },
+            maxDam: { type: graphql.GraphQLInt },
+            avgDam: { type: graphql.GraphQLInt },
+            minDam: { type: graphql.GraphQLInt },
+            parry: { type: graphql.GraphQLInt },
+            holdable: { type: graphql.GraphQLBoolean },
+            rent: { type: graphql.GraphQLInt },
+            value: { type: graphql.GraphQLInt },
+            weight: { type: new graphql.GraphQLNonNull(graphql.GraphQLFloat) },
+            speedFactor: { type: graphql.GraphQLInt },
+            notes: { type: graphql.GraphQLString },
+            uniqueWear: { type: graphql.GraphQLBoolean },
+            alignRestriction: { type: graphql.GraphQLInt },
+            bonded: { type: graphql.GraphQLBoolean },
+            casts: { type: graphql.GraphQLString },
+            level: { type: graphql.GraphQLInt },
+            netStat: { type: graphql.GraphQLFloat },
+            concentration: { type: graphql.GraphQLInt },
+            rangedAccuracy: { type: graphql.GraphQLInt },
+            mobId: { type: graphql.GraphQLInt },
+            questId: { type: graphql.GraphQLInt },
+            weaponType: { type: graphql.GraphQLInt },
+            weaponStat: { type: graphql.GraphQLInt },
+            isLight: { type: graphql.GraphQLBoolean },
+            isHeroic: { type: graphql.GraphQLBoolean }
+        },
+        resolve: function(_, {
+            authToken,
+            name,
+            slot,
+            strength,
+            mind,
+            dexterity,
+            constitution,
+            perception,
+            spirit,
+            ac,
+            hit,
+            dam,
+            hp,
+            hpr,
+            ma,
+            mar,
+            mv,
+            mvr,
+            spelldam,
+            spellcrit,
+            manaReduction,
+            mitigation,
+            accuracy,
+            ammo,
+            twoHanded,
+            quality,
+            maxDam,
+            avgDam,
+            minDam,
+            parry,
+            holdable,
+            rent,
+            value,
+            weight,
+            speedFactor,
+            notes,
+            uniqueWear,
+            alignRestriction,
+            bonded,
+            casts,
+            level,
+            netStat,
+            concentration,
+            rangedAccuracy,
+            mobId,
+            questId,
+            weaponType,
+            weaponStat,
+            isLight,
+            isHeroic
+        }, req) {
+            return insertItem({
+                req,
+                authToken,
+                name,
+                slot,
+                strength,
+                mind,
+                dexterity,
+                constitution,
+                perception,
+                spirit,
+                ac,
+                hit,
+                dam,
+                hp,
+                hpr,
+                ma,
+                mar,
+                mv,
+                mvr,
+                spelldam,
+                spellcrit,
+                manaReduction,
+                mitigation,
+                accuracy,
+                ammo,
+                twoHanded,
+                quality,
+                maxDam,
+                avgDam,
+                minDam,
+                parry,
+                holdable,
+                rent,
+                value,
+                weight,
+                speedFactor,
+                notes,
+                uniqueWear,
+                alignRestriction,
+                bonded,
+                casts,
+                level,
+                netStat,
+                concentration,
+                rangedAccuracy,
+                mobId,
+                questId,
+                weaponType,
+                weaponStat,
+                isLight,
+                isHeroic
+            });
+        }
+    },
+    updateItem: {
+        type: new graphql.GraphQLNonNull(auth.types.tokenRenewalType),
+        args: {
+            authToken: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
+            id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) },
+            name: { type: graphql.GraphQLString },
+            slot: { type: graphql.GraphQLInt },
+            strength: { type: graphql.GraphQLInt },
+            mind: { type: graphql.GraphQLInt },
+            dexterity: { type: graphql.GraphQLInt },
+            constitution: { type: graphql.GraphQLInt },
+            perception: { type: graphql.GraphQLInt },
+            spirit: { type: graphql.GraphQLInt },
+            ac: { type: graphql.GraphQLInt },
+            hit: { type: graphql.GraphQLInt },
+            dam: { type: graphql.GraphQLInt },
+            hp: { type: graphql.GraphQLInt },
+            hpr: { type: graphql.GraphQLInt },
+            ma: { type: graphql.GraphQLInt },
+            mar: { type: graphql.GraphQLInt },
+            mv: { type: graphql.GraphQLInt },
+            mvr: { type: graphql.GraphQLInt },
+            spelldam: { type: graphql.GraphQLInt },
+            spellcrit: { type: graphql.GraphQLInt },
+            manaReduction: { type: graphql.GraphQLInt },
+            mitigation: { type: graphql.GraphQLInt },
+            accuracy: { type: graphql.GraphQLInt },
+            ammo: { type: graphql.GraphQLInt },
+            twoHanded: { type: graphql.GraphQLBoolean },
+            quality: { type: graphql.GraphQLInt },
+            maxDam: { type: graphql.GraphQLInt },
+            avgDam: { type: graphql.GraphQLInt },
+            minDam: { type: graphql.GraphQLInt },
+            parry: { type: graphql.GraphQLInt },
+            holdable: { type: graphql.GraphQLBoolean },
+            rent: { type: graphql.GraphQLInt },
+            value: { type: graphql.GraphQLInt },
+            weight: { type: graphql.GraphQLFloat },
+            speedFactor: { type: graphql.GraphQLInt },
+            notes: { type: graphql.GraphQLString },
+            uniqueWear: { type: graphql.GraphQLBoolean },
+            alignRestriction: { type: graphql.GraphQLInt },
+            bonded: { type: graphql.GraphQLBoolean },
+            casts: { type: graphql.GraphQLString },
+            level: { type: graphql.GraphQLInt },
+            netStat: { type: graphql.GraphQLFloat },
+            concentration: { type: graphql.GraphQLInt },
+            rangedAccuracy: { type: graphql.GraphQLInt },
+            mobId: { type: graphql.GraphQLInt },
+            questId: { type: graphql.GraphQLInt },
+            weaponType: { type: graphql.GraphQLInt },
+            weaponStat: { type: graphql.GraphQLInt },
+            isLight: { type: graphql.GraphQLBoolean },
+            isHeroic: { type: graphql.GraphQLBoolean }
+        },
+        resolve: function(_, {
+            authToken,
+            id,
+            name,
+            slot,
+            strength,
+            mind,
+            dexterity,
+            constitution,
+            perception,
+            spirit,
+            ac,
+            hit,
+            dam,
+            hp,
+            hpr,
+            ma,
+            mar,
+            mv,
+            mvr,
+            spelldam,
+            spellcrit,
+            manaReduction,
+            mitigation,
+            accuracy,
+            ammo,
+            twoHanded,
+            quality,
+            maxDam,
+            avgDam,
+            minDam,
+            parry,
+            holdable,
+            rent,
+            value,
+            weight,
+            speedFactor,
+            notes,
+            uniqueWear,
+            alignRestriction,
+            bonded,
+            casts,
+            level,
+            netStat,
+            concentration,
+            rangedAccuracy,
+            mobId,
+            questId,
+            weaponType,
+            weaponStat,
+            isLight,
+            isHeroic
+        }, req) {
+            return updateItem({
+                req,
+                authToken,
+                id,
+                name,
+                slot,
+                strength,
+                mind,
+                dexterity,
+                constitution,
+                perception,
+                spirit,
+                ac,
+                hit,
+                dam,
+                hp,
+                hpr,
+                ma,
+                mar,
+                mv,
+                mvr,
+                spelldam,
+                spellcrit,
+                manaReduction,
+                mitigation,
+                accuracy,
+                ammo,
+                twoHanded,
+                quality,
+                maxDam,
+                avgDam,
+                minDam,
+                parry,
+                holdable,
+                rent,
+                value,
+                weight,
+                speedFactor,
+                notes,
+                uniqueWear,
+                alignRestriction,
+                bonded,
+                casts,
+                level,
+                netStat,
+                concentration,
+                rangedAccuracy,
+                mobId,
+                questId,
+                weaponType,
+                weaponStat,
+                isLight,
+                isHeroic
+            });
+        }
+    }
+};
+
 module.exports.queryFields = qFields;
+module.exports.mutationFields = mFields;
 module.exports.types = { itemType, itemHistoryType };
 module.exports.classes = { Item };
 module.exports.selectSQL = { itemSelectSQL };

@@ -97,6 +97,8 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", f
         else {
             $scope.filters[statVar] = [];
         }
+
+        $scope.filtersUpdated = true;
     };
 
     /**
@@ -106,7 +108,21 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", f
      */
 	$scope.removeFilter = function(statVar) {
         delete $scope.filters[statVar];
+        $scope.filtersUpdated = true;
 	};
+
+    /**
+     * Whether to show the filter list above the search bar.
+     *
+     * @param {bool} def - The default value to use when the page first loads.
+     * @returns {bool} true if the filter list should be shown.
+     */
+    $scope.showFilters = function(def) {
+        if (!$scope.filters)
+            return def;
+
+        return Object.keys($scope.filters).length > 0;
+    };
 
     $scope.onFilterDropdownChange = function(statVar) {
         let value = $scope.multiValueFilters[statVar];
@@ -117,6 +133,8 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", f
         else {
             $scope.filters[statVar] = [value];
         }
+
+        $scope.filtersUpdated = true;
     };
 
     /** Navigates to the items index page with the url query for the search. */
