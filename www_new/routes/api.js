@@ -2,6 +2,7 @@ let exgraphql = require("express-graphql");
 let graphql = require("graphql");
 
 let importGraphs = [
+    require("./api/auth.js"),
     require("./api/items.js"),
     require("./api/mobs.js"),
     require("./api/quests.js"),
@@ -32,14 +33,37 @@ let queryType = new graphql.GraphQLObjectType({
     fields: queryFields
 });
 
+let mutationType = new graphql.GraphQLObjectType({
+    name: "Mutation",
+    fields: mutationFields
+});
+
 
 let schema = new graphql.GraphQLSchema({
-    query: queryType
-    // mutation: mutationType
+    query: queryType,
+    mutation: mutationType
 });
+
+let limitMutationRule = function(context) {
+    return {
+        OperationDefinition(node) {
+            if (node.operation === "mutation") {
+                if (!context.mutationCount)
+                    context.mutationCount = node.selectionSet.selections.length;
+                else
+                    context.mutationCount += node.selectionSet.selections.length;
+
+                if (context.mutationCount > 1) {
+                    context.reportError(new graphql.GraphQLError("Multiple mutation operations are not allowed."));
+                }
+            }
+        }
+    }
+};
 
 module.exports = exgraphql({
     schema: schema,
     rootValue: root,
     graphiql: true,
+    validationRules: [limitMutationRule]
 });
