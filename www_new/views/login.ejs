@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en" style="height: 100%;">
 <head>
-    <%- include('../shared/meta') %>
+    <%- include('./shared/meta') %>
     <meta property="og:title" content="Login | LegendHUB" />
     <meta property="og:type" content="website" />
 
@@ -31,14 +31,11 @@
 								</div>
 								<input name="passwordInput" type="password" class="form-control" aria-label="Password" aria-describedby="passwordLabel" ng-model="loginModel.Password" required>
 							</div>
-							<p ng-show="loginMessages.failed" class="text-danger">Incorrect username or password.</p>
-							<p ng-show="loginMessages.locked" class="text-danger">This account has been locked.</p>
-							<br/>
-							<div class="custom-control custom-checkbox">
+                            <div ng-repeat="error in loginErrors" class="text-danger" ng-cloak>{{error.message}}</div>
+							<div class="custom-control custom-checkbox mt-2 mb-3">
 								<input type="checkbox" class="custom-control-input" ng-model="loginModel.StayLoggedIn" id="stayLoggedInCheck">
 								<label class="custom-control-label" for="stayLoggedInCheck" style="cursor:pointer">Stay logged in</label>
 							</div>
-							<br />
 							<button ng-disabled="!loginForm.$valid" class="btn btn-primary col-12">Login</button>
 						</div>
 					</div>
@@ -56,9 +53,6 @@
 								</div>
 								<input name="usernameInput" ng-pattern="/^[A-Za-z0-9]*$/" type="text" class="form-control" aria-label="Username" aria-describedby="usernameLabel" ng-change="checkUsername()" ng-model="registerModel.Username" ng-model-options="{debounce: 200}" required>
 							</div>
-							<p ng-show="registerForm.usernameInput.$error.length" class="text-danger">Username must be between 5 to 25 characters in length.</p>
-							<p ng-show="registerForm.usernameInput.$error.taken" class="text-danger">Username is taken.</p>
-							<p ng-show="registerForm.usernameInput.$error.pattern" class="text-danger">Username contains invalid characters.</p>
 							<br />
 							<div class="input-group">
 								<div class="input-group-prepend">
@@ -66,7 +60,6 @@
 								</div>
 								<input name="passwordInput" type="password" class="form-control" aria-label="Password" aria-describedby="passwordLabel" ng-change="checkPassword()" ng-model="registerModel.Password" ng-model-options="{debounce: 200}" required>
 							</div>
-							<p ng-show="registerForm.passwordInput.$error.length" class="text-danger">Password must be at least 8 characters in length.</p>
 							<br />
 							<div class="input-group">
 								<div class="input-group-prepend">
@@ -74,11 +67,10 @@
 								</div>
 								<input name="confirmPasswordInput" type="password" class="form-control" aria-label="ConfirmPassword" aria-describedby="confirmPasswordLabel" ng-change="checkPassword()" ng-model="registerModel.ConfirmPassword" ng-model-options="{debounce: 200}" required>
 							</div>
-							<p ng-show="registerForm.confirmPasswordInput.$error.length" class="text-danger">Password must be at least 8 characters in length.</p>
-							<p ng-show="registerForm.confirmPasswordInput.$error.match" class="text-danger">Passwords do not match.</p>
+                            <div ng-repeat="error in registerErrors" class="text-danger" ng-cloak>{{error.message}}</div>
+                            <div ng-if="registerForm.confirmPasswordInput.$error.match" class="text-danger" ng-cloak>Passwords do not match.</div>
 							<br />
 							<button ng-disabled="!registerForm.$valid" class="btn btn-primary col-12" type="submit">Register</button>
-							<p ng-show="registerFailed" class="text-danger">Register Failed. Please try again.</p>
 						</div>
 					</div>
 				</form>
