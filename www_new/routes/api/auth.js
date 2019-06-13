@@ -11,14 +11,14 @@ let getIPFromRequest = function(request) {
 
 let authLogin = function(username, password, stayLoggedIn, ip) {
     if (apiUtils.isIPBlocked(ip))
-        return new gql.GraphQLError(message="Too many failed attempts. Try again later.");
+        return new gql.GraphQLError("Too many failed attempts. Try again later.");
 
     return new Promise(function(resolve, reject) {
         mysql.query(`SELECT Id, Password, Banned FROM Members WHERE Username = ?`,
             [username],
             function(error, results, fields) {
                 if (error) {
-                    reject(new gql.GraphQLError(message=error));
+                    reject(new gql.GraphQLError(error));
                     return;
                 }
 
@@ -26,7 +26,7 @@ let authLogin = function(username, password, stayLoggedIn, ip) {
                     for (let i = 0; i < results.length; ++i) { // TODO: log system error if more than 1 result.
                         if (phpPass.verify(password, results[i].Password)) {
                             if (results[i].Banned) {
-                                reject(new gql.GraphQLError(message="This account has been locked."));
+                                reject(new gql.GraphQLError("This account has been locked."));
                                 return;
                             }
 
@@ -55,12 +55,12 @@ let authLogin = function(username, password, stayLoggedIn, ip) {
                         }
                     }
 
-                    apiUtils.trackAttempt("login", ip, 3, 20, 300);
-                    reject(new gql.GraphQLError(message="Invalid username or password."));
+                    apiUtils.trackLogin(ip);
+                    reject(new gql.GraphQLError("Invalid username or password."));
                 }
                 else {
-                    apiUtils.trackAttempt("login", ip, 3, 20, 300);
-                    reject(new gql.GraphQLError(message="Invalid username or password."));
+                    apiUtils.trackLogin(ip);
+                    reject(new gql.GraphQLError("Invalid username or password."));
                 }
             });
     });
@@ -80,7 +80,7 @@ let authToken = function(token, ip, renew) {
             [tokenInfo[0]],
             function(error, results, fields) {
                 if (error) {
-                    reject(error);
+                    reject(new gql.GraphQLError(error));
                     return;
                 }
 
@@ -127,14 +127,42 @@ let authToken = function(token, ip, renew) {
                     }
                 }
 
-                reject("Invalid Token");
+                reject(new gql.GraphQLError("Invalid Token"));
+            });
+    });
+};
+
+let getPermissions = function(memberId) {
+    return new Promise(function(resolve, reject) {
+        mysql.query(`SELECT P.Name, RPM.Create, RPM.Read, RPM.Update, RPM.Delete
+            FROM MemberRoleMap MRM
+            JOIN RolePermissionMap RPM ON RPM.RoleId = MRM.RoleId
+            JOIN Permissions P on P.Id = RPM.PermissionId
+            WHERE MRM.MemberId = ?`,
+            [memberId],
+            function(error, results, fields) {
+                if (error) {
+                    reject(new gql.GraphQLError(error));
+                    return;
+                }
+
+                let permissionDict = {};
+                for (let i = 0; i < results.length; ++i) {
+                    permissionDict[results[i].Name] = {
+                        results[i].Create,
+                        results[i].Read,
+                        results[i].Update,
+                        results[i].Delete
+                    };
+                }
+                resolve(permissionDict);
             });
     });
 };
 
 let register = function(username, password, ip) {
     if (apiUtils.isIPBlocked(ip))
-        return new gql.GraphQLError(message="Too many attempts. Try again later.");
+        return new gql.GraphQLError("Too many attempts. Try again later.");
 
     let cleanUsername = username.replace(/[^A-Za-z0-9]*/g, "");
     if (cleanUsername.toLowerCase() === "dataimport")
@@ -177,7 +205,7 @@ let register = function(username, password, ip) {
                                             [memberId],
                                             function(error, results, fields) {});
 
-                                        apiUtils.trackAttempt("register", ip, 1, 1, 60*60*24);
+                                        apiUtils.trackRegister(ip);
                                         resolve(true);
                                     });
                             }

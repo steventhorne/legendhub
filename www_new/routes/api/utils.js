@@ -44,3 +44,15 @@ module.exports.trackAttempt = function(trackingType, ip, maxPerDay, maxPerMinute
         }
     }
 }
+
+module.exports.trackRegister = function(ip) {
+    module.exports.trackAttempt("register", ip, 1, 1, 60*60*24);
+}
+
+module.exports.trackLogin = function(ip) {
+    module.exports.trackAttempt("login", ip, 3, 20, 300);
+}
+
+module.exports.trackPageUpdate = function(ip) {
+    module.exports.trackAttempt("pageUpdate", ip, 5, 200, 60);
+}
