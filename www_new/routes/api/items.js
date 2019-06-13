@@ -2,6 +2,7 @@ let mysql = require("./mysql-connection");
 let graphql = require("graphql");
 let { GraphQLDateTime } = require("graphql-iso-date");
 let auth = require("./auth");
+let apiUtils = require("./utils");
 
 String.prototype.format = function() {
     a = this;
@@ -553,10 +554,14 @@ let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows)
 };
 
 let insertItem = function(args) {
+    let ip = auth.utils.getIPFromRequest(args["req"])
+    if (apiUtils.isIPBlocked(ip))
+        return new graphql.GraphQLError("Too many attempts. Try again later.");
+
     let statValues = {};
     return new Promise(function(resolve, reject) {
         let authResponse = null;
-        auth.utils.authToken(args["authToken"], auth.utils.getIPFromRequest(args["req"])).then(
+        auth.utils.authToken(args["authToken"], ip).then(
             function(response) {
                 authResponse = response;
             }
@@ -619,12 +624,13 @@ let insertItem = function(args) {
                         0, // TODO: calculate netStat
                         authResponse.username,
                         new Date(),
-                        auth.utils.getIPFromRequest(args["req"])
+                        ip
                     );
 
                     mysql.query(`INSERT INTO Items (??) VALUES (?)`,
                         [keys, values],
                         function(error, results, fields) {
+                            apiUtils.trackPageUpdate(ip);
                             resolve({id: results.insertId, tokenRenewal: {token: authResponse.token, expires: authResponse.expires}});
                         });
                 }
@@ -633,10 +639,11 @@ let insertItem = function(args) {
 };
 
 let updateItem = function(args) {
+    let ip = auth.utils.getIPFromRequest(args["req"]);
     let statValues = {};
     return new Promise(function(resolve, reject) {
         let authResponse = null;
-        auth.utils.authToken(args["authToken"], auth.utils.getIPFromRequest(args["req"])).then(
+        auth.utils.authToken(args["authToken"], ip).then(
             function(response) {
                 authResponse = response;
                 username = response.username;
@@ -689,7 +696,7 @@ let updateItem = function(args) {
                         "ModifiedOn",
                         new Date(),
                         "ModifiedByIP",
-                        auth.utils.getIPFromRequest(args["req"]),
+                        ip,
                         args["id"]
                     );
 
@@ -699,6 +706,7 @@ let updateItem = function(args) {
                     mysql.query(sqlParts.join(" "),
                         placeholderValues,
                         function(error, results, fields) {
+                            apiUtils.trackPageUpdate(ip);
                             resolve({token: authResponse.token, expires: authResponse.expires});
                         });
                 }
