@@ -1,23 +1,23 @@
-var createError = require("http-errors");
-var express = require("express");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var logger = require("morgan");
+let createError = require("http-errors");
+let express = require("express");
+let path = require("path");
+let cookieParser = require("cookie-parser");
+let logger = require("morgan");
 require("dotenv").config();
 
 const port = 7001;
 
-var authRouter = require("./routes/auth");
+let authRouter = require("./routes/auth");
 
-var indexRouter = require("./routes/index");
-var apiRouter = require("./routes/api");
-var itemsRouter = require("./routes/items");
-var mobsRouter = require("./routes/mobs");
-var questsRouter = require("./routes/quests");
-var wikiRouter = require("./routes/wiki");
-var builderRouter = require("./routes/builder");
+let indexRouter = require("./routes/index");
+let apiRouter = require("./routes/api");
+let itemsRouter = require("./routes/items");
+let mobsRouter = require("./routes/mobs");
+let questsRouter = require("./routes/quests");
+let wikiRouter = require("./routes/wiki");
+let builderRouter = require("./routes/builder");
 
-var app = express();
+let app = express();
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
