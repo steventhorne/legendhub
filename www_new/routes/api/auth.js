@@ -3,12 +3,16 @@ let gql = require("graphql");
 let { GraphQLDateTime } = require("graphql-iso-date");
 let phpPass = require("node-php-password");
 let crypto = require("crypto");
+let apiUtils = require("./utils");
 
 let getIPFromRequest = function(request) {
     return (request.headers['x-forwarded-for'] || "").split(",")[0];
 }
 
 let authLogin = function(username, password, stayLoggedIn, ip) {
+    if (apiUtils.isIPBlocked(ip))
+        return new gql.GraphQLError(message="Too many failed attempts. Try again later.");
+
     return new Promise(function(resolve, reject) {
         mysql.query(`SELECT Id, Password, Banned FROM Members WHERE Username = ?`,
             [username],
@@ -51,9 +55,11 @@ let authLogin = function(username, password, stayLoggedIn, ip) {
                         }
                     }
 
+                    apiUtils.trackAttempt("login", ip, 3, 20, 300);
                     reject(new gql.GraphQLError(message="Invalid username or password."));
                 }
                 else {
+                    apiUtils.trackAttempt("login", ip, 3, 20, 300);
                     reject(new gql.GraphQLError(message="Invalid username or password."));
                 }
             });
@@ -126,6 +132,61 @@ let authToken = function(token, ip, renew) {
     });
 };
 
+let register = function(username, password, ip) {
+    if (apiUtils.isIPBlocked(ip))
+        return new gql.GraphQLError(message="Too many attempts. Try again later.");
+
+    let cleanUsername = username.replace(/[^A-Za-z0-9]*/g, "");
+    if (cleanUsername.toLowerCase() === "dataimport")
+        return new gql.GraphQLError("Username taken.");
+    if (cleanUsername.length < 5 || cleanUsername.length > 25)
+        return new gql.GraphQLError("Username must be between 5 and 25 characters.");
+    if (password.length < 8)
+        return new gql.GraphQLError("Password must be larger than 8 characters.");
+
+    return new Promise(function(resolve, reject) {
+        mysql.query(`SELECT Id FROM BannedIPs WHERE Pattern = ?`,
+            [ip],
+            function(error, results, fields) {
+                if (results.length > 0) {
+                    reject(new gql.GraphQLError("Invalid username."));
+                }
+                else {
+                    mysql.query(`SELECT Id FROM Members WHERE Username = ?`,
+                        [username],
+                        function(error, results, fields) {
+                            if (results.length > 0) {
+                                reject(new gql.GraphQLError("Username taken."));
+                            }
+                            else {
+                                let passwordHash = phpPass.hash(password);
+                                mysql.query(`INSERT INTO Members (Username, Password) VALUES (?, ?)`,
+                                    [username, passwordHash],
+                                    function(error, results, fields) {
+                                        if (error) {
+                                            reject(new gql.GraphQLError(error));
+                                            return;
+                                        }
+
+                                        let memberId = results.insertId;
+                                        mysql.query(`INSERT INTO MemberRoleMap (MemberId, RoleId) VALUES (?, ?)`,
+                                            [memberId, 2],
+                                            function(error, results, fields) {});
+
+                                        mysql.query(`INSERT INTO NotificationSettings (MemberId) VALUES (?)`,
+                                            [memberId],
+                                            function(error, results, fields) {});
+
+                                        apiUtils.trackAttempt("register", ip, 1, 1, 60*60*24);
+                                        resolve(true);
+                                    });
+                            }
+                        });
+                }
+            });
+    });
+};
+
 let tokenRenewalType = new gql.GraphQLObjectType({
     name: "TokenRenewal",
     fields: () => ({
@@ -134,7 +195,7 @@ let tokenRenewalType = new gql.GraphQLObjectType({
     })
 });
 
-let qFields = {
+let mFields = {
     authLogin: {
         type: new gql.GraphQLNonNull(tokenRenewalType),
         args: {
@@ -145,9 +206,19 @@ let qFields = {
         resolve: function(_, {username, password, stayLoggedIn}, req) {
             return authLogin(username, password, stayLoggedIn, getIPFromRequest(req));
         }
+    },
+    register: {
+        type: new gql.GraphQLNonNull(gql.GraphQLBoolean),
+        args: {
+            username: {type: gql.GraphQLString},
+            password: {type: gql.GraphQLString}
+        },
+        resolve: function(_, {username, password}, req) {
+            return register(username, password, getIPFromRequest(req));
+        }
     }
 };
 
-module.exports.queryFields = qFields;
+module.exports.mutationFields = mFields;
 module.exports.types = { tokenRenewalType };
 module.exports.utils = { getIPFromRequest, authLogin, authToken };
