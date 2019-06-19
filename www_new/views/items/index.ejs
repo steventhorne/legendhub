@@ -2,10 +2,6 @@
 <html lang="en">
 <head>
     <%- include('../shared/meta') %>
-    <meta property="og:title" content="Item Search<%= vm.searchString ? " Results for '" + vm.searchString + "'" : "" %> | LegendHUB" />
-    <meta property="og:type" content="website" />
-
-	<title>Item Search<%= vm.searchString ? " Results for '" + vm.searchString + "'" : "" %> | LegendHUB</title>
 </head>
 <body ng-app="legendwiki-app" ng-controller="items">
     <%- include('../shared/header') %>
@@ -198,9 +194,6 @@
     <%- include('../shared/filtersModal') %>
     <%- include('../shared/footer') %>
     <%- include('../shared/scripts') %>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
-	<script src="/js/apps/legendwiki-app.js?%%version%%"></script>
 	<script src="/js/controllers/items/main.js?%%version%%"></script>
 </body>
 </html>

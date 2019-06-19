@@ -2,10 +2,8 @@
 <html lang="en">
     <head>
         <%- include('shared/meta'); -%>
-
-        <title>LegendHUB | LegendMUD's Community Hub</title>
     </head>
-    <body ng-app="legendwiki-app" ng-controller="home">
+    <body ng-app="legendwiki-app">
         <%- include('shared/header'); -%>
         <div class="container">
             <div class="row">
@@ -25,9 +23,5 @@
         </div>
         <%- include('shared/footer'); -%>
         <%- include('shared/scripts'); -%>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
-        <script src="/js/apps/legendwiki-app.js?%%version%%"></script>
-        <script src="/js/controllers/home.js%%version%%"></script>
     </body>
 </html>
