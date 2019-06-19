@@ -1,11 +1,11 @@
+#!/usr/bin/env node
+
 let createError = require("http-errors");
 let express = require("express");
 let path = require("path");
 let cookieParser = require("cookie-parser");
 let logger = require("morgan");
 require("dotenv").config();
-
-const port = 7001;
 
 let authRouter = require("./routes/auth");
 
@@ -56,4 +56,4 @@ app.use(function(err, req, res, next) {
   res.render("error/404");
 });
 
-app.listen(port, () => console.log(`Running app listening on port ${port}!`));
+app.listen(process.env.PORT, () => console.log(`Running app listening on port ${process.env.PORT}!`));
