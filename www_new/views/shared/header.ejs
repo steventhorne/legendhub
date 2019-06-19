@@ -38,21 +38,22 @@
                    <a ng-repeat="theme in themes" class="dropdown-item" href="" ng-click="setTheme(theme)">{{::theme}}</a>
                 </div>
 			</li>
-			<li class="nav-item dropdown float-right" ng-if="!!currentUser">
-				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					{{currentUser}}
-				</a>
+            <%_ if (locals.user) { %>
+            <li class="nav-item dropdown float-right">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><%=locals.user.username%></a>
 				<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                     <a class="dropdown-item" href="/account/">Account</a>
                     <a class="dropdown-item" href="/changelog/">Changelog</a>
 					<a class="dropdown-item" href="https://github.com/SvarturH/legendhub/issues" target="_blank">Report an Issue</a>
 					<div class="dropdown-divider"></div>
-					<a class="dropdown-item" href="" ng-click="logout()">Logout</a>
+					<a class="dropdown-item" href="/logout.html">Logout</a>
 				</div>
 			</li>
-			<li class="nav-item" ng-if="!currentUser">
-				<a class="nav-link" href="/login.html?returnUrl={{returnUrl}}">Login</a>
+            <% } else { %>
+			<li class="nav-item">
+				<a class="nav-link" href="/login.html?returnUrl=<%-locals.url.path%>">Login</a>
 			</li>
+            <% } _%>
 		</ul>
 	</div>
 </nav>
@@ -64,5 +65,5 @@
 		</li>
 	</ul>
 </div>
-</div>
 <br/>
+</div>
