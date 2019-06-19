@@ -81,16 +81,15 @@
 							<div class="card">
 								<div class="card-header">
 									<strong class="float-left">Search Results</strong>
-									<lh-perm-check lh-perm-name="Item" lh-perm-create class="float-right clickable">
-										<a href="/items/add.html">
-											<i class="fas fa-plus"></i>
-										</a>
-									</lh-perm-check>
-									<lh-perm-check lh-perm-name="Item" lh-perm-create lh-perm-inverse class="float-right clickable">
-										<a href="/login.html?returnUrl=/items/add.html">
-											<i class="fas fa-plus"></i>
-										</a>
-									</lh-perm-check>
+                                    <span class="float-right clickable">
+                                        <% if (locals.user) { %>
+                                        <a href="/items/add.html">
+                                        <% } else { %>
+                                        <a href="/login.html?returnUrl=/items/add.html">
+                                        <% } %>
+                                            <i class="fas fa-plus"></i>
+                                        </a>
+                                    </span>
 								</div>
 								<div class="table-responsive">
 									<table class="table table-sm table-md table-hover table-striped table-bordered mb-0">

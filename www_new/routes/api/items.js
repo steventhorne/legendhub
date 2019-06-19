@@ -705,11 +705,13 @@ let updateItem = function(args) {
                                         if (args[results[i].Var] !== undefined &&
                                             args[results[i].Var] !== null) {
                                             statValues[results[i].Var] = args[results[i].Var];
-                                            if (results[i].NetStat !== 0)
+                                            if (results[i].NetStat != 0) {
                                                 netStat += args[results[i].Var] / results[i].NetStat;
+                                            }
                                         }
-                                        else if (results[i].NetStat !== 0) {
-                                            netStat += itemResults[0][results[i].Var] / results[i].NetStat;
+                                        else if (results[i].NetStat != 0) {
+                                            let varName = results[i].Var[0].toUpperCase() + results[i].Var.slice(1);
+                                            netStat += itemResults[0][varName] / results[i].NetStat;
                                         }
                                     }
 
@@ -745,9 +747,6 @@ let updateItem = function(args) {
 
                                     sqlParts.push(placeholders.join(", "));
                                     sqlParts.push("WHERE Id = ?");
-
-                                    console.log(sqlParts.join(" "));
-                                    return;
 
                                     mysql.query(sqlParts.join(" "),
                                         placeholderValues,
@@ -786,7 +785,7 @@ let revertItem = function(req, authToken, id) {
                             return;
                         }
 
-                        mysql.query(`${selectItemSQL}, ItemId FROM Items_AuditTrail WHERE Id = ?`,
+                        mysql.query(`${itemSelectSQL}, ItemId FROM Items_AuditTrail WHERE Id = ?`,
                             [id],
                             function(historyError, historyResults, historyFields) {
                                 if (historyError || historyResults.length === 0) {
@@ -798,22 +797,22 @@ let revertItem = function(req, authToken, id) {
                                 }
 
                                 let itemId = historyResults[0].ItemId;
-                                let sql = ["UPDATE Items AS TI", "JOIN Items_AuditTrail SI ON SI.Id = ?"];
-                                let placeholderValues = [id];
+                                let sql = ["UPDATE Items SET"];
+                                let placeholderValues = [];
                                 let statVar = "";
                                 let netStat = 0;
                                 for (let i = 0; i < results.length; ++i) {
                                     if (results[i].Var === "netStat")
                                         continue;
 
-                                    sql.push("?? = ??,");
+                                    sql.push("?? = ?,");
 
-                                    statVar = results[i][0].toUpperCase() + results[i].slice(1);
-                                    placeholderValues.push(`TI.${statVar}`);
-                                    placeholderValues.push(`SI.${statVar}`);
+                                    statVar = results[i].Var[0].toUpperCase() + results[i].Var.slice(1);
+                                    placeholderValues.push(`${statVar}`);
+                                    placeholderValues.push(historyResults[0][statVar]);
 
                                     if (results[i].NetStat !== 0)
-                                        netStat += historyResults[0][results[i].Var] / results[i].NetStat;
+                                        netStat += historyResults[0][statVar] / results[i].NetStat;
                                 }
 
                                 sql.push("NetStat = ?,");
@@ -824,10 +823,8 @@ let revertItem = function(req, authToken, id) {
                                 placeholderValues.push(new Date());
                                 sql.push("ModifiedByIP = ?");
                                 placeholderValues.push(ip);
-                                sql.push("WHERE TI.Id = ?");
+                                sql.push("WHERE Id = ?");
                                 placeholderValues.push(itemId);
-
-                                console.log(sql.join(" "));
 
                                 mysql.query(sql.join(" "),
                                     placeholderValues,
@@ -836,17 +833,10 @@ let revertItem = function(req, authToken, id) {
                                             reject(new graphql.GraphQLError(error));
                                             return;
                                         }
+
+                                        resolve({id: itemId, tokenRenewal: {token: authResponse.token, expires: authResponse.expires}});
                                     });
                             });
-                    });
-
-                mysql.query(sql,
-                    placeholderValues,
-                    function(error, results, fields) {
-                        if (error) {
-                            reject(new graphql.GraphQLError(error));
-                            return;
-                        }
                     });
             }
         ).catch(
@@ -1372,7 +1362,7 @@ let mFields = {
         }
     },
     revertItem: {
-        type: new graphql.GraphQLNonNull(graphql.GraphQLInt),
+        type: idMutationResponseType,
         args: {
             authToken: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
             id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) }
