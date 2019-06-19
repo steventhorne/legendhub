@@ -197,8 +197,10 @@ class Item {
             mysql.query(`${ mobSchema.selectSQL.mobSelectSQL } WHERE M.Id = ?`,
                 [mobId],
                 function(error, results, fields) {
-                    if (error)
-                        reject(error);
+                    if (error) {
+                        reject(new graphql.GraphQLError(error));
+                        return;
+                    }
 
                     if (results.length > 0)
                         resolve(new mobSchema.classes.Mob(results[0]));
@@ -214,11 +216,13 @@ class Item {
 
         let questId = this.questId;
         return new Promise(function(resolve, reject) {
-            mysql.query(`${ questSchema.selectSQL.questSelectSQL } WHERE Id = ?`,
+            mysql.query(`${ questSchema.selectSQL.questSelectSQL } WHERE Q.Id = ?`,
                 [questId],
                 function(error, results, fields) {
-                    if (error)
-                        reject(error);
+                    if (error) {
+                        reject(new graphql.GraphQLError(error));
+                        return;
+                    }
 
                     if (results.length > 0)
                         resolve(new questSchema.classes.Quest(results[0]));
@@ -237,7 +241,10 @@ class Item {
             mysql.query(`${ itemSelectSQL }, ItemId FROM Items_AuditTrail WHERE ItemId = ? ORDER BY ModifiedOn DESC`,
             [id],
                 function(error, results, fields){
-                    if (error) reject(error);
+                    if (error) {
+                        reject(new graphql.GraphQLError(error));
+                        return;
+                    }
 
                     if (results.length > 0){
                         let response = [];
@@ -284,7 +291,10 @@ class ItemStatCategory {
                 ORDER BY SortNumber ASC`,
                 [id],
                 function(error, results, fields) {
-                    if (error) reject(error);
+                    if (error) {
+                        reject(new graphql.GraphQLError(error));
+                        return;
+                    }
 
                     if (results.length > 0){
                         let response = [];
@@ -328,7 +338,10 @@ class ItemStatInfo {
                 ORDER BY SortNumber ASC`,
                 [categoryId],
                 function(error, results, fields) {
-                    if (error) reject(error);
+                    if (error) {
+                        reject(new graphql.GraphQLError(error));
+                        return;
+                    }
 
                     if (results.length > 0)
                         resolve(new ItemStatCategory(results[0]));
@@ -347,8 +360,10 @@ let getItemById = function(id) {
         mysql.query(`${ itemSelectSQL } FROM Items WHERE Id = ?`,
             [id],
             function(error, results, fields) {
-                if (error)
-                    reject(error);
+                if (error) {
+                    reject(new graphql.GraphQLError(error));
+                    return;
+                }
 
                 if (results.length > 0)
                     resolve(new Item(results[0]));
@@ -366,8 +381,10 @@ let getItemsInIds = function(ids) {
         mysql.query(`${ itemSelectSQL } FROM Items WHERE Id IN (?)`,
             [ids],
             function(error, results, fields) {
-                if (error)
-                    reject(error);
+                if (error) {
+                    reject(new graphql.GraphQLError(error));
+                    return;
+                }
 
                 if (results.length > 0) {
                     let response = [];
@@ -391,7 +408,10 @@ let getItemHistoryById = function(id) {
         mysql.query(`${ itemSelectSQL }, ItemId FROM Items_AuditTrail WHERE Id = ?`,
             [id],
             function(error, results, fields) {
-                if (error) reject(error);
+                if (error) {
+                    reject(new graphql.GraphQLError(error));
+                    return;
+                }
 
                 if (results.length > 0){
                     var historyId = results[0].Id;
@@ -412,8 +432,10 @@ let getItemsBySlotId = function(slotId) {
         mysql.query(`${ itemSelectSQL } FROM Items WHERE Slot = ? ORDER BY Name ASC`,
             [slotId],
             function(error, results, fields) {
-                if (error)
-                    reject(error);
+                if (error) {
+                    reject(new graphql.GraphQLError(error));
+                    return;
+                }
 
                 if (results.length > 0) {
                     let response = [];
@@ -435,7 +457,10 @@ let getItemStatCategories = function() {
             FROM ItemStatCategories
             ORDER BY SortNumber ASC`,
             function(error, results, fields) {
-                if (error) reject(error);
+                if (error) {
+                    reject(new graphql.GraphQLError(error));
+                    return;
+                }
 
                 if (results.length > 0) {
                     let response = [];
@@ -460,7 +485,10 @@ let getItemStatInfo = function(categoryId, varName) {
             ORDER BY SortNumber ASC`,
             [categoryId, categoryId, varName, varName],
             function(error, results, fields) {
-                if (error) reject(error);
+                if (error) {
+                    reject(new graphql.GraphQLError(error));
+                    return;
+                }
 
                 if (results.length > 0) {
                     let response = [];
@@ -493,7 +521,10 @@ let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows)
     return new Promise(function(resolve, reject) {
         mysql.query(`SELECT Var, FilterString FROM ItemStatInfo`,
             function(error, results, fields) {
-                if (error) reject(error);
+                if (error) {
+                    reject(new graphql.GraphQLError(error));
+                    return;
+                }
 
                 if (results.length > 0) {
                     let filterStrings = {};
@@ -531,7 +562,10 @@ let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows)
                     mysql.query(`${ itemSelectSQL } FROM Items WHERE (? = '' OR Name LIKE ?)${filterQuery} ORDER BY ${actualSortBy} ${sortAsc ? "ASC" : "DESC"} LIMIT ${(page - 1) * rows}, ${rows + 1}`,
                         [searchString, "%" + searchString + "%"],
                         function(error, results, fields) {
-                            if (error) reject(error);
+                            if (error) {
+                                reject(new graphql.GraphQLError(error));
+                                return;
+                            }
 
                             if (results.length > 0) {
                                 let response = [];
@@ -560,81 +594,83 @@ let insertItem = function(args) {
 
     let statValues = {};
     return new Promise(function(resolve, reject) {
-        let authResponse = null;
         auth.utils.authToken(args["authToken"], ip).then(
             function(response) {
-                authResponse = response;
+                let authResponse = response;
+
+                mysql.query(`SELECT Var, DefaultValue, Type, NetStat FROM ItemStatInfo`,
+                    function(error, results, fields) {
+                        if (error) {
+                            reject(new graphql.GraphQLError(error));
+                            return;
+                        }
+
+                        if (results.length > 0) {
+                            let netStat = 0;
+                            for (let i = 0; i < results.length; ++i) {
+                                if (args[results[i].Var] === undefined ||
+                                    args[results[i].Var] === null) {
+                                    // cast default value to proper type
+                                    let defaultValue = null;
+                                    if (results[i].Type === "int" ||
+                                        results[i].Type === "decimal" ||
+                                        results[i].Type === "select") {
+                                        defaultValue = Number(results[i].DefaultValue);
+                                    }
+                                    else if (results[i].Type === "bool") {
+                                        defaultValue = (results[i].DefaultValue == "1");
+                                    }
+                                    else {
+                                        defaultValue = results[i].DefaultValue;
+                                    }
+
+                                    statValues[results[i].Var] = defaultValue;
+                                }
+                                else {
+                                    statValues[results[i].Var] = args[results[i].Var];
+                                }
+
+                                if (results[i].NetStat !== 0) {
+                                    netStat += statValues[results[i].Var] / results[i].NetStat;
+                                }
+                            }
+
+                            let keys = [];
+                            let values = [];
+                            for (let key in statValues) {
+                                if (key !== "netStat" && statValues.hasOwnProperty(key)) {
+                                    keys.push(key[0].toUpperCase() + key.slice(1));
+                                    values.push(statValues[key]);
+                                }
+                            }
+                            keys.push(
+                                "NetStat",
+                                "ModifiedBy",
+                                "ModifiedOn",
+                                "ModifiedByIP"
+                            );
+                            values.push(
+                                netStat,
+                                authResponse.username,
+                                new Date(),
+                                ip
+                            );
+
+                            mysql.query(`INSERT INTO Items (??) VALUES (?)`,
+                                [keys, values],
+                                function(error, results, fields) {
+                                    apiUtils.trackPageUpdate(ip);
+                                    resolve({id: results.insertId, tokenRenewal: {token: authResponse.token, expires: authResponse.expires}});
+                                });
+                        }
+                    });
             }
         ).catch(
             function(reason) {
                 reject(reason);
             }
         );
-        if (!authResponse)
-            return;
 
-        mysql.query(`SELECT Var, DefaultValue, Type FROM ItemStatInfo`,
-            function(error, results, fields) {
-                if (error) {
-                    failed = true;
-                    reject(error);
-                    return;
-                }
-
-                if (results.length > 0) {
-                    for (let i = 0; i < results.length; ++i) {
-                        if (args[results[i].Var] === undefined ||
-                            args[results[i].Var] === null) {
-                            // cast default value to proper type
-                            let defaultValue = null;
-                            if (results[i].Type === "int" ||
-                                results[i].Type === "decimal" ||
-                                results[i].Type === "select") {
-                                defaultValue = Number(results[i].DefaultValue);
-                            }
-                            else if (results[i].Type === "bool") {
-                                defaultValue = (results[i].DefaultValue == "1");
-                            }
-                            else {
-                                defaultValue = results[i].DefaultValue;
-                            }
-
-                            statValues[results[i].Var] = defaultValue;
-                        }
-                        else {
-                            statValues[results[i].Var] = args[results[i].Var];
-                        }
-                    }
-
-                    let keys = [];
-                    let values = [];
-                    for (let key in statValues) {
-                        if (key !== "netStat" && statValues.hasOwnProperty(key)) {
-                            keys.push(key[0].toUpperCase() + key.slice(1));
-                            values.push(statValues[key]);
-                        }
-                    }
-                    keys.push(
-                        "NetStat",
-                        "ModifiedBy",
-                        "ModifiedOn",
-                        "ModifiedByIP"
-                    );
-                    values.push(
-                        0, // TODO: calculate netStat
-                        authResponse.username,
-                        new Date(),
-                        ip
-                    );
-
-                    mysql.query(`INSERT INTO Items (??) VALUES (?)`,
-                        [keys, values],
-                        function(error, results, fields) {
-                            apiUtils.trackPageUpdate(ip);
-                            resolve({id: results.insertId, tokenRenewal: {token: authResponse.token, expires: authResponse.expires}});
-                        });
-                }
-            });
     });
 };
 
@@ -642,75 +678,182 @@ let updateItem = function(args) {
     let ip = auth.utils.getIPFromRequest(args["req"]);
     let statValues = {};
     return new Promise(function(resolve, reject) {
-        let authResponse = null;
         auth.utils.authToken(args["authToken"], ip).then(
             function(response) {
-                authResponse = response;
-                username = response.username;
-                newToken = response.token;
-                newTokenExpires = response.expires;
+                let authResponse = response;
+
+                mysql.query(`SELECT Var, DefaultValue, Type, NetStat FROM ItemStatInfo`,
+                    function(error, results, fields) {
+                        if (error) {
+                            reject(new graphql.GraphQLError(error));
+                            return;
+                        }
+
+                        if (results.length > 0) {
+                            mysql.query(`${itemSelectSQL} FROM Items WHERE Id = ?`,
+                                [args["id"]],
+                                function(itemError, itemResults, itemFields) {
+                                    if (itemError || itemResults.length === 0) {
+                                        if (itemError)
+                                            reject(new graphql.GraphQLError(itemError));
+                                        else
+                                            reject(new graphql.GraphQLError("Could not find item."));
+                                    }
+
+                                    let netStat = 0;
+                                    for (let i = 0; i < results.length; ++i) {
+                                        if (args[results[i].Var] !== undefined &&
+                                            args[results[i].Var] !== null) {
+                                            statValues[results[i].Var] = args[results[i].Var];
+                                            if (results[i].NetStat !== 0)
+                                                netStat += args[results[i].Var] / results[i].NetStat;
+                                        }
+                                        else if (results[i].NetStat !== 0) {
+                                            netStat += itemResults[0][results[i].Var] / results[i].NetStat;
+                                        }
+                                    }
+
+                                    let sqlParts = ["UPDATE Items SET"];
+                                    let placeholders = [];
+                                    let placeholderValues = [];
+                                    for (let key in statValues) {
+                                        if (key !== "netStat" && statValues.hasOwnProperty(key)) {
+                                            placeholders.push("?? = ?");
+                                            placeholderValues.push(key[0].toUpperCase() + key.slice(1));
+                                            placeholderValues.push(statValues[key]);
+                                        }
+                                    }
+
+                                    // Add required columns
+                                    placeholders.push(
+                                        "?? = ?",
+                                        "?? = ?",
+                                        "?? = ?",
+                                        "?? = ?"
+                                    );
+                                    placeholderValues.push(
+                                        "NetStat",
+                                        netStat,
+                                        "ModifiedBy",
+                                        authResponse.username,
+                                        "ModifiedOn",
+                                        new Date(),
+                                        "ModifiedByIP",
+                                        ip,
+                                        args["id"]
+                                    );
+
+                                    sqlParts.push(placeholders.join(", "));
+                                    sqlParts.push("WHERE Id = ?");
+
+                                    console.log(sqlParts.join(" "));
+                                    return;
+
+                                    mysql.query(sqlParts.join(" "),
+                                        placeholderValues,
+                                        function(error, results, fields) {
+                                            apiUtils.trackPageUpdate(ip);
+                                            resolve({token: authResponse.token, expires: authResponse.expires});
+                                        });
+
+                                });
+
+                        }
+                    });
             }
         ).catch(
             function(reason) {
                 reject(reason);
             }
         );
-        if (!authResponse)
-            return;
 
-        mysql.query(`SELECT Var, DefaultValue, Type FROM ItemStatInfo`,
-            function(error, results, fields) {
-                if (error) reject(error);
+    });
+};
 
-                if (results.length > 0) {
-                    for (let i = 0; i < results.length; ++i) {
-                        if (args[results[i].Var] !== undefined &&
-                            args[results[i].Var] !== null) {
-                            statValues[results[i].Var] = args[results[i].Var];
+let revertItem = function(req, authToken, id) {
+    let ip = auth.utils.getIPFromRequest(req);
+    return new Promise(function(resolve, reject) {
+        auth.utils.authToken(authToken, ip).then(
+            function(response) {
+                let authResponse = response;
+                mysql.query("SELECT Var, NetStat FROM ItemStatInfo",
+                    function(error, results, fields) {
+                        if (error || results.length === 0) {
+                            if (error)
+                                reject(new graphql.GraphQLError(error));
+                            else
+                                reject(new graphql.GraphQLError("Item stat info not found."));
+                            return;
                         }
-                    }
 
-                    let sqlParts = ["UPDATE Items SET"];
-                    let placeholders = [];
-                    let placeholderValues = [];
-                    for (let key in statValues) {
-                        if (key !== "netStat" && key !== "id" && statValues.hasOwnProperty(key)) {
-                            placeholders.push("?? = ?");
-                            placeholderValues.push(key[0].toUpperCase() + key.slice(1));
-                            placeholderValues.push(statValues[key]);
+                        mysql.query(`${selectItemSQL}, ItemId FROM Items_AuditTrail WHERE Id = ?`,
+                            [id],
+                            function(historyError, historyResults, historyFields) {
+                                if (historyError || historyResults.length === 0) {
+                                    if (historyError)
+                                        reject(new graphql.GraphQLError(historyError));
+                                    else
+                                        reject(new graphql.GraphQLError("Item history not found."));
+                                    return;
+                                }
+
+                                let itemId = historyResults[0].ItemId;
+                                let sql = ["UPDATE Items AS TI", "JOIN Items_AuditTrail SI ON SI.Id = ?"];
+                                let placeholderValues = [id];
+                                let statVar = "";
+                                let netStat = 0;
+                                for (let i = 0; i < results.length; ++i) {
+                                    if (results[i].Var === "netStat")
+                                        continue;
+
+                                    sql.push("?? = ??,");
+
+                                    statVar = results[i][0].toUpperCase() + results[i].slice(1);
+                                    placeholderValues.push(`TI.${statVar}`);
+                                    placeholderValues.push(`SI.${statVar}`);
+
+                                    if (results[i].NetStat !== 0)
+                                        netStat += historyResults[0][results[i].Var] / results[i].NetStat;
+                                }
+
+                                sql.push("NetStat = ?,");
+                                placeholderValues.push(netStat);
+                                sql.push("ModifiedBy = ?,");
+                                placeholderValues.push(authResponse.username);
+                                sql.push("ModifiedOn = ?,");
+                                placeholderValues.push(new Date());
+                                sql.push("ModifiedByIP = ?");
+                                placeholderValues.push(ip);
+                                sql.push("WHERE TI.Id = ?");
+                                placeholderValues.push(itemId);
+
+                                console.log(sql.join(" "));
+
+                                mysql.query(sql.join(" "),
+                                    placeholderValues,
+                                    function(error, results, fields) {
+                                        if (error) {
+                                            reject(new graphql.GraphQLError(error));
+                                            return;
+                                        }
+                                    });
+                            });
+                    });
+
+                mysql.query(sql,
+                    placeholderValues,
+                    function(error, results, fields) {
+                        if (error) {
+                            reject(new graphql.GraphQLError(error));
+                            return;
                         }
-                    }
-
-                    // Add required columns
-                    placeholders.push(
-                        "?? = ?",
-                        "?? = ?",
-                        "?? = ?",
-                        "?? = ?"
-                    );
-                    placeholderValues.push(
-                        "NetStat",
-                        0, // TODO: calculate netStat
-                        "ModifiedBy",
-                        authResponse.username,
-                        "ModifiedOn",
-                        new Date(),
-                        "ModifiedByIP",
-                        ip,
-                        args["id"]
-                    );
-
-                    sqlParts.push(placeholders.join(", "));
-                    sqlParts.push("WHERE Id = ?");
-
-                    mysql.query(sqlParts.join(" "),
-                        placeholderValues,
-                        function(error, results, fields) {
-                            apiUtils.trackPageUpdate(ip);
-                            resolve({token: authResponse.token, expires: authResponse.expires});
-                        });
-                }
-            });
+                    });
+            }
+        ).catch(
+            function(reason) {
+                reject(reason);
+            }
+        );
     });
 };
 
@@ -1226,6 +1369,16 @@ let mFields = {
                 isLight,
                 isHeroic
             });
+        }
+    },
+    revertItem: {
+        type: new graphql.GraphQLNonNull(graphql.GraphQLInt),
+        args: {
+            authToken: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
+            id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) }
+        },
+        resolve: function(_, {authToken, id}, req) {
+            return revertItem(req, authToken, id);
         }
     }
 };
