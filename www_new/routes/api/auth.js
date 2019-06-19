@@ -10,6 +10,7 @@ let getIPFromRequest = function(request) {
 }
 
 let authLogin = function(username, password, stayLoggedIn, ip) {
+    console.log("entry");
     if (apiUtils.isIPBlocked(ip))
         return new gql.GraphQLError("Too many failed attempts. Try again later.");
 
@@ -19,20 +20,24 @@ let authLogin = function(username, password, stayLoggedIn, ip) {
             function(error, results, fields) {
                 if (error) {
                     reject(new gql.GraphQLError(error));
+                    console.log("error: " + error);
                     return;
                 }
 
                 if (results.length > 0) {
                     for (let i = 0; i < results.length; ++i) { // TODO: log system error if more than 1 result.
+                        console.log("found");
                         if (phpPass.verify(password, results[i].Password)) {
                             if (results[i].Banned) {
                                 reject(new gql.GraphQLError("This account has been locked."));
                                 return;
                             }
 
+                            console.log("verified");
+
                             mysql.query(`UPDATE Members SET LastLoginDate = NOW(), LastLoginIP = ? WHERE Id = ?`,
                                 [phpPass.hash(ip), results[i].Id],
-                                function(error, updateResults, fields) {});
+                                function(error, updateResults, fields) {console.log("updated");});
 
                             let token = crypto.randomBytes(24).toString("hex");
                             let selector = crypto.randomBytes(6).toString("hex");
@@ -47,7 +52,7 @@ let authLogin = function(username, password, stayLoggedIn, ip) {
                             placeholderValues.push(futureDate);
 
                             mysql.query(`INSERT INTO AuthTokens (Selector, HashedValidator, MemberId, StayLoggedIn, Expires) VALUES (?, ?, ?, ?, ?)`,
-                                [selector, tokenHash, results[i].Id],
+                                [selector, tokenHash, results[i].Id, stayLoggedIn, futureDate],
                                 function(error, insertResults, fields) {});
 
                             resolve({token: `${selector}-${token}`, expires: futureDate});
@@ -132,6 +137,16 @@ let authToken = function(token, ip, renew) {
     });
 };
 
+let logout = function(token) {
+    if (!token)
+        return;
+
+    let tokenInfo = token.split("-");
+    mysql.query("DELETE FROM AuthTokens WHERE Selector = ?",
+        [tokenInfo[0]],
+        function(error, results, fields) {console.log(error)});
+}
+
 let getPermissions = function(memberId) {
     return new Promise(function(resolve, reject) {
         mysql.query(`SELECT P.Name, RPM.Create, RPM.Read, RPM.Update, RPM.Delete
@@ -149,10 +164,10 @@ let getPermissions = function(memberId) {
                 let permissionDict = {};
                 for (let i = 0; i < results.length; ++i) {
                     permissionDict[results[i].Name] = {
-                        results[i].Create,
-                        results[i].Read,
-                        results[i].Update,
-                        results[i].Delete
+                        create: results[i].Create,
+                        read: results[i].Read,
+                        update: results[i].Update,
+                        delete: results[i].Delete
                     };
                 }
                 resolve(permissionDict);
@@ -249,4 +264,4 @@ let mFields = {
 
 module.exports.mutationFields = mFields;
 module.exports.types = { tokenRenewalType };
-module.exports.utils = { getIPFromRequest, authLogin, authToken };
+module.exports.utils = { getIPFromRequest, authLogin, authToken, logout };
