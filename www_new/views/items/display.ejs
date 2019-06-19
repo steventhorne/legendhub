@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <%- include('../shared/meta') %>
+    <meta property="og:description" content="
+<%_ if (vm.item.getMob) { _%>
+Mob: <%=vm.item.getMob.name_%>
+<%_ if (vm.item.getMob.areaName) { _%>
+&nbsp;(<%=vm.item.getMob.areaName%>)
+<%_ } else { _%>
+&nbsp;(Area unspecified)
+<%_ }}_%>
+
+Slot: <%- vm.constants.selectOptions.slot[vm.item.slot] %>
+Rent: <%- vm.item.rent %>
+
+<% if (vm.item.strength !== 0) { _%>
+Strength: <%- vm.item.strength %>
+<%_}_%>
+<% if (vm.item.mind !== 0) { _%>
+Mind: <%- vm.item.mind %>
+<%_}_%>
+<% if (vm.item.dexterity !== 0) { _%>
+Dexterity: <%- vm.item.dexterity %>
+<%_}_%>
+<% if (vm.item.constitution !== 0) { _%>
+Constitution: <%- vm.item.constitution %>
+<%_}_%>
+<% if (vm.item.perception !== 0) { _%>
+Perception: <%- vm.item.perception %>
+<%_}_%>
+<% if (vm.item.spirit !== 0) { _%>
+Spirit: <%- vm.item.spirit %>
+<%_}_%>
+AC: <%-vm.item.ac%>" />
+</head>
+<body ng-app="legendwiki-app">
+    <%- include('../shared/header') %>
+    <div class="container">
+        <div class="row">
+            <h1 class="col-12 text-center text-md-left text-primary"><%=vm.item.name%></h1>
+            <%if (vm.historyId) {%>
+            <h4 class="d-inline col-12 text-center text-md-left">
+                <a class="text-warning" href="/items/details.html?id=<%-vm.item.id%>">view latest version</a>
+            </h4>
+            <%}%>
+        </div>
+        <div class="row justify-content-center justify-content-md-start" ng-init="showHistory = false">
+            <div class="btn-group" role="group" aria-label="Toolbar">
+                <% if (vm.item.getHistories.length > 0) { %>
+                    <button type="button" class="btn btn-outline-primary" ng-click="showHistory = !showHistory"><i class="fas fa-history"></i> <%=vm.item.getHistories.length%></button>
+                <% } %>
+                <button type="button" class="btn btn-outline-primary"><%=new Date(vm.item.modifiedOn).toISOString().slice(0, 16).replace("T", " ")%> <strong>by</strong> <%=vm.item.modifiedBy%></button>
+                <button type="button" class="btn btn-outline-primary"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></button>
+            </div>
+        </div>
+        <div class="row justify-content-center justify-content-md-start" ng-if="showHistory" ng-cloak>
+            <div class="list-group justify-content-center justify-content-md-start">
+                <% for (let i = 0; i < vm.item.getHistories.length; ++i) { %>
+                <a href="/items/history.html?id=<%-vm.item.getHistories[i].id%>" class="text-center text-md-left list-group-item list-group-item-action<%-((vm.historyId && vm.item.getHistories[i].id == vm.historyId) ? ' active' : '')%>"><%=new Date(vm.item.getHistories[i].item.modifiedOn).toISOString().slice(0, 16).replace("T", " ")%> <strong>by</strong> <%=vm.item.getHistories[i].item.modifiedBy%></a>
+                <% } %>
+            </div>
+        </div>
+        <br><br>
+        <% if (vm.item.getMob) { %>
+        <div class="row">
+            <span class="col-12 text-center text-md-left"><strong>Mob:</strong>&nbsp;&nbsp;<a href="/mobs/details.html?id=<%-vm.item.getMob.id%>"><%=vm.item.getMob.name%>
+                <%_ if (vm.item.getMob.areaName) { _%>
+                &nbsp;<span class="text-info">(<%=vm.item.getMob.areaName%>)</span>
+                <%_ } else { _%>
+                &nbsp;<span class="text-danger">(Area unspecified)</span>
+                <%_ } _%>
+                </a>
+            </span>
+        </div>
+        <% } %>
+        <% if (vm.item.getQuest) { %>
+        <div class="row">
+            <span class="col-12 text-center text-md-left"><strong>Quest:</strong>&nbsp;&nbsp;<a href="/quests/details.html?id=<%-vm.item.getQuest.id%>"><%=vm.item.getQuest.title%>
+                <%_ if (vm.item.getQuest.areaName) { _%>
+                &nbsp;<span class="text-info">(<%=vm.item.getQuest.areaName%>)</span>
+                <%_ } else { _%>
+                &nbsp;<span class="text-danger">(Area unspecified)</span>
+                <%_ } _%>
+                </a>
+            </span>
+        </div>
+        <% } %>
+        <br>
+        <div class="row">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-12 col-sm-6">
+                                <div class="row">
+                                    <dt class="col-8">Slot</dt>
+                                    <dd class="col-4"><%=vm.constants.selectOptions.slot[vm.item.slot]%></dd>
+                                </div>
+                                <% if (vm.item.uniqueWear) { _%>
+                                <div class="row">
+                                    <dd class="col-4 offset-8 text-info">Unique</dd>
+                                </div>
+                                <%_ } %>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <div class="row">
+                                    <dt class="col-8">Rent</dt>
+                                    <dd class="col-4"><%=vm.item.rent%></dd>
+                                </div>
+                                <% if (vm.item.rent !== vm.item.value && vm.item.value !== 0) { _%>
+                                <div class="row">
+                                    <dt class="col-8">Sells For</dt>
+                                    <dd class="col-4"><%=vm.item.value%></dd>
+                                </div>
+                                <%_ } %>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-4 col-8">Strength</dt>
+                            <dd class="col-sm-2 col-4"><%=vm.item.strength%></dd>
+                            <dt class="col-sm-4 col-8">Constitution</dt>
+                            <dd class="col-sm-2 col-4"><%=vm.item.constitution%></dd>
+                            <dt class="col-sm-4 col-8">Mind</dt>
+                            <dd class="col-sm-2 col-4"><%=vm.item.mind%></dd>
+                            <dt class="col-sm-4 col-8">Perception</dt>
+                            <dd class="col-sm-2 col-4"><%=vm.item.perception%></dd>
+                            <dt class="col-sm-4 col-8">Dexterity</dt>
+                            <dd class="col-sm-2 col-4"><%=vm.item.dexterity%></dd>
+                            <dt class="col-sm-4 col-8">Spirit</dt>
+                            <dd class="col-sm-2 col-4"><%=vm.item.spirit%></dd>
+                        </dl>
+                        <dl class="row">
+                            <dt class="col-sm-4 col-8">AC</dt>
+                            <dd class="col-sm-2 col-4"><%=vm.item.ac%></dd>
+                            <dt class="col-sm-4 col-8">Weight</dt>
+                            <dd class="col-sm-2 col-4"><%=vm.item.weight%></dd>
+                            <dt class="offset-sm-6 col-sm-4 col-8">Net Stat</dt>
+                            <dd class="col-sm-2 col-4"><%=vm.item.netStat%></dd>
+                        </dl>
+                        <br><br>
+                        <%_
+                            for (let i = 0; i < vm.statCategories.length; ++i) {
+                                let category = vm.statCategories[i];
+                                if (category.name === "Weapon" && vm.item.slot !== 14) {
+                                    continue;
+                                }
+                        %>
+                        <dl class="row mb-0">
+                            <%_
+                                for (let j = 0; j < category.getItemStatInfo.length; ++j) {
+                                    let stat = category.getItemStatInfo[j];
+                                    if (stat.var === "slot" ||
+                                        stat.var === "name" ||
+                                        stat.var === "alignRestriction" ||
+                                        stat.var === "strength" ||
+                                        stat.var === "mind" ||
+                                        stat.var === "dexterity" ||
+                                        stat.var === "constitution" ||
+                                        stat.var === "perception" ||
+                                        stat.var === "spirit" ||
+                                        stat.var === "ac" ||
+                                        stat.var === "value" ||
+                                        stat.var === "uniqueWear" ||
+                                        stat.var === "rent" ||
+                                        stat.var === "netStat" ||
+                                        stat.var === "weight") {
+                                        continue;
+                                    }
+                                    if ((stat.type === "int" || stat.type === "decimal") &&
+                                        vm.item[stat.var] == 0)
+                                        continue;
+                                    if ((stat.type === "string" || stat.type === "bool" || stat.type === "select") && !vm.item[stat.var])
+                                        continue;
+                                %>
+                            <div class="col-sm-6 col-12 mb-1">
+                                <div class="row">
+                                    <dt class="col-8"><%=stat.display%></dt>
+                                    <%_ if (stat.type === "int" || stat.type === "string" || stat.type === "decimal") { %>
+                                    <dd class="col-4"><%=vm.item[stat.var]%></dd>
+                                    <% } else if (stat.type === "bool") { %>
+                                    <dd class="col-4 text-<%- (vm.item[stat.var] ? "success" : "danger") %>"><%= (vm.item[stat.var] ? "yes" : "no") %></dd>
+                                    <% } else if (stat.type === "select") { %>
+                                    <dd class="col-4"><%= vm.constants.selectOptions[stat.var][vm.item[stat.var]] %></dd>
+                                    <% } _%>
+                                </div>
+                            </div>
+                            <% } _%>
+                        </dl>
+                        <% } _%>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col-sm-6 col-12">
+                                <dt><%=vm.constants.selectOptions['alignRestriction'][vm.item.alignRestriction]%></dt>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br><br>
+                <% if (vm.item.notes) { %>
+                <div class="card" ng-init="itemNotes='<%=vm.item.notes.replace("'","&#39;")%>'">
+                    <div class="card-header">Notes</div>
+                    <div class="card-body" markdown-to-html="itemNotes">
+                    </div>
+                </div>
+                <br><br>
+                <% } %>
+                <% if (vm.historyId && locals.user) { %>
+                <a class="btn btn-primary btn-block col-12 col-md-6" href="/items/revert.html?id=<%-vm.historyId%>" role="button">Use this version</a>
+                <br><br>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    <%- include('../shared/footer') %>
+    <%- include('../shared/scripts') %>
+    <%- include('../shared/markdown') %>
+</body>
+</html>
