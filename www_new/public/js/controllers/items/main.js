@@ -271,8 +271,8 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", f
      *
      * @param {object} item - the item that was clicked.
      */
-	$scope.onItemClicked = function(item) {
-		window.location = "/items/details.html?id=" + item.Id;
+	$scope.onItemClicked = function(id) {
+		window.location = "/items/details.html?id=" + id;
 	};
 
     /**
