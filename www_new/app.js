@@ -1,11 +1,11 @@
-#!/usr/bin/env node
+require("dotenv").config();
 
+let compression = require("compression");
 let createError = require("http-errors");
 let express = require("express");
 let path = require("path");
 let cookieParser = require("cookie-parser");
 let logger = require("morgan");
-require("dotenv").config();
 
 let authRouter = require("./routes/auth");
 
@@ -23,16 +23,40 @@ let app = express();
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
+// middleware for all requests
+app.use(compression());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+// handle api requests
+app.use("/api", apiRouter);
+
+// middleware for non-api requests
+app.use(cookieParser());
+
+// 404 items we know we don't have
+// such as .map and favicon files
+app.use(function(req,res,next) {
+    let url = require("url").parse(req.url);
+    if (url.pathname.endsWith(".map") || url.pathname === "/favicon.ico")
+        res.sendStatus(404);
+    else
+        next();
+});
+
+// auth request for views
 app.use(authRouter);
 
+// set version for views
+app.use(function(req, res, next) {
+    res.locals.version = process.env.npm_package_version;
+    next();
+});
+
+// handle view routers
 app.use("/", indexRouter);
-app.use("/api", apiRouter);
 app.use("/items", itemsRouter);
 app.use("/mobs", mobsRouter);
 app.use("/quests", questsRouter);
@@ -46,14 +70,17 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  console.log(err);
-  res.locals.error = req.app.get("env") === "development" ? err : {};
+    if (res.headersSent)
+        return next(err);
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render("error/404");
+    let errors = [];
+    if (req.app.get("env") === "development")
+        errors.push(err);
+
+    console.log(err);
+    // render the error page
+    res.status(err.status || 500);
+    res.render(`error/${err.status || 500}`, {errors: errors});
 });
 
 app.listen(process.env.PORT, () => console.log(`Running app listening on port ${process.env.PORT}!`));
