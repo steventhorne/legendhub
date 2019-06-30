@@ -1,23 +1,17 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-	<!-- Required meta tags -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-	<!-- CSS -->
-	<script src="/js/js.cookie.min.js"></script>
-	<noscript><link id="theme" rel="stylesheet" href="/css/bootstrap-light.min.css?%%version%%"></noscript>
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
-	crossorigin="anonymous">
-
-
-	<title>LegendHUB - Mobs</title>
+    <%-include("../shared/meta")%>
 </head>
-
 <body ng-app="legendwiki-app" ng-controller="mobs" ng-class="{'modal-open': categoryActive}">
-	<lh-header></lh-header>
+    <%-include("../shared/header")%>
+    <%
+        let searchPart = (vm.query.search !== undefined ? "&search=" + vm.query.search : "");
+        let sortByPart = (vm.query.sortBy ? "&sortBy=" + vm.query.sortBy : "");
+        let sortAscPart = (vm.query.sortAsc ? "&sortAsc=" + vm.query.sortAsc : "");
+        let pageBaseUrl = "/mobs/index.html?" + searchPart +  sortByPart + sortAscPart;
+        let sortBaseUrl = "/mobs/index.html?" + searchPart;
+    %>
 	<div class="container-fluid">
 		<div class="px-0">
 			<div class="row">
@@ -63,9 +57,8 @@
 						</form>
 					</div>
 					<br />
-					<div class="row" ng-show="resultWarning != ''" ng-cloak>
-						<span class="text-danger">{{resultWarning}}</span>
-					</div>
+                    <%-include("../shared/pagination", {baseUrl: pageBaseUrl, page: vm.page, rows: vm.rows, resultLength: vm.results.length, moreResults: vm.moreResults})%>
+                    
 					<div class="row" ng-cloak>
 						<div class="col-12">
 							<div class="card">
@@ -86,74 +79,44 @@
 									<table class="table table-sm table-md table-hover table-striped table-bordered mb-0" ng-cloak>
 										<thead class="thead-dark">
 											<tr>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" nowrap ng-if="recent">Modified By&nbsp;<i ng-class="sortClass('ModifiedBy')"></i></th>
-												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="sortClass('Name')"></i></th>
-												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('AreaName')" nowrap>Area&nbsp;<i ng-class="sortClass('AreaName')"></i></th>
-												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('Xp')" nowrap>Experience&nbsp;<i ng-class="sortClass('Xp')"></i></th>
-												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('Gold')" nowrap>Gold&nbsp;<i ng-class="sortClass('Gold')"></i></th>
-												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('Aggro')" nowrap>Agg&nbsp;<i ng-class="sortClass('Aggro')"></i></th>
+                                                <th scope="col" class="text-center"ng-click="onColumnHeaderClicked('<%-sortBaseUrl+"&sortBy=name&sortAsc=" + (vm.query.sortBy ==="name"?!(vm.query.sortAsc === "true"):true)%>')" nowrap>Name&nbsp;<i ng-class="sortClass('Name')"></i></th>
+												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('<%-sortBaseUrl+"&sortBy=areaName&sortAsc=" + (vm.query.sortBy ==="areaName"?!(vm.query.sortAsc === "true"):true)%>')" nowrap>Area&nbsp;<i ng-class="sortClass('AreaName')"></i></th>
+												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('<%-sortBaseUrl+"&sortBy=xp&sortAsc=" + (vm.query.sortBy ==="xp"?!(vm.query.sortAsc === "true"):false)%>')" nowrap>Experience&nbsp;<i ng-class="sortClass('Xp')"></i></th>
+												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('<%-sortBaseUrl+"&sortBy=gold&sortAsc=" + (vm.query.sortBy ==="gold"?!(vm.query.sortAsc === "true"):false)%>')" nowrap>Gold&nbsp;<i ng-class="sortClass('Gold')"></i></th>
+												<th scope="col" class="text-center"ng-click="onColumnHeaderClicked('<%-sortBaseUrl+"&sortBy=aggro&sortAsc=" + (vm.query.sortBy ==="aggro"?!(vm.query.sortAsc === "true"):false)%>')" nowrap>Agg&nbsp;<i ng-class="sortClass('Aggro')"></i></th>
 											</tr>
 										</thead>
 										<tbody>
-											<tr ng-repeat="mob in mobs | orderBy:sortProperty:sortReverse | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onMobClicked(mob)" style="cursor: pointer;">
-												<td ng-if="recent" class="text-center">{{mob.ModifiedBy}}</td>
-												<th scope="row" class="text-primary">{{mob.Name}}</th>
-												<td><span class="text-info">{{mob.AreaEra ? '(' + mob.AreaEra + ')' : ''}}</span> {{mob.AreaName}}</td>
-												<td class="text-center">{{mob.Xp}}</td>
-												<td class="text-center">{{mob.Gold}}</td>
-												<td class="text-center">
-													<i class="{{mob.Aggro == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
-												</td>
-											</tr>
+                                            <%for (let i = 0; i < vm.results.length; ++i) {%>
+                                            <tr ng-click="onMobClicked(<%-vm.results[i].id%>)">
+                                                <th scope="row" class="text-primary"><%=vm.results[i].name%></th>
+                                                <td><%if(vm.results[i].eraName){%><span class="text-info">(<%=vm.results[i].eraName%>)</span> <%}%><%=vm.results[i].areaName%></td>
+                                                <td class="text-center"><%=vm.results[i].xp%></td>
+                                                <td class="text-center"><%=vm.results[i].gold%></td>
+                                                <td class="text-center">
+                                                    <%_ if (vm.results[i].aggro) {_%>
+                                                    <i class="text-success fas fa-check"></i>
+                                                    <%_} else {_%>
+                                                    <i class="text-danger fas fa-times"></i>
+                                                    <%_}_%>
+                                                </td>
+                                            </tr>
+                                            <%}%>
 										</tbody>
 									</table>
 								</div>
 							</div>
 						</div>
 					</div>
-					<br />
-                    <div class="row">
-					    <nav class="col" aria-label="Mob result navigation" ng-show="totalPages > 1">
-						    <ul class="pagination">
-							    <li class="page-item">
-								    <a class="page-link" ng-click="onPreviousClicked()" href aria-label="Previous">
-									    <span aria-hidden="true">
-										    <i class="fas fa-chevron-left"></i>
-									    </span>
-									    <span class="sr-only">Previous</span>
-								    </a>
-							    </li>
-							    <li class="page-item" ng-repeat="i in getPageArray(totalPages) track by $index" ng-class="{active: i == currentPage}">
-								    <a class="page-link" ng-click="onPageClicked(i)" href>{{i}}</a>
-							    </li>
-							    <li class="page-item">
-								    <a class="page-link" ng-click="onNextClicked()" href aria-label="Next">
-									    <span aria-hidden="true">
-										    <i class="fas fa-chevron-right"></i>
-									    </span>
-									    <span class="sr-only">Next</span>
-								    </a>
-							    </li>
-						    </ul>
-					    </nav>
-                    </div>
+                    <br>
+                    <%-include("../shared/pagination", {baseUrl: pageBaseUrl, page: vm.page, rows: vm.rows, resultLength: vm.results.length, moreResults: vm.moreResults})%>
 				</div>
 			</div>
 		</div>
 	</div>
-
-	<lh-footer></lh-footer>
-
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-	    crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-	    crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-		crossorigin="anonymous"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
-	<script src="/js/apps/legendwiki-app.js?%%version%%"></script>
-	<script src="/js/controllers/mobs/main.js?%%version%%"></script>
+    <%-include("../shared/footer")%>
+    <%-include("../shared/scripts")%>
+    <script src="/js/controllers/mobs/main.js?v=<%-locals.version%>"></script>
 </body>
 
 </html>

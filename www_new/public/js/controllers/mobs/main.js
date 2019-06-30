@@ -186,8 +186,8 @@ app.controller('mobs', ['$scope', '$http', '$q', 'categories', function($scope, 
      *
      * @param {object} item - the mob that was clicked.
      */
-	$scope.onMobClicked = function(item) {
-		window.location = "/mobs/details.html?id=" + item.Id;
+	$scope.onMobClicked = function(id) {
+		window.location = "/mobs/details.html?id=" + id;
 	};
 
     /**
@@ -225,14 +225,8 @@ app.controller('mobs', ['$scope', '$http', '$q', 'categories', function($scope, 
      *
      * @param {string} the variable name of the stat that was clicked.
      */
-	$scope.onColumnHeaderClicked = function(statVar) {
-		if ($scope.sortProperty == statVar) {
-			$scope.sortReverse = !$scope.sortReverse;
-		}
-		else {
-			$scope.sortProperty = statVar;
-			$scope.sortReverse = true;
-		}
+	$scope.onColumnHeaderClicked = function(url) {
+        window.location = url;
 	};
 
     /**

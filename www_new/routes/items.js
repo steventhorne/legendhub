@@ -2,6 +2,7 @@ let express = require("express");
 let router = express.Router();
 let request = require("request");
 let itemApi = require("./api/items");
+let auth = require("./api/auth");
 
 router.get(["/details.html"], function(req, res, next) {
     let getItemQuery = `${itemApi.fragment}
@@ -50,7 +51,8 @@ router.get(["/details.html"], function(req, res, next) {
         function(error, response, body){
             body = JSON.parse(body);
             if (body.errors) {
-                res.render("error/500", {errors: body.errors});
+                res.status(body.errors[0].code);
+                res.render(`error/${body.errors[0].code}`, {errors: body.errors});
                 return;
             }
 
@@ -118,7 +120,8 @@ router.get(["/history.html"], function(req, res, next) {
         function(error, response, body){
             body = JSON.parse(body);
             if (body.errors) {
-                res.render("error/500", {errors: body.errors});
+                res.status(body.errors[0].code);
+                res.render(`error/${body.errors[0].code}`, {errors: body.errors});
                 return;
             }
 
@@ -161,7 +164,8 @@ router.get(["/revert.html"], function(req, res, next) {
         function(error, response, body) {
             body = JSON.parse(body);
             if (body.errors) {
-                res.render("error/500", {errors: body.errors});
+                res.status(body.errors[0].code);
+                res.render(`error/${body.errors[0].code}`, {errors: body.errors});
                 return;
             }
 
@@ -181,6 +185,103 @@ router.get(["/revert.html"], function(req, res, next) {
             res.redirect(`/items/details.html?id=${data.id}`);
         }
     );
+});
+
+router.get(["/add.html"], function(req, res, next) {
+    if (res.locals.user) {
+        let query = `
+        {
+            getItemStatCategories {
+                name
+                getItemStatInfo {
+                    display
+                    short
+                    var
+                    type
+                    editable
+                    defaultValue
+                }
+            }
+        }
+        `;
+
+        request.post({
+            url: `http://localhost:${process.env.PORT}/api`,
+            form: {
+                query: query
+            }
+        },
+        function(error, response, body) {
+            body = JSON.parse(body);
+            if (body.errors) {
+                res.status(body.errors[0].code);
+                res.render(`error/${body.errors[0].code}`, {errors: body.errors});
+                return;
+            }
+
+            let data = body.data;
+            let itemStatCategories = data.getItemStatCategories;
+            let title = "Add Item";
+            let vm = {
+                itemStatCategories,
+                constants: itemApi.constants
+            };
+            res.render("items/modify", {title, vm})
+        })
+    }
+});
+router.get(["/edit.html"], function(req, res, next) {
+    if (res.locals.user) {
+        let query = `
+        {
+            getItemById(id:${req.query.id}) {
+                id
+                name
+            }
+            getItemStatCategories {
+                name
+                getItemStatInfo {
+                    display
+                    short
+                    var
+                    type
+                    editable
+                }
+            }
+        }
+        `;
+
+        request.post({
+            url: `http://localhost:${process.env.PORT}/api`,
+            form: {
+                query: query
+            }
+        },
+        function(error, response, body) {
+            body = JSON.parse(body);
+            if (body.errors) {
+                console.log(body.errors);
+                res.status(body.errors[0].code);
+                res.render(`error/${body.errors[0].code}`, {errors: body.errors});
+                return;
+            }
+
+            let data = body.data;
+            let item = data.getItemById;
+            let itemStatCategories = data.getItemStatCategories;
+            let title = `Edit ${item.name}`;
+            let vm = {
+                item,
+                itemFragment: itemApi.fragment,
+                itemStatCategories,
+                constants: itemApi.constants
+            };
+            res.render("items/modify", {title, vm});
+        });
+    }
+    else {
+        res.redirect(`/login.html=${req.url.path}`);
+    }
 });
 
 router.get(["/", "/index.html"], function(req, res, next) {
@@ -233,7 +334,8 @@ router.get(["/", "/index.html"], function(req, res, next) {
     function(error, response, body) {
         body = JSON.parse(body);
         if (body.errors) {
-            res.render("error/500", {errors: body.errors});
+            res.status(body.errors[0].code);
+            res.render(`error/${body.errors[0].code}`, {errors: body.errors});
             return;
         }
 
