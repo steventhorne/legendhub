@@ -9,9 +9,10 @@ www/bin/*
 www/deploy.sh.conf
 www-bin
 
-# WWW NEW
+# dotenv
 www/.env
 www_new/.env
+.env
 
 # notification listener
 python/__pycache__/
