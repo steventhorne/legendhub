@@ -61,9 +61,22 @@ let limitMutationRule = function(context) {
     }
 };
 
+let errorFormatFn = function(error) {
+    let errorCode = 500;
+    if (error.extensions && error.extensions.code)
+        errorCode = error.extensions.code;
+
+    return ({
+        message:error.message,
+        path:error.path,
+        code:errorCode
+    });
+};
+
 module.exports = exgraphql({
     schema: schema,
     rootValue: root,
     graphiql: true,
-    validationRules: [limitMutationRule]
+    validationRules: [limitMutationRule],
+    customFormatErrorFn: errorFormatFn
 });
