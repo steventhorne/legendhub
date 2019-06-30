@@ -3,22 +3,6 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
         $scope.themes = ['Light', 'Dark', 'Solarized Dark'];
 		$scope.bcFactory = breadcrumb;
 		$scope.returnUrl = window.location.pathname + window.location.search;
-		checkIfLoggedIn();
-	}
-
-	var checkIfLoggedIn = function() {
-		getLoggedInUser();
-	}
-
-	var getLoggedInUser = function() {
-		$http({
-			url: '/php/login/getLoggedInUser.php'
-		}).then(function succcessCallback(response) {
-			if (response.data.success) {
-				$scope.currentUser = response.data.username;
-                $scope.getNotifications();
-			}
-		});
 	}
 
 	$scope.logout = function() {
