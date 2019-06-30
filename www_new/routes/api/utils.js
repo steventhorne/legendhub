@@ -1,3 +1,5 @@
+let gql = require("graphql");
+
 module.exports.blockedIPs = {};
 module.exports.trackers = {};
 module.exports.isIPBlocked = function(ip) {
@@ -56,3 +58,32 @@ module.exports.trackLogin = function(ip) {
 module.exports.trackPageUpdate = function(ip) {
     module.exports.trackAttempt("pageUpdate", ip, 5, 200, 60);
 }
+
+/* Errors */
+class NotFoundError extends gql.GraphQLError {
+    constructor(message) {
+        if (!message)
+            message = "Not found.";
+        super(message, null, null, null, null, null, {code:404});
+    }
+}
+
+class TooManyRequestsError extends gql.GraphQLError {
+    constructor(message) {
+        if (!message)
+            message = "Too many requests.";
+        super(message, null, null, null, null, null, {code:429});
+    }
+}
+
+class UnauthorizedError extends gql.GraphQLError {
+    constructor(message) {
+        if (!message)
+            message = "Unauthorized.";
+        super(message, null, null, null, null, null, {code:401});
+    }
+}
+
+module.exports.NotFoundError = NotFoundError;
+module.exports.TooManyRequestsError = TooManyRequestsError;
+module.exports.UnauthorizedError = UnauthorizedError;

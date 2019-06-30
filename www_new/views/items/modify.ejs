@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <%- include("../shared/meta"); -%>
+    </head>
+    <body ng-app="legendwiki-app" ng-controller="items-modify">
+        <%- include("../shared/header"); -%>
+        <div class="container">
+            <form name="itemForm" ng-submit="<%-(vm.item ? "editItem(item)" : "addItem(item)")%>">
+                <div class="row">
+                    <% if (vm.item) { %>
+                    <h1>Edit Item</h1>
+                    <% } else { %>
+                    <h1>Add Item</h1>
+                    <% } %>
+                </div>
+                <% for (let i = 0; i < vm.itemStatCategories.length; ++i) {
+                    let category = vm.itemStatCategories[i]; %>
+                    <%if (category.name === "Weapon") {%>
+                    <div ng-show="item.slot === 14">
+                    <% } else { %>
+                    <div>
+                    <% } %>
+                    <div class="row">
+                        <h4><%=category.name%></h4>
+                    </div>
+                    <div class="row">
+                        <% if (category.name === "Basic") { %>
+                            <div class="form-group col-12 col-md-8 col-lg-4">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Name</span>
+                                    </div>
+                                    <input class="form-control" type="text" name="name" ng-model="item.name" ng-class="{'is-invalid': itemForm.name.$invalid}" required lh-autofocus>
+                                </div>
+                            </div>
+                        <% } %>
+                        <% for (let j = 0; j < category.getItemStatInfo.length; ++j) {
+                            let stat = category.getItemStatInfo[j];
+                            if (stat.editable && stat.var !== "name") {%>
+                            <div class="form-group col-6 col-md-4 col-lg-<%- (stat.type === "bool" ? "2" : "3")%>">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><%=stat.short%></span>
+                                    </div>
+                                    <% if (stat.type === "int") { %>
+                                    <input type="number" name="<%-stat.var%>" ng-model="item.<%-stat.var%>" class="form-control" ng-class="{'is-invalid': itemForm.<%-stat.var%>.$invalid}" required>
+                                    <% } else if (stat.type === "decimal") { %>
+                                    <input type="number" name="<%-stat.var%>" ng-model="item.<%-stat.var%>" class="form-control" ng-class="{'is-invalid': itemForm.<%-stat.var%>.$invalid}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" step="0.01" required>
+                                    <% } else if (stat.type === "string") { %>
+                                    <input type="text" name="<%-stat.var%>" ng-model="item.<%-stat.var%>" class="form-control" ng-class="{'is-invalid': itemForm.<%-stat.var%>.$invalid}">
+                                    <% } else if (stat.type === "bool") { %>
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">
+                                            <input type="checkbox" name="<%-stat.var%>" ng-model="item.<%-stat.var%>">
+                                        </div>
+                                    </div>
+                                    <% } else if (stat.type === "select") { %>
+                                    <select name="<%-stat.var%>" ng-model="item.<%-stat.var%>" class="form-control" ng-class="{'is-invalid': itemForm.<%-stat.var%>.$invalid}"<%- (category.name === "Weapon" ? " ng-required='item.slot === 14'" : "") %>>
+                                        <option ng-value>Choose a <%=stat.short%></option>
+                                        <% for (let k = 0; k < vm.constants.selectOptions[stat.var].length; ++k) { %>
+                                        <option ng-value="<%- k %>"><%= vm.constants.selectOptions[stat.var][k] %></option>
+                                        <% } %>
+                                    </select>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }} %>
+                        <% if (category.name === "Basic") { %>
+                            <div class="form-group col-12 col-md-4 col-lg-3">
+                                <button class="btn btn-outline-secondary col-12 text-truncate" data-toggle="modal" data-target="#mobModal">{{item.getMob ? item.getMob.name : "Choose a Mob"}}</button>
+                            </div>
+                            <div class="form-group col-12 col-md-4 col-lg-3">
+                                <button class="btn btn-outline-secondary col-12 text-truncate" data-toggle="modal" data-target="#questModal">{{item.getQuest ? item.getQuest.title : "Choose a Quest"}}</button>
+                            </div>
+                        <% } %>
+                        </div>
+                    </div>
+                <% } %>
+                <br><br>
+                <span>This field supports <a href="https://github.com/showdownjs/showdown/wiki/Showdown's-Markdown-syntax" target="_blank">markdown</a> and <a href="https://github.com/showdownjs/showdown/wiki/Emojis" target="_blank">emoji</a>.</span>
+                <div class="row">
+                    <div class="col-12 col-lg-6">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Notes</span>
+                            </div>
+                            <textarea class="form-control" rows="5" ng-model="item.notes"></textarea>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">Preview</div>
+                            <div class="card-body" markdown-to-html="item.notes"></div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <button class="btn btn-primary btn-block col-12 offset-md-8 col-md-4 offset-lg-10 col-lg-2" type="submit" ng-disabled="<%- (vm.item ? "!canEdit()" : "!canAdd()")%>">Save</button>
+                </div>
+                <br><br>
+            </form>
+        </div>
+        <%- include("../shared/footer"); -%>
+        <%- include("../shared/scripts"); -%>
+        <%- include("../shared/markdown"); -%>
+        <script>
+            app.controller('items-modify', ['$scope', '$http', '$q', '$cookies', function($scope, $http, $q, $cookies) {
+                let initialize = function() {
+                    <%_if (vm.item) {%>
+                        getItemAsync(getUrlParameter("id")).then(
+                            function(data) {
+                                $scope.item = data;
+                                $scope.initialItem = angular.copy($scope.item);
+                            }
+                        );
+                    <%_} else {_%>
+                        $scope.item = {};
+                        <%_for (let i = 0; i < vm.itemStatCategories.length; ++i) {
+                            for (let j = 0; j < vm.itemStatCategories[i].getItemStatInfo.length; ++j) {
+                                let stat = vm.itemStatCategories[i].getItemStatInfo[j];
+                                if (!stat.editable) continue;_%>
+                                    <%_if (!stat.defaultValue) {_%>
+                        $scope.item["<%-stat.var%>"] = undefined;
+                                    <%_}else{_%>
+                                    <%_if (stat.type === "string") {_%>
+                        $scope.item["<%-stat.var%>"] = "<%-stat.defaultValue%>";
+                                    <%_}else{_%>
+                        $scope.item["<%-stat.var%>"] = <%-stat.defaultValue%>;
+                                    <%_}}_%>
+                    <%_}}}_%>
+                };
+
+                <%_if (vm.item) {_%>
+                let getItemAsync = function(id) {
+                    let deferred = $q.defer();
+
+                    let query = [
+                        "<%-vm.itemFragment%>",
+                        "{",
+                            "getItemById(id:<%-vm.item.id%>){",
+                                "... ItemAll",
+                                "getMob{name areaName}",
+                                "getQuest{title areaName}",
+                            "}",
+                        "}"
+                    ];
+
+                    $http({
+                        url: "/api",
+                        method: "POST",
+                        data: {"query": query.join("\n")}
+                    }).then((response) => {
+                        deferred.resolve(response.data.data.getItemById);
+                    }, (response) => {
+                        deferred.reject(response);
+                    });
+
+                    return deferred.promise;
+                };
+
+                $scope.canEdit = function() {
+                    return $scope.itemForm.$valid && angular.toJson($scope.item) !== angular.toJson($scope.initialItem);
+                }
+
+                $scope.editItem = function(item) {
+                    let query = [
+                        "mutation {",
+                            "updateItem(id:",item.id,",",
+                            "authToken:\"",$cookies.get("loginToken"),"\",",
+                            <%_for (let i = 0; i < vm.itemStatCategories.length; ++i) {
+                                for (let j = 0; j < vm.itemStatCategories[i].getItemStatInfo.length; ++j) {
+                                    let stat = vm.itemStatCategories[i].getItemStatInfo[j];
+                                    if (!stat.editable) continue;_%>
+                                    <%_if(stat.type === "string") {_%>
+                                    "<%-stat.var%>:\"",item.<%-stat.var%>,"\",",
+                                    <%_}else if (stat.type ==="boolean"){_%>
+                                    "<%-stat.var%>:",(item.<%-stat.var%> !== undefined ? item.<%-stat.var%>:"false"),",",
+                                    <%_}else{_%>
+                                    "<%-stat.var%>:",(item.<%-stat.var%> !== undefined ? item.<%-stat.var%>:"0"),",",
+                            <%_}}}_%>
+                            ") {",
+                                "token ",
+                                "expires",
+                            "}",
+                        "}"
+                    ];
+                    $http({
+                        url: "/api",
+                        method: "POST",
+                        data: {"query": query.join("")}
+                    }).then((response) => {
+                        let data = response.data.data.updateItem;
+                        let newToken = data.token;
+                        let expireDate = data.expires;
+                        $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "strict"});
+                        window.location = "/items/details.html?id=" + item.id;
+                    });
+                };
+                <%_}else{_%>
+                $scope.canAdd = function() {
+                    return $scope.itemForm.$valid;
+                }
+
+                $scope.addItem = function(item) {
+                    let query = [
+                        "mutation {",
+                            "insertItem(authToken:\"",$cookies.get("loginToken"),"\",",
+                            <%_for (let i = 0; i < vm.itemStatCategories.length; ++i) {
+                                for (let j = 0; j < vm.itemStatCategories[i].getItemStatInfo.length; ++j) {
+                                    let stat = vm.itemStatCategories[i].getItemStatInfo[j];
+                                    if (!stat.editable) continue;_%>
+                                    <%_if(stat.type === "string") {_%>
+                                    "<%-stat.var%>:\"",item.<%-stat.var%>,"\",",
+                                    <%_}else if (stat.type ==="boolean"){_%>
+                                    "<%-stat.var%>:",(item.<%-stat.var%> !== undefined ? item.<%-stat.var%>:"false"),",",
+                                    <%_}else{_%>
+                                    "<%-stat.var%>:",(item.<%-stat.var%> !== undefined ? item.<%-stat.var%>:"0"),",",
+                            <%_}}}_%>
+                            ") {",
+                                "id ",
+                                "tokenRenewal {",
+                                    "token ",
+                                    "expires",
+                                "}",
+                            "}",
+                        "}"
+                    ];
+                    $http({
+                        url: "/api",
+                        method: "POST",
+                        data: {"query": query.join("")}
+                    }).then((response) => {
+                        let data = response.data.data.insertItem;
+                        let newToken = data.tokenRenewal.token;
+                        let expireDate = data.tokenRenewal.expires;
+                        $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "strict"});
+                        window.location = "/items/details.html?id=" + data.id;
+                    });
+                };
+                <%_}_%>
+
+                initialize();
+            }]);
+        </script>
+    </body>
+</html>

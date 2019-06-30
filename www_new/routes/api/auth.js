@@ -32,12 +32,11 @@ let authLogin = function(username, password, stayLoggedIn, ip) {
                                 reject(new gql.GraphQLError("This account has been locked."));
                                 return;
                             }
-
-                            console.log("verified");
+                            let ipHash = crypto.createHash("sha1").update(ip).digest("hex");
 
                             mysql.query(`UPDATE Members SET LastLoginDate = NOW(), LastLoginIP = ? WHERE Id = ?`,
-                                [phpPass.hash(ip), results[i].Id],
-                                function(error, updateResults, fields) {console.log("updated");});
+                                [ipHash, results[i].Id],
+                                function(error, updateResults, fields) {});
 
                             let token = crypto.randomBytes(24).toString("hex");
                             let selector = crypto.randomBytes(6).toString("hex");
@@ -55,7 +54,7 @@ let authLogin = function(username, password, stayLoggedIn, ip) {
                                 [selector, tokenHash, results[i].Id, stayLoggedIn, futureDate],
                                 function(error, insertResults, fields) {});
 
-                            resolve({token: `${selector}-${token}`, expires: futureDate});
+                            resolve({token: `${selector}-${token}`, expires: stayLoggedIn ? futureDate : null});
                             return;
                         }
                     }
@@ -75,7 +74,9 @@ let authToken = function(token, ip, renew) {
     if (renew === undefined)
         renew = true;
 
+
     return new Promise(function(resolve, reject) {
+        console.time("auth");
         let tokenInfo = token.split("-");
         mysql.query(`SELECT AT.Id, M.Id AS MemberId, M.Username, AT.HashedValidator, AT.Expires, AT.StayLoggedIn, M.Banned
             FROM AuthTokens AT
@@ -89,16 +90,17 @@ let authToken = function(token, ip, renew) {
                     return;
                 }
 
+                let tokenHash = crypto.createHash("sha256").update(tokenInfo[1]).digest("hex");
                 for (let i = 0; i < results.length; ++i) {
-                    let tokenHash = crypto.createHash("sha256").update(tokenInfo[1]).digest("hex");
                     if (tokenHash === results[i].HashedValidator) {
                         let stayLoggedIn = results[i].StayLoggedIn;
                         let expires = results[i].Expires;
+                        let ipHash = crypto.createHash("sha1").update(ip).digest("hex");
 
                         mysql.query(`UPDATE Members SET LastLoginDate = NOW(), LastLoginIP = ? WHERE Id = ?`,
-                                [phpPass.hash(ip), results[i].MemberId],
+                                [ipHash, results[i].MemberId],
                                 function(error, updateResults, fields) {});
-
+console.timeEnd("auth");
                         if (renew) {
                             let newToken = crypto.randomBytes(24).toString("hex");
                             let newSelector = crypto.randomBytes(6).toString("hex");
@@ -122,10 +124,10 @@ let authToken = function(token, ip, renew) {
 
                             console.log(`${newSelector}-${newToken}`);
 
-                            resolve({memberId: results[i].MemberId, username: results[i].Username, token: `${newSelector}-${newToken}`, expires: futureDate});
+                            resolve({memberId: results[i].MemberId, username: results[i].Username, token: `${newSelector}-${newToken}`, expires: stayLoggedIn ? futureDate : null});
                         }
                         else {
-                            resolve({memberId: results[i].MemberId, username: results[i].Username, token: token, expires: expires})
+                            resolve({memberId: results[i].MemberId, username: results[i].Username, token: token, expires: stayLoggedIn ? expires : null})
                         }
 
                         return;
@@ -234,7 +236,7 @@ let tokenRenewalType = new gql.GraphQLObjectType({
     name: "TokenRenewal",
     fields: () => ({
         token: { type: new gql.GraphQLNonNull(gql.GraphQLString) },
-        expires: { type: new gql.GraphQLNonNull(GraphQLDateTime) }
+        expires: { type: GraphQLDateTime }
     })
 });
 

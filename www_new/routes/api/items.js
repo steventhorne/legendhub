@@ -175,9 +175,9 @@ for (let i = 0; i < itemColumns.length; ++i) {
     itemSelectSQL += itemColumns[i].name;
 }
 
-let itemFragment = "fragment ItemAll on Item {\n";
+let itemFragment = "fragment ItemAll on Item {";
 for (let i = 0; i < itemColumns.length; ++i) {
-    itemFragment += itemColumns[i].name[0].toLowerCase() + itemColumns[i].name.slice(1) + "\n";
+    itemFragment += itemColumns[i].name[0].toLowerCase() + itemColumns[i].name.slice(1) + " ";
 }
 itemFragment += "}";
 
@@ -194,7 +194,7 @@ class Item {
 
         let mobId = this.mobId;
         return new Promise(function(resolve, reject) {
-            mysql.query(`${ mobSchema.selectSQL.mobSelectSQL } WHERE M.Id = ?`,
+            mysql.query(`${ mobSchema.selectSQL.mobSelectSQL } ${mobSchema.selectSQL.mobSelectTables} WHERE M.Id = ?`,
                 [mobId],
                 function(error, results, fields) {
                     if (error) {
@@ -205,7 +205,7 @@ class Item {
                     if (results.length > 0)
                         resolve(new mobSchema.classes.Mob(results[0]));
                     else
-                        reject(Error(`Mob with id (${mobId}) not found.`));
+                        reject(new apiUtils.NotFoundError(`Mob with id (${mobId}) not found.`));
                 });
         });
     }
@@ -227,7 +227,7 @@ class Item {
                     if (results.length > 0)
                         resolve(new questSchema.classes.Quest(results[0]));
                     else
-                        reject(Error(`Quest with id (${questId}) not found`));
+                        reject(new apiUtils.NotFoundError(`Quest with id (${questId}) not found`));
                 });
         });
     }
@@ -304,7 +304,7 @@ class ItemStatCategory {
                         resolve(response);
                     }
                     else {
-                        reject(Error(`ItemStatCategory with categoryId (${id}) not found.`));
+                        reject(new apiUtils.NotFoundError(`ItemStatCategory with categoryId (${id}) not found.`));
                     }
                 });
         });
@@ -346,7 +346,7 @@ class ItemStatInfo {
                     if (results.length > 0)
                         resolve(new ItemStatCategory(results[0]));
                     else
-                        reject(Error(`ItemStatCategory with id (${categoryId}) not found.`));
+                        reject(new apiUtils.NotFoundError(`ItemStatCategory with id (${categoryId}) not found.`));
                 });
         });
     }
@@ -368,7 +368,7 @@ let getItemById = function(id) {
                 if (results.length > 0)
                     resolve(new Item(results[0]));
                 else
-                    reject(Error(`Item with id (${id}) not found.`));
+                    reject(new apiUtils.NotFoundError(`Item with id (${id}) not found.`));
             });
     });
 };
@@ -394,7 +394,7 @@ let getItemsInIds = function(ids) {
                     resolve(response);
                 }
                 else {
-                    reject(Error(`Items with ids (${ids}) not found.`));
+                    reject(new apiUtils.NotFoundError(`Items with ids (${ids}) not found.`));
                 }
             });
     });
@@ -419,7 +419,7 @@ let getItemHistoryById = function(id) {
                     resolve({id: historyId, item: new Item(results[0])});
                 }
                 else
-                    reject(Error(`Item History with id (${id}) not found.`));
+                    reject(new apiUtils.NotFoundError(`Item History with id (${id}) not found.`));
             });
     });
 };
@@ -510,7 +510,7 @@ let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows)
     if (searchString === undefined)
         searchString = "";
     if (sortBy === undefined)
-        sortBy = noSearch ? "ModifiedOn" : "name";
+        sortBy = noSearch ? "modifiedOn" : "name";
     if (sortAsc === undefined)
         sortAsc = !noSearch;
     if (page === undefined)
@@ -580,7 +580,7 @@ let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows)
                         });
                 }
                 else {
-                    reject(Error(`ItemStatInfo not found.`));
+                    reject(new apiUtils.NotFoundError(`ItemStatInfo not found.`));
                     return;
                 }
             });
@@ -590,7 +590,7 @@ let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows)
 let insertItem = function(args) {
     let ip = auth.utils.getIPFromRequest(args["req"])
     if (apiUtils.isIPBlocked(ip))
-        return new graphql.GraphQLError("Too many attempts. Try again later.");
+        return new apiUtils.TooManyRequestsError("Too many attempts. Try again later.");
 
     let statValues = {};
     return new Promise(function(resolve, reject) {
@@ -667,7 +667,7 @@ let insertItem = function(args) {
             }
         ).catch(
             function(reason) {
-                reject(reason);
+                reject(new apiUtils.UnauthorizedError(reason));
             }
         );
 
@@ -697,7 +697,7 @@ let updateItem = function(args) {
                                         if (itemError)
                                             reject(new graphql.GraphQLError(itemError));
                                         else
-                                            reject(new graphql.GraphQLError("Could not find item."));
+                                            reject(new apiUtils.NotFoundError("Could not find item."));
                                     }
 
                                     let netStat = 0;
@@ -762,7 +762,7 @@ let updateItem = function(args) {
             }
         ).catch(
             function(reason) {
-                reject(reason);
+                reject(new apiUtils.UnauthorizedError(reason));
             }
         );
 
@@ -781,7 +781,7 @@ let revertItem = function(req, authToken, id) {
                             if (error)
                                 reject(new graphql.GraphQLError(error));
                             else
-                                reject(new graphql.GraphQLError("Item stat info not found."));
+                                reject(new apiUtils.NotFoundError("Item stat info not found."));
                             return;
                         }
 
@@ -792,7 +792,7 @@ let revertItem = function(req, authToken, id) {
                                     if (historyError)
                                         reject(new graphql.GraphQLError(historyError));
                                     else
-                                        reject(new graphql.GraphQLError("Item history not found."));
+                                        reject(new apiUtils.NotFoundError("Item history not found."));
                                     return;
                                 }
 
@@ -841,7 +841,7 @@ let revertItem = function(req, authToken, id) {
             }
         ).catch(
             function(reason) {
-                reject(reason);
+                reject(new apiUtils.UnauthorizedError(reason));
             }
         );
     });
