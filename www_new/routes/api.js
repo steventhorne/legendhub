@@ -6,7 +6,8 @@ let importGraphs = [
     require("./api/items.js"),
     require("./api/mobs.js"),
     require("./api/quests.js"),
-    require("./api/wikiPages.js")
+    require("./api/wikiPages.js"),
+    require("./api/areas.js")
 ];
 
 var queryFields = {};
