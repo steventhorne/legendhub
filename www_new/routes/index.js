@@ -19,4 +19,8 @@ router.get(["/logout.html"], function(req, res, next) {
     res.redirect("/");
 });
 
+router.get(["/cookies.html"], function(req, res, next) {
+    res.render("cookies", {title: "Cookie Policy"});
+})
+
 module.exports = router;
