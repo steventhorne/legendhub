@@ -1,14 +1,4 @@
 app.controller('mobs', ['$scope', '$http', '$q', 'categories', function($scope, $http, $q, categories) {
-    /** Initializes the controller. */
-	var initialize = function() {
-		$scope.searchString = getUrlParameter('search');
-	};
-
-    /** Event for when the search button is clicked. */
-	$scope.onSearchClicked = function() {
-		window.location = $scope.getSearchUrl();
-	};
-
     /**
      * Event for when a mob is clicked in the search view.
      *
@@ -26,6 +16,4 @@ app.controller('mobs', ['$scope', '$http', '$q', 'categories', function($scope, 
 	$scope.onColumnHeaderClicked = function(url) {
         window.location = url;
 	};
-
-	initialize();
 }]);
