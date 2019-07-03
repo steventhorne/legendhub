@@ -68,7 +68,7 @@ router.get(["/details.html"], function(req, res, next) {
             let title = item.name;
             res.render("items/display", { title, vm });
         }
-    )
+    );
 });
 
 router.get(["/history.html"], function(req, res, next) {
@@ -144,7 +144,7 @@ router.get(["/history.html"], function(req, res, next) {
 router.get(["/revert.html"], function(req, res, next) {
     let revertQuery = `
     mutation {
-        revertItem (authToken:"${req.cookies.authToken}",id:${req.query.id}) {
+        revertItem (authToken:"${req.cookies.loginToken}",historyId:${req.query.id}) {
             id
             tokenRenewal {
                 token
@@ -164,18 +164,18 @@ router.get(["/revert.html"], function(req, res, next) {
         function(error, response, body) {
             body = JSON.parse(body);
             if (body.errors) {
-                res.status(body.errors[0].code);
-                res.render(`error/${body.errors[0].code}`, {errors: body.errors});
+                let error = new Error(body.errors[0].message);
+                error.status = body.errors[0].code;
+                next(error);
                 return;
             }
 
             let data = body.data;
             let itemId = data.id;
             res.cookie(
-                "authToken",
+                "loginToken",
                 data.tokenRenewal.token,
                 {
-                    domain: `${process.env.BETA ? "beta" : "www"}.legendhub.org`,
                     path: "/",
                     expires: data.tokenRenewal.expires,
                     secure: true,
@@ -230,6 +230,7 @@ router.get(["/add.html"], function(req, res, next) {
         })
     }
 });
+
 router.get(["/edit.html"], function(req, res, next) {
     if (res.locals.user) {
         let query = `
