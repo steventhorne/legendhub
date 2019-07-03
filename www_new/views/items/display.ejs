@@ -51,11 +51,7 @@ AC: <%-vm.item.ac%>" />
                     <button type="button" class="btn btn-outline-primary" ng-click="showHistory = !showHistory"><i class="fas fa-history"></i> <%=vm.item.getHistories.length%></button>
                 <% } %>
                 <button type="button" class="btn btn-outline-primary"><%=new Date(vm.item.modifiedOn).toISOString().slice(0, 16).replace("T", " ")%> <strong>by</strong> <%=vm.item.modifiedBy%></button>
-                <% if (locals.user) { %>
-                <a class="btn btn-outline-primary" role="button" href="/items/edit.html?id=<%-vm.item.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
-                <% } else { %>
-                <a class="btn btn-outline-primary" role="button" href="/login.html?returnUrl=/items/edit.html?id=<%-vm.item.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
-                <% } %>
+                <a class="btn btn-outline-primary" role="button" href="<%-(!locals.user ? "/login.html?returnUrl=" : "")%>/items/edit.html?id=<%-vm.item.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
             </div>
         </div>
         <div class="row justify-content-center justify-content-md-start" ng-if="showHistory" ng-cloak>
@@ -205,7 +201,7 @@ AC: <%-vm.item.ac%>" />
                 </div>
                 <br><br>
                 <% if (vm.item.notes) { %>
-                <div class="card" ng-init="itemNotes='<%=vm.item.notes.replace("'","&#39;")%>'">
+                <div class="card" ng-init="itemNotes='<%=vm.item.notes.replace(/'/g,"&#39;")%>'" ng-cloak>
                     <div class="card-header">Notes</div>
                     <div class="card-body" markdown-to-html="itemNotes">
                     </div>

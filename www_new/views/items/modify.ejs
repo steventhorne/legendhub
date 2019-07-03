@@ -160,7 +160,7 @@
 
                 $scope.canEdit = function() {
                     return $scope.itemForm.$valid && angular.toJson($scope.item) !== angular.toJson($scope.initialItem);
-                }
+                };
 
                 $scope.editItem = function(item) {
                     let query = [
