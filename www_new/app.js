@@ -70,6 +70,8 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
+    if (err)
+        console.log(err);
     if (res.headersSent)
         return next(err);
 
@@ -77,10 +79,9 @@ app.use(function(err, req, res, next) {
     if (req.app.get("env") === "development")
         errors.push(err);
 
-    console.log(err);
     // render the error page
     res.status(err.status || 500);
-    res.render(`error/${err.status || 500}`, {errors: errors});
+    res.render(`error/${err.status || 500}`, {error: err});
 });
 
 app.listen(process.env.PORT, () => console.log(`Running app listening on port ${process.env.PORT}!`));
