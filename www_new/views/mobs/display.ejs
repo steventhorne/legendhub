@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <%-include("../shared/meta");-%>
+</head>
+<body ng-app="legendwiki-app">
+    <%-include("../shared/header");-%>
+	<div class="container">
+        <div class="row">
+            <h1 class="col-12 text-center text-md-left text-primary"><%=vm.mob.name%></h1>
+            <%if (vm.historyId) {%>
+            <h4 class="d-inline col-12 text-center text-md-left">
+                <a class="text-warning" href="/mobs/details.html?id=<%-vm.mob.id%>">view latest version</a>
+            </h4>
+            <%}%>
+        </div>
+        <div class="row justify-content-center justify-content-md-start" nv-init="showHistory = false">
+            <div class="btn-group" role="group" aria-label="Toolbar">
+                <%if (vm.mob.getHistories.length > 0) {%>
+                <button type="button" class="btn btn-outline-primary" ng-click="showHistory = !showHistory"><i class="fas fa-history"></i> <%=vm.mob.getHistories.length%></button>
+                <%}%>
+                <button type="button" class="btn btn-outline-primary"><%=new Date(vm.mob.modifiedOn).toISOString().slice(0,16).replace("T"," ")%> UTC <strong>by</strong> <%=vm.mob.modifiedBy%></button>
+                <a class="btn btn-outline-primary" role="button" href="<%-(!locals.user ? "/login.html?returnUrl=" : "")%>/mobs/edit.html?id=<%-vm.mob.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
+            </div>
+        </div>
+        <div class="row justify-content-center justify-content-md-start" ng-if="showHistory" ng-cloak>
+            <div class="list-group justify-content-center justify-content-md-start">
+                <%for (let i = 0; i < vm.mob.getHistories.length; ++i) {%>
+                <a href="/mobs/history.html?id=<%-vm.mob.getHistories[i].id%>" class="text-center text-md-left list-group-item list-group-item-action<%-((vm.historyId && vm.mob.getHistories[i].id == vm.historyId) ? ' active' : '')%>"><%=new Date(vm.mob.getHistories[i].mob.modifiedOn).toISOString().slice(0,16).replace("T", " ")%> <strong>by</strong> <%=vm.mob.getHistories[i].mob.modifiedBy%></a>
+                <%}%>
+            </div>
+        </div>
+        <br>
+        <%for (let i = 0; i < vm.mob.getItems.length; ++i) {%>
+        <div class="row">
+            <span class="col-12 text-info">&lt;<%-vm.constants.selectOptions.slot[vm.mob.getItems[i].slot]%>&gt; <a href="/items/details.html?id=<%-vm.mob.getItems[i].id%>"><%=vm.mob.getItems[i].name%></a></span>
+        </div>
+        <%}%>
+        <br>
+        <div class="col-12 col-md-10 col-lg-8">
+            <dl class="row">
+                <dt class="col-sm-4 col-8">Area</dt>
+                <dd class="col-sm-8 col-4"><span class="text-info"><%=vm.mob.eraName ? `(${vm.mob.eraName}) ` : ""%></span><%=vm.mob.areaName%></dd>
+                <dt class="col-sm-4 col-8">Experience</dt>
+                <dd class="col-sm-8 col-4"><%=vm.mob.xp%></dd>
+                <dt class="col-sm-4 col-8">Gold</dt>
+                <dd class="col-sm-8 col-4"><%=vm.mob.gold%></dd>
+                <dt class="col-sm-4 col-8">Agg</dt>
+                <dd class="col-sm-8 col-4 font-weight-bold <%-(vm.mob.aggro ? "text-success" : "text-danger")%>"><%-(vm.mob.aggro ? "Yes" : "No")%></dd>
+            </dl>
+            <br><br>
+            <%if (vm.mob.notes) {%>
+            <div class="row" ng-cloak>
+                <div class="col-12">
+                    <div class="card" ng-init="mobNotes='<%=vm.mob.notes.replace(/'/g, "&#39;")%>'">
+                        <div class="card-header">Notes</div>
+                        <div class="card-body" markdown-to-html="mobNotes"></div>
+                    </div>
+                </div>
+            </div>
+            <br><br>
+            <%}%>
+            <%if (vm.historyId && locals.user) {%>
+            <a class="btn btn-primary btn-block col-12 col-md-6" href="/mobs/revert.html?id=<%-vm.historyId%>" role="button">Use this version</a>
+            <br><br>
+            <%}%>
+        </div>
+	</div>
+    <%-include("../shared/footer");-%>
+    <%-include("../shared/scripts");-%>
+    <%-include("../shared/markdown");-%>
+</body>
+
+</html>
