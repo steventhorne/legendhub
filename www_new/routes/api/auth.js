@@ -6,11 +6,11 @@ let crypto = require("crypto");
 let apiUtils = require("./utils");
 
 let getIPFromRequest = function(request) {
-    return (request.headers['x-forwarded-for'] || "").split(",")[0];
+    let ip = (request.headers['x-forwarded-for'] || "").split(",")[0];
+    return crypto.createHash("sha1").update(ip).digest("hex");
 }
 
 let authLogin = function(username, password, stayLoggedIn, ip) {
-    console.log("entry");
     if (apiUtils.isIPBlocked(ip))
         return new gql.GraphQLError("Too many failed attempts. Try again later.");
 
@@ -19,23 +19,20 @@ let authLogin = function(username, password, stayLoggedIn, ip) {
             [username],
             function(error, results, fields) {
                 if (error) {
-                    reject(new gql.GraphQLError(error));
-                    console.log("error: " + error);
+                    reject(new gql.GraphQLError(error.sqlMessage));
                     return;
                 }
 
                 if (results.length > 0) {
                     for (let i = 0; i < results.length; ++i) { // TODO: log system error if more than 1 result.
-                        console.log("found");
                         if (phpPass.verify(password, results[i].Password)) {
                             if (results[i].Banned) {
                                 reject(new gql.GraphQLError("This account has been locked."));
                                 return;
                             }
-                            let ipHash = crypto.createHash("sha1").update(ip).digest("hex");
 
                             mysql.query(`UPDATE Members SET LastLoginDate = NOW(), LastLoginIP = ? WHERE Id = ?`,
-                                [ipHash, results[i].Id],
+                                [ip, results[i].Id],
                                 function(error, updateResults, fields) {});
 
                             let token = crypto.randomBytes(24).toString("hex");
@@ -76,7 +73,6 @@ let authToken = function(token, ip, renew) {
 
 
     return new Promise(function(resolve, reject) {
-        console.time("auth");
         let tokenInfo = token.split("-");
         mysql.query(`SELECT AT.Id, M.Id AS MemberId, M.Username, AT.HashedValidator, AT.Expires, AT.StayLoggedIn, M.Banned
             FROM AuthTokens AT
@@ -86,7 +82,7 @@ let authToken = function(token, ip, renew) {
             [tokenInfo[0]],
             function(error, results, fields) {
                 if (error) {
-                    reject(new gql.GraphQLError(error));
+                    reject(new gql.GraphQLError(error.sqlMessage));
                     return;
                 }
 
@@ -95,12 +91,12 @@ let authToken = function(token, ip, renew) {
                     if (tokenHash === results[i].HashedValidator) {
                         let stayLoggedIn = results[i].StayLoggedIn;
                         let expires = results[i].Expires;
-                        let ipHash = crypto.createHash("sha1").update(ip).digest("hex");
 
                         mysql.query(`UPDATE Members SET LastLoginDate = NOW(), LastLoginIP = ? WHERE Id = ?`,
-                                [ipHash, results[i].MemberId],
-                                function(error, updateResults, fields) {});
-console.timeEnd("auth");
+                                [ip, results[i].MemberId],
+                                function(error, updateResults, fields) {
+                                    console.log(error);
+                                });
                         if (renew) {
                             let newToken = crypto.randomBytes(24).toString("hex");
                             let newSelector = crypto.randomBytes(6).toString("hex");
@@ -124,10 +120,10 @@ console.timeEnd("auth");
 
                             console.log(`${newSelector}-${newToken}`);
 
-                            resolve({memberId: results[i].MemberId, username: results[i].Username, token: `${newSelector}-${newToken}`, expires: stayLoggedIn ? futureDate : null});
+                            resolve({memberId: results[i].MemberId, username: results[i].Username, ip: ip, token: `${newSelector}-${newToken}`, expires: stayLoggedIn ? futureDate : null});
                         }
                         else {
-                            resolve({memberId: results[i].MemberId, username: results[i].Username, token: token, expires: stayLoggedIn ? expires : null})
+                            resolve({memberId: results[i].MemberId, username: results[i].Username, ip: ip, token: token, expires: stayLoggedIn ? expires : null})
                         }
 
                         return;
@@ -136,6 +132,27 @@ console.timeEnd("auth");
 
                 reject(new gql.GraphQLError("Invalid Token"));
             });
+    });
+};
+
+let authMutation = function(req, token) {
+    return new Promise(function(resolve, reject) {
+        let ip = getIPFromRequest(req);
+        if (apiUtils.isIPBlocked(ip)) {
+            reject(new apiUtils.TooManyRequestsError("Too many attempts. Try again later."));
+        }
+        else {
+            authToken(token, ip).then(
+                function(response) {
+                    resolve(response);
+                }
+            ).catch(
+                function(reason) {
+                    console.log(reason);
+                    reject(new apiUtils.UnauthorizedError(reason));
+                }
+            )
+        }
     });
 };
 
@@ -159,7 +176,7 @@ let getPermissions = function(memberId) {
             [memberId],
             function(error, results, fields) {
                 if (error) {
-                    reject(new gql.GraphQLError(error));
+                    reject(new gql.GraphQLError(error.sqlMessage));
                     return;
                 }
 
@@ -209,7 +226,7 @@ let register = function(username, password, ip) {
                                     [username, passwordHash],
                                     function(error, results, fields) {
                                         if (error) {
-                                            reject(new gql.GraphQLError(error));
+                                            reject(new gql.GraphQLError(error.sqlMessage));
                                             return;
                                         }
 
@@ -240,6 +257,14 @@ let tokenRenewalType = new gql.GraphQLObjectType({
     })
 });
 
+let idMutationResponseType = new gql.GraphQLObjectType({
+    name: "IdMutationResponse",
+    fields: () => ({
+        id: { type: new gql.GraphQLNonNull(gql.GraphQLInt)  },
+        tokenRenewal: { type: new gql.GraphQLNonNull(tokenRenewalType) },
+    })
+});
+
 let mFields = {
     authLogin: {
         type: new gql.GraphQLNonNull(tokenRenewalType),
@@ -265,5 +290,5 @@ let mFields = {
 };
 
 module.exports.mutationFields = mFields;
-module.exports.types = { tokenRenewalType };
-module.exports.utils = { getIPFromRequest, authLogin, authToken, logout };
+module.exports.types = { tokenRenewalType, idMutationResponseType };
+module.exports.utils = { getIPFromRequest, authLogin, authToken, authMutation, logout };

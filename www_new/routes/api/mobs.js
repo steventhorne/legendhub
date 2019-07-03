@@ -1,6 +1,8 @@
 let mysql = require("./mysql-connection");
 let graphql = require("graphql");
 let { GraphQLDateTime } = require("graphql-iso-date");
+let auth = require("./auth");
+let apiUtils = require("./utils");
 
 // required api schemas
 let itemSchema = require("./items.js");
@@ -47,8 +49,10 @@ class Mob {
             mysql.query(`${ itemSchema.selectSQL.itemSelectSQL } FROM Items WHERE MobId = ?`,
                 [mobId],
                 function(error, results, fields) {
-                    if (error)
-                        reject(error);
+                    if (error) {
+                        reject(new graphql.GraphQLError(error.sqlMessage));
+                        return;
+                    }
 
                     if (results.length > 0){
                         let items = [];
@@ -62,6 +66,35 @@ class Mob {
                 });
         });
     }
+
+    getHistories() {
+        if (!this.id)
+            return [];
+
+        let id = this.id;
+        return new Promise(function(resolve, reject) {
+            mysql.query(`${ mobSelectSQL }, MobId FROM Mobs_AuditTrail M LEFT JOIN Areas A ON A.Id = M.AreaId LEFT JOIN Eras E ON E.Id = A.EraId WHERE MobId = ? ORDER BY ModifiedOn DESC`,
+            [id],
+                function(error, results, fields){
+                    if (error) {
+                        reject(new graphql.GraphQLError(error.sqlMessage));
+                        return;
+                    }
+
+                    if (results.length > 0){
+                        let response = [];
+                        for (let i = 0; i < results.length; ++i) {
+                            let historyId = results[i].Id;
+                            results[i].Id = results[i].MobId;
+                            response.push({id: historyId, mob: new Mob(results[i])});
+                        }
+                        resolve(response);
+                    }
+                    else
+                        resolve([]);
+                });
+        });
+    }
 }
 
 let getMobById = function(id) {
@@ -69,22 +102,22 @@ let getMobById = function(id) {
         mysql.query(`${mobSelectSQL} ${mobSelectTables} WHERE M.Id = ?`,
             [id],
             function(error, results, fields) {
-                if (error)
-                    reject(error);
-
-                console.log(results);
+                if (error) {
+                    reject(new graphql.GraphQLError(error.sqlMessage));
+                    return;
+                }
 
                 if (results.length > 0)
                     resolve(new Mob(results[0]));
                 else
-                    reject(Error(`Mob with id (${id}) not found.`));
+                    reject(new apiUtils.NotFoundError(`Mob with id (${id}) not found.`));
             });
     });
 };
 
-let getMobs = function(searchString, sortBy, sortAsc, page, rows) {
-    let noSearch = searchString === undefined;
-    if (searchString === undefined)
+let getMobs = function(searchString, eraId, areaId, sortBy, sortAsc, page, rows) {
+    let noSearch = searchString == null;
+    if (searchString == null)
         searchString = "";
     if (sortBy === undefined)
         sortBy = noSearch ? "modifiedOn" : "name";
@@ -107,11 +140,24 @@ let getMobs = function(searchString, sortBy, sortAsc, page, rows) {
         else if (sortBy === "areaName")
             actualSortBy = "A.Name";
 
-        mysql.query(`${mobSelectSQL} ${mobSelectTables} WHERE M.Name LIKE ? ORDER BY ?? ${sortAsc ? "ASC" : "DESC"} LIMIT ?, ?`,
-            [`%${searchString}%`, actualSortBy, (page - 1) * rows, rows + 1],
+        let sql = [mobSelectSQL, mobSelectTables, "WHERE M.Name LIKE ?"];
+        let placeholders = [`%${searchString}%`];
+        if (eraId) {
+            sql.push("AND A.EraId = ?");
+            placeholders.push(eraId);
+        }
+        if (areaId) {
+            sql.push("AND M.AreaId = ?");
+            placeholders.push(areaId);
+        }
+        sql.push(`ORDER BY ?? ${sortAsc ? "ASC" : "DESC"} LIMIT ?, ?`);
+        placeholders.push(actualSortBy, (page - 1) * rows, rows + 1);
+
+
+        mysql.query(sql.join(" "), placeholders,
             function(error, results, fields) {
                 if (error) {
-                    reject(new graphql.GraphQLError(error));
+                    reject(new graphql.GraphQLError(error.sqlMessage));
                     return;
                 }
 
@@ -126,6 +172,171 @@ let getMobs = function(searchString, sortBy, sortAsc, page, rows) {
                     resolve({moreResults: false, mobs: []});
                 }
             });
+    });
+};
+
+let getMobHistoryById = function(id) {
+    if (!id)
+        return null;
+
+    return new Promise(function(resolve, reject) {
+        mysql.query(`${ mobSelectSQL }, MobId FROM Mobs_AuditTrail M LEFT JOIN Areas A ON A.Id = M.AreaId LEFT JOIN Eras E ON E.Id = A.EraId WHERE M.Id = ?`,
+            [id],
+            function(error, results, fields) {
+                if (error) {
+                    reject(new graphql.GraphQLError(error.sqlMessage));
+                    return;
+                }
+
+                if (results.length > 0) {
+                    let historyId = results[0].Id;
+                    results[0].Id = results[0].MobId;
+                    resolve({id: historyId, mob: new Mob(results[0])});
+                }
+                else
+                    reject(new apiUtils.NotFoundError(`Mob History with id (${id}) not found.`));
+            });
+    });
+};
+
+let insertMob = function(req, authToken, name, xp, areaId, gold, notes, aggro) {
+    if (xp == null)
+        xp = 0;
+    if (gold == null)
+        gold = 0;
+    if (aggro == null)
+        aggro = false;
+
+    return new Promise(function(resolve, reject) {
+        auth.utils.authMutation(req, authToken).then(
+            function(response) {
+                mysql.query("INSERT INTO Mobs (Name, Xp, AreaId, Gold, ModifiedOn, ModifiedBy, ModifiedByIP, Notes, Aggro) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?)",
+                    [name, xp, areaId, gold, response.username, response.ip, notes, aggro],
+                    function(error, results, fields) {
+                        if (error) {
+                            reject(new graphql.GraphQLError(error.sqlMessage));
+                            return;
+                        }
+
+                        apiUtils.trackPageUpdate(response.ip);
+                        resolve({id: results.insertId, tokenRenewal: {token: response.token, expires: response.expires}});
+                    });
+            }
+        ).catch(
+            function(error) {
+                reject(error);
+            }
+        );
+    });
+};
+
+let updateMob = function(req, authToken, id, name, xp, areaId, gold, notes, aggro) {
+    return new Promise(function(resolve, reject) {
+        auth.utils.authMutation(req, authToken).then(
+            function(response) {
+                let sql = ["UPDATE Mobs SET"];
+                let placeholders = [];
+                if (name != null) {
+                    sql.push("Name = ?,");
+                    placeholders.push(name);
+                }
+                if (xp != null) {
+                    sql.push("Xp = ?,");
+                    placeholders.push(xp);
+                }
+                if (areaId != null) {
+                    sql.push("AreaId = ?,");
+                    placeholders.push(areaId);
+                }
+                if (gold != null) {
+                    sql.push("Gold = ?,");
+                    placeholders.push(gold);
+                }
+                if (notes != null) {
+                    sql.push("Notes = ?,");
+                    placeholders.push(notes);
+                }
+                if (aggro != null) {
+                    sql.push("Aggro = ?,");
+                    placeholders.push(aggro);
+                }
+
+                sql.push(
+                    "ModifiedOn = NOW(),",
+                    "ModifiedBy = ?,",
+                    "ModifiedByIP = ?",
+                    "WHERE Id = ?"
+                );
+                placeholders.push(response.username, response.ip, id);
+
+                mysql.query(sql.join(" "),
+                    placeholders,
+                    function(error, results, fields) {
+                        if (error) {
+                            reject(new graphql.GraphQLError(error.sqlMessage));
+                            return;
+                        }
+
+                        apiUtils.trackPageUpdate(response.ip);
+                        resolve({token: response.token, expires: response.expires});
+                    });
+            }
+        ).catch(
+            function(error) {
+                reject(error);
+            }
+        );
+    });
+};
+
+let revertMob = function(req, authToken, historyId) {
+    return new Promise(function(resolve, reject) {
+        auth.utils.authMutation(req, authToken).then(
+            function(response) {
+                mysql.query("SELECT MobId, Name, Xp, AreaId, Gold, Notes, Aggro FROM Mobs_AuditTrail WHERE Id = ?",
+                    [historyId],
+                    function(error, results, fields) {
+                        if (error) {
+                            reject(new graphql.GraphQLError(error.sqlMessage));
+                            return;
+                        }
+
+                        if (results.length == 0) {
+                            reject(new apiUtils.NotFoundError(`Mob History with id, ${historyId}, not found.`));
+                            return;
+                        }
+
+                        let sql = [
+                            "UPDATE Mobs M SET",
+                            "M.Name = ?,",
+                            "M.Xp = ?,",
+                            "M.AreaId = ?,",
+                            "M.Gold = ?,",
+                            "M.Notes = ?,",
+                            "M.Aggro = ?,",
+                            "M.ModifiedOn = NOW(),",
+                            "M.ModifiedBy = ?,",
+                            "M.ModifiedByIP = ?",
+                            "WHERE M.Id = ?"
+                        ];
+                        mysql.query(sql.join(" "),
+                            [results[0].Name, results[0].Xp, results[0].AreaId, results[0].Gold, results[0].Notes, results[0].Aggro, response.username, response.ip, results[0].MobId],
+                            function(error, revertResults, fields) {
+                                if (error) {
+                                    reject(new graphql.GraphQLError(error.sqlMessage));
+                                    return;
+                                }
+
+                                apiUtils.trackPageUpdate(response.ip);
+                                resolve({id: results[0].MobId, tokenRenewal: {token: response.token, expires: response.expires}});
+                            });
+                    });
+            }
+        ).catch(
+            function(error) {
+                reject(error);
+            }
+        );
     });
 };
 
@@ -147,7 +358,16 @@ let mobType = new graphql.GraphQLObjectType({
         notes: { type: graphql.GraphQLString },
         aggro: { type: graphql.GraphQLBoolean },
 
-        getItems: { type: new graphql.GraphQLList(itemSchema.types.itemType) }
+        getItems: { type: new graphql.GraphQLList(itemSchema.types.itemType) },
+        getHistories: { type: new graphql.GraphQLList(mobHistoryType) }
+    })
+});
+
+let mobHistoryType = new graphql.GraphQLObjectType({
+    name: "MobHistory",
+    fields: () => ({
+        id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) },
+        mob: { type: mobType }
     })
 });
 
@@ -173,18 +393,110 @@ let qFields = {
         type: mobSearchResultsType,
         args: {
             searchString: { type: graphql.GraphQLString },
+            eraId: { type: graphql.GraphQLInt },
+            areaId: { type: graphql.GraphQLInt },
             sortBy: { type: graphql.GraphQLString },
             sortAsc: { type: graphql.GraphQLBoolean },
             page: { type: graphql.GraphQLInt },
             rows: { type: graphql.GraphQLInt }
         },
-        resolve: function(_, {searchString, sortBy, sortAsc, page, rows}) {
-            return getMobs(searchString, sortBy, sortAsc, page, rows);
+        resolve: function(_, {searchString, eraId, areaId, sortBy, sortAsc, page, rows}) {
+            return getMobs(searchString, eraId, areaId, sortBy, sortAsc, page, rows);
+        }
+    },
+    getMobHistoryById: {
+        type: mobHistoryType,
+        args: {
+            id: { type: graphql.GraphQLInt }
+        },
+        resolve: function(_, {id}) {
+            return getMobHistoryById(id);
+        }
+    }
+};
+
+let mFields = {
+    insertMob: {
+        type: auth.types.idMutationResponseType,
+        args: {
+            authToken: {type: new graphql.GraphQLNonNull(graphql.GraphQLString)},
+            name: {type: new graphql.GraphQLNonNull(graphql.GraphQLString)},
+            xp: {type: graphql.GraphQLInt},
+            areaId: {type: graphql.GraphQLInt},
+            gold: {type: graphql.GraphQLInt},
+            notes: {type: graphql.GraphQLString},
+            aggro: {type: graphql.GraphQLBoolean}
+        },
+        resolve: function(_, {
+            authToken,
+            name,
+            xp,
+            areaId,
+            gold,
+            notes,
+            aggro
+        }, req) {
+            return insertMob(
+                req,
+                authToken,
+                name,
+                xp,
+                areaId,
+                gold,
+                notes,
+                aggro
+            );
+        }
+    },
+    updateMob: {
+        type: new graphql.GraphQLNonNull(auth.types.tokenRenewalType),
+        args: {
+            authToken: {type: new graphql.GraphQLNonNull(graphql.GraphQLString)},
+            id: {type: new graphql.GraphQLNonNull(graphql.GraphQLInt)},
+            name: {type: graphql.GraphQLString},
+            xp: {type: graphql.GraphQLInt},
+            areaId: {type: graphql.GraphQLInt},
+            gold: {type: graphql.GraphQLInt},
+            notes: {type: graphql.GraphQLString},
+            aggro: {type: graphql.GraphQLBoolean}
+        },
+        resolve: function(_, {
+            authToken,
+            id,
+            name,
+            xp,
+            areaId,
+            gold,
+            notes,
+            aggro
+        }, req) {
+            return updateMob(
+                req,
+                authToken,
+                id,
+                name,
+                xp,
+                areaId,
+                gold,
+                notes,
+                aggro
+            );
+        }
+    },
+    revertMob: {
+        type: auth.types.idMutationResponseType,
+        args: {
+            authToken: {type: new graphql.GraphQLNonNull(graphql.GraphQLString)},
+            historyId: {type: new graphql.GraphQLNonNull(graphql.GraphQLInt)}
+        },
+        resolve: function(_, {authToken, historyId}, req) {
+            return revertMob(req, authToken, historyId);
         }
     }
 };
 
 module.exports.queryFields = qFields;
+module.exports.mutationFields = mFields;
 module.exports.types = { mobType };
 module.exports.classes = { Mob };
 module.exports.selectSQL = { mobSelectSQL, mobSelectTables };

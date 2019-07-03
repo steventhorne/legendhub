@@ -198,7 +198,7 @@ class Item {
                 [mobId],
                 function(error, results, fields) {
                     if (error) {
-                        reject(new graphql.GraphQLError(error));
+                        reject(new graphql.GraphQLError(error.sqlMessage));
                         return;
                     }
 
@@ -216,11 +216,11 @@ class Item {
 
         let questId = this.questId;
         return new Promise(function(resolve, reject) {
-            mysql.query(`${ questSchema.selectSQL.questSelectSQL } WHERE Q.Id = ?`,
+            mysql.query(`${questSchema.selectSQL.questSelectSQL} ${questSchema.selectSQL.questSelectTables} WHERE Q.Id = ?`,
                 [questId],
                 function(error, results, fields) {
                     if (error) {
-                        reject(new graphql.GraphQLError(error));
+                        reject(new graphql.GraphQLError(error.sqlMessage));
                         return;
                     }
 
@@ -242,7 +242,7 @@ class Item {
             [id],
                 function(error, results, fields){
                     if (error) {
-                        reject(new graphql.GraphQLError(error));
+                        reject(new graphql.GraphQLError(error.sqlMessage));
                         return;
                     }
 
@@ -292,7 +292,7 @@ class ItemStatCategory {
                 [id],
                 function(error, results, fields) {
                     if (error) {
-                        reject(new graphql.GraphQLError(error));
+                        reject(new graphql.GraphQLError(error.sqlMessage));
                         return;
                     }
 
@@ -339,7 +339,7 @@ class ItemStatInfo {
                 [categoryId],
                 function(error, results, fields) {
                     if (error) {
-                        reject(new graphql.GraphQLError(error));
+                        reject(new graphql.GraphQLError(error.sqlMessage));
                         return;
                     }
 
@@ -361,7 +361,7 @@ let getItemById = function(id) {
             [id],
             function(error, results, fields) {
                 if (error) {
-                    reject(new graphql.GraphQLError(error));
+                    reject(new graphql.GraphQLError(error.sqlMessage));
                     return;
                 }
 
@@ -382,7 +382,7 @@ let getItemsInIds = function(ids) {
             [ids],
             function(error, results, fields) {
                 if (error) {
-                    reject(new graphql.GraphQLError(error));
+                    reject(new graphql.GraphQLError(error.sqlMessage));
                     return;
                 }
 
@@ -409,12 +409,12 @@ let getItemHistoryById = function(id) {
             [id],
             function(error, results, fields) {
                 if (error) {
-                    reject(new graphql.GraphQLError(error));
+                    reject(new graphql.GraphQLError(error.sqlMessage));
                     return;
                 }
 
                 if (results.length > 0){
-                    var historyId = results[0].Id;
+                    let historyId = results[0].Id;
                     results[0].Id = results[0].ItemId;
                     resolve({id: historyId, item: new Item(results[0])});
                 }
@@ -433,7 +433,7 @@ let getItemsBySlotId = function(slotId) {
             [slotId],
             function(error, results, fields) {
                 if (error) {
-                    reject(new graphql.GraphQLError(error));
+                    reject(new graphql.GraphQLError(error.sqlMessage));
                     return;
                 }
 
@@ -458,7 +458,7 @@ let getItemStatCategories = function() {
             ORDER BY SortNumber ASC`,
             function(error, results, fields) {
                 if (error) {
-                    reject(new graphql.GraphQLError(error));
+                    reject(new graphql.GraphQLError(error.sqlMessage));
                     return;
                 }
 
@@ -486,7 +486,7 @@ let getItemStatInfo = function(categoryId, varName) {
             [categoryId, categoryId, varName, varName],
             function(error, results, fields) {
                 if (error) {
-                    reject(new graphql.GraphQLError(error));
+                    reject(new graphql.GraphQLError(error.sqlMessage));
                     return;
                 }
 
@@ -522,7 +522,7 @@ let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows)
         mysql.query(`SELECT Var, FilterString FROM ItemStatInfo`,
             function(error, results, fields) {
                 if (error) {
-                    reject(new graphql.GraphQLError(error));
+                    reject(new graphql.GraphQLError(error.sqlMessage));
                     return;
                 }
 
@@ -563,7 +563,7 @@ let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows)
                         [searchString, "%" + searchString + "%"],
                         function(error, results, fields) {
                             if (error) {
-                                reject(new graphql.GraphQLError(error));
+                                reject(new graphql.GraphQLError(error.sqlMessage));
                                 return;
                             }
 
@@ -601,7 +601,7 @@ let insertItem = function(args) {
                 mysql.query(`SELECT Var, DefaultValue, Type, NetStat FROM ItemStatInfo`,
                     function(error, results, fields) {
                         if (error) {
-                            reject(new graphql.GraphQLError(error));
+                            reject(new graphql.GraphQLError(error.sqlMessage));
                             return;
                         }
 
@@ -659,6 +659,11 @@ let insertItem = function(args) {
                             mysql.query(`INSERT INTO Items (??) VALUES (?)`,
                                 [keys, values],
                                 function(error, results, fields) {
+                                    if (error) {
+                                        reject(new graphql.GraphQLError(error.sqlMesssage));
+                                        return;
+                                    }
+
                                     apiUtils.trackPageUpdate(ip);
                                     resolve({id: results.insertId, tokenRenewal: {token: authResponse.token, expires: authResponse.expires}});
                                 });
@@ -676,6 +681,9 @@ let insertItem = function(args) {
 
 let updateItem = function(args) {
     let ip = auth.utils.getIPFromRequest(args["req"]);
+    if (apiUtils.isIPBlocked(ip))
+        return new apiUtils.TooManyRequestsError("Too many attempts. Try again later.");
+
     let statValues = {};
     return new Promise(function(resolve, reject) {
         auth.utils.authToken(args["authToken"], ip).then(
@@ -685,7 +693,7 @@ let updateItem = function(args) {
                 mysql.query(`SELECT Var, DefaultValue, Type, NetStat FROM ItemStatInfo`,
                     function(error, results, fields) {
                         if (error) {
-                            reject(new graphql.GraphQLError(error));
+                            reject(new graphql.GraphQLError(error.sqlMessage));
                             return;
                         }
 
@@ -769,8 +777,11 @@ let updateItem = function(args) {
     });
 };
 
-let revertItem = function(req, authToken, id) {
+let revertItem = function(req, authToken, historyId) {
     let ip = auth.utils.getIPFromRequest(req);
+    if (apiUtils.isIPBlocked(ip))
+        return new apiUtils.TooManyRequestsError("Too many attempts. Try again later.");
+
     return new Promise(function(resolve, reject) {
         auth.utils.authToken(authToken, ip).then(
             function(response) {
@@ -779,14 +790,14 @@ let revertItem = function(req, authToken, id) {
                     function(error, results, fields) {
                         if (error || results.length === 0) {
                             if (error)
-                                reject(new graphql.GraphQLError(error));
+                                reject(new graphql.GraphQLError(error.sqlMessage));
                             else
                                 reject(new apiUtils.NotFoundError("Item stat info not found."));
                             return;
                         }
 
                         mysql.query(`${itemSelectSQL}, ItemId FROM Items_AuditTrail WHERE Id = ?`,
-                            [id],
+                            [historyId],
                             function(historyError, historyResults, historyFields) {
                                 if (historyError || historyResults.length === 0) {
                                     if (historyError)
@@ -830,10 +841,11 @@ let revertItem = function(req, authToken, id) {
                                     placeholderValues,
                                     function(error, results, fields) {
                                         if (error) {
-                                            reject(new graphql.GraphQLError(error));
+                                            reject(new graphql.GraphQLError(error.sqlMessage));
                                             return;
                                         }
 
+                                        apiUtils.trackPageUpdate(ip);
                                         resolve({id: itemId, tokenRenewal: {token: authResponse.token, expires: authResponse.expires}});
                                     });
                             });
@@ -958,14 +970,6 @@ let itemSearchResultsType = new graphql.GraphQLObjectType({
     })
 });
 
-let idMutationResponseType = new graphql.GraphQLObjectType({
-    name: "IdMutationResponse",
-    fields: () => ({
-        id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt)  },
-        tokenRenewal: { type: new graphql.GraphQLNonNull(auth.types.tokenRenewalType) },
-    })
-});
-
 let qFields = {
     getItemById: {
         type: itemType,
@@ -1037,7 +1041,7 @@ let qFields = {
 
 let mFields = {
     insertItem: {
-        type: idMutationResponseType,
+        type: auth.types.idMutationResponseType,
         args: {
             authToken: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
             name: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
@@ -1362,13 +1366,13 @@ let mFields = {
         }
     },
     revertItem: {
-        type: idMutationResponseType,
+        type: auth.types.idMutationResponseType,
         args: {
             authToken: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
-            id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) }
+            historyId: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) }
         },
-        resolve: function(_, {authToken, id}, req) {
-            return revertItem(req, authToken, id);
+        resolve: function(_, {authToken, historyId}, req) {
+            return revertItem(req, authToken, historyId);
         }
     }
 };
