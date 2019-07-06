@@ -109,7 +109,7 @@ let getQuestById = function(id) {
     });
 };
 
-let getQuests = function(searchString, eraId, areaId, sortBy, sortAsc, page, rows) {
+let getQuests = function(searchString, eraId, areaId, stat, sortBy, sortAsc, page, rows) {
     let noSearch = searchString == null;
     if (searchString == null)
         searchString = "";
@@ -131,8 +131,9 @@ let getQuests = function(searchString, eraId, areaId, sortBy, sortAsc, page, row
         else if (sortBy === "areaName")
             actualSortBy = "A.Name";
 
-        let sql = [questSelectSQL, questSelectTables, "WHERE Q.Title LIKE ?"];
-        let placeholders = [`%${searchString}%`];
+        let likeSearchString = `%${searchString}%`;
+        let sql = [questSelectSQL, questSelectTables, "WHERE (Q.Title LIKE ? OR Q.Content LIKE ? OR Q.Whoises LIKE ?)"];
+        let placeholders = [likeSearchString, likeSearchString, likeSearchString];
         if (eraId) {
             sql.push("AND A.EraId = ?");
             placeholders.push(eraId);
@@ -140,6 +141,10 @@ let getQuests = function(searchString, eraId, areaId, sortBy, sortAsc, page, row
         if (areaId) {
             sql.push("AND Q.AreaId = ?");
             placeholders.push(areaId);
+        }
+        if (stat) {
+            sql.push("AND Q.Stat = ?");
+            placeholders.push(stat);
         }
         sql.push(`ORDER BY ?? ${sortAsc ? "ASC" : "DESC"} LIMIT ?, ?`);
         placeholders.push(actualSortBy, (page - 1) * rows, rows + 1);
@@ -432,7 +437,7 @@ let mFields = {
     updateQuest: {
         type: new gql.GraphQLNonNull(auth.types.tokenRenewalType),
         args: {
-            authtoken: {type: new gql.GraphQLNonNull(gql.GraphQLString)},
+            authToken: {type: new gql.GraphQLNonNull(gql.GraphQLString)},
             id: {type: new gql.GraphQLNonNull(gql.GraphQLInt)},
             title: {type: gql.GraphQLString},
             areaId: {type: gql.GraphQLInt},
