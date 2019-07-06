@@ -67,10 +67,11 @@ let authLogin = function(username, password, stayLoggedIn, ip) {
     });
 };
 
-let authToken = function(token, ip, renew) {
+let authToken = function(token, ip, renew, shouldGetPermissions) {
     if (renew === undefined)
         renew = true;
-
+    if (shouldGetPermissions === undefined)
+        shouldGetPermissions = false;
 
     return new Promise(function(resolve, reject) {
         let tokenInfo = token.split("-");
@@ -97,6 +98,13 @@ let authToken = function(token, ip, renew) {
                                 function(error, updateResults, fields) {
                                     console.log(error);
                                 });
+
+                        let response = {
+                            memberId: results[i].MemberId,
+                            username: results[i].Username,
+                            ip: ip
+                        };
+
                         if (renew) {
                             let newToken = crypto.randomBytes(24).toString("hex");
                             let newSelector = crypto.randomBytes(6).toString("hex");
@@ -120,10 +128,24 @@ let authToken = function(token, ip, renew) {
 
                             console.log(`${newSelector}-${newToken}`);
 
-                            resolve({memberId: results[i].MemberId, username: results[i].Username, ip: ip, token: `${newSelector}-${newToken}`, expires: stayLoggedIn ? futureDate : null});
+                            response.token = `${newSelector}-${newToken}`;
+                            response.expires = stayLoggedIn ? futureDate : null;
                         }
                         else {
-                            resolve({memberId: results[i].MemberId, username: results[i].Username, ip: ip, token: token, expires: stayLoggedIn ? expires : null})
+                            response.token = token;
+                            response.expires = stayLoggedIn ? expires : null;
+                        }
+
+                        if (shouldGetPermissions) {
+                            getPermissions(response.memberId).then(
+                                function(permissionResponse) {
+                                    response.permissions = permissionResponse;
+                                    resolve(response);
+                                }
+                            ).catch(error => reject(error));
+                        }
+                        else {
+                            resolve(response);
                         }
 
                         return;
@@ -135,14 +157,14 @@ let authToken = function(token, ip, renew) {
     });
 };
 
-let authMutation = function(req, token) {
+let authMutation = function(req, token, shouldGetPermissions) {
     return new Promise(function(resolve, reject) {
         let ip = getIPFromRequest(req);
         if (apiUtils.isIPBlocked(ip)) {
             reject(new apiUtils.TooManyRequestsError("Too many attempts. Try again later."));
         }
         else {
-            authToken(token, ip).then(
+            authToken(token, ip, true, shouldGetPermissions).then(
                 function(response) {
                     resolve(response);
                 }
