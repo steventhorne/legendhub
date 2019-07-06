@@ -2,7 +2,6 @@ var express = require("express");
 var router = express.Router();
 let request = require("request");
 let itemApi = require("./api/items");
-let auth = require("./api/auth");
 
 router.get(["/", "/index.html"], function(req, res, next) {
     let page = req.query.page === undefined ? 1 : Number(req.query.page);
@@ -119,7 +118,6 @@ router.get(["/details.html"], function(req, res, next) {
             getHistories {
                 id
                 mob {
-                    name
                     modifiedBy
                     modifiedOn
                 }
@@ -213,7 +211,7 @@ router.get(["/history.html"], function(req, res, next) {
                 mob,
                 constants: itemApi.constants,
                 historyId: req.query.id
-            }
+            };
             let title = `History for ${mob.name}`;
             res.render("mobs/display", {title, vm});
         }
@@ -293,7 +291,7 @@ router.get(["/add.html"], function(req, res, next) {
 
         let vm = {
             areas: body.data.getAreas
-        }
+        };
         let title = "Add Mob";
         res.render("mobs/modify", {title, vm});
     });
@@ -337,7 +335,7 @@ router.get(["/revert.html"], function(req, res, next) {
             }
         );
         res.redirect(`/mobs/details.html?id=${data.id}`);
-    })
+    });
 });
 
 module.exports = router;
