@@ -96,7 +96,6 @@ let authToken = function(token, ip, renew, shouldGetPermissions) {
                         mysql.query(`UPDATE Members SET LastLoginDate = NOW(), LastLoginIP = ? WHERE Id = ?`,
                                 [ip, results[i].MemberId],
                                 function(error, updateResults, fields) {
-                                    console.log(error);
                                 });
 
                         let response = {
@@ -170,7 +169,6 @@ let authMutation = function(req, token, shouldGetPermissions) {
                 }
             ).catch(
                 function(reason) {
-                    console.log(reason);
                     reject(new apiUtils.UnauthorizedError(reason));
                 }
             )
@@ -185,7 +183,7 @@ let logout = function(token) {
     let tokenInfo = token.split("-");
     mysql.query("DELETE FROM AuthTokens WHERE Selector = ?",
         [tokenInfo[0]],
-        function(error, results, fields) {console.log(error)});
+        function(error, results, fields) {});
 }
 
 let getPermissions = function(memberId) {
