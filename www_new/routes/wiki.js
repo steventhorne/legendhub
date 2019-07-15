@@ -9,8 +9,8 @@ router.get(["/", "/index.html"], function(req, res, next) {
     {
         getWikiPages(
         ${req.query.search === undefined ? '' : `searchString:"${req.query.search}"`}
-        ${req.query.eraId === undefined ? '' : `eraId:${req.query.eraId}`}
-        ${req.query.areaId === undefined ? '' : `areaId:${req.query.areaId}`}
+        ${req.query.categoryId === undefined ? '' : `categoryId:${req.query.categoryId}`}
+        ${req.query.subcategoryId === undefined ? '' : `subcategoryId:${req.query.subcategoryId}`}
         ${req.query.sortBy === undefined ? '' : `sortBy:"${req.query.sortBy}"`}
         ${req.query.sortAsc === undefined ? '' : `sortAsc:${req.query.sortAsc}`}
         page:${page}
@@ -21,6 +21,9 @@ router.get(["/", "/index.html"], function(req, res, next) {
                 title
                 categoryName
                 subcategoryName
+                pinnedRecent
+                pinnedSearch
+                locked
             }
         }
         getCategories {
@@ -69,8 +72,9 @@ router.get(["/", "/index.html"], function(req, res, next) {
 
         let vm = {
             query: req.query,
+            noSearch: req.query.search == null && !req.query.categoryId && !req.query.subcategoryId,
             results: data.getWikiPages.wikiPages,
-            moreResults: data.getWikiPages.morePages,
+            moreResults: data.getWikiPages.moreResults,
             page: page,
             rows: rows,
             categories: categories,
@@ -79,8 +83,8 @@ router.get(["/", "/index.html"], function(req, res, next) {
             activeCategory: activeCategory,
             cookies: req.cookies
         };
-        let title = req.query.search === undefined ? "Recent Wiki Pages" : `Results for "${req.query.search}"`;
-        res.render("quests/index", {title, vm});
+        let title = vm.noSearch ? "Recent Wiki Pages" : `Results for "${req.query.search || ""}"`;
+        res.render("wiki/index", {title, vm});
     });
 });
 
@@ -91,6 +95,8 @@ router.get(["/details.html"], function(req, res, next) {
             id
             title
             content
+            modifiedOn
+            modifiedBy
 
             getHistories {
                 id
@@ -123,7 +129,7 @@ router.get(["/details.html"], function(req, res, next) {
             wikiPage
         };
         let title = wikiPage.title;
-        res.render("quests/display", {title, vm});
+        res.render("wiki/display", {title, vm});
     });
 });
 
@@ -135,6 +141,8 @@ router.get(["/history.html"], function(req, res, next) {
                 id
                 title
                 content
+                modifiedOn
+                modifiedBy
 
                 getHistories {
                     id
