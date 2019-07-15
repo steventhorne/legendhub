@@ -1,159 +1,142 @@
 <!doctype html>
 <html lang="en">
-
-<head>
-	<!-- Required meta tags -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-	<!-- CSS -->
-	<script src="/js/js.cookie.min.js"></script>
-	<noscript>
-		<link id="theme" rel="stylesheet" href="/css/bootstrap-light.min.css?%%version%%">
-	</noscript>
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
-	    crossorigin="anonymous">
-
-
-	<title>LegendHUB - Wiki</title>
-</head>
-
-<body ng-app="legendwiki-app" ng-controller="wiki" ng-class="{'modal-open': categoryActive}">
-	<lh-header></lh-header>
-	<div class="container-fluid">
-		<div class="px-0">
-			<div class="row">
-        <div class="categoryListBackground" ng-class="{active: categoryActive}" ng-click="categoryActive = false">
-          <div class="categoryListContainer" lh-isolate-click>
-            <div class="categoryListClose" ng-click="categoryActive = !categoryActive"><i class="fas fa-times"></i></div>
-            <h2>Categories</h2>
-            <ul class="categoryList">
-              <li ng-repeat="category in catService.categories" ng-cloak>
-                <a ng-class="{'active': category.Id == catService.getCategoryId() && !catService.hasSelectedSubcategory()}" ng-href="{{getSearchUrl(category.Id, -1)}}">{{category.Name}}</a>
-                <ul ng-if="category.Id == catService.getCategoryId()">
-                  <li ng-repeat="subcategory in catService.getFilteredSubcategories()">
-                    <a ng-class="{'active': subcategory.Id == catService.getSubcategoryId()}" ng-href="{{getSearchUrl(category.Id, subcategory.Id)}}">{{subcategory.Name}}</a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-        </div>
-				<div class="col">
-					<div class="row text-center">
-						<h1 class="col-12">Wiki Pages</h1>
-					</div>
-					<div class="px-0 px-md-5" ng-cloak>
-						<form ng-submit="onSearchClicked()">
-							<div class="row">
-								<span class="text-danger" ng-show="searchError != ''">{{searchError}}</span>
-							</div>
-							<div class="row">
-								<div class="input-group col-12">
-									<div class="input-group-prepend d-block d-md-none">
-										<button class="btn btn-outline-primary" type="button" ng-click="categoryActive = true">&nbsp;<i class="fas fa-caret-right"></i>&nbsp;
-									</div>
-									<div class="input-group-prepend" ng-if="catService.getActiveCategory()">
-										<button class="btn btn-outline-primary" type="button" ng-click="catService.clearSelectedCategories()">{{catService.getActiveCategory()}}&nbsp;&nbsp;<i class="fas fa-times"></i></button>
-									</div>
-									<input type="text" ng-model="searchString" class="form-control" placeholder="Search by title, tags, or content..." lh-autofocus>
-									<div class="input-group-append">
-										<button class="btn btn-primary" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
-									</div>
-								</div>
-							</div>
-						</form>
-					</div>
-					<br />
-					<div class="row" ng-show="resultWarning != ''" ng-cloak>
-						<span class="text-danger">{{resultWarning}}</span>
-					</div>
-					<div class="row" ng-cloak>
-						<div class="col-12">
-							<div class="card">
-								<div class="card-header">
-									<strong class="float-left">{{recent ? "Recently Modified" : "Search Results"}}</strong>
-									<lh-perm-check lh-perm-name="Item" lh-perm-create class="float-right clickable" ng-cloak>
-										<a href="/wiki/add.html">
-											<i class="fas fa-plus"></i>
-										</a>
-									</lh-perm-check>
-									<lh-perm-check lh-perm-name="Item" lh-perm-create lh-perm-inverse class="float-right clickable" ng-cloak>
-										<a href="/login.html?returnUrl=/wiki/add.html">
-											<i class="fas fa-plus"></i>
-										</a>
-									</lh-perm-check>
-								</div>
-								<div class="table-responsive">
-									<table class="table table-sm table-md table-hover table-striped table-bordered mb-0" ng-cloak>
-										<thead class="thead-dark">
-											<tr>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" nowrap ng-if="recent">Modified By&nbsp;<i ng-class="sortClass('ModifiedBy')"></i></th>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('Title')" nowrap>Title&nbsp;<i ng-class="sortClass('Title')"></i></th>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('CategoryId')" nowrap>Category&nbsp;<i ng-class="sortClass('CategoryId')"></i></th>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('SubCategoryId')" nowrap>Subcategory&nbsp;<i ng-class="sortClass('SubCategoryId')"></i></th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr ng-repeat="wiki in wikiPages | orderBy:sortProperty:sortReverse | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onWikiPageClicked(wiki)" style="cursor: pointer;">
-												<td ng-if="recent" class="text-center">{{wiki.ModifiedBy}}</td>
-												<th scope="row" ng-class="{'text-primary': !((recent && wiki.PinnedRecent) || (!recent && wiki.PinnedSearch)), 'text-success': ((recent && wiki.PinnedRecent) || (!recent && wiki.PinnedSearch))}">
-													<i ng-if="(recent && wiki.PinnedRecent) || (!recent && wiki.PinnedSearch)" class="fas fa-thumbtack">&nbsp;</i>
-													<i ng-if="wiki.Locked" class="fas fa-lock">&nbsp;</i>
-													{{wiki.Title}}
-												</th>
-												<td class="text-center">{{catService.getCategoryName(wiki.CategoryId)}}</td>
-												<td class="text-center">{{catService.getSubcategoryName(wiki.SubCategoryId)}}</td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
-							</div>
-						</div>
-					</div>
-					<br />
-                    <div class="row">
-					    <nav class="col" aria-label="Wiki result navigation" ng-show="totalPages > 1">
-						    <ul class="pagination">
-							    <li class="page-item">
-								    <a class="page-link" ng-click="onPreviousClicked()" href aria-label="Previous">
-									    <span aria-hidden="true">
-										    <i class="fas fa-chevron-left"></i>
-									    </span>
-									    <span class="sr-only">Previous</span>
-								    </a>
-							    </li>
-							    <li class="page-item" ng-repeat="i in getPageArray(totalPages) track by $index" ng-class="{active: i == currentPage}">
-								    <a class="page-link" ng-click="onPageClicked(i)" href>{{i}}</a>
-							    </li>
-							    <li class="page-item">
-								    <a class="page-link" ng-click="onNextClicked()" href aria-label="Next">
-									    <span aria-hidden="true">
-										    <i class="fas fa-chevron-right"></i>
-									    </span>
-									    <span class="sr-only">Next</span>
-								    </a>
-							    </li>
-						    </ul>
-					    </nav>
+    <head>
+        <%-include("../shared/meta")-%>
+    </head>
+    <body ng-app="legendwiki-app" ng-controller="wiki" ng-class="{'modal-open': categoryActive}">
+        <%-include("../shared/header")-%>
+        <% let searchPart = (vm.query.search !== undefined ? "&search=" + vm.query.search : "");
+             let categoryPart = `${(vm.query.categoryId ? `&categoryId=${vm.query.categoryId}`:"")}${(vm.query.subcategoryId ? `&subcategoryId=${vm.query.subcategoryId}`:"")}`;
+             let sortByPart = (vm.query.sortBy ? `&sortBy=${vm.query.sortBy}`:"");
+             let sortAscPart = (vm.query.sortAsc ? `&sortAsc=${vm.query.sortAsc}`:"");
+             let baseUrl = "/wiki/index.html?";
+             let searchBaseUrl = baseUrl + searchPart;
+             let categoryBaseUrl = searchBaseUrl + categoryPart;
+             let sortBaseUrl = categoryBaseUrl + sortByPart + sortAscPart;
+         %>
+        <div class="container-fluid">
+            <div class="px-0">
+                <div class="row">
+                    <div class="categoryListBackground" ng-class="{active: categoryActive}" ng-click="categoryActive = false" style="cursor:default">
+                      <div class="categoryListContainer" lh-isolate-click>
+                        <div class="categoryListClose" ng-click="categoryActive = !categoryActive"><i class="fas fa-times"></i></div>
+                        <h2>Categories</h2>
+                        <ul class="categoryList">
+                            <%for (let i = 0; i < vm.categories.length; ++i) {%>
+                            <li> 
+                                <a<%-(vm.categoryId == vm.categories[i].id && !vm.subcategoryId) ? ' class="active"' : ''%> href="<%-`${searchBaseUrl}&categoryId=${vm.categories[i].id}`%>"><%=vm.categories[i].name%></a>
+                                <%if(vm.categoryId == vm.categories[i].id) {%>
+                                <ul>
+                                    <%for (let j = 0; j < vm.categories[i].subcategories.length; ++j) {%>
+                                    <li>
+                                        <a<%-(vm.subcategoryId == vm.categories[i].subcategories[j].id) ? ' class="active"':''%> href="<%-`${searchBaseUrl}&categoryId=${vm.categories[i].id}&subcategoryId=${vm.categories[i].subcategories[j].id}`%>"><%=vm.categories[i].subcategories[j].name%></a>
+                                    </li>
+                                    <%}%>
+                                </ul>
+                                <%}%>
+                            </li>
+                            <%}%>
+                        </ul>
+                      </div>
                     </div>
-				</div>
-			</div>
-		</div>
-	</div>
+                    <div class="col">
+                        <div class="row text-center">
+                            <h1 class="col-12">Wiki</h1>
+                        </div>
+                        <div class="px-0 px-md-5">
+                            <form action="<%-baseUrl%>">
+                                <%if (vm.categoryId) {%>
+                                <input type="hidden" name="categoryId" value="<%-vm.categoryId%>">
+                                <%}%>
+                                <%if (vm.subcategoryId) {%>
+                                <input type="hidden" name="subcategoryId" value="<%-vm.subcategoryId%>">
+                                <%}%>
+                                <div class="row">
+                                    <div class="input-group col-12">
+                                        <div class="input-group-prepend d-block d-md-none">
+                                            <button class="btn btn-outline-primary" type="button" ng-click="categoryActive = true">&nbsp;<i class="fas fa-caret-right"></i>&nbsp;
+                                        </div>
+                                        <%if (vm.activeCategory) {%>
+                                        <div class="input-group-prepend">
+                                            <a class="btn btn-outline-primary" role="button" href="<%-searchBaseUrl%>"><%=vm.activeCategory%>&nbsp;&nbsp;<i class="fas fa-times"></i></a>
+                                        </div>
+                                        <%}%>
+                                        <input type="text" name="search" value="<%-vm.query.search%>" class="form-control" placeholder="Search by title, tags, or content..." lh-autofocus>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <br />
+                        <%-include("../shared/pagination", {baseUrl: sortBaseUrl, page: vm.page, rows: vm.rows, resultLength: vm.results.length, moreResults: vm.moreResults})-%>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <strong class="float-left"><%-(vm.noSearch ? "Recently Modified":"Search Results")%></strong>
+                                        <div class="float-right">
+                                            <a href="<%-(locals.user ? "":"/login.html?returnUrl=")%>/wiki/add.html">
+                                                <i class="fas fa-plus"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-md table-hover table-striped table-bordered mb-0">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <% let sortClass = function(sortBy) {
+                 if (vm.query.sortBy === sortBy)
+                 return vm.query.sortAsc === "true" ? "fas fa-sort-up" : "fas fa-sort-down";
+                 else if (!vm.query.sortBy)
+                 return "fas fa-sort";
+                 else
+                 return "";
+                 };%>
+                 <th scope="col" class="text-center" ng-click="onColumnHeaderClicked('<%-`${categoryBaseUrl}&sortBy=title&sortAsc=${(vm.query.sortBy==="title"?!(vm.query.sortAsc==="true"):true)}`%>')" nowrap>Title&nbsp;<i class="<%-sortClass('title')%>"></i></th>
+                 <th scope="col" class="text-center" ng-click="onColumnHeaderClicked('<%-`${categoryBaseUrl}&sortBy=categoryName&sortAsc=${(vm.query.sortBy==="categoryName"?!(vm.query.sortAsc==="true"):true)}`%>')" nowrap>Category&nbsp;<i class="<%-sortClass('categoryName')%>"></i></th>
+                 <th scope="col" class="text-center" ng-click="onColumnHeaderClicked('<%-`${categoryBaseUrl}&sortBy=subcategoryName&sortAsc=${(vm.query.sortBy==="subcategoryName"?!(vm.query.sortAsc==="true"):true)}`%>')" nowrap>Subcategory&nbsp;<i class="<%-sortClass('subcategoryName')%>"></i></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <%for (let i = 0; i < vm.results.length; ++i) {
+                                                    let pinned = false;
+                                                    if (vm.noSearch && vm.results[i].pinnedRecent)
+                                                        pinned = true;
+                                                    if (!vm.noSearch && vm.results[i].pinnedSearch)
+                                                        pinned = true;%>
+                                                <tr ng-click="onWikiClicked('<%-vm.results[i].id%>')">
+                                                    <td scope="row" class="font-weight-bold <%-(pinned ? "text-success":"text-primary")%>"><%-(vm.results[i].locked?"<i class='fas fa-lock'></i>&nbsp;":"")%><%=vm.results[i].title%></td>
+                                                    <td class="text-center"><%=vm.results[i].categoryName_%></td>
+                                                    <td class="text-center"><%=vm.results[i].subcategoryName_%></td>
+                                                </tr>
+                                                <%}%>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <%-include("../shared/pagination", {baseUrl: sortBaseUrl, page: vm.page, rows: vm.rows, resultLength: vm.results.length, moreResults: vm.moreResults})-%>
+                        <br><br>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%-include("../shared/footer")-%>
+        <%-include("../shared/scripts")-%>
+        <script>
+            app.controller("wiki", ["$scope", function($scope) {
+                $scope.onWikiClicked = function(id) {
+                    window.location = "/wiki/details.html?id=" + id;
+                };
 
-	<lh-footer></lh-footer>
-
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-	    crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-	    crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-	    crossorigin="anonymous"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
-	<script src="/js/apps/legendwiki-app.js?%%version%%"></script>
-	<script src="/js/controllers/wiki/main.js?%%version%%"></script>
-</body>
-
+                $scope.onColumnHeaderClicked = function(url) {
+                    window.location = url;
+                };
+            }]);
+        </script>
+    </body>
 </html>

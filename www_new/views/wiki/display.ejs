@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <%-include("../shared/meta");-%>
+</head>
+<body ng-app="legendwiki-app">
+    <%-include("../shared/header");-%>
+	<div class="container">
+        <div class="row">
+            <h1 class="col-12 text-center text-md-left text-primary"><%=vm.wikiPage.title%></h1>
+            <%if (vm.historyId) {%>
+            <h4 class="d-inline col-12 text-center text-md-left">
+                <a class="text-warning" href="/wiki/details.html?id=<%-vm.wikiPage.id%>">view latest version</a>
+            </h4>
+            <%}%>
+        </div>
+        <div class="row justify-content-center justify-content-md-start" nv-init="showHistory = false">
+            <div class="btn-group" role="group" aria-label="Toolbar">
+                <%if (vm.wikiPage.getHistories.length > 0) {%>
+                <button type="button" class="btn btn-outline-primary" ng-click="showHistory = !showHistory"><i class="fas fa-history"></i> <%=vm.wikiPage.getHistories.length%></button>
+                <%}%>
+                <button type="button" class="btn btn-outline-primary"><%=new Date(vm.wikiPage.modifiedOn).toISOString().slice(0,16).replace("T"," ")%> UTC <strong>by</strong> <%=vm.wikiPage.modifiedBy%></button>
+                <a class="btn btn-outline-primary" role="button" href="<%-(!locals.user ? "/login.html?returnUrl=" : "")%>/wiki/edit.html?id=<%-vm.wikiPage.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
+            </div>
+        </div>
+        <div class="row justify-content-center justify-content-md-start" ng-if="showHistory" ng-cloak>
+            <div class="list-group justify-content-center justify-content-md-start">
+                <%for (let i = 0; i < vm.wikiPage.getHistories.length; ++i) {%>
+                <a href="/wiki/history.html?id=<%-vm.wikiPage.getHistories[i].id%>" class="text-center text-md-left list-group-item list-group-item-action<%-((vm.historyId && vm.wikiPage.getHistories[i].id == vm.historyId) ? ' active' : '')%>"><%=new Date(vm.wikiPage.getHistories[i].wikiPage.modifiedOn).toISOString().slice(0,16).replace("T", " ")%> <strong>by</strong> <%=vm.wikiPage.getHistories[i].wikiPage.modifiedBy%></a>
+                <%}%>
+            </div>
+        </div>
+        <br>
+        <div class="col-12">
+            <div class="card" ng-init="wikiContent='<%=vm.wikiPage.content.replace(/'/g, "&#39;")%>'">
+                <div class="card-body" markdown-to-html="wikiContent"></div>
+            </div>
+            <br><br>
+            <%if (vm.historyId && locals.user) {%>
+            <a class="btn btn-primary btn-block col-12 col-md-6" href="/wiki/revert.html?id=<%-vm.historyId%>" role="button">Use this version</a>
+            <br><br>
+            <%}%>
+        </div>
+	</div>
+    <%-include("../shared/footer");-%>
+    <%-include("../shared/scripts");-%>
+    <%-include("../shared/markdown");-%>
+</body>
+
+</html>
