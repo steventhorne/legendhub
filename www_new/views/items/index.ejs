@@ -48,7 +48,7 @@
 						<div class="col-12">
 							<div class="card">
 								<div class="card-header">
-									<strong class="float-left">Search Results</strong>
+                                    <strong class="float-left"><%-(vm.noSearch ? "Recently Modified":"Search Results")%></strong>
                                     <span class="float-right clickable">
                                         <% if (locals.user) { %>
                                         <a href="/items/add.html">
@@ -121,6 +121,7 @@
 					</div>
 					<br>
                     <%-include("../shared/pagination", {baseUrl: pageBaseUrl, page: vm.page, rows: vm.rows, resultLength: vm.results.length, moreResults: vm.moreResults})%>
+                    <br><br>
 				</div>
 			</div>
 		</div>

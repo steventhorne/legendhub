@@ -18,7 +18,7 @@
 	<div class="container-fluid">
 		<div class="px-0">
 			<div class="row">
-                <div class="categoryListBackground" ng-class="{active: categoryActive}" ng-click="categoryActive = false">
+                <div class="categoryListBackground" ng-class="{active: categoryActive}" ng-click="categoryActive = false" style="cursor:default">
                     <div class="categoryListContainer" lh-isolate-click>
                         <div class="categoryListClose" ng-click="categoryActive = !categoryActive"><i class="fas fa-times"></i></div>
                         <h2>Areas</h2>
@@ -77,7 +77,7 @@
 						<div class="col-12">
 							<div class="card">
 								<div class="card-header">
-									<strong class="float-left">Search Results</strong>
+                                    <strong class="float-left"><%-(vm.noSearch ? "Recently Modified":"Search Results")%></strong>
                                     <%if(locals.user){%>
                                     <div class="float-right">
                                         <a href="/mobs/add.html">
@@ -135,6 +135,7 @@
 					</div>
                     <br>
                     <%-include("../shared/pagination", {baseUrl: sortBaseUrl, page: vm.page, rows: vm.rows, resultLength: vm.results.length, moreResults: vm.moreResults})-%>
+                        <br><br>
 				</div>
 			</div>
 		</div>
