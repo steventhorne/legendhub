@@ -116,7 +116,7 @@ let getMobById = function(id) {
 };
 
 let getMobs = function(searchString, eraId, areaId, sortBy, sortAsc, page, rows) {
-    let noSearch = searchString == null;
+    let noSearch = searchString == null && eraId == null && areaId == null;
     if (searchString == null)
         searchString = "";
     if (sortBy === undefined)
