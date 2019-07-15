@@ -12,6 +12,7 @@ router.get(["/", "/index.html"], function(req, res, next) {
         ${req.query.search === undefined ? '' : `searchString:"${req.query.search}"`}
         ${req.query.eraId === undefined ? '' : `eraId:${req.query.eraId}`}
         ${req.query.areaId === undefined ? '' : `areaId:${req.query.areaId}`}
+        ${req.query.stat === undefined ? '' : `stat:${req.query.stat}`}
         ${req.query.sortBy === undefined ? '' : `sortBy:"${req.query.sortBy}"`}
         ${req.query.sortAsc === undefined ? '' : `sortAsc:${req.query.sortAsc}`}
         page:${page}
@@ -70,6 +71,7 @@ router.get(["/", "/index.html"], function(req, res, next) {
 
         let vm = {
             query: req.query,
+            noSearch: req.query.search == null && !req.query.eraId && !req.query.areaId,
             results: data.getQuests.quests,
             moreResults: data.getQuests.moreResults,
             page: page,
@@ -80,7 +82,7 @@ router.get(["/", "/index.html"], function(req, res, next) {
             activeCategory: activeCategory,
             cookies: req.cookies
         };
-        let title = req.query.search === undefined ? "Recent Quests" : `Results for "${req.query.search}"`;
+        let title = vm.noSearch ? "Recent Quests" : `Results for "${req.query.search || ""}"`;
         res.render("quests/index", {title, vm});
     });
 });
@@ -93,8 +95,11 @@ router.get(["/details.html"], function(req, res, next) {
             title
             areaName
             eraName
+            stat
             content
             whoises
+            modifiedOn
+            modifiedBy
 
             getItems {
                 id
@@ -147,8 +152,11 @@ router.get(["/history.html"], function(req, res, next) {
                 title
                 areaName
                 eraName
+                stat
                 content
                 whoises
+                modifiedOn
+                modifiedBy
 
                 getItems {
                     id
@@ -202,6 +210,7 @@ router.get(["/edit.html"], function(req, res, next) {
             title
             eraId
             areaId
+            stat
             whoises
             content
         }

@@ -261,7 +261,6 @@ router.get(["/edit.html"], function(req, res, next) {
         function(error, response, body) {
             body = JSON.parse(body);
             if (body.errors) {
-                console.log(body.errors);
                 res.status(body.errors[0].code);
                 res.render(`error/${body.errors[0].code}`, {errors: body.errors});
                 return;
@@ -369,6 +368,7 @@ router.get(["/", "/index.html"], function(req, res, next) {
 
         let vm = {
             query: req.query,
+            noSearch: req.query.search === undefined && !req.query.filters,
             searchString: req.query.search,
             results: items,
             moreResults: moreResults,
@@ -381,7 +381,7 @@ router.get(["/", "/index.html"], function(req, res, next) {
             constants: itemApi.constants,
             cookies: req.cookies
         };
-        let title = req.query.search === undefined ? "Recent Items" : `Results for "${req.query.search}"`;
+        let title = vm.noSearch ? "Recent Items" : `Results for "${req.query.search || ""}"`;
         res.render("items/index", { title, vm });
     });
 });

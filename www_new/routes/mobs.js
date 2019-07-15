@@ -75,6 +75,7 @@ router.get(["/", "/index.html"], function(req, res, next) {
 
         let vm = {
             query: req.query,
+            noSearch: req.query.search == null && !req.query.eraId && !req.query.areaId,
             searchString: req.query.search,
             results: mobs,
             moreResults: moreResults,
@@ -86,7 +87,7 @@ router.get(["/", "/index.html"], function(req, res, next) {
             activeCategory: activeCategory,
             cookies: req.cookies
         };
-        let title = req.query.search === undefined ? "Recent Mobs" : `Results for "${req.query.search}"`;
+        let title = vm.noSearch ? "Recent Mobs" : `Results for "${req.query.search || ""}"`;
         res.render("mobs/index", {title, vm});
     });
 });
