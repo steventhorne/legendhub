@@ -94,7 +94,7 @@ let getWikiPageById = function(id) {
 };
 
 let getWikiPages = function(searchString, categoryId, subcategoryId, sortBy, sortAsc, page, rows) {
-    let noSearch = searchString == null;
+    let noSearch = searchString == null && categoryId == null && subcategoryId == null;
     if (searchString == null)
         searchString = "";
     if (sortBy == null)
@@ -128,7 +128,7 @@ let getWikiPages = function(searchString, categoryId, subcategoryId, sortBy, sor
             sql.push("AND W.SubCategoryId = ?");
             placeholders.push(subcategoryId);
         }
-        sql.push(`ORDER BY ??,
+        sql.push(`ORDER BY ?? DESC,
         CASE
             WHEN Title LIKE ? THEN 1
             WHEN Tags LIKE ? THEN 2
@@ -137,7 +137,7 @@ let getWikiPages = function(searchString, categoryId, subcategoryId, sortBy, sor
         END ASC,
         ?? ${sortAsc ? "ASC" : "DESC"} LIMIT ?, ?`);
         placeholders.push(
-            searchString ? "PinnedSearch" : "PinnedRecent",
+            noSearch ? "PinnedRecent" : "PinnedSearch",
             likeSearchString,
             likeSearchString,
             likeSearchString,
