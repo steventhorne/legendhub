@@ -1,162 +1,144 @@
 <!doctype html>
 <html lang="en">
-
-<head>
-	<!-- Required meta tags -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-	<!-- CSS -->
-	<script src="/js/js.cookie.min.js"></script>
-	<noscript>
-		<link id="theme" rel="stylesheet" href="/css/bootstrap-light.min.css?%%version%%">
-	</noscript>
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
-	    crossorigin="anonymous">
-
-
-	<title>LegendHUB - Quests</title>
-</head>
-
-<body ng-app="legendwiki-app" ng-controller="quests" ng-class="{'modal-open': categoryActive}">
-	<lh-header></lh-header>
-	<div class="container-fluid">
-		<div class="px-0">
-			<div class="row">
-        <div class="categoryListBackground" ng-class="{active: categoryActive}" ng-click="categoryActive = false">
-          <div class="categoryListContainer" lh-isolate-click>
-            <div class="categoryListClose" ng-click="categoryActive = !categoryActive"><i class="fas fa-times"></i></div>
-            <h2>Areas</h2>
-            <ul class="categoryList">
-              <li ng-repeat="category in catService.categories" ng-cloak>
-                <a ng-class="{'active': category.Id == catService.getCategoryId() && !catService.hasSelectedSubcategory()}"
-                ng-href="{{getSearchUrl(category.Id, -1)}}">{{category.Name}}</a>
-                <ul ng-if="category.Id == catService.getCategoryId()">
-                  <li ng-repeat="subcategory in catService.getFilteredSubcategories()">
-                    <a ng-class="{'active': subcategory.Id == catService.getSubcategoryId()}"
-                        ng-href="{{getSearchUrl(category.Id, subcategory.Id)}}">{{subcategory.Name}}</a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-        </div>
-				<div class="col">
-					<div class="row text-center">
-						<h1 class="col-12">Quests</h1>
-					</div>
-					<div class="px-0 px-md-5" ng-cloak>
-						<form ng-submit="onSearchClicked()">
-							<div class="row">
-								<span class="text-danger" ng-show="searchError != ''">{{searchError}}</span>
-							</div>
-							<div class="row">
-								<div class="input-group col-12">
-									<div class="input-group-prepend d-block d-md-none">
-										<button class="btn btn-outline-primary" type="button" ng-click="categoryActive = true">&nbsp;<i class="fas fa-caret-right"></i>&nbsp;
-									</div>
-									<div class="input-group-prepend" ng-if="catService.getActiveCategory()">
-										<button class="btn btn-outline-primary" type="button" ng-click="catService.clearSelectedCategories()">{{catService.getActiveCategory()}}&nbsp;&nbsp;<i class="fas fa-times"></i></button>
-									</div>
-									<input type="text" ng-model="searchString" class="form-control" placeholder="Search by title, whois, area, or content..."
-									    lh-autofocus>
-									<div class="input-group-append">
-										<button class="btn btn-{{statOnly ? '' : 'outline-'}}primary" type="button" ng-click="onStatClicked()">Stat&nbsp;&nbsp;
-											<i class="{{statOnly ? 'far fa-check-square' : 'far fa-square'}}"></i>
-										</button>
-									</div>
-									<div class="input-group-append">
-										<button class="btn btn-primary" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
-									</div>
-								</div>
-							</div>
-						</form>
-					</div>
-					<br />
-					<div class="row" ng-show="resultWarning != ''" ng-cloak>
-						<span class="text-danger">{{resultWarning}}</span>
-					</div>
-					<div class="row" ng-cloak>
-						<div class="col-12">
-							<div class="card">
-								<div class="card-header">
-									<strong class="float-left">{{recent ? "Recently Modified" : "Search Results"}}</strong>
-									<lh-perm-check lh-perm-name="Item" lh-perm-create class="float-right clickable" ng-cloak>
-										<a href="/quests/add.html">
-											<i class="fas fa-plus"></i>
-										</a>
-									</lh-perm-check>
-									<lh-perm-check lh-perm-name="Item" lh-perm-create lh-perm-inverse class="float-right clickable" ng-cloak>
-										<a href="/login.html?returnUrl=/quests/add.html">
-											<i class="fas fa-plus"></i>
-										</a>
-									</lh-perm-check>
-								</div>
-								<div class="table-responsive">
-									<table class="table table-sm table-md table-hover table-striped table-bordered mb-0" ng-cloak>
-										<thead class="thead-dark">
-											<tr>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('ModifiedBy')" nowrap ng-if="recent">Modified By&nbsp;<i ng-class="sortClass('ModifiedBy')"></i></th>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('Title')" nowrap>Title&nbsp;<i ng-class="sortClass('Title')"></i></th>
-												<th scope="col" class="text-center" ng-click="onColumnHeaderClicked('AreaName')" nowrap>Area&nbsp;<i ng-class="sortClass('AreaName')"></i></th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr ng-repeat="quest in quests | orderBy:sortProperty:sortReverse | limitTo : 20 : 20 * (currentPage - 1)" ng-click="onQuestClicked(quest)" style="cursor: pointer;">
-												<td ng-if="recent" class="text-center">{{quest.ModifiedBy}}</td>
-												<th scope="row" class="text-primary">{{quest.Title}}</th>
-												<td>
-													<span class="text-info">{{quest.AreaEra ? '(' + quest.AreaEra + ')' : ''}}</span> {{quest.AreaName}}</td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
-							</div>
-						</div>
-					</div>
-					<br />
-                    <div class="row">
-					    <nav class="col" aria-label="Quest result navigation" ng-show="totalPages > 1">
-						    <ul class="pagination">
-							    <li class="page-item">
-								    <a class="page-link" ng-click="onPreviousClicked()" href aria-label="Previous">
-									    <span aria-hidden="true">
-										    <i class="fas fa-chevron-left"></i>
-									    </span>
-									    <span class="sr-only">Previous</span>
-								    </a>
-							    </li>
-							    <li class="page-item" ng-repeat="i in getPageArray(totalPages) track by $index" ng-class="{active: i == currentPage}">
-								    <a class="page-link" ng-click="onPageClicked(i)" href>{{i}}</a>
-							    </li>
-							    <li class="page-item">
-								    <a class="page-link" ng-click="onNextClicked()" href aria-label="Next">
-									    <span aria-hidden="true">
-										    <i class="fas fa-chevron-right"></i>
-									    </span>
-									    <span class="sr-only">Next</span>
-								    </a>
-							    </li>
-						    </ul>
-					    </nav>
+    <head>
+        <%-include("../shared/meta")-%>
+    </head>
+    <body ng-app="legendwiki-app" ng-controller="quests" ng-class="{'modal-open': categoryActive}">
+        <%-include("../shared/header")-%>
+        <% let searchPart = (vm.query.search !== undefined ? "&search=" + vm.query.search : "");
+             let categoryPart = `${(vm.query.eraId ? `&eraId=${vm.query.eraId}`:"")}${(vm.query.areaId ? `&areaId=${vm.query.areaId}`:"")}`;
+             let sortByPart = (vm.query.sortBy ? `&sortBy=${vm.query.sortBy}`:"");
+             let sortAscPart = (vm.query.sortAsc ? `&sortAsc=${vm.query.sortAsc}`:"");
+             let baseUrl = "/quests/index.html?";
+             let searchBaseUrl = baseUrl + searchPart;
+             let categoryBaseUrl = searchBaseUrl + categoryPart;
+             let sortBaseUrl = categoryBaseUrl + sortByPart + sortAscPart;
+         %>
+        <div class="container-fluid">
+            <div class="px-0">
+                <div class="row">
+                    <div class="categoryListBackground" ng-class="{active: categoryActive}" ng-click="categoryActive = false" style="cursor:default">
+                      <div class="categoryListContainer" lh-isolate-click>
+                        <div class="categoryListClose" ng-click="categoryActive = !categoryActive"><i class="fas fa-times"></i></div>
+                        <h2>Areas</h2>
+                        <ul class="categoryList">
+                            <%for (let i = 0; i < vm.categories.length; ++i) {%>
+                            <li> 
+                                <a<%-(vm.categoryId == vm.categories[i].id && !vm.subcategoryId) ? ' class="active"' : ''%> href="<%-`${searchBaseUrl}&eraId=${vm.categories[i].id}`%>"><%=vm.categories[i].name%></a>
+                                <%if(vm.categoryId == vm.categories[i].id) {%>
+                                <ul>
+                                    <%for (let j = 0; j < vm.categories[i].subcategories.length; ++j) {%>
+                                    <li>
+                                        <a<%-(vm.subcategoryId == vm.categories[i].subcategories[j].id) ? ' class="active"':''%> href="<%-`${searchBaseUrl}&eraId=${vm.categories[i].id}&areaId=${vm.categories[i].subcategories[j].id}`%>"><%=vm.categories[i].subcategories[j].name%></a>
+                                    </li>
+                                    <%}%>
+                                </ul>
+                                <%}%>
+                            </li>
+                            <%}%>
+                        </ul>
+                      </div>
                     </div>
-				</div>
-			</div>
-		</div>
-	</div>
+                    <div class="col">
+                        <div class="row text-center">
+                            <h1 class="col-12">Quests</h1>
+                        </div>
+                        <div class="px-0 px-md-5">
+                            <form action="<%-baseUrl%>">
+                                <%if (vm.categoryId) {%>
+                                <input type="hidden" name="eraId" value="<%-vm.categoryId%>">
+                                <%}%>
+                                <%if (vm.subcategoryId) {%>
+                                <input type="hidden" name="areaId" value="<%-vm.subcategoryId%>">
+                                <%}%>
+                                <div class="row">
+                                    <div class="input-group col-12">
+                                        <div class="input-group-prepend d-block d-md-none">
+                                            <button class="btn btn-outline-primary" type="button" ng-click="categoryActive = true">&nbsp;<i class="fas fa-caret-right"></i>&nbsp;
+                                        </div>
+                                        <%if (vm.activeCategory) {%>
+                                        <div class="input-group-prepend">
+                                            <a class="btn btn-outline-primary" role="button" href="<%-searchBaseUrl%>"><%=vm.activeCategory%>&nbsp;&nbsp;<i class="fas fa-times"></i></a>
+                                        </div>
+                                        <%}%>
+                                        <input type="text" name="search" value="<%-vm.query.search%>" class="form-control" placeholder="Search by title, whois, area, or content..." lh-autofocus>
+                                        <div class="input-group-append">
+                                            <label for="statCheckbox" class="btn btn-outline-primary custom-control custom-checkbox mb-0" style="padding-left:2rem">
+                                                <input type="checkbox" name="stat" value="true"<%-(vm.query.stat?" checked" : "")%> class="custom-control-input" id="statCheckbox">
+                                                <label for="statCheckbox" class="custom-control-label" style="cursor:pointer">Stat</label>
+                                            </label>
+                                        </div>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="submit"><span class="d-none d-md-inline-block">Search</span><i class="d-inline-block d-md-none fas fa-search"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <br />
+                        <%-include("../shared/pagination", {baseUrl: sortBaseUrl, page: vm.page, rows: vm.rows, resultLength: vm.results.length, moreResults: vm.moreResults})-%>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <strong class="float-left"><%-(vm.noSearch ? "Recently Modified":"Search Results")%></strong>
+                                        <div class="float-right">
+                                            <a href="<%-(locals.user ? "":"/login.html?returnUrl=")%>/quests/add.html">
+                                                <i class="fas fa-plus"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-md table-hover table-striped table-bordered mb-0">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <% let sortClass = function(sortBy) {
+                 if (vm.query.sortBy === sortBy)
+                 return vm.query.sortAsc === "true" ? "fas fa-sort-up" : "fas fa-sort-down";
+                 else if (!vm.query.sortBy)
+                 return "fas fa-sort";
+                 else
+                 return "";
+                 };%>
+                 <th scope="col" class="text-center" ng-click="onColumnHeaderClicked('<%-`${categoryBaseUrl}&sortBy=title&sortAsc=${(vm.query.sortBy==="title"?!(vm.query.sortAsc==="true"):true)}`%>')" nowrap>Title&nbsp;<i class="<%-sortClass('title')%>"></i></th>
+                 <th scope="col" class="text-center" ng-click="onColumnHeaderClicked('<%-`${categoryBaseUrl}&sortBy=areaName&sortAsc=${(vm.query.sortBy==="areaName"?!(vm.query.sortAsc==="true"):true)}`%>')" nowrap>Area&nbsp;<i class="<%-sortClass('areaName')%>"></i></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <%for (let i = 0; i < vm.results.length; ++i) {%>
+                                                <tr ng-click="onQuestClicked('<%-vm.results[i].id%>')">
+                                                    <td scope="row" class="font-weight-bold text-primary"><%=vm.results[i].title%></td>
+                                                    <td>
+                                                        <%_if(vm.results[i].eraName) {%><span class="text-info">(<%=vm.results[i].eraName%>)</span><%}_%>
+                                                        <%=vm.results[i].areaName_%>
+                                                    </td>
+                                                </tr>
+                                                <%}%>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <%-include("../shared/pagination", {baseUrl: sortBaseUrl, page: vm.page, rows: vm.rows, resultLength: vm.results.length, moreResults: vm.moreResults})-%>
+                        <br><br>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%-include("../shared/footer")-%>
+        <%-include("../shared/scripts")-%>
+        <script>
+            app.controller("quests", ["$scope", function($scope) {
+                $scope.onQuestClicked = function(id) {
+                    window.location = "/quests/details.html?id=" + id;
+                };
 
-	<lh-footer></lh-footer>
-
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-	    crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-	    crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-	    crossorigin="anonymous"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
-	<script src="/js/apps/legendwiki-app.js?%%version%%"></script>
-	<script src="/js/controllers/quests/main.js?%%version%%"></script>
-</body>
-
+                $scope.onColumnHeaderClicked = function(url) {
+                    window.location = url;
+                };
+            }]);
+        </script>
+    </body>
 </html>
