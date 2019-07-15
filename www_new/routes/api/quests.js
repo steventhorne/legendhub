@@ -110,7 +110,7 @@ let getQuestById = function(id) {
 };
 
 let getQuests = function(searchString, eraId, areaId, stat, sortBy, sortAsc, page, rows) {
-    let noSearch = searchString == null;
+    let noSearch = searchString == null && eraId == null && areaId == null;
     if (searchString == null)
         searchString = "";
     if (sortBy == null)
@@ -384,13 +384,14 @@ let qFields = {
             searchString: { type: gql.GraphQLString },
             eraId: { type: gql.GraphQLInt },
             areaId: { type: gql.GraphQLInt },
+            stat: { type: gql.GraphQLBoolean },
             sortBy: { type: gql.GraphQLString },
             sortAsc: { type: gql.GraphQLBoolean },
             page: { type: gql.GraphQLInt },
             rows: { type: gql.GraphQLInt }
         },
-        resolve: function(_, {searchString, eraId, areaId, sortBy, sortAsc, page, rows}) {
-            return getQuests(searchString, eraId, areaId, sortBy, sortAsc, page, rows);
+        resolve: function(_, {searchString, eraId, areaId, stat, sortBy, sortAsc, page, rows}) {
+            return getQuests(searchString, eraId, areaId, stat, sortBy, sortAsc, page, rows);
         }
     },
     getQuestHistoryById: {
