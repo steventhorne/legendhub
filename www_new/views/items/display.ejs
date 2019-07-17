@@ -50,14 +50,14 @@ AC: <%-vm.item.ac%>" />
                 <% if (vm.item.getHistories.length > 0) { %>
                     <button type="button" class="btn btn-outline-primary" ng-click="showHistory = !showHistory"><i class="fas fa-history"></i> <%=vm.item.getHistories.length%></button>
                 <% } %>
-                <button type="button" class="btn btn-outline-primary"><%=new Date(vm.item.modifiedOn).toISOString().slice(0, 16).replace("T", " ")%> <strong>by</strong> <%=vm.item.modifiedBy%></button>
+                <button type="button" class="btn btn-outline-primary"><%=new Date(vm.item.modifiedOn).toISOString().slice(0, 16).replace("T", " ")%> UTC <strong>by</strong> <%=vm.item.modifiedBy%></button>
                 <a class="btn btn-outline-primary" role="button" href="<%-(!locals.user ? "/login.html?returnUrl=" : "")%>/items/edit.html?id=<%-vm.item.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
             </div>
         </div>
         <div class="row justify-content-center justify-content-md-start" ng-if="showHistory" ng-cloak>
             <div class="list-group justify-content-center justify-content-md-start">
                 <% for (let i = 0; i < vm.item.getHistories.length; ++i) { %>
-                <a href="/items/history.html?id=<%-vm.item.getHistories[i].id%>" class="text-center text-md-left list-group-item list-group-item-action<%-((vm.historyId && vm.item.getHistories[i].id == vm.historyId) ? ' active' : '')%>"><%=new Date(vm.item.getHistories[i].item.modifiedOn).toISOString().slice(0, 16).replace("T", " ")%> <strong>by</strong> <%=vm.item.getHistories[i].item.modifiedBy%></a>
+                <a href="/items/history.html?id=<%-vm.item.getHistories[i].id%>" class="text-center text-md-left list-group-item list-group-item-action<%-((vm.historyId && vm.item.getHistories[i].id == vm.historyId) ? ' active' : '')%>"><%=new Date(vm.item.getHistories[i].item.modifiedOn).toISOString().slice(0, 16).replace("T", " ")%> UTC <strong>by</strong> <%=vm.item.getHistories[i].item.modifiedBy%></a>
                 <% } %>
             </div>
         </div>
