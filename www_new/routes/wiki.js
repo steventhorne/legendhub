@@ -94,6 +94,10 @@ router.get(["/details.html"], function(req, res, next) {
         getWikiPageById(id:${req.query.id}) {
             id
             title
+            categoryId
+            categoryName
+            subcategoryId
+            subcategoryName
             content
             modifiedOn
             modifiedBy
@@ -129,6 +133,34 @@ router.get(["/details.html"], function(req, res, next) {
             wikiPage
         };
         let title = wikiPage.title;
+        res.locals.breadcrumbs = [
+            {
+                display: "Wiki",
+                href: "/wiki/"
+            }
+        ];
+        if (wikiPage.categoryId) {
+            res.locals.breadcrumbs.push(
+                {
+                    display: wikiPage.categoryName,
+                    href: `/wiki/index.html?categoryId=${wikiPage.categoryId}`
+                }
+            )
+        }
+        if (wikiPage.subcategoryId) {
+            res.locals.breadcrumbs.push(
+                {
+                    display: wikiPage.subcategoryName,
+                    href: `/wiki/index.html?categoryId=${wikiPage.categoryId}&subcategoryId=${wikiPage.subcategoryId}`
+                }
+            )
+        }
+        res.locals.breadcrumbs.push(
+            {
+                display: wikiPage.title,
+                active: true
+            }
+        );
         res.render("wiki/display", {title, vm});
     });
 });
@@ -140,6 +172,10 @@ router.get(["/history.html"], function(req, res, next) {
             wikiPage {
                 id
                 title
+                categoryId
+                categoryName
+                subcategoryId
+                subcategoryName
                 content
                 modifiedOn
                 modifiedBy
@@ -177,6 +213,38 @@ router.get(["/history.html"], function(req, res, next) {
             historyId: req.query.id
         };
         let title = `History for ${wikiPage.title}`;
+        res.locals.breadcrumbs = [
+            {
+                display: "Wiki",
+                href: "/wiki/"
+            }
+        ];
+        if (wikiPage.categoryId) {
+            res.locals.breadcrumbs.push(
+                {
+                    display: wikiPage.categoryName,
+                    href: `/wiki/index.html?categoryId=${wikiPage.categoryId}`
+                }
+            )
+        }
+        if (wikiPage.subcategoryId) {
+            res.locals.breadcrumbs.push(
+                {
+                    display: wikiPage.subcategoryName,
+                    href: `/wiki/index.html?categoryId=${wikiPage.categoryId}&subcategoryId=${wikiPage.subcategoryId}`
+                }
+            )
+        }
+        res.locals.breadcrumbs.push(
+            {
+                display: wikiPage.title,
+                href: `/wiki/details.html?id=${wikiPage.id}`
+            },
+            {
+                display: new Date(wikiPage.modifiedOn).toISOString().slice(0, 16).replace("T", " ") + " UTC",
+                active: true
+            }
+        );
         res.render("wiki/display", {title, vm});
     });
 });
@@ -188,7 +256,9 @@ router.get(["/edit.html"], function(req, res, next) {
             id
             title
             categoryId
+            categoryName
             subcategoryId
+            subcategoryName
             tags
             content
         }
@@ -218,11 +288,44 @@ router.get(["/edit.html"], function(req, res, next) {
             return;
         }
 
+        let wikiPage = body.data.getWikiPageById;
         let vm = {
-            wikiPage: body.data.getWikiPageById,
+            wikiPage,
             categories: body.data.getCategories
         };
         let title = "Edit Wiki Page";
+        res.locals.breadcrumbs = [
+            {
+                display: "Wiki",
+                href: "/wiki/",
+            }
+        ];
+        if (wikiPage.categoryId) {
+            res.locals.breadcrumbs.push(
+                {
+                    display: wikiPage.categoryName,
+                    href: `/wiki/index.html?categoryId=${wikiPage.categoryId}`
+                }
+            )
+        }
+        if (wikiPage.subcategoryId) {
+            res.locals.breadcrumbs.push(
+                {
+                    display: wikiPage.subcategoryName,
+                    href: `/wiki/index.html?categoryId=${wikiPage.categoryId}&subcategoryId=${wikiPage.subcategoryId}`
+                }
+            )
+        }
+        res.locals.breadcrumbs.push(
+            {
+                display: wikiPage.title,
+                href: `/wiki/details.html?id=${wikiPage.id}`
+            },
+            {
+                display: "Edit",
+                active: true
+            }
+        );
         res.render("wiki/modify", {title, vm});
     });
 });
@@ -260,6 +363,16 @@ router.get(["/add.html"], function(req, res, next) {
             categories: body.data.getCategories
         };
         let title = "Add Wiki Page";
+        res.locals.breadcrumbs = [
+            {
+                display: "Wiki",
+                href: "/wiki/",
+            },
+            {
+                display: "Add",
+                active: true
+            }
+        ];
         res.render("wiki/modify", {title, vm});
     });
 });

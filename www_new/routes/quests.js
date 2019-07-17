@@ -93,7 +93,9 @@ router.get(["/details.html"], function(req, res, next) {
         getQuestById(id:${req.query.id}) {
             id
             title
+            areaId
             areaName
+            eraId
             eraName
             stat
             content
@@ -139,6 +141,34 @@ router.get(["/details.html"], function(req, res, next) {
             constants: itemApi.constants
         };
         let title = quest.title;
+        res.locals.breadcrumbs = [
+            {
+                "display": "Quests",
+                "href": "/quests/",
+            }
+        ];
+        if (quest.eraId) {
+            res.locals.breadcrumbs.push(
+                {
+                    "display": quest.eraName,
+                    href: `/quests/index.html?eraId=${quest.eraId}`
+                }
+            )
+        }
+        if (quest.areaId) {
+            res.locals.breadcrumbs.push(
+                {
+                    "display": quest.areaName,
+                    href: `/quests/index.html?eraId=${quest.eraId}&areaId=${quest.areaId}`
+                }
+            )
+        }
+        res.locals.breadcrumbs.push(
+            {
+                "display": quest.title,
+                "active": true
+            }
+        );
         res.render("quests/display", {title, vm});
     });
 });
@@ -150,7 +180,9 @@ router.get(["/history.html"], function(req, res, next) {
             quest {
                 id
                 title
+                areaId
                 areaName
+                eraId
                 eraName
                 stat
                 content
@@ -197,7 +229,39 @@ router.get(["/history.html"], function(req, res, next) {
             constants: itemApi.constants,
             historyId: req.query.id
         };
-        let title = `History for ${quest.title}`
+        let title = `History for ${quest.title}`;
+        res.locals.breadcrumbs = [
+            {
+                display: "Quests",
+                href: "/quests/",
+            }
+        ];
+        if (quest.eraId) {
+            res.locals.breadcrumbs.push(
+                {
+                    "display": quest.eraName,
+                    href: `/quests/index.html?eraId=${quest.eraId}`
+                }
+            )
+        }
+        if (quest.areaId) {
+            res.locals.breadcrumbs.push(
+                {
+                    "display": quest.areaName,
+                    href: `/quests/index.html?eraId=${quest.eraId}&areaId=${quest.areaId}`
+                }
+            )
+        }
+        res.locals.breadcrumbs.push(
+            {
+                display: quest.title,
+                href: `/quests/details.html?id=${quest.id}`
+            },
+            {
+                display: new Date(quest.modifiedOn).toISOString().slice(0, 16).replace("T", " ") + " UTC",
+                active: true
+            }
+        );
         res.render("quests/display", {title, vm});
     });
 });
@@ -209,7 +273,9 @@ router.get(["/edit.html"], function(req, res, next) {
             id
             title
             eraId
+            eraName
             areaId
+            areaName
             stat
             whoises
             content
@@ -237,11 +303,44 @@ router.get(["/edit.html"], function(req, res, next) {
             return;
         }
 
+        let quest = body.data.getQuestById;
         let vm = {
-            quest: body.data.getQuestById,
+            quest,
             areas: body.data.getAreas
         };
         let title = "Edit Quest";
+        res.locals.breadcrumbs = [
+            {
+                display: "Quests",
+                href: "/quests/",
+            }
+        ];
+        if (quest.eraId) {
+            res.locals.breadcrumbs.push(
+                {
+                    "display": quest.eraName,
+                    href: `/quests/index.html?eraId=${quest.eraId}`
+                }
+            )
+        }
+        if (quest.areaId) {
+            res.locals.breadcrumbs.push(
+                {
+                    "display": quest.areaName,
+                    href: `/quests/index.html?eraId=${quest.eraId}&areaId=${quest.areaId}`
+                }
+            )
+        }
+        res.locals.breadcrumbs.push(
+            {
+                display: quest.title,
+                href: `/quests/details.html?id=${quest.id}`
+            },
+            {
+                display: "Edit",
+                active: true
+            }
+        );
         res.render("quests/modify", {title, vm});
     });
 });
@@ -276,6 +375,16 @@ router.get(["/add.html"], function(req, res, next) {
             areas: body.data.getAreas
         };
         let title = "Add Quest";
+        res.locals.breadcrumbs = [
+            {
+                display: "Quests",
+                href: "/quests/",
+            },
+            {
+                display: "Add",
+                active: true
+            }
+        ];
         res.render("quests/modify", {title, vm});
     });
 });

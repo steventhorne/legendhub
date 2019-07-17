@@ -8,7 +8,7 @@
 	<div class="collapse navbar-collapse" id="navbarSupportedContent">
 		<ul class="navbar-nav mr-auto">
 			<li class="nav-item">
-				<a class="nav-link text-primary" target="_blank" href="http://www.topmudsites.com/vote-legend.html">Vote!</a>
+				<a class="nav-link" target="_blank" href="http://www.topmudsites.com/vote-legend.html">Vote!</a>
 			</li>
 			<li class="nav-item">
 				<a class="nav-link" href="/builder/">Builder</a>
@@ -57,13 +57,20 @@
 		</ul>
 	</div>
 </nav>
-<div class="breadcrumbNav bg-dark" ng-if="bcFactory.links.length > 0" ng-cloak>
+<%if (locals.breadcrumbs && locals.breadcrumbs.length > 0) {%>
+<div class="breadcrumbNav bg-dark">
 	<ul class="breadcrumbList text-light">
-		<li class="breadcrumbListLink" ng-repeat="link in bcFactory.links">
-			<a ng-if="!link.active" href="{{link.href}}">{{link.display}}</a>
-			<span class="active" ng-if="link.active">{{link.display}}</span>
+        <%for (let i = 0; i < locals.breadcrumbs.length; ++i) {%>
+		<li class="breadcrumbListLink">
+            <%if (locals.breadcrumbs[i].active) {%>
+                <span class="active"><%=locals.breadcrumbs[i].display%></span>
+            <%}else{%>
+                <a href="<%-locals.breadcrumbs[i].href%>"><%=locals.breadcrumbs[i].display%></a>
+            <%}%>
 		</li>
+        <%}%>
 	</ul>
 </div>
+<%}%>
 <br/>
 </div>

@@ -66,6 +66,16 @@ router.get(["/details.html"], function(req, res, next) {
                 constants: itemApi.constants,
             }
             let title = item.name;
+            res.locals.breadcrumbs = [
+                {
+                    "display": "Items",
+                    "href": "/items/",
+                },
+                {
+                    "display": item.name,
+                    "active": true
+                }
+            ];
             res.render("items/display", { title, vm });
         }
     );
@@ -136,6 +146,21 @@ router.get(["/history.html"], function(req, res, next) {
                 historyId: req.query.id
             }
             let title = `History for ${item.name}`;
+
+            res.locals.breadcrumbs = [
+                {
+                    display: "Items",
+                    href: "/items/",
+                },
+                {
+                    display: item.name,
+                    href: `/items/details.html?id=${item.id}`
+                },
+                {
+                    display: new Date(item.modifiedOn).toISOString().slice(0, 16).replace("T", " ") + " UTC",
+                    active: true
+                }
+            ];
             res.render("items/display", { title, vm });
         }
     );
@@ -226,6 +251,16 @@ router.get(["/add.html"], function(req, res, next) {
                 itemStatCategories,
                 constants: itemApi.constants
             };
+            res.locals.breadcrumbs = [
+                {
+                    display: "Items",
+                    href: "/items/",
+                },
+                {
+                    display: "Add",
+                    active: true
+                }
+            ];
             res.render("items/modify", {title, vm})
         })
     }
@@ -276,6 +311,21 @@ router.get(["/edit.html"], function(req, res, next) {
                 itemStatCategories,
                 constants: itemApi.constants
             };
+
+            res.locals.breadcrumbs = [
+                {
+                    display: "Items",
+                    href: "/items/",
+                },
+                {
+                    display: item.name,
+                    href: `/items/details.html?id=${item.id}`
+                },
+                {
+                    display: "Edit",
+                    active: true
+                }
+            ];
             res.render("items/modify", {title, vm});
         });
     }
