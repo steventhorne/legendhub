@@ -148,6 +148,34 @@ router.get(["/details.html"], function(req, res, next) {
             constants: itemApi.constants
         }
         let title = mob.name;
+        res.locals.breadcrumbs = [
+            {
+                "display": "Mobs",
+                "href": "/mobs/",
+            }
+        ];
+        if (mob.eraId) {
+            res.locals.breadcrumbs.push(
+                {
+                    "display": mob.eraName,
+                    "href": `/mobs/index.html?eraId=${mob.eraId}`
+                }
+            );
+        }
+        if (mob.areaId) {
+            res.locals.breadcrumbs.push(
+                {
+                    "display": mob.areaName,
+                    "href": `/mobs/index.html?eraId=${mob.eraId}&areaId=${mob.areaId}`
+                }
+            );
+        }
+        res.locals.breadcrumbs.push(
+            {
+                "display": mob.name,
+                "active": true
+            }
+        );
         res.render("mobs/display", {title, vm});
     });
 });
@@ -214,6 +242,38 @@ router.get(["/history.html"], function(req, res, next) {
                 historyId: req.query.id
             };
             let title = `History for ${mob.name}`;
+            res.locals.breadcrumbs = [
+                {
+                    display: "Mobs",
+                    href: "/mobs/",
+                }
+            ];
+            if (mob.eraId) {
+                res.locals.breadcrumbs.push(
+                    {
+                        "display": mob.eraName,
+                        "href": `/mobs/index.html?eraId=${mob.eraId}`
+                    }
+                );
+            }
+            if (mob.areaId) {
+                res.locals.breadcrumbs.push(
+                    {
+                        "display": mob.areaName,
+                        "href": `/mobs/index.html?eraId=${mob.eraId}&areaId=${mob.areaId}`
+                    }
+                );
+            }
+            res.locals.breadcrumbs.push(
+                {
+                    display: mob.name,
+                    href: `/mobs/details.html?id=${mob.id}`
+                },
+                {
+                    display: new Date(mob.modifiedOn).toISOString().slice(0, 16).replace("T", " ") + " UTC",
+                    active: true
+                }
+            );
             res.render("mobs/display", {title, vm});
         }
     )
@@ -227,7 +287,9 @@ router.get(["/edit.html"], function(req, res, next) {
             name
             xp
             areaId
+            areaName
             eraId
+            eraName
             gold
             notes
             aggro
@@ -255,11 +317,44 @@ router.get(["/edit.html"], function(req, res, next) {
             return;
         }
 
+        let mob = body.data.getMobById;
         let vm = {
-            mob: body.data.getMobById,
+            mob,
             areas: body.data.getAreas
         }
         let title = "Edit Mob";
+        res.locals.breadcrumbs = [
+            {
+                display: "Mobs",
+                href: "/mobs/",
+            }
+        ];
+        if (mob.eraId) {
+            res.locals.breadcrumbs.push(
+                {
+                    "display": mob.eraName,
+                    "href": `/mobs/index.html?eraId=${mob.eraId}`
+                }
+            );
+        }
+        if (mob.areaId) {
+            res.locals.breadcrumbs.push(
+                {
+                    "display": mob.areaName,
+                    "href": `/mobs/index.html?eraId=${mob.eraId}&areaId=${mob.areaId}`
+                }
+            );
+        }
+        res.locals.breadcrumbs.push(
+            {
+                display: mob.name,
+                href: `/mobs/details.html?id=${mob.id}`
+            },
+            {
+                display: "Edit",
+                active: true
+            }
+        );
         res.render("mobs/modify", {title, vm});
     });
 });
@@ -294,6 +389,16 @@ router.get(["/add.html"], function(req, res, next) {
             areas: body.data.getAreas
         };
         let title = "Add Mob";
+        res.locals.breadcrumbs = [
+            {
+                display: "Mobs",
+                href: "/mobs/",
+            },
+            {
+                display: "Add",
+                active: true
+            }
+        ];
         res.render("mobs/modify", {title, vm});
     });
 });
