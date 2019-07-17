@@ -14,4 +14,16 @@
 		</div>
 	</div>
 </div>
-<lh-cookie-consent></lh-cookie-consent>
+<%if (!locals.cookies["cookie-consent"]) {%>
+<div class="cookie-consent-banner">
+    <div class="container">
+        <div class="row">
+            <p class="col-12 col-lg-10 text-justify">This website uses cookies, which are necessary to its functioning and required to achieve the purposes illustrated in the <a href="/cookies.html">cookie policy</a>. If you want to know more or withdraw your consent to all or some of the cookies, please refer to the cookie policy. By closing this banner, you agree to the use of cookies. Should you choose not to close this banner, it will persist on every page and certain features will not
+            function as expected.</p>
+            <div class="col-12 col-lg-2">
+                <button class="btn btn-block btn-primary cookie-consent-button" lh-cookie-consent>Agree</button>
+            </div>
+        </div>
+    </div>
+</div>
+<%}%>

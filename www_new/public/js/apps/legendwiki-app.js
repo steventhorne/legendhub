@@ -595,35 +595,18 @@ app.directive('lhAutofocus', ['$timeout', function($timeout) {
 	}
 }]);
 
-app.directive('lhCookieConsent', function($compile, $cookies) {
-	return {
-		restrict: 'E',
-		link: function(scope, element, attrs) {
-			var consent = $cookies.get("cookie-consent");
-			if (!consent) {
-				var msg = 'This website uses cookies, which are necessary to its functioning and required to achieve the purposes illustrated in the <a href="/cookies.html">cookie policy</a>. If you want to know more or withdraw your consent to all or some of the cookies, please refer to the cookie policy. By closing this banner, you agree to the use of cookies. Should you choose not to close this banner, it will persist on every page and certain features will not function as expected.';
-
-				var template = "<div ng-init='test=1' class='cookie-consent-banner'>" +
-                    "<div class='container'><div class='row'>" +
-                    "<p class='col-12 col-lg-10 text-justify'>" + msg + "</p>" +
-                    "<div class='col-12 col-lg-2'>" +
-                    "<button class='btn btn-block btn-primary cookie-consent-button' ng-click='consentToCookies()'>Agree</button>" +
-                    "</div></div></div></div>";
-
-				scope.consentToCookies = function() {
-					var cookieDate = new Date();
-					cookieDate.setTime(2144232732000);
-					$cookies.put("cookie-consent", true, {"path": "/", "expires": cookieDate});
-					location.reload();
-				};
-
-                var linkFn = $compile(template);
-                var content = linkFn(scope);
-
-				element.html(content);
-			}
-		}
-	};
+app.directive("lhCookieConsent", function($cookies) {
+    return {
+        restrict: "A",
+        link: function(scope, element, attrs) {
+            element.bind("click", function() {
+                let cookieDate = new Date();
+                cookieDate.setTime(2144232732000);
+                $cookies.put("cookie-consent", true, {"path": "/", "expires": cookieDate});
+                element.parent().parent().parent().parent().remove();
+            });
+        }
+    };
 });
 
 app.directive('lhTooltip', function() {
