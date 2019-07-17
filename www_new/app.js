@@ -52,6 +52,7 @@ app.use(authRouter);
 // set version for views
 app.use(function(req, res, next) {
     res.locals.version = process.env.npm_package_version;
+    res.locals.cookies = req.cookies;
     next();
 });
 
