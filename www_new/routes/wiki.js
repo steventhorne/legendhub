@@ -377,7 +377,7 @@ router.get(["/add.html"], function(req, res, next) {
     });
 });
 
-router.get([""], function(req, res, next) {
+router.get(["/revert.html"], function(req, res, next) {
     let query = `
     mutation {
         revertWikiPage (authToken:"${req.cookies.loginToken}",historyId:${req.query.id}) {
