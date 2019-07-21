@@ -311,4 +311,4 @@ let mFields = {
 
 module.exports.mutationFields = mFields;
 module.exports.types = { tokenRenewalType, idMutationResponseType };
-module.exports.utils = { getIPFromRequest, authLogin, authToken, authMutation, logout };
+module.exports.utils = { getIPFromRequest, authLogin, authToken, authMutation, logout, getPermissions };
