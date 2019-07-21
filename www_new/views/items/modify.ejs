@@ -6,7 +6,7 @@
     <body ng-app="legendwiki-app" ng-controller="items-modify">
         <%- include("../shared/header"); -%>
         <div class="container">
-            <form name="itemForm" ng-submit="<%-(vm.item ? "editItem(item)" : "addItem(item)")%>">
+            <form name="itemForm" ng-submit="<%-(vm.item ? "editItem(item)" : "addItem(item)")%>" ng-cloak>
                 <div class="row">
                     <% if (vm.item) { %>
                     <h1>Edit Item</h1>
@@ -68,10 +68,10 @@
                         <% }} %>
                         <% if (category.name === "Basic") { %>
                             <div class="form-group col-12 col-md-4 col-lg-3">
-                                <button class="btn btn-outline-secondary col-12 text-truncate" data-toggle="modal" data-target="#mobModal">{{item.getMob ? item.getMob.name : "Choose a Mob"}}</button>
+                                <button class="btn btn-outline-secondary col-12 text-truncate" type="button" data-toggle="modal" data-target="#mobModal">{{item.getMob ? item.getMob.name : "Choose a Mob"}}</button>
                             </div>
                             <div class="form-group col-12 col-md-4 col-lg-3">
-                                <button class="btn btn-outline-secondary col-12 text-truncate" data-toggle="modal" data-target="#questModal">{{item.getQuest ? item.getQuest.title : "Choose a Quest"}}</button>
+                                <button class="btn btn-outline-secondary col-12 text-truncate" type="button" data-toggle="modal" data-target="#questModal">{{item.getQuest ? item.getQuest.title : "Choose a Quest"}}</button>
                             </div>
                         <% } %>
                         </div>
@@ -100,6 +100,8 @@
                 <br><br>
             </form>
         </div>
+        <%- include("../shared/mobModal"); -%>
+        <%- include("../shared/questModal"); -%>
         <%- include("../shared/footer"); -%>
         <%- include("../shared/scripts"); -%>
         <%- include("../shared/markdown"); -%>
@@ -139,8 +141,8 @@
                         "{",
                             "getItemById(id:<%-vm.item.id%>){",
                                 "... ItemAll",
-                                "getMob{name areaName}",
-                                "getQuest{title areaName}",
+                                "getMob{name}",
+                                "getQuest{title}",
                             "}",
                         "}"
                     ];
@@ -163,6 +165,9 @@
                 };
 
                 $scope.editItem = function(item) {
+                    if (!$scope.canEdit())
+                        return;
+
                     let query = [
                         "mutation {",
                             "updateItem(id:",item.id,",",
@@ -202,6 +207,9 @@
                 }
 
                 $scope.addItem = function(item) {
+                    if (!$scope.canAdd())
+                        return;
+
                     let query = [
                         "mutation {",
                             "insertItem(authToken:\"",$cookies.get("loginToken"),"\",",
@@ -238,6 +246,74 @@
                     });
                 };
                 <%_}_%>
+
+                $('#mobModal').on('shown.bs.modal', e => {
+                    $('#mobSearchInput').trigger('focus');
+                });
+
+                $scope.searchMobs = function(searchString) {
+                    let query = [
+                        "{",
+                            "getMobs(searchString:\"",searchString,"\") {",
+                                "mobs {",
+                                    "id ",
+                                    "name",
+                                "}",
+                            "}",
+                        "}"
+                    ];
+                    $http({
+                        url: '/api',
+                        method: 'POST',
+                        data: {"query": query.join("")}
+                    }).then(response => {
+                        $scope.mobSearchResults = response.data.data.getMobs.mobs;
+                    });
+                };
+
+                $scope.onMobSelected = function(mob) {
+                    $scope.item.mobId = mob.id;
+
+                    if (!$scope.item.getMob)
+                        $scope.item.getMob = {};
+
+                    $scope.item.getMob.name = mob.name;
+                    $('#mobModal').modal('hide');
+                };
+
+                $('#questModal').on('shown.bs.modal', e => {
+                    $('#questSearchInput').trigger('focus');
+                });
+
+                $scope.searchQuests = function(searchString) {
+                    let query = [
+                        "{",
+                            "getQuests(searchString:\"",searchString,"\") {",
+                                "quests {",
+                                    "id ",
+                                    "title",
+                                "}",
+                            "}",
+                        "}"
+                    ];
+                    $http({
+                        url: '/api',
+                        method: 'POST',
+                        data: {"query": query.join("")}
+                    }).then(response => {
+                        $scope.questSearchResults = response.data.data.getQuests.quests;
+                    });
+                };
+
+                $scope.onQuestSelected = function(quest) {
+                    $scope.item.questId = quest.id;
+
+                    if (!$scope.item.getQuest)
+                        $scope.item.getQuest = {};
+
+                    $scope.item.getQuest.title = quest.title;
+                    $('#questModal').modal('hide');
+                };
 
                 initialize();
             }]);
