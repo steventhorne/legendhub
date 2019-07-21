@@ -100,7 +100,7 @@
                             xp:<%-vm.mob.xp%>,
                             areaId:<%-vm.mob.areaId%>,
                             gold:<%-vm.mob.gold%>,
-                            notes:"<%-vm.mob.notes.replace(/"/g,"\\\"").replace(/\n/g,"\\n")%>",
+                            notes:"<%-vm.mob.notes.replace(/\\/g,"\\\\").replace(/"/g,"\\\"").replace(/\n/g,"\\n")%>",
                             aggro:<%-vm.mob.aggro%>
                         };
                         $scope.initialMob = angular.copy($scope.mob);

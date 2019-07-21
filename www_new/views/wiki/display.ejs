@@ -32,7 +32,7 @@
         </div>
         <br>
         <div class="col-12">
-            <div class="card" ng-init="wikiContent='<%=vm.wikiPage.content.replace(/'/g, "&#39;")%>'">
+            <div class="card" ng-init="wikiContent='<%=vm.wikiPage.content.replace(/'/g, "&#39;").replace(/\\/g,"\\\\")%>'">
                 <div class="card-body" markdown-to-html="wikiContent"></div>
             </div>
             <br><br>

@@ -201,7 +201,7 @@ AC: <%-vm.item.ac%>" />
                 </div>
                 <br><br>
                 <% if (vm.item.notes) { %>
-                <div class="card" ng-init="itemNotes='<%=vm.item.notes.replace(/'/g,"&#39;")%>'" ng-cloak>
+                <div class="card" ng-init="itemNotes='<%=vm.item.notes.replace(/'/g,"&#39;").replace(/\\/g,"\\\\")%>'" ng-cloak>
                     <div class="card-header">Notes</div>
                     <div class="card-body" markdown-to-html="itemNotes">
                     </div>
