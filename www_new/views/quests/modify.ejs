@@ -101,7 +101,7 @@
                             id:<%-vm.quest.id%>,
                             title:"<%-vm.quest.title.replace(/"/g,"\\\"")%>",
                             areaId:<%-vm.quest.areaId%>,
-                            whoises:"<%-vm.quest.whoises.replace(/"/g,"\\\"")%>",
+                            whoises:"<%-vm.quest.whoises ? vm.quest.whoises.replace(/"/g,"\\\""):""%>",
                             stat:<%-vm.quest.stat%>,
                             content:"<%-vm.quest.content.replace(/"/g,"\\\"").replace(/\n/g,"\\n")%>",
                         };
@@ -120,6 +120,9 @@
                     };
 
                     $scope.editQuest = function(quest) {
+                        if (!$scope.canEdit())
+                            return;
+
                         let query = [
                             "mutation {",
                                 "updateQuest(id:",quest.id,",",
@@ -150,6 +153,9 @@
                     };
 
                     $scope.addQuest = function(quest) {
+                        if (!$scope.canAdd())
+                            return;
+
                         let query = [
                             "mutation {",
                                 "insertQuest(authToken:\"",$cookies.get("loginToken"),"\",",

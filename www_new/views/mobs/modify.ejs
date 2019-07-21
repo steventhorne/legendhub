@@ -119,6 +119,9 @@
                     };
 
                     $scope.editMob = function(mob) {
+                        if (!$scope.canEdit())
+                            return;
+
                         let query = [
                             "mutation {",
                                 "updateMob(id:",mob.id,",",
@@ -152,6 +155,9 @@
                     };
 
                     $scope.addMob = function(mob) {
+                        if (!$scope.canAdd())
+                            return;
+
                         let query = [
                             "mutation {",
                                 "insertMob(authToken:\"",$cookies.get("loginToken"),"\",",
