@@ -1,7 +1,7 @@
 <div ng-controller="header">
 <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
 	<a class="navbar-brand" href="/">LegendHUB</a>
-    <a class="btn btn-dark ml-auto mr-3 d-inline-block d-sm-none" ng-cloak <%- include('notification') -%>
+    <a class="btn btn-dark ml-auto mr-3 d-inline-block d-sm-none" <%- include('notification') -%>
 	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 		<span class="navbar-toggler-icon"></span>
 	</button>
@@ -26,11 +26,11 @@
 				<a class="nav-link" href="/wiki/">Wiki</a>
 			</li>
 		</ul>
-		<ul class="navbar-nav ml-auto" ng-cloak>
+		<ul class="navbar-nav ml-auto">
             <li class="nav-item">
                 <a class="btn btn-dark d-none d-sm-inline-block" <%- include('notification') -%>
             </li>
-			<li class="nav-item dropdown float-right">
+			<li class="nav-item dropdown float-right" ng-cloak>
                 <a class="nav-link dropdown-toggle dropdown-toggle-no-caret" href="#" id="themeDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-palette"></i>
                 </a>
