@@ -16,6 +16,7 @@ let mobsRouter = require("./routes/mobs");
 let questsRouter = require("./routes/quests");
 let wikiRouter = require("./routes/wiki");
 let builderRouter = require("./routes/builder");
+let changelogRouter = require("./routes/changelog");
 
 let app = express();
 
@@ -63,6 +64,7 @@ app.use("/mobs", mobsRouter);
 app.use("/quests", questsRouter);
 app.use("/wiki", wikiRouter);
 app.use("/builder", builderRouter);
+app.use("/changelog", changelogRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

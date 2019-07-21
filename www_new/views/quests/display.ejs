@@ -42,7 +42,8 @@
                 <div class="col-2 font-weight-bold">Area</div>
                 <div class="col-10 text-right text-md-left"><span class="text-info"><%=vm.quest.eraName ? `(${vm.quest.eraName}) ` : ""%></span><%=vm.quest.areaName%></div>
             </div>
-            <% let whoises = vm.quest.whoises.split(";");
+            <% if (vm.quest.whoises) {
+                let whoises = vm.quest.whoises.split(";");
                  for (let i = 0; i < whoises.length; ++i) {%>
             <div class="row">
                 <%if (i == 0) {%>
@@ -50,7 +51,7 @@
                 <%}%>
                 <div class="<%-i > 0 ? "offset-2 ":""%>col-10 text-right text-md-left"><%=whoises[i]%></div>
             </div>
-            <%}%>
+            <%}}%>
             <br><br>
         </div>
         <div class="row" ng-cloak>
