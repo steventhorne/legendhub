@@ -132,8 +132,8 @@ let getQuests = function(searchString, eraId, areaId, stat, sortBy, sortAsc, pag
             actualSortBy = "A.Name";
 
         let likeSearchString = `%${searchString}%`;
-        let sql = [questSelectSQL, questSelectTables, "WHERE (Q.Title LIKE ? OR Q.Content LIKE ? OR Q.Whoises LIKE ?)"];
-        let placeholders = [likeSearchString, likeSearchString, likeSearchString];
+        let sql = [questSelectSQL, questSelectTables, "WHERE (Q.Title LIKE ? OR Q.Content LIKE ? OR Q.Whoises LIKE ? OR A.Name LIKE ?)"];
+        let placeholders = [likeSearchString, likeSearchString, likeSearchString, likeSearchString];
         if (eraId) {
             sql.push("AND A.EraId = ?");
             placeholders.push(eraId);
