@@ -11,12 +11,21 @@
             </div>
             <div class="row justify-content-center justify-content-md-start">
                 <div class="btn-group btn-block" role="group" aria-label="Toolbar">
-                    <button type="button" class="btn btn-outline-primary"><%=new Date(vm.changelog.createdOn).toISOString().slice(0,16).replace("T"," ")%> UTC</button>
+                    <button type="button" class="btn btn-outline-primary">Released on <%=new Date(vm.changelog.createdOn).toISOString().slice(0,16).replace("T"," ")%> UTC</button>
+                    <%if(locals.user && locals.user.permissions.ChangelogVersion.update) {%>
                     <a class="btn btn-outline-primary" role="button" href="<%-(!locals.user ? "/login.html?returnUrl=" : "")%>/changelog/edit.html?id=<%-vm.changelog.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
+                    <%}%>
+                </div>
+            </div>
+            <br><br>
+            <div class="row">
+                <div class="card col-12" ng-init="changelogNotes='<%=vm.changelog.notes.replace(/'/g,"&#39;").replace(/\\/g,"\\\\")%>'">
+                    <div class="card-body" markdown-to-html="changelogNotes"></div>
                 </div>
             </div>
         </div>
         <%-include("../shared/footer")-%>
         <%-include("../shared/scripts")-%>
+        <%-include("../shared/markdown")-%>
     </body>
 </html>
