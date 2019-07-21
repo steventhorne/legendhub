@@ -8611,11 +8611,12 @@ body > .container-fluid {
 }
 
 .breadcrumbListLink a {
-  color: #007bff;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .breadcrumbListLink a:hover {
-  color: #0056b3;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
 }
 
 .breadcrumbListLink a .active {

@@ -49,14 +49,15 @@ body {
   font-size: .9em;
 
   a {
-    color: $link-color;
+    color: $navbar-dark-color;
 
     &:hover {
-      color: $link-hover-color;
+      color: $navbar-dark-hover-color;
+      text-decoration: none;
     }
 
     .active {
-      color: $white;
+      color: $navbar-dark-active-color;
     }
   }
 
