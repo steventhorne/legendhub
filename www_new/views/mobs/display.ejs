@@ -52,7 +52,7 @@
             <%if (vm.mob.notes) {%>
             <div class="row" ng-cloak>
                 <div class="col-12">
-                    <div class="card" ng-init="mobNotes='<%=vm.mob.notes.replace(/'/g, "&#39;")%>'">
+                    <div class="card" ng-init="mobNotes='<%=vm.mob.notes.replace(/'/g, "&#39;").replace(/\\/g,"\\\\")%>'">
                         <div class="card-header">Notes</div>
                         <div class="card-body" markdown-to-html="mobNotes"></div>
                     </div>

@@ -103,7 +103,7 @@
                             areaId:<%-vm.quest.areaId%>,
                             whoises:"<%-vm.quest.whoises ? vm.quest.whoises.replace(/"/g,"\\\""):""%>",
                             stat:<%-vm.quest.stat%>,
-                            content:"<%-vm.quest.content.replace(/"/g,"\\\"").replace(/\n/g,"\\n")%>",
+                            content:"<%-vm.quest.content.replace(/\\/g,"\\\\").replace(/"/g,"\\\"").replace(/\n/g,"\\n")%>",
                         };
                         $scope.initialQuest = angular.copy($scope.quest);
                     <%_} else {_%>

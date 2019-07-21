@@ -56,7 +56,7 @@
         </div>
         <div class="row" ng-cloak>
             <div class="col-12">
-                <div class="card" ng-init="questContent='<%=vm.quest.content.replace(/'/g, "&#39;")%>'">
+                <div class="card" ng-init="questContent='<%=vm.quest.content.replace(/'/g, "&#39;").replace(/\\/g,"\\\\")%>'">
                     <div class="card-body" markdown-to-html="questContent"></div>
                 </div>
             </div>

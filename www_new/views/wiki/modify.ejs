@@ -89,7 +89,7 @@
                             categoryId:<%-vm.wikiPage.categoryId%>,
                             subcategoryId:<%-vm.wikiPage.subcategoryId%>,
                             tags:"<%-vm.wikiPage.tags%>",
-                            content:"<%-vm.wikiPage.content.replace(/"/g,"\\\"").replace(/\n/g,"\\n")%>",
+                            content:"<%-vm.wikiPage.content.replace(/\\/g,"\\\\").replace(/"/g,"\\\"").replace(/\n/g,"\\n")%>",
                         };
                         $scope.initialWikiPage = angular.copy($scope.wikiPage);
                     <%_} else {_%>
