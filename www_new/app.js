@@ -1,7 +1,6 @@
 require("dotenv").config();
 
 let compression = require("compression");
-let createError = require("http-errors");
 let express = require("express");
 let path = require("path");
 let cookieParser = require("cookie-parser");
@@ -17,6 +16,8 @@ let questsRouter = require("./routes/quests");
 let wikiRouter = require("./routes/wiki");
 let builderRouter = require("./routes/builder");
 let changelogRouter = require("./routes/changelog");
+let notificationsRouter = require("./routes/notifications");
+let accountRouter = require("./routes/account");
 
 let app = express();
 
@@ -50,13 +51,6 @@ app.use(function(req,res,next) {
 // auth request for views
 app.use(authRouter);
 
-// set version for views
-app.use(function(req, res, next) {
-    res.locals.version = process.env.npm_package_version;
-    res.locals.cookies = req.cookies;
-    next();
-});
-
 // handle view routers
 app.use("/", indexRouter);
 app.use("/items", itemsRouter);
@@ -65,15 +59,19 @@ app.use("/quests", questsRouter);
 app.use("/wiki", wikiRouter);
 app.use("/builder", builderRouter);
 app.use("/changelog", changelogRouter);
+app.use("/notifications", notificationsRouter);
+app.use("/account", accountRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+    let error = new Error();
+    error.status = 404;
+    next(error);
 });
 
 // error handler
 app.use(function(err, req, res, next) {
-    if (err)
+    if (err && err.status && err.status != 404)
         console.log(err);
     if (res.headersSent)
         return next(err);
@@ -85,6 +83,15 @@ app.use(function(err, req, res, next) {
     // render the error page
     res.status(err.status || 500);
     res.render(`error/${err.status || 500}`, {error: err});
+});
+
+// fatal error if error pages cause errors.
+app.use(function(err, req, res, next) {
+    if (res.headersSent)
+        return next(err);
+
+    res.status(500);
+    res.render("error/fatal");
 });
 
 app.listen(process.env.PORT, () => console.log(`Running app listening on port ${process.env.PORT}!`));
