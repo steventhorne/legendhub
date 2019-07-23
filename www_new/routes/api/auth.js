@@ -157,13 +157,21 @@ let authToken = function(token, ip, renew, shouldGetPermissions) {
 };
 
 let authMutation = function(req, token, shouldGetPermissions) {
+    return authApi(req, token, shouldGetPermissions, true);
+};
+
+let authQuery = function(req, token, shouldGetPermissions) {
+    return authApi(req, token, shouldGetPermissions, false);
+};
+
+let authApi = function(req, token, shouldGetPermissions, renew) {
     return new Promise(function(resolve, reject) {
         let ip = getIPFromRequest(req);
         if (apiUtils.isIPBlocked(ip)) {
             reject(new apiUtils.TooManyRequestsError("Too many attempts. Try again later."));
         }
         else {
-            authToken(token, ip, true, shouldGetPermissions).then(
+            authToken(token, ip, renew, shouldGetPermissions).then(
                 function(response) {
                     resolve(response);
                 }
@@ -311,4 +319,4 @@ let mFields = {
 
 module.exports.mutationFields = mFields;
 module.exports.types = { tokenRenewalType, idMutationResponseType };
-module.exports.utils = { getIPFromRequest, authLogin, authToken, authMutation, logout, getPermissions };
+module.exports.utils = { getIPFromRequest, authLogin, authToken, authQuery, authMutation, logout, getPermissions };

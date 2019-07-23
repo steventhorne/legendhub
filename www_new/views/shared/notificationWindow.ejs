@@ -1,0 +1,24 @@
+<%if (locals.user) {%>
+<div id="notification-window" class="d-none">
+    <%if (locals.user.notifications.length > 0) {%>
+    <p class="text-center"><%-locals.user.notifications.length%> unread notification<%-locals.user.notifications.length > 1?"s":""%>.</p>
+    <%}else{%>
+    <p class="text-center">No unread notifications.</p>
+    <%}%>
+
+    <span class="d-flex justify-content-between">
+        <a class="px-1" href="/notifications/">View all</a>|<a class="px-1" href="" ng-click="markAllNotificationsAsRead()">Mark all as read</a>|<a class="px-1" href="/account/">Settings</a></span>
+    </span>
+
+    <%if (locals.user.notifications.length > 0) {%>
+    <div class="list-group" style="max-height:50vh;overflow-y:auto">
+        <%for (let i = 0; i < locals.user.notifications.length; ++i) {%>
+        <a href="<%-locals.user.notifications[i].link%>" class="list-group-item list-group-item-action flex-column align-items-stretch">
+            <p class="mr-3 mb-0"><%-locals.user.notifications[i].message%></p>
+            <p class="text-info mb-0" style="white-space:nowrap"><small><%=locals.displayDateTime(locals.user.notifications[i].createdOn)%></small></p>
+        </a>
+        <%}%>
+    </div>
+    <%}%>
+</div>
+<%}%>
