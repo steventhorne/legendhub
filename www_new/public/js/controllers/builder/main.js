@@ -3,7 +3,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
     /** Initializes the controller. */
 	$scope.initialize = function() {
-		$scope.slots = itemConstants.selectShortOptions.Slot;
+		$scope.slots = itemConstants.selectShortOptions.slot;
         $scope.selectShortOptions = itemConstants.selectShortOptions;
 
 		$scope.itemsPerPage = 20;
@@ -37,15 +37,39 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      * Loads information necessary for displaying the page
      */
     var loadPage = function() {
-        $q.all([getStatCategories(), getStatInfo()]).then(
-            function(data) {
-                $scope.statCategories = data[0];
-                $scope.statInfo = data[1]
-                $scope.defaultStatInfo = angular.copy(data[1])
+        let query = [
+            "{",
+                "getItemStatInfo {",
+                    "display",
+                    "short",
+                    "var",
+                    "type",
+                    "filterString",
+                    "defaultValue",
+                    "netStat",
+                    "showColumnDefault",
+                "}",
+            "}"
+        ];
 
-                loadClientSideData();
-            }
-        );
+        $http({
+            url: "/api",
+            method: "POST",
+            data: {query: query.join("\n")}
+        }).then(function successCallback(response) {
+            $scope.statInfo = response.data.data.getItemStatInfo;
+            $scope.defaultStatInfo = angular.copy($scope.statInfo);
+            loadClientSideData();
+        });
+        //$q.all([getStatCategories(), getStatInfo()]).then(
+            //function(data) {
+                //$scope.statCategories = data[0];
+                //$scope.statInfo = data[1]
+                //$scope.defaultStatInfo = angular.copy(data[1])
+
+                //loadClientSideData();
+            //}
+        //);
     };
 
     /**
@@ -96,7 +120,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      */
 	$scope.getDefaultList = function(name) {
 		list = {};
-		list.Name = name;
+		list.name = name;
 
 		// base stats
 		list.baseStats = {"Strength": 0, "Mind": 0, "Dexterity": 0, "Constitution": 0, "Perception": 0, "Spirit": 0, "Longhouse": -1, "Amulet": -1};
@@ -104,7 +128,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		// items
 		list.items = [];
 		for (var i = 0; i < $scope.slotOrder.length; ++i) {
-			list.items.push({"Slot": $scope.slotOrder[i], "Name": "-"});
+			list.items.push({"slot": $scope.slotOrder[i], "name": "-"});
 		}
 
 		return list;
@@ -121,21 +145,25 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      * @param {array} statInfo - the statInfo array to set the settings in
      */
     var loadSelectedColumns = function(cookie, statInfo) {
-        if (cookie) {
-			// wipe initial values
-			for (var i = 0; i < statInfo.length; ++i) {
-				statInfo[i]["showColumn"] = false;
-			}
+        // wipe initial values
+        for (var i = 0; i < statInfo.length; ++i) {
+            if (cookie)
+                statInfo[i].showColumn = false;
+            else
+                statInfo[i].showColumn = statInfo[i].showColumnDefault;
+        }
 
-			var columns = cookie.split("-");
-			for (var i = 0; i < columns.length; ++i) {
-				for (var j = 0; j < statInfo.length; ++j) {
-					if (columns[i] == statInfo[j]["short"]) {
-						statInfo[j]["showColumn"] = true;
-					}
-				}
-			}
-		}
+        if (cookie) {
+            var columns = cookie.split("-");
+            for (var i = 0; i < columns.length; ++i) {
+                for (var j = 0; j < statInfo.length; ++j) {
+                    console.log(columns[i])
+                    if (columns[i] == statInfo[j]["short"]) {
+                        statInfo[j]["showColumn"] = true;
+                    }
+                }
+            }
+        }
     };
 
     /**
@@ -154,7 +182,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
                 var found = false;
                 for (let j = 0; j < lists.length; ++j) {
-                    if (newList.Name === lists[j].Name) {
+                    if (newList.name === lists[j].name) {
                         foundList = lists[j];
                         found = true;
                         break;
@@ -162,11 +190,11 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
                 }
 
                 if (!found) {
-                    lists.push({Name: newList.Name, Variants: []});
+                    lists.push({name: newList.name, variants: []});
                     foundList = lists[lists.length - 1];
                 }
 
-                foundList.Variants.push(newList.Variants[0]);
+                foundList.variants.push(newList.variants[0]);
 			}
 		}
 
@@ -192,28 +220,28 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
         // base stats
         newList.baseStats = {};
-        newList.baseStats.Strength = Number(each[0]);
+        newList.baseStats.strength = Number(each[0]);
         each.shift();
 
-        newList.baseStats.Mind = Number(each[0]);
+        newList.baseStats.mind = Number(each[0]);
         each.shift();
 
-        newList.baseStats.Dexterity = Number(each[0]);
+        newList.baseStats.dexterity = Number(each[0]);
         each.shift();
 
-        newList.baseStats.Constitution = Number(each[0]);
+        newList.baseStats.constitution = Number(each[0]);
         each.shift();
 
-        newList.baseStats.Perception = Number(each[0]);
+        newList.baseStats.perception = Number(each[0]);
         each.shift();
 
-        newList.baseStats.Spirit = Number(each[0]);
+        newList.baseStats.spirit = Number(each[0]);
         each.shift();
 
-        newList.baseStats.Longhouse = Number(each[0]);
+        newList.baseStats.longhouse = Number(each[0]);
         each.shift();
 
-        newList.baseStats.Amulet = Number(each[0]);
+        newList.baseStats.amulet = Number(each[0]);
         each.shift();
 
         // items
@@ -223,16 +251,16 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
             if (isLocked) {
                 each[j] = each[j].substr(1);
             }
-            newList.items.push({"Id": Number(each[j]), "Slot": $scope.slotOrder[j], "Locked": isLocked});
+            newList.items.push({"id": Number(each[j]), "slot": $scope.slotOrder[j], "locked": isLocked});
         }
 
         if (each.length < 29) {
             for (var k = 0; k < (29 - each.length); ++k) {
-                newList.items.push({"Id": Number(each[j]), "Slot": 21});
+                newList.items.push({"id": Number(each[j]), "slot": 21});
             }
         }
 
-        return {Name: name, Variants: [newList]};
+        return {name: name, variants: [newList]};
     };
 
     /**
@@ -246,12 +274,12 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         if ($scope.allLists.length > 0) {
 			if (name) {
 				for (let i = 0; i < $scope.allLists.length; ++i) {
-					if ($scope.allLists[i].Name === name) {
+					if ($scope.allLists[i].name === name) {
 						listIndex = i;
 
                         if (variantName) {
-                            for (let j = 0; j < $scope.allLists[i].Variants.length; ++j) {
-                                if ($scope.allLists[i].Variants[j].Name === variantName) {
+                            for (let j = 0; j < $scope.allLists[i].variants.length; ++j) {
+                                if ($scope.allLists[i].variants[j].name === variantName) {
                                     variantIndex = j;
                                     break;
                                 }
@@ -288,36 +316,36 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      */
     var selectListVariantByIndex = function(listIndex, variantIndex) {
         $scope.selectedListVariantIndex = variantIndex;
-        $scope.selectedList = $scope.allLists[listIndex].Variants[variantIndex];
-		$scope.editCharacterModel = {"Name": $scope.allLists[listIndex].Name};
+        $scope.selectedList = $scope.allLists[listIndex].variants[variantIndex];
+		$scope.editCharacterModel = {"Name": $scope.allLists[listIndex].name};
 		var list = $scope.selectedList;
 
 		var ids = [];
 		for (var i = 0; i < list.items.length; ++i) {
-			if (list.items[i].Id > 0) {
-				if (!list.items[i].Name) {
-					var slotItems = $scope.itemsBySlot[list.items[i].Slot];
+			if (list.items[i].id > 0) {
+				if (!list.items[i].name) {
+					var slotItems = $scope.itemsBySlot[list.items[i].slot];
 					var found = false;
 					if (slotItems.length > 0) {
 						for (var j = 0; j < slotItems.length; ++j) {
-							if (slotItems[j].Id == list.items[i].Id) {
+							if (slotItems[j].id == list.items[i].id) {
 								found = true;
-                                var isLocked = list.items[i].Locked;
+                                var isLocked = list.items[i].locked;
 								list.items[i] = slotItems[j];
-                                list.items[i].Locked = isLocked;
+                                list.items[i].locked = isLocked;
 								break;
 							}
 						}
 					}
 
 					if (!found) {
-						list.items[i].Name = "Loading...";
-						ids.push(list.items[i].Id);
+						list.items[i].name = "Loading...";
+						ids.push(list.items[i].id);
 					}
 				}
 			}
 			else {
-				list.items[i].Name = "-";
+				list.items[i].name = "-";
 			}
 		}
 
@@ -326,17 +354,17 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
                 function(data) {
                     for (var i = 0; i < list.items.length; ++i) {
                         for (var j = 0; j < data.length; ++j) {
-                            if (list.items[i].Id == data[j].Id) {
-                                var isLocked = list.items[i].Locked;
+                            if (list.items[i].id == data[j].id) {
+                                var isLocked = list.items[i].locked;
                                 list.items[i] = angular.copy(data[j]);
-                                list.items[i].Locked = isLocked;
-                                list.items[i].Slot = $scope.slotOrder[i];
+                                list.items[i].locked = isLocked;
+                                list.items[i].slot = $scope.slotOrder[i];
                                 break;
                             }
                         }
 
-                        if (list.items[i].Name == "Loading...") {
-                            list.items[i].Name = "DELETED";
+                        if (list.items[i].name == "Loading...") {
+                            list.items[i].name = "DELETED";
                         }
                     }
 
@@ -346,7 +374,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		}
 		applyItemRestrictions(); // to apply restrictions
 
-		$scope.characterName = list.Name;
+		$scope.characterName = list.name;
 		$scope.saveClientSideData();
     };
 
@@ -439,10 +467,10 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		// save lists
 		listCookieStr = "";
 		for (let i = 0; i < $scope.allLists.length; ++i) {
-            for (let j = 0; j < $scope.allLists[i].Variants.length; ++j) {
+            for (let j = 0; j < $scope.allLists[i].variants.length; ++j) {
                 listCookieStr += createStringFromList(
-                    $scope.allLists[i].Name,
-                    $scope.allLists[i].Variants[j]
+                    $scope.allLists[i].name,
+                    $scope.allLists[i].variants[j]
                 );
 
                 listCookieStr += "*";
@@ -450,7 +478,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         }
 
 		localStorage.setItem("cl", listCookieStr);
-		localStorage.setItem("scl", $scope.allLists[$scope.selectedListIndex].Name + "!" + $scope.selectedList.Name);
+		localStorage.setItem("scl", $scope.allLists[$scope.selectedListIndex].name + "!" + $scope.selectedList.name);
 
 		if ($cookies.get("cl1")) {
 			$cookies.remove("cl1");
@@ -459,18 +487,18 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 	};
 
     var createStringFromList = function(listName, list) {
-        var listCookieStr = listName + "!" + list.Name + "_";
-        listCookieStr += list.baseStats.Strength + "_";
-        listCookieStr += list.baseStats.Mind + "_";
-        listCookieStr += list.baseStats.Dexterity + "_";
-        listCookieStr += list.baseStats.Constitution + "_";
-        listCookieStr += list.baseStats.Perception + "_";
-        listCookieStr += list.baseStats.Spirit + "_";
-        listCookieStr += list.baseStats.Longhouse + "_";
-        listCookieStr += list.baseStats.Amulet;
+        var listCookieStr = listName + "!" + list.name + "_";
+        listCookieStr += list.baseStats.strength + "_";
+        listCookieStr += list.baseStats.mind + "_";
+        listCookieStr += list.baseStats.dexterity + "_";
+        listCookieStr += list.baseStats.constitution + "_";
+        listCookieStr += list.baseStats.perception + "_";
+        listCookieStr += list.baseStats.spirit + "_";
+        listCookieStr += list.baseStats.longhouse + "_";
+        listCookieStr += list.baseStats.amulet;
         for (let k = 0; k < list.items.length; ++k) {
-            if (list.items[k].Id) {
-                listCookieStr += "_" + (list.items[k].Locked ? "!" : "") + list.items[k].Id;
+            if (list.items[k].id) {
+                listCookieStr += "_" + (list.items[k].locked ? "!" : "") + list.items[k].id;
             }
             else {
                 listCookieStr += "_0";
@@ -481,24 +509,24 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     };
 
     var addCharacterList = function(name) {
-		$scope.allLists.push({Name: name, Variants: []});
+		$scope.allLists.push({name: name, variants: []});
         $scope.selectedListIndex = $scope.allLists.length - 1;
         $scope.addCharacterVariant($scope.allLists.length - 1);
     };
 
     $scope.addCharacterVariant = function(listIndex) {
-        var variantCount = $scope.allLists[$scope.selectedListIndex].Variants.length;
+        var variantCount = $scope.allLists[$scope.selectedListIndex].variants.length;
 
         if (listIndex === $scope.selectedListIndex && variantCount > 0) {
-            var variantCopy = angular.copy($scope.allLists[$scope.selectedListIndex].Variants[$scope.selectedListVariantIndex]);
-            variantCopy.Name += " Copy";
+            var variantCopy = angular.copy($scope.allLists[$scope.selectedListIndex].variants[$scope.selectedListVariantIndex]);
+            variantCopy.name += " Copy";
         }
         else {
             var variantCopy = $scope.getDefaultList("Original");
         }
 
-        $scope.allLists[listIndex].Variants.push(variantCopy);
-        selectListVariantByIndex(listIndex, $scope.allLists[listIndex].Variants.length - 1);
+        $scope.allLists[listIndex].variants.push(variantCopy);
+        selectListVariantByIndex(listIndex, $scope.allLists[listIndex].variants.length - 1);
     };
 	//#endregion
 
@@ -518,15 +546,15 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		// check stat total
 		$scope.showStatError = false;
 		if ($scope.selectedList.baseStats) {
-			var total = $scope.selectedList.baseStats.Strength + $scope.selectedList.baseStats.Mind + $scope.selectedList.baseStats.Dexterity + $scope.selectedList.baseStats.Constitution + $scope.selectedList.baseStats.Perception + $scope.selectedList.baseStats.Spirit;
+			var total = $scope.selectedList.baseStats.strength + $scope.selectedList.baseStats.mind + $scope.selectedList.baseStats.dexterity + $scope.selectedList.baseStats.constitution + $scope.selectedList.baseStats.perception + $scope.selectedList.baseStats.spirit;
 
 			if (total != 198 && total != 244) {
 				$scope.showStatError = true;
 			}
 
             if (total === 244) {
-                $scope.selectedList.baseStats.Longhouse = -1;
-                $scope.selectedList.baseStats.Amulet = -1;
+                $scope.selectedList.baseStats.longhouse = -1;
+                $scope.selectedList.baseStats.amulet = -1;
             }
 		}
 
@@ -550,23 +578,25 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		$scope.currentItem = item;
 		$scope.currentItemIndex = index;
 
-		if ($scope.itemsBySlot[item.Slot].length == 0) {
+        console.log($scope.itemsBySlot);
+        console.log(item);
+		if ($scope.itemsBySlot[item.slot].length == 0) {
 			$scope.loadingModal = true;
-            getItemsBySlotAsync(item.Slot).then(
+            getItemsBySlotAsync(item.slot).then(
                 function(data) {
 				    // force the items coming in to be the slot we want (for weapons/hold slot shenanigans)
                     for (var i = 0; i < data.length; ++i) {
-                        data[i].RealSlot = data[i].Slot;
-                        data[i].Slot = item.Slot;
+                        data[i].realSlot = data[i].slot;
+                        data[i].slot = item.slot;
                     }
 
-                    $scope.itemsBySlot[item.Slot] = data;
-                    $scope.itemsBySlot[item.Slot].splice(0, 0,
+                    $scope.itemsBySlot[item.slot] = data;
+                    $scope.itemsBySlot[item.slot].splice(0, 0,
                         {
-                            "RealSlot": -1,
-                            "Slot": item.Slot,
-                            "Id": 0,
-                            "Name": "-"
+                            "realSlot": -1,
+                            "slot": item.slot,
+                            "id": 0,
+                            "name": "-"
                         }
                     );
 
@@ -588,7 +618,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      */
     $scope.onRowLockClicked = function(index) {
         var item = $scope.selectedList.items[index];
-        item.Locked = !item.Locked;
+        item.locked = !item.locked;
 		$scope.saveClientSideData();
     };
 
@@ -596,7 +626,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     $scope.onColumnLockClicked = function() {
         var allLocked = true;
         for (let i = 0; i < $scope.selectedList.items.length; ++i) {
-            if (!$scope.selectedList.items[i].Locked) {
+            if (!$scope.selectedList.items[i].locked) {
                 allLocked = false;
                 break;
             }
@@ -615,20 +645,20 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
     /** Event for when the Import input changes. */
     $scope.onImportInputChanged = function() {
-        $scope.importModel.Lists = [];
-        $scope.importModel.Loading = true;
-        if ($scope.importModel.Input) {
-			var listStrs = $scope.importModel.Input.split("*").filter(function(el) {return el.length != 0});;
+        $scope.importModel.lists = [];
+        $scope.importModel.loading = true;
+        if ($scope.importModel.input) {
+			var listStrs = $scope.importModel.input.split("*").filter(function(el) {return el.length != 0});;
 			for (let i = 0; i < listStrs.length; ++i) {
 				var newList = createListFromString(listStrs[i]);
 
                 // check if list exists
                 for (let j = 0; j < $scope.allLists.length; ++j) {
-                    if ($scope.allLists[j].Name === newList.Name) {
-                        for (let k = 0; k < $scope.allLists[j].Variants.length; ++k) {
-                            if ($scope.allLists[j].Variants[k].Name === newList.Variants[0].Name) {
-                                newList.Exists = true;
-                                newList.Overwrite = true;
+                    if ($scope.allLists[j].name === newList.name) {
+                        for (let k = 0; k < $scope.allLists[j].variants.length; ++k) {
+                            if ($scope.allLists[j].variants[k].name === newList.variants[0].name) {
+                                newList.exists = true;
+                                newList.overwrite = true;
                                 break;
                             }
                         }
@@ -636,39 +666,39 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
                     }
                 }
 
-                $scope.importModel.Lists.push(newList);
+                $scope.importModel.lists.push(newList);
             }
         }
 
-        if ($scope.importModel.Lists.filter(l => l.Exists).length > 0) {
-            $scope.importModel.Exists = true;
-            $scope.importModel.Message = "The following lists already exist and will be overwritten unless otherwise specified:";
+        if ($scope.importModel.lists.filter(l => l.exists).length > 0) {
+            $scope.importModel.exists = true;
+            $scope.importModel.message = "The following lists already exist and will be overwritten unless otherwise specified:";
         }
 
-        $scope.importModel.Loading = false;
+        $scope.importModel.loading = false;
     };
 
     /** Event for when the user submits the import. */
     $scope.onImportSubmitClicked = function() {
-        var lists = $scope.importModel.Lists;
+        var lists = $scope.importModel.lists;
         for (let i = 0; i < lists.length; ++i) {
-            if (!lists[i].Exists || lists[i].Overwrite) {
+            if (!lists[i].exists || lists[i].overwrite) {
                 var foundList = false;
                 for (let j = 0; j < $scope.allLists.length; ++j) {
-                    if ($scope.allLists[j].Name === lists[i].Name) {
+                    if ($scope.allLists[j].name === lists[i].name) {
                         foundList = true;
                         var foundVariant = false;
-                        for (let k = 0; k < $scope.allLists[j].Variants.length; ++k) {
-                            if ($scope.allLists[j].Variants[k].Name === lists[i].Variants[0].Name) {
+                        for (let k = 0; k < $scope.allLists[j].variants.length; ++k) {
+                            if ($scope.allLists[j].variants[k].name === lists[i].variants[0].name) {
                                 foundVariant = true;
-                                $scope.allLists[j].Variants[k] = angular.copy(lists[i].Variants[0]);
+                                $scope.allLists[j].variants[k] = angular.copy(lists[i].variants[0]);
 
                                 break;
                             }
                         }
 
                         if (!foundVariant) {
-                            $scope.allLists[j].Variants.push(angular.copy(lists[i].Variants[0]));
+                            $scope.allLists[j].variants.push(angular.copy(lists[i].variants[0]));
                         }
 
                         break;
@@ -678,8 +708,8 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
                 if (!foundList) {
                     $scope.allLists.push(
                         {
-                            Name: lists[i].Name,
-                            Variants: [angular.copy(lists[i].Variants[0])]
+                            name: lists[i].name,
+                            variants: [angular.copy(lists[i].variants[0])]
                         }
                     );
                 }
@@ -699,10 +729,10 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         // generate all lists string
         var allListsStr = "";
 		for (let i = 0; i < $scope.allLists.length; ++i) {
-            for (let j = 0; j < $scope.allLists[i].Variants.length; ++j) {
+            for (let j = 0; j < $scope.allLists[i].variants.length; ++j) {
                 allListsStr += createStringFromList(
-                    $scope.allLists[i].Name,
-                    $scope.allLists[i].Variants[j]
+                    $scope.allLists[i].name,
+                    $scope.allLists[i].variants[j]
                 );
 
                 allListsStr += "*";
@@ -710,17 +740,17 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         }
 
         var curListStr = "";
-        for (let i = 0; i < $scope.allLists[$scope.selectedListIndex].Variants.length; ++i) {
+        for (let i = 0; i < $scope.allLists[$scope.selectedListIndex].variants.length; ++i) {
             curListStr += createStringFromList(
-                $scope.allLists[$scope.selectedListIndex].Name,
-                $scope.allLists[$scope.selectedListIndex].Variants[i]
+                $scope.allLists[$scope.selectedListIndex].name,
+                $scope.allLists[$scope.selectedListIndex].variants[i]
             );
 
             curListStr += "*";
         }
 
         var curVariantStr = createStringFromList(
-            $scope.allLists[$scope.selectedListIndex].Name,
+            $scope.allLists[$scope.selectedListIndex].name,
             $scope.selectedList
         );
 
@@ -749,14 +779,14 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     var toggleColumnLock = function() {
         var allLocked = true;
         for (let i = 0; i < $scope.selectedList.items.length; ++i) {
-            if (!$scope.selectedList.items[i].Locked) {
+            if (!$scope.selectedList.items[i].locked) {
                 allLocked = false;
                 break;
             }
         }
 
         for (let i = 0; i < $scope.selectedList.items.length; ++i) {
-            $scope.selectedList.items[i].Locked = !allLocked;
+            $scope.selectedList.items[i].locked = !allLocked;
         }
 
         $scope.saveClientSideData();
@@ -770,7 +800,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
         var allLocked = true;
         for (let i = 0; i < $scope.selectedList.items.length; ++i) {
-            if (!$scope.selectedList.items[i].Locked) {
+            if (!$scope.selectedList.items[i].locked) {
                 allLocked = false;
                 break;
             }
@@ -842,7 +872,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      * @param {object} item - the item that was selected.
      */
 	$scope.onSearchRowClicked = function(item) {
-        if ($scope.currentItem.Locked) {
+        if ($scope.currentItem.locked) {
             var lockElem = document.getElementById("itemSearchLock");
 
             lockElem.classList.remove("shake-horizontal");
@@ -934,7 +964,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     /** Confirm function for the edit character modal. */
 	var editCharacter = function() {
         if (validateEditCharacter()) {
-            $scope.allLists[$scope.selectedListIndex].Name = $scope.textInputModalModel.Input;
+            $scope.allLists[$scope.selectedListIndex].name = $scope.textInputModalModel.input;
             $scope.saveClientSideData();
 
             $("#textInputModal").modal("hide");
@@ -949,7 +979,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
             Label: "Name",
             Pattern: /^[A-Za-z\s\d]+$/,
             Validate: validateEditCharacter,
-            Input: $scope.allLists[$scope.selectedListIndex].Name
+            Input: $scope.allLists[$scope.selectedListIndex].name
         };
 
         $("#textInputModal").modal("show");
@@ -958,7 +988,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     /** Confirm function for the add character modal. */
 	var addCharacter = function() {
         if (validateAddCharacter()) {
-            addCharacterList($scope.textInputModalModel.Input);
+            addCharacterList($scope.textInputModalModel.input);
 
             $("#textInputModal").modal("hide");
 	    }
@@ -981,7 +1011,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     /** Confirm function for the edit variant modal. */
     var editVariant = function() {
         if (validateEditVariant()) {
-            $scope.selectedList.Name = $scope.textInputModalModel.Input;
+            $scope.selectedList.name = $scope.textInputModalModel.input;
             $scope.saveClientSideData();
 
             $("#textInputModal").modal("hide");
@@ -996,7 +1026,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
             Label: "Name",
             Pattern: /^[A-Za-z\s\d]+$/,
             Validate: validateEditVariant,
-            Input: $scope.selectedList.Name
+            Input: $scope.selectedList.name
         };
 
         $("#textInputModal").modal("show");
@@ -1022,7 +1052,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
     /** Opens the modal for deleting an existing character. */
 	$scope.openDeleteModal = function() {
-		$scope.confirmMessage = "Are you sure you want to delete " + $scope.allLists[$scope.selectedListIndex].Name + "?";
+		$scope.confirmMessage = "Are you sure you want to delete " + $scope.allLists[$scope.selectedListIndex].name + "?";
 
 		$scope.confirmFunc = deleteCharacter;
 		$("#confirmModal").modal("show");
@@ -1031,8 +1061,8 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     /** Clears all items from the currently selected character list. */
 	$scope.clearItemsFromList = function() {
 		for (var i = 0; i < $scope.selectedList.items.length; ++i) {
-            if (!$scope.selectedList.items[i].Locked) {
-			    $scope.selectedList.items[i] = {"Slot": $scope.selectedList.items[i].Slot, "Id": 0, "Name": "-"};
+            if (!$scope.selectedList.items[i].locked) {
+			    $scope.selectedList.items[i] = {"slot": $scope.selectedList.items[i].slot, "id": 0, "name": "-"};
 		    }
         }
 		$scope.saveClientSideData();
@@ -1040,7 +1070,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
     /** Opens the modal for clearing items from a list. */
 	$scope.openClearModal = function() {
-		$scope.confirmMessage = "Are you sure you want to clear all of " + $scope.selectedList.Name + "'s items?";
+		$scope.confirmMessage = "Are you sure you want to clear all of " + $scope.selectedList.name + "'s items?";
 
 		$scope.confirmFunc = $scope.clearItemsFromList;
 		$("#confirmModal").modal("show");
@@ -1050,13 +1080,13 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     var deleteVariant = function() {
         var index = $scope.selectedListVariantIndex;
         if (index > -1) {
-            $scope.allLists[$scope.selectedListIndex].Variants.splice(index, 1);
+            $scope.allLists[$scope.selectedListIndex].variants.splice(index, 1);
 
-            if ($scope.allLists[$scope.selectedListIndex].Variants.length === 0) {
+            if ($scope.allLists[$scope.selectedListIndex].variants.length === 0) {
                 $scope.addCharacterVariant($scope.selectedListIndex);
             }
-            else if ($scope.selectedListVariantIndex >= $scope.allLists[$scope.selectedListIndex].Variants.length) {
-                selectListVariantByIndex($scope.selectedListIndex, $scope.allLists[$scope.selectedListIndex].Variants.length - 1);
+            else if ($scope.selectedListVariantIndex >= $scope.allLists[$scope.selectedListIndex].variants.length) {
+                selectListVariantByIndex($scope.selectedListIndex, $scope.allLists[$scope.selectedListIndex].variants.length - 1);
             }
             else {
                 selectListVariantByIndex($scope.selectedListIndex, $scope.selectedListVariantIndex);
@@ -1095,12 +1125,12 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		$scope.textInputModalForm.textInput.$setValidity("duplicate", null);
 		$scope.textInputModalForm.textInput.$setValidity("limit", null);
 
-        if ($scope.textInputModalModel.Input.length === 0) {
+        if ($scope.textInputModalModel.input.length === 0) {
             return false;
         }
 
 		for (let i = 0; i < $scope.allLists.length; ++i) {
-			if ($scope.allLists[i].Name === $scope.textInputModalModel.Input) {
+			if ($scope.allLists[i].name === $scope.textInputModalModel.input) {
 				$scope.textInputModalForm.textInput.$setValidity("duplicate", false);
                 return false;
 			}
@@ -1118,15 +1148,15 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		$scope.textInputModalForm.textInput.$setValidity("duplicate", null);
 		$scope.textInputModalForm.textInput.$setValidity("limit", null);
 
-        if ($scope.textInputModalModel.Input.length === 0) {
+        if ($scope.textInputModalModel.input.length === 0) {
             return false;
         }
 
 		for (let i = 0; i < $scope.allLists.length; ++i) {
-			if ($scope.allLists[i].Name === $scope.allLists[$scope.selectedListIndex].Name) {
+			if ($scope.allLists[i].name === $scope.allLists[$scope.selectedListIndex].name) {
 				continue;
 			}
-			if ($scope.allLists[i].Name === $scope.textInputModalModel.Input) {
+			if ($scope.allLists[i].name === $scope.textInputModalModel.input) {
 				$scope.textInputModalForm.textInput.$setValidity("duplicate", false);
                 return false;
 			}
@@ -1140,17 +1170,17 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         $scope.textInputModalForm.textInput.$setValidity("duplicate", null);
 		$scope.textInputModalForm.textInput.$setValidity("limit", null);
 
-        if ($scope.textInputModalModel.Input.length === 0) {
+        if ($scope.textInputModalModel.input.length === 0) {
             return false;
         }
 
-        var variants = $scope.allLists[$scope.selectedListIndex].Variants;
+        var variants = $scope.allLists[$scope.selectedListIndex].variants;
         for (let i = 0; i < variants.length; ++i) {
-            if (variants[i].Name === $scope.selectedList.Name) {
+            if (variants[i].name === $scope.selectedList.name) {
                 continue;
             }
 
-            if (variants[i].Name === $scope.textInputModalModel.Input) {
+            if (variants[i].name === $scope.textInputModalModel.input) {
                 $scope.textInputModalForm.textInput.$setValidity("duplicate", false);
                 return false;
             }
@@ -1171,7 +1201,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         var canUseE = true;
 
         for (var i = 0; i < $scope.selectedList.items.length; ++i) {
-            switch($scope.selectedList.items[i].AlignRestriction) {
+            switch($scope.selectedList.items[i].alignRestriction) {
                 case 0:
                     break;
                 case 1:
@@ -1215,20 +1245,20 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     var getTotalFromStatQuests = function(statName) {
         var fromStatQuests = 0;
 
-		var totalBaseStats = $scope.selectedList.baseStats.Strength + $scope.selectedList.baseStats.Mind + $scope.selectedList.baseStats.Dexterity + $scope.selectedList.baseStats.Constitution + $scope.selectedList.baseStats.Perception + $scope.selectedList.baseStats.Spirit;
+		var totalBaseStats = $scope.selectedList.baseStats.strength + $scope.selectedList.baseStats.mind + $scope.selectedList.baseStats.dexterity + $scope.selectedList.baseStats.constitution + $scope.selectedList.baseStats.perception + $scope.selectedList.baseStats.spirit;
 
         switch (statName) {
 			case "Strength":
 				if (totalBaseStats < 244) {
 					fromStatQuests += 3;
 				}
-				if ($scope.selectedList.baseStats["Amulet"] == 0) {
+				if ($scope.selectedList.baseStats.amulet == 0) {
 					fromStatQuests += 10;
 				}
-				if ($scope.selectedList.baseStats["Longhouse"] == 3) {
+				if ($scope.selectedList.baseStats.longhouse == 3) {
 					fromStatQuests += 5;
 				}
-				if ($scope.selectedList.baseStats["Longhouse"] == 2) {
+				if ($scope.selectedList.baseStats.longhouse == 2) {
 					fromStatQuests += 3;
 				}
 				break;
@@ -1236,13 +1266,13 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				if (totalBaseStats < 244) {
 					fromStatQuests += 3;
 				}
-				if ($scope.selectedList.baseStats["Amulet"] == 1) {
+				if ($scope.selectedList.baseStats.amulet == 1) {
 					fromStatQuests += 10;
 				}
-				if ($scope.selectedList.baseStats["Longhouse"] == 1) {
+				if ($scope.selectedList.baseStats.longhouse == 1) {
 					fromStatQuests += 5;
 				}
-				if ($scope.selectedList.baseStats["Longhouse"] == 0) {
+				if ($scope.selectedList.baseStats.longhouse == 0) {
 					fromStatQuests += 3;
 				}
 				break;
@@ -1250,13 +1280,13 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				if (totalBaseStats < 244) {
 					fromStatQuests += 3;
 				}
-				if ($scope.selectedList.baseStats["Amulet"] == 2) {
+				if ($scope.selectedList.baseStats.amulet == 2) {
 					fromStatQuests += 10;
 				}
-				if ($scope.selectedList.baseStats["Longhouse"] == 4) {
+				if ($scope.selectedList.baseStats.longhouse == 4) {
 					fromStatQuests += 5;
 				}
-				if ($scope.selectedList.baseStats["Longhouse"] == 1) {
+				if ($scope.selectedList.baseStats.longhouse == 1) {
 					fromStatQuests += 3;
 				}
 				break;
@@ -1264,13 +1294,13 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				if (totalBaseStats < 244) {
 					fromStatQuests += 3;
 				}
-				if ($scope.selectedList.baseStats["Amulet"] == 3) {
+				if ($scope.selectedList.baseStats.amulet == 3) {
 					fromStatQuests += 10;
 				}
-				if ($scope.selectedList.baseStats["Longhouse"] == 5) {
+				if ($scope.selectedList.baseStats.longhouse == 5) {
 					fromStatQuests += 5;
 				}
-				if ($scope.selectedList.baseStats["Longhouse"] == 3) {
+				if ($scope.selectedList.baseStats.longhouse == 3) {
 					fromStatQuests += 3;
 				}
 				break;
@@ -1278,13 +1308,13 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				if (totalBaseStats < 244) {
 					fromStatQuests += 3;
 				}
-				if ($scope.selectedList.baseStats["Amulet"] == 4) {
+				if ($scope.selectedList.baseStats.amulet == 4) {
 					fromStatQuests += 10;
 				}
-				if ($scope.selectedList.baseStats["Longhouse"] == 2) {
+				if ($scope.selectedList.baseStats.longhouse == 2) {
 					fromStatQuests += 5;
 				}
-				if ($scope.selectedList.baseStats["Longhouse"] == 4) {
+				if ($scope.selectedList.baseStats.longhouse == 4) {
 					fromStatQuests += 3;
 				}
 				break;
@@ -1292,13 +1322,13 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				if (totalBaseStats < 244) {
 					fromStatQuests += 13;
 				}
-				if ($scope.selectedList.baseStats["Amulet"] == 5) {
+				if ($scope.selectedList.baseStats.amulet == 5) {
 					fromStatQuests += 10;
 				}
-				if ($scope.selectedList.baseStats["Longhouse"] == 0) {
+				if ($scope.selectedList.baseStats.longhouse == 0) {
 					fromStatQuests += 5;
 				}
-				if ($scope.selectedList.baseStats["Longhouse"] == 5) {
+				if ($scope.selectedList.baseStats.longhouse == 5) {
 					fromStatQuests += 3;
 				}
 				break;
@@ -1339,11 +1369,11 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				var wearingStrWeap = false;
 				var wearingConWeap = false;
 				for (var i = 0; i < $scope.selectedList.items.length; ++i) {
-					if ($scope.selectedList.items[i].Slot == 14 || $scope.selectedList.items[i].Slot == 15) {
-						if ($scope.selectedList.items[i].WeaponType == 1) {
+					if ($scope.selectedList.items[i].slot == 14 || $scope.selectedList.items[i].slot == 15) {
+						if ($scope.selectedList.items[i].weaponType == 1) {
 							wearingStrWeap = true;
 						}
-						else if ($scope.selectedList.items[i].WeaponType == 3) {
+						else if ($scope.selectedList.items[i].weaponType == 3) {
 							wearingConWeap = true;
 						}
 					}
@@ -1365,7 +1395,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				var con = $scope.getStatTotal("Constitution");
 				var hasBattleTraining = false;
 				for (var i = 25; i < $scope.selectedList.items.length; ++i) { // loop through Other slots
-					if ($scope.selectedList.items[i].Id == 1144 || $scope.selectedList.items[i].Id == 1137) {
+					if ($scope.selectedList.items[i].id == 1144 || $scope.selectedList.items[i].id == 1137) {
 						hasBattleTraining = true;
 						break;
 					}
@@ -1411,7 +1441,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         switch (statName) {
             case "Dam":
                 for (var i = 0; i < $scope.selectedList.items.length; ++i) {
-					if ($scope.selectedList.items[i].Slot == 14 && $scope.selectedList.items[i].TwoHanded) {
+					if ($scope.selectedList.items[i].slot == 14 && $scope.selectedList.items[i].twoHanded) {
                         return parseInt(curTotal / 3);
 					}
 				}
@@ -1477,7 +1507,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 			case "Mitigation":
 				var hasBattleTraining = false;
 				for (var i = 25; i < $scope.selectedList.items.length; ++i) { // loop through Other slots
-					if ($scope.selectedList.items[i].Id == 1144 || $scope.selectedList.items[i].Id == 1137) {
+					if ($scope.selectedList.items[i].id == 1144 || $scope.selectedList.items[i].id == 1137) {
 						hasBattleTraining = true;
 						break;
 					}
@@ -1570,7 +1600,6 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         itemTotalMax = getItemTotalMax(statName);
         if (itemTotalMax != null) {
             if (fromItems > itemTotalMax) {
-                console.log("fromItems", statName);
                 $scope.statRestrictions[statName].push({
                     restriction: "fromItems",
                     amount: fromItems,
@@ -1603,7 +1632,6 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
         if (totalMax != null) {
             if (total > totalMax) {
-                console.log("fromTotalMax", statName);
                 $scope.statRestrictions[statName].push({
                     restriction: "fromTotalMax",
                     amount: total,
@@ -1615,7 +1643,6 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
 		if (totalMin != null) {
             if (total < totalMin) {
-                console.log("fromTotalMin", statName);
                 $scope.statRestrictions[statName].push({
                     restriction: "fromTotalMin",
                     amount: total,
@@ -1640,13 +1667,13 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		for (var i = 0; i < $scope.selectedList.items.length; ++i) {
 			var curItem = $scope.selectedList.items[i];
 			// unique
-			if (curItem.Slot == 1 || curItem.Slot == 2 || curItem.Slot == 13 || curItem.Slot == 14 || curItem.Slot == 15 || curItem.Slot == 16) {
-				if (curItem.UniqueWear) {
+			if (curItem.slot == 1 || curItem.slot == 2 || curItem.slot == 13 || curItem.slot == 14 || curItem.slot == 15 || curItem.slot == 16) {
+				if (curItem.uniqueWear) {
 					for (var j = 0; j < $scope.selectedList.items.length; ++j) {
 						if (i == j) {
 							continue;
 						}
-						if (curItem.Id != 0 && curItem.Id == $scope.selectedList.items[j].Id) {
+						if (curItem.id != 0 && curItem.id == $scope.selectedList.items[j].id) {
 							$scope.itemRestrictions[i].push("unique");
 							break;
 						}
@@ -1657,26 +1684,26 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 			var strength = $scope.getStatTotal("Strength");
 
 			// weight
-			if (curItem.Slot == 14) {
-				if (curItem.Weight * 4 > strength) {
+			if (curItem.slot == 14) {
+				if (curItem.weight * 4 > strength) {
 					$scope.itemRestrictions[i].push("weight");
 				}
 			}
-			else if (curItem.Slot == 15) {
-				if (curItem.Weight * 5 > strength) {
+			else if (curItem.slot == 15) {
+				if (curItem.weight * 5 > strength) {
 					$scope.itemRestrictions[i].push("holdWeight");
 				}
 			}
 
 			// hand limit
-			if (!handApplied && curItem.Slot == 14 || curItem.Slot == 15) {
-				if (curItem.TwoHanded !== undefined) {
-					handCount += curItem.TwoHanded ? 2 : 1;
+			if (!handApplied && curItem.slot == 14 || curItem.slot == 15) {
+				if (curItem.twoHanded !== undefined) {
+					handCount += curItem.twoHanded ? 2 : 1;
 				}
 				if (handCount > 3) {
 					for (var j = 0; j < $scope.selectedList.items.length; ++j) {
-						if ($scope.selectedList.items[j].Slot == 14 ||
-						    $scope.selectedList.items[j].Slot == 15) {
+						if ($scope.selectedList.items[j].slot == 14 ||
+						    $scope.selectedList.items[j].slot == 15) {
 							$scope.itemRestrictions[j].push("twohanded");
 						}
 					}
@@ -1706,11 +1733,11 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 					text += "You cannot wear two of this item.";
 					break;
 				case "weight":
-					var req = $scope.selectedList.items[index].Weight * 4;
+					var req = $scope.selectedList.items[index].weight * 4;
 					text += "You need " + req + " strength to wield this.";
 					break;
 				case "holdWeight":
-					var req = $scope.selectedList.items[index].Weight * 5;
+					var req = $scope.selectedList.items[index].weight * 5;
 					text += "You need " + req + " strength to hold this with one hand.";
 					break;
 				case "twohanded":
@@ -1744,7 +1771,6 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
                     break;
             }
         }
-        console.log(statName, text);
         return text;
     };
 
@@ -1786,19 +1812,19 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 	};
 
 	$scope.filterSearchResults = function() {
-		let items = $scope.itemsBySlot[$scope.currentItem.Slot];
+		let items = $scope.itemsBySlot[$scope.currentItem.slot];
 		if (items) {
 			let filteredItems = items.slice(0);
 			let i = filteredItems.length;
 			while (i--) {
-                let filteredBySearch = $scope.searchString && !filteredItems[i].Name.toLowerCase().includes($scope.searchString.toLowerCase());
+                let filteredBySearch = $scope.searchString && !filteredItems[i].name.toLowerCase().includes($scope.searchString.toLowerCase());
 
                 let filteredByWield = false;
-                if ($scope.currentItem.Slot == 14 || $scope.currentItem.Slot == 15) {
-                    if ($scope.wieldSlotFilter == 1 && filteredItems[i].RealSlot == 15) {
+                if ($scope.currentItem.slot == 14 || $scope.currentItem.slot == 15) {
+                    if ($scope.wieldSlotFilter == 1 && filteredItems[i].realSlot == 15) {
                         filteredByWield = true;
                     }
-                    else if ($scope.wieldSlotFilter == 2 && filteredItems[i].RealSlot == 14) {
+                    else if ($scope.wieldSlotFilter == 2 && filteredItems[i].realSlot == 14) {
                         filteredByWield = true;
                     }
                 }
@@ -1847,7 +1873,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		if (!$scope.selectedList || !$scope.selectedList.baseStats) {
 			return false;
 		}
-		var total = $scope.selectedList.baseStats.Strength + $scope.selectedList.baseStats.Mind + $scope.selectedList.baseStats.Dexterity + $scope.selectedList.baseStats.Constitution + $scope.selectedList.baseStats.Perception + $scope.selectedList.baseStats.Spirit;
+		var total = $scope.selectedList.baseStats.strength + $scope.selectedList.baseStats.mind + $scope.selectedList.baseStats.dexterity + $scope.selectedList.baseStats.constitution + $scope.selectedList.baseStats.perception + $scope.selectedList.baseStats.spirit;
 
 		return total < 244;
 	};

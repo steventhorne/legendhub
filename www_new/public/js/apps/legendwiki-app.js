@@ -163,7 +163,7 @@ app.constant('itemConstants', {
 		"G   E",
 		"G N  "],
   selectOptions: {
-    Slot: [
+    slot: [
       "Light",
 	    "Finger",
 	    "Neck",
@@ -187,7 +187,7 @@ app.constant('itemConstants', {
 	    "Familiar",
 	    "Other"
     ],
-    AlignRestriction: [
+    alignRestriction: [
       "No Align Restriction",
       "Good Only Align",
       "Neutral Only Align",
@@ -196,13 +196,13 @@ app.constant('itemConstants', {
       "Non-Neutral Align",
       "Non-Evil Align"
     ],
-    WeaponType: [
+    weaponType: [
       "",
       "Bladed Weapon",
       "Piercing Weapon",
       "Blunt Weapon"
     ],
-    WeaponStat: [
+    weaponStat: [
       "",
       "Strength",
       "Dexterity",
@@ -210,7 +210,7 @@ app.constant('itemConstants', {
     ]
   },
   selectShortOptions: {
-    Slot: [
+    slot: [
         "Light",
         "Finger",
 	    "Neck",
@@ -234,7 +234,7 @@ app.constant('itemConstants', {
 	    "Familiar",
 	    "Other"
     ],
-    AlignRestriction: [
+    alignRestriction: [
       "     ",
       "G    ",
       "  N  ",
@@ -243,13 +243,13 @@ app.constant('itemConstants', {
       "G   E",
       "G N  "
     ],
-    WeaponType: [
+    weaponType: [
       "",
       "Bladed",
       "Piercing",
       "Blunt"
     ],
-    WeaponStat: [
+    weaponStat: [
       "",
       "Str",
       "Dex",
@@ -433,15 +433,19 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
         $scope.themes = ['Light', 'Dark', 'Solarized Dark'];
 		$scope.bcFactory = breadcrumb;
 		$scope.returnUrl = window.location.pathname + window.location.search;
-	}
-
-	$scope.logout = function() {
-		$http({
-			url: '/php/login/logout.php'
-		}).then(function succcessCallback(response) {
-			window.location = "/";
-		});
-	}
+        let popover = $("[id^=not-pop]");
+            popover.popover({
+                container: "body",
+                content: $("#notification-window").html(),
+                html: true,
+                trigger: "focus",
+                placement: "bottom"
+            });
+        let cookieDate = new Date();
+        let offset = cookieDate.getTimezoneOffset();
+        cookieDate.setTime(2144232732000);
+        $cookies.put("tzoffset", offset, {"path": "/", "expires": cookieDate});
+	};
 
 	$scope.setTheme = function(theme) {
         if ($cookies.get("cookie-consent")) {
@@ -451,33 +455,6 @@ app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function(
             $cookies.put("theme", theme, {"path": "/", 'expires': cookieDate});
             $('link[id="theme"]').attr('href', '/css/bootstrap-' + theme + '.min.css');
         }
-	}
-
-    /**
-     * @deprecated used for old theme toggle
-     */
-	$scope.toggleTheme = function() {
-		var theme = $cookies.get("theme");
-		if (!theme || theme == "light") {
-			theme = "dark";
-		}
-		else {
-			theme = "light";
-		}
-		$scope.setTheme(theme);
-	}
-
-    /**
-     * @deprecated used for old theme toggle
-     */
-	$scope.getThemeClass = function() {
-		var theme = $cookies.get("theme");
-		if (!theme || theme == "light") {
-			return "fas fa-lightbulb text-warning fa-lg"
-		}
-		else {
-			return "fas fa-lightbulb fa-lg";
-		}
 	}
 
     $scope.getNotifications = function() {
