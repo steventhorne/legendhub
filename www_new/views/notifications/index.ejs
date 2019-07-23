@@ -1,50 +1,28 @@
 <!doctype html>
 <html lang="en">
-
-<head>
-	<!-- Required meta tags -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-	<!-- Bootstrap CSS -->
-	<script src="/js/js.cookie.min.js"></script>
-	<noscript><link id="theme" rel="stylesheet" href="/css/bootstrap-light.min.css?%%version%%"></noscript>
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-
-
-	<title>LegendHUB</title>
-</head>
-
-<body ng-app="legendwiki-app" ng-controller="notifications">
-	<lh-header></lh-header>
-	<div class="container">
-        <h1 class="text-center">All Notifications</h1>
-        <br/>
-        <div class="list-group" ng-repeat="notification in allNotifications">
-            <a ng-href="{{::notification.Link}}"class="list-group-item list-group-item-action flex-column align-items-stretch" ng-class="{'list-group-item-primary': !notification.Read}">
-                <div class='d-flex w-100 justify-content-between'>
-                    <p class='mr-3' ng-bind-html="notification.Message"></p>
-                    <div class='text-info'>
-                        <p class='mb-0' style='white-space:nowrap'><small>{{::notification.CreatedOnDate}}</small></p>
-                        <p style='white-space:nowrap'><small>{{::notification.CreatedOnTime}}</small></p>
+    <head>
+        <%-include("../shared/meta")-%>
+    </head>
+    <body ng-app="legendwiki-app">
+        <%-include("../shared/header")-%>
+        <div class="container">
+            <h1 class="text-center">All Notifications</h1>
+            <br/>
+            <div class="list-group">
+                <%for (let i = 0; i < vm.results.length; ++i) {%>
+                <a href="<%-vm.results[i].link%>" class="list-group-item list-group-item-action flex-column align-items-stretch<%-vm.results[i].read?"":" list-group-item-secondary"%>">
+                    <div class="d-flex w-100 justify-content-between">
+                        <p class="mr-3"><%-vm.results[i].message%><%if(!vm.results[i].read){%>&nbsp;&nbsp;<span class="badge badge-primary">UNREAD</i><%}%></p>
+                        <div class="text-info">
+                            <p class="mb-0" style="white-space:nowrap"><small><%-locals.displayDateTime(vm.results[i].createdOn)%></small></p>
+                        </div>
                     </div>
-                </div>
-            </a>
+                </a>
+                <%}%>
+            </div>
+            <br><br>
         </div>
-	</div>
-	<lh-footer></lh-footer>
-
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-		crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-	    crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-		crossorigin="anonymous"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-sanitize.min.js"></script>
-	<script src="/js/apps/legendwiki-app.js?%%version%%"></script>
-	<script src="/js/controllers/notifications/main.js?%%version%%"></script>
-</body>
-
+        <%-include("../shared/footer")-%>
+        <%-include("../shared/scripts")-%>
+    </body>
 </html>

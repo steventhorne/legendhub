@@ -9,7 +9,8 @@ let importGraphs = [
     require("./api/wikiPages.js"),
     require("./api/areas.js"),
     require("./api/categories.js"),
-    require("./api/changelogs.js")
+    require("./api/changelogs.js"),
+    require("./api/notifications.js")
 ];
 
 var queryFields = {};
