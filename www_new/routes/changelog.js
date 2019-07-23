@@ -1,9 +1,9 @@
 let express = require("express");
 let router = express.Router();
-let request = require("request");
+let apiUtils = require("./api/utils");
 let auth = require("./api/auth");
 
-router.get(["/", "/index.html"], function(req, res, next) {
+router.get(["/", "/index.html"], async function(req, res, next) {
     let page = req.query.page === undefined ? 1 : Number(req.query.page);
     let rows = 20;
     let getChangelogQuery = `
@@ -21,46 +21,43 @@ router.get(["/", "/index.html"], function(req, res, next) {
         }
     }
     `;
-    request.post({
-        url: `http://localhost:${process.env.PORT}/api`,
-        form: {
-            query: getChangelogQuery
+    try {
+        var data = await apiUtils.postAsync({
+            url: `http://localhost:${process.env.PORT}/api`,
+            form: {
+                query: getChangelogQuery
+            }
+        });
+    }
+    catch (e) {
+        next(e);
+        return;
+    }
+
+
+    if (res.locals.user) {
+        try {
+            res.locals.user.permissions = await auth.utils.getPermissions(res.locals.user.memberId);
         }
-    },
-    function(error, response, body) {
-        body = JSON.parse(body);
-        if (body.errors) {
-            let error = new Error(body.errors[0].message);
-            error.status = body.errors[0].code;
-            next(error);
+        catch (e) {
+            next(e);
             return;
         }
+    }
 
-        let data = body.data;
-        let vm = {
-            query: req.query,
-            results: data.getChangelogs.changelogs,
-            moreResults: data.getChangelogs.moreResults,
-            page: page,
-            rows: rows,
-            cookies: req.cookies
-        };
-        let title = "Changelog";
-        if (res.locals.user) {
-            auth.utils.getPermissions(res.locals.user.memberId).then(
-                response => {
-                    res.locals.user.permissions = response;
-                    res.render("changelog/index", {title, vm});
-                }
-            )
-        }
-        else {
-            res.render("changelog/index", {title, vm});
-        }
-    });
+    let vm = {
+        query: req.query,
+        results: data.getChangelogs.changelogs,
+        moreResults: data.getChangelogs.moreResults,
+        page: page,
+        rows: rows,
+        cookies: req.cookies
+    };
+    let title = "Changelog";
+    res.render("changelog/index", {title, vm});
 });
 
-router.get(["/details.html"], function(req, res, next) {
+router.get(["/details.html"], async function(req, res, next) {
     let query = `
     {
         getChangelogById(id:${req.query.id}) {
@@ -72,113 +69,64 @@ router.get(["/details.html"], function(req, res, next) {
     }
     `;
 
-    request.post({
-        url: `http://localhost:${process.env.PORT}/api`,
-        form: {
-            query: query
+    try {
+        var data = await apiUtils.postAsync({
+            url: `http://localhost:${process.env.PORT}/api`,
+            form: {
+                query: query
+            }
+        });
+    }
+    catch (e) {
+        next(e);
+        return;
+    }
+
+    if (res.locals.user) {
+        try {
+            res.locals.user.permissions = await auth.utils.getPermissions(res.locals.user.memberId);
         }
-    },
-    function(error, response, body) {
-        body = JSON.parse(body);
-        if (body.errors) {
-            let error = new Error(body.errors[0].message);
-            error.status = body.errors[0].code;
-            next(error);
+        catch (e) {
+            next(e);
             return;
         }
+    }
 
-
-
-        let changelog = body.data.getChangelogById;
-        let vm = {
-            changelog
-        };
-        let title = `Version ${changelog.version}`;
-        res.locals.breadcrumbs = [
-            {
-                "display": "Changelog",
-                "href": "/changelog/",
-            },
-            {
-                "display": title,
-                "active": true
-            }
-        ];
-
-        if (res.locals.user) {
-            auth.utils.getPermissions(res.locals.user.memberId).then(
-                response => {
-                    res.locals.user.permissions = response;
-                    res.render("changelog/display", {title, vm});
-                }
-            )
+    let changelog = data.getChangelogById;
+    let vm = {
+        changelog
+    };
+    let title = `Version ${changelog.version}`;
+    res.locals.breadcrumbs = [
+        {
+            "display": "Changelog",
+            "href": "/changelog/",
+        },
+        {
+            "display": title,
+            "active": true
         }
-        else {
-            res.render("changelog/display", {title, vm});
-        }
-    });
+    ];
+
+    res.render("changelog/display", {title, vm});
 });
 
-router.get(["/edit.html"], function(req, res, next) {
+router.get(["/edit.html"], async function(req, res, next) {
     if (res.locals.user) {
-        auth.utils.getPermissions(res.locals.user.memberId).then(
-            response => {
-                if (response.ChangelogVersion.update) {
-                    let query = `
-                    {
-                        getChangelogById(id:${req.query.id}) {
-                            id
-                            version
-                            notes
-                        }
-                    }
-                    `;
-
-                    request.post({
-                        url: `http://localhost:${process.env.PORT}/api`,
-                        form: {
-                            query: query
-                        }
-                    },
-                    function(error, response, body) {
-                        body = JSON.parse(body);
-                        if (body.errors) {
-                            let error = new Error(body.errors[0].message);
-                            error.status = body.errors[0].code;
-                            next(error);
-                            return;
-                        }
-
-                        let changelog = body.data.getChangelogById;
-                        let vm = {
-                            changelog
-                        };
-                        let title = `Edit Version ${changelog.version}`;
-                        res.locals.breadcrumbs = [
-                            {
-                                display: "Changelog",
-                                href: "/changelog/",
-                            },
-                            {
-                                display: `Version ${changelog.version}`,
-                                href: `/changelog/details.html?id=${changelog.id}`
-                            },
-                            {
-                                display: "Edit",
-                                active: true
-                            }
-                        ];
-                        res.render("changelog/modify", {title, vm});
-                    });
-                }
-                else {
-                    let error = new Error("You do not have permission to view this page.");
-                    error.status = 401;
-                    next(error);
-                    return;
-                }
+        try {
+            let permissions = await auth.utils.getPermissions(res.locals.user.memberId);
+            if (!permissions || !permissions.ChangelogVersion || !permissions.ChangelogVersion.update) {
+                let error = new Error("You do not have permission to view this page.");
+                error.status = 401;
+                next(error);
+                return;
             }
-        );
+            res.locals.user.permissions = permissions;
+        }
+        catch (e) {
+            next(e);
+            return;
+        }
     }
     else {
         let error = new Error("You must be logged in to view this page.");
@@ -186,35 +134,68 @@ router.get(["/edit.html"], function(req, res, next) {
         next(error);
         return;
     }
+
+    let query = `
+    {
+        getChangelogById(id:${req.query.id}) {
+            id
+            version
+            notes
+        }
+    }
+    `;
+
+    try {
+        var data = await apiUtils.postAsync({
+            url: `http://localhost:${process.env.PORT}/api`,
+            form: {
+                query: query
+            }
+        });
+    }
+    catch (e) {
+        next(e);
+        return;
+    }
+
+    let changelog = data.getChangelogById;
+    let vm = {
+        changelog
+    };
+    let title = `Edit Version ${changelog.version}`;
+    res.locals.breadcrumbs = [
+        {
+            display: "Changelog",
+            href: "/changelog/",
+        },
+        {
+            display: `Version ${changelog.version}`,
+            href: `/changelog/details.html?id=${changelog.id}`
+        },
+        {
+            display: "Edit",
+            active: true
+        }
+    ];
+    res.render("changelog/modify", {title, vm});
 });
 
-router.get(["/add.html"], function(req, res, next) {
+router.get(["/add.html"], async function(req, res, next) {
     if (res.locals.user) {
-        auth.utils.getPermissions(res.locals.user.memberId).then(
-            response => {
-                if (response.ChangelogVersion.create) {
-                    let vm = {};
-                    let title = "Add Changelog";
-                    res.locals.breadcrumbs = [
-                        {
-                            display: "Changelog",
-                            href: "/changelog/",
-                        },
-                        {
-                            display: "Add",
-                            active: true
-                        }
-                    ];
-                    res.render("changelog/modify", {title, vm});
-                }
-                else {
-                    let error = new Error("You do not have permission to view this page.");
-                    error.status = 401;
-                    next(error);
-                    return;
-                }
+        try {
+            let permissions = await auth.utils.getPermissions(res.locals.user.memberId);
+            if (!permissions || !permissions.ChangelogVersion || !permissions.ChangelogVersion.update) {
+                let error = new Error("You do not have permission to view this page.");
+                error.status = 401;
+                next(error);
+                return;
             }
-        );
+            res.locals.user.permissions = permissions;
+        }
+        catch (e) {
+            next(e);
+            return;
+        }
     }
     else {
         let error = new Error("You must be logged in to view this page.");
@@ -222,6 +203,20 @@ router.get(["/add.html"], function(req, res, next) {
         next(error);
         return;
     }
+
+    let vm = {};
+    let title = "Add Changelog";
+    res.locals.breadcrumbs = [
+        {
+            display: "Changelog",
+            href: "/changelog/",
+        },
+        {
+            display: "Add",
+            active: true
+        }
+    ];
+    res.render("changelog/modify", {title, vm});
 });
 
 module.exports = router;

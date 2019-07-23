@@ -18,7 +18,7 @@
                 </div>
             </div>
             <br><br>
-            <div class="row">
+            <div class="row" ng-cloak>
                 <div class="card col-12" ng-init="changelogNotes='<%=vm.changelog.notes.replace(/'/g,"&#39;").replace(/\\/g,"\\\\")%>'">
                     <div class="card-body" markdown-to-html="changelogNotes"></div>
                 </div>
