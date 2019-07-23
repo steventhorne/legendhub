@@ -1,4 +1,5 @@
 let gql = require("graphql");
+let request = require("request");
 
 module.exports.blockedIPs = {};
 module.exports.trackers = {};
@@ -58,6 +59,27 @@ module.exports.trackLogin = function(ip) {
 module.exports.trackPageUpdate = function(ip) {
     module.exports.trackAttempt("pageUpdate", ip, 5, 200, 60);
 }
+
+module.exports.postAsync = async function(options) {
+    return new Promise(function(resolve, reject) {
+        request.post(options, function(error, response, body) {
+            if (error) {
+                reject(error);
+            }
+            else {
+                let body = JSON.parse(response.body);
+                if (body.errors) {
+                    let error = new Error(body.errors[0].message);
+                    error.status = body.errors[0].code;
+                    reject(error);
+                }
+                else {
+                    resolve(body.data);
+                }
+            }
+        });
+    });
+};
 
 /* Errors */
 class NotFoundError extends gql.GraphQLError {
