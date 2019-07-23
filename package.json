@@ -57,7 +57,6 @@
     "express-graphql": "^0.8.0",
     "graphql": "^14.2.1",
     "graphql-iso-date": "^3.6.1",
-    "http-errors": "^1.7.2",
     "morgan": "^1.9.1",
     "mysql": "^2.16.0",
     "node-php-password": "^0.1.2",
