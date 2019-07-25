@@ -198,14 +198,14 @@ let insertQuest = function(req, authToken, title, areaId, content, whoises, stat
     if (content == null)
         content = "";
     if (whoises == null)
-        whoises = "stat";
+        whoises = "";
     if (stat == null)
         stat = false;
 
     return new Promise(function(resolve, reject) {
         auth.utils.authMutation(req, authToken).then(
             function(response) {
-                mysql.query("INSERT INTO Quests(Title, AreaId, Content, Whoises, Stat, ModifiedOn, ModifiedBy, ModifiedByIP) VALUES (?, ?, ?, ?, ?, NOW, ?, ?)",
+                mysql.query("INSERT INTO Quests(Title, AreaId, Content, Whoises, Stat, ModifiedOn, ModifiedBy, ModifiedByIP) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)",
                     [title, areaId, content, whoises, stat, response.username, response.ip],
                     function(error, results, fields) {
                         if (error) {
@@ -255,7 +255,7 @@ let updateQuest = function(req, authToken, id, title, areaId, content, whoises, 
                 sql.push(
                     "ModifiedOn = NOW(),",
                     "ModifiedBy = ?,",
-                    "ModifiedByIP = ?,",
+                    "ModifiedByIP = ?",
                     "WHERE Id = ?"
                 );
                 placeholders.push(response.username, response.ip, id);
@@ -417,7 +417,7 @@ let mFields = {
             stat: {type: gql.GraphQLBoolean}
         },
         resolve: function(_, {
-            authtoken,
+            authToken,
             title,
             areaId,
             content,

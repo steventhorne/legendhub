@@ -352,6 +352,10 @@ class ItemStatInfo {
     }
 }
 
+let getItemFragment = function() {
+    return itemFragment;
+};
+
 let getItemById = function(id) {
     if (!id)
         return null;
@@ -425,7 +429,7 @@ let getItemHistoryById = function(id) {
 };
 
 let getItemsBySlotId = function(slotId) {
-    if (!slotId)
+    if (slotId == null)
         return [];
 
     return new Promise(function(resolve, reject) {
@@ -971,6 +975,13 @@ let itemSearchResultsType = new graphql.GraphQLObjectType({
 });
 
 let qFields = {
+    getItemFragment: {
+        type: graphql.GraphQLString,
+        args: {},
+        resolve: function(_) {
+            return getItemFragment();
+        }
+    },
     getItemById: {
         type: itemType,
         args: {
