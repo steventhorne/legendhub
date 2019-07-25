@@ -129,6 +129,8 @@
                                 "authToken:\"",$cookies.get("loginToken"),"\",",
                                 "title:\"",quest.title,"\",",
                                 "areaId:",quest.areaId,",",
+                                "whoises:\"",quest.whoises,"\",",
+                                "stat:",quest.stat,",",
                                 "content:\"",quest.content,"\") {",
                                     "token ",
                                     "expires",
@@ -161,6 +163,8 @@
                                 "insertQuest(authToken:\"",$cookies.get("loginToken"),"\",",
                                 "title:\"",quest.title,"\",",
                                 "areaId:",quest.areaId,",",
+                                "whoises:\"",quest.whoises,"\",",
+                                "stat:",quest.stat,",",
                                 "content:\"",quest.content,"\") {",
                                     "id ",
                                     "tokenRenewal {",
@@ -170,11 +174,13 @@
                                 "}",
                             "}"
                         ];
+                        console.log(query.join(""));
                         $http({
                             url: "/api",
                             method: "POST",
                             data: {"query": query.join("")}
                         }).then((response) => {
+                            console.log(response);
                             let data = response.data.data.insertQuest;
                             let newToken = data.tokenRenewal.token;
                             let expireDate = data.tokenRenewal.expires;

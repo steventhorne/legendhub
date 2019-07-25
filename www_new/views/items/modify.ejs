@@ -179,9 +179,9 @@
                                     <%_if(stat.type === "string") {_%>
                                     "<%-stat.var%>:\"",item.<%-stat.var%>,"\",",
                                     <%_}else if (stat.type ==="boolean"){_%>
-                                    "<%-stat.var%>:",(item.<%-stat.var%> !== undefined ? item.<%-stat.var%>:"false"),",",
+                                    "<%-stat.var%>:",(item.<%-stat.var%> != null ? item.<%-stat.var%>:"false"),",",
                                     <%_}else{_%>
-                                    "<%-stat.var%>:",(item.<%-stat.var%> !== undefined ? item.<%-stat.var%>:"0"),",",
+                                    "<%-stat.var%>:",(item.<%-stat.var%> != null ? item.<%-stat.var%>:"0"),",",
                             <%_}}}_%>
                             ") {",
                                 "token ",
@@ -220,9 +220,9 @@
                                     <%_if(stat.type === "string") {_%>
                                     "<%-stat.var%>:\"",item.<%-stat.var%>,"\",",
                                     <%_}else if (stat.type ==="boolean"){_%>
-                                    "<%-stat.var%>:",(item.<%-stat.var%> !== undefined ? item.<%-stat.var%>:"false"),",",
+                                    "<%-stat.var%>:",(item.<%-stat.var%> != null ? item.<%-stat.var%>:"false"),",",
                                     <%_}else{_%>
-                                    "<%-stat.var%>:",(item.<%-stat.var%> !== undefined ? item.<%-stat.var%>:"0"),",",
+                                    "<%-stat.var%>:",(item.<%-stat.var%> != null ? item.<%-stat.var%>:"0"),",",
                             <%_}}}_%>
                             ") {",
                                 "id ",
