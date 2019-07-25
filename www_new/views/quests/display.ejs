@@ -54,6 +54,7 @@
             <%}}%>
             <br><br>
         </div>
+        <%if (vm.quest.content) {%>
         <div class="row" ng-cloak>
             <div class="col-12">
                 <div class="card" ng-init="questContent='<%=vm.quest.content.replace(/'/g, "&#39;").replace(/\\/g,"\\\\")%>'">
@@ -61,6 +62,7 @@
                 </div>
             </div>
         </div>
+        <%}%>
         <br><br>
         <%if (vm.historyId && locals.user) {%>
         <a class="btn btn-primary btn-block col-6 col-md-3" href="/quests/revert.html?id=<%-vm.historyId%>" role="button">Use this version</a>
