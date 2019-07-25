@@ -40,25 +40,28 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         let query = [
             "{",
                 "getItemStatInfo {",
-                    "display",
-                    "short",
-                    "var",
-                    "type",
-                    "filterString",
-                    "defaultValue",
-                    "netStat",
+                    "display ",
+                    "short ",
+                    "var ",
+                    "type ",
+                    "filterString ",
+                    "defaultValue ",
+                    "netStat ",
                     "showColumnDefault",
                 "}",
+                "getItemFragment",
             "}"
         ];
 
         $http({
             url: "/api",
             method: "POST",
-            data: {query: query.join("\n")}
+            data: {query: query.join("")}
         }).then(function successCallback(response) {
             $scope.statInfo = response.data.data.getItemStatInfo;
             $scope.defaultStatInfo = angular.copy($scope.statInfo);
+
+            $scope.itemFragment = response.data.data.getItemFragment;
             loadClientSideData();
         });
         //$q.all([getStatCategories(), getStatInfo()]).then(
@@ -73,47 +76,6 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     };
 
     /**
-     * Gets the stat category information from the server.
-     *
-     * @return {Promise} the promise that contains the category info.
-     */
-	var getStatCategories = function() {
-        var deferred = $q.defer();
-
-		$http({
-			url: '/php/items/getItemCategories.php'
-		}).then(function successCallback(response) {
-            deferred.resolve(response.data);
-			//$scope.statCategories = response.data;
-		}, function errorCallback(response){
-            deferred.reject(response);
-		});
-
-        return deferred.promise;
-	};
-
-    /**
-     * Gets the stat information from the server.
-     *
-     * @return {Promise} the promise that contains the stat info.
-     */
-	var getStatInfo = function() {
-        var deferred = $q.defer();
-
-		$http({
-			url: '/php/items/getItemStats.php'
-		}).then(function successCallback(response) {
-            deferred.resolve(response.data);
-			// $scope.statInfo = response.data;
-			// $scope.defaultStatInfo = angular.copy(response.data);
-		}, function errorCallback(response){
-            deferred.reject(response);
-		});
-
-        return deferred.promise;
-	};
-
-    /**
      * Gets a blank list for use when adding a new list
      *
      * @param {string} name - the name for the list.
@@ -123,7 +85,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		list.name = name;
 
 		// base stats
-		list.baseStats = {"Strength": 0, "Mind": 0, "Dexterity": 0, "Constitution": 0, "Perception": 0, "Spirit": 0, "Longhouse": -1, "Amulet": -1};
+		list.baseStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0, "longhouse": -1, "amulet": -1};
 
 		// items
 		list.items = [];
@@ -157,7 +119,6 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
             var columns = cookie.split("-");
             for (var i = 0; i < columns.length; ++i) {
                 for (var j = 0; j < statInfo.length; ++j) {
-                    console.log(columns[i])
                     if (columns[i] == statInfo[j]["short"]) {
                         statInfo[j]["showColumn"] = true;
                     }
@@ -317,7 +278,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     var selectListVariantByIndex = function(listIndex, variantIndex) {
         $scope.selectedListVariantIndex = variantIndex;
         $scope.selectedList = $scope.allLists[listIndex].variants[variantIndex];
-		$scope.editCharacterModel = {"Name": $scope.allLists[listIndex].name};
+		$scope.editCharacterModel = {"name": $scope.allLists[listIndex].name};
 		var list = $scope.selectedList;
 
 		var ids = [];
@@ -387,12 +348,20 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     var getItemsInId = function(ids) {
         var deferred = $q.defer();
 
+        let query = [
+            $scope.itemFragment,
+            "{",
+                "getItemsInIds(ids:",angular.toJson(ids),") {",
+                    "... ItemAll",
+                "}",
+            "}"
+        ];
         $http({
-            url: '/php/items/getItemsInIds.php',
+            url: '/api',
             method: 'POST',
-            data: {"ids": ids}
+            data: {"query": query.join("")}
         }).then(function successCallback(response) {
-            deferred.resolve(response.data);
+            deferred.resolve(response.data.data.getItemsInIds);
         }, function errorCallback(response){
             deferred.reject(response);
         });
@@ -578,8 +547,6 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		$scope.currentItem = item;
 		$scope.currentItemIndex = index;
 
-        console.log($scope.itemsBySlot);
-        console.log(item);
 		if ($scope.itemsBySlot[item.slot].length == 0) {
 			$scope.loadingModal = true;
             getItemsBySlotAsync(item.slot).then(
@@ -823,12 +790,20 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     var getItemsBySlotAsync = function(slot) {
         var deferred = $q.defer();
 
+        let query = [
+            $scope.itemFragment,
+            "{",
+                "getItemsBySlotId(slotId:",slot,") {",
+                    "... ItemAll",
+                "}",
+            "}"
+        ];
         $http({
-            url: '/php/items/getItemsBySlot.php',
+            url: '/api',
             method: 'POST',
-            data: {"slot": slot}
+            data: {"query": query.join("")}
         }).then(function successCallback(response) {
-            deferred.resolve(response.data);
+            deferred.resolve(response.data.data.getItemsBySlotId);
         }, function errorCallback(response){
             deferred.reject(response);
         });
@@ -1248,7 +1223,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		var totalBaseStats = $scope.selectedList.baseStats.strength + $scope.selectedList.baseStats.mind + $scope.selectedList.baseStats.dexterity + $scope.selectedList.baseStats.constitution + $scope.selectedList.baseStats.perception + $scope.selectedList.baseStats.spirit;
 
         switch (statName) {
-			case "Strength":
+			case "strength":
 				if (totalBaseStats < 244) {
 					fromStatQuests += 3;
 				}
@@ -1262,7 +1237,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 					fromStatQuests += 3;
 				}
 				break;
-			case "Mind":
+			case "mind":
 				if (totalBaseStats < 244) {
 					fromStatQuests += 3;
 				}
@@ -1276,7 +1251,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 					fromStatQuests += 3;
 				}
 				break;
-			case "Dexterity":
+			case "dexterity":
 				if (totalBaseStats < 244) {
 					fromStatQuests += 3;
 				}
@@ -1290,7 +1265,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 					fromStatQuests += 3;
 				}
 				break;
-			case "Constitution":
+			case "constitution":
 				if (totalBaseStats < 244) {
 					fromStatQuests += 3;
 				}
@@ -1304,7 +1279,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 					fromStatQuests += 3;
 				}
 				break;
-			case "Perception":
+			case "perception":
 				if (totalBaseStats < 244) {
 					fromStatQuests += 3;
 				}
@@ -1318,7 +1293,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 					fromStatQuests += 3;
 				}
 				break;
-			case "Spirit":
+			case "spirit":
 				if (totalBaseStats < 244) {
 					fromStatQuests += 13;
 				}
@@ -1351,19 +1326,19 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
 		switch (statName)
 		{
-			case "Spelldam":
-			    fromBonus += parseInt(($scope.getStatTotal("Mind") - 52) / 2);
+			case "spelldam":
+			    fromBonus += parseInt(($scope.getStatTotal("mind") - 52) / 2);
 				break;
-			case "Spellcrit":
-				fromBonus += parseInt(($scope.getStatTotal("Mind") - 60) / 4);
-				fromBonus += parseInt(Math.max($scope.getStatTotal("Perception") - 60, 0) / 8);
-				fromBonus += parseInt(Math.max($scope.getStatTotal("Spirit") - 60, 0) / 8);
+			case "spellcrit":
+				fromBonus += parseInt(($scope.getStatTotal("mind") - 60) / 4);
+				fromBonus += parseInt(Math.max($scope.getStatTotal("perception") - 60, 0) / 8);
+				fromBonus += parseInt(Math.max($scope.getStatTotal("spirit") - 60, 0) / 8);
 				fromBonus += 5;
 				break;
-			case "Hit":
-				var str = $scope.getStatTotal("Strength");
-				var dex = $scope.getStatTotal("Dexterity");
-				var con = $scope.getStatTotal("Constitution");
+			case "hit":
+				var str = $scope.getStatTotal("strength");
+				var dex = $scope.getStatTotal("dexterity");
+				var con = $scope.getStatTotal("constitution");
 
 				var bestStat = dex;
 				var wearingStrWeap = false;
@@ -1388,11 +1363,11 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				fromBonus += parseInt((bestStat - 30) / 3);
 				fromBonus += parseInt(Math.max(dex - 70, 0) / 6);
 				break;
-			case "Dam":
-				fromBonus += parseInt(($scope.getStatTotal("Strength") - 30) / 3);
+			case "dam":
+				fromBonus += parseInt(($scope.getStatTotal("strength") - 30) / 3);
 				break;
-			case "Mitigation":
-				var con = $scope.getStatTotal("Constitution");
+			case "mitigation":
+				var con = $scope.getStatTotal("constitution");
 				var hasBattleTraining = false;
 				for (var i = 25; i < $scope.selectedList.items.length; ++i) { // loop through Other slots
 					if ($scope.selectedList.items[i].id == 1144 || $scope.selectedList.items[i].id == 1137) {
@@ -1405,11 +1380,11 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 					fromBonus += parseInt(Math.max(con - 75, 0) / 5);
 				}
 				break;
-			case "Ac":
-				var str = $scope.getStatTotal("Strength");
-				var dex = $scope.getStatTotal("Dexterity");
-				var con = $scope.getStatTotal("Constitution");
-				var per = $scope.getStatTotal("Perception");
+			case "ac":
+				var str = $scope.getStatTotal("strength");
+				var dex = $scope.getStatTotal("dexterity");
+				var con = $scope.getStatTotal("constitution");
+				var per = $scope.getStatTotal("perception");
 
 				var totalAC = 83;
 				totalAC += parseInt(Math.max(dex - 40, 0) * -0.5);
@@ -1439,7 +1414,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      */
     var getStatTotalBonus = function(statName, curTotal) {
         switch (statName) {
-            case "Dam":
+            case "dam":
                 for (var i = 0; i < $scope.selectedList.items.length; ++i) {
 					if ($scope.selectedList.items[i].slot == 14 && $scope.selectedList.items[i].twoHanded) {
                         return parseInt(curTotal / 3);
@@ -1463,13 +1438,13 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         var max = null;
 
         switch (statName) {
-            case "Hit":
-            case "Dam":
+            case "hit":
+            case "dam":
                 max = 27;
                 break;
-            case "Hpr":
-            case "Mar":
-            case "Mvr":
+            case "hpr":
+            case "mar":
+            case "mvr":
                 max = 20;
                 break;
 			default:
@@ -1489,22 +1464,22 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     	var max = null;
 
 		switch (statName) {
-            case "Strength":
-            case "Mind":
-            case "Dexterity":
-            case "Constitution":
+            case "strength":
+            case "mind":
+            case "dexterity":
+            case "constitution":
                 max = 105;
                 break;
-            case "Perception":
-            case "Spirit":
+            case "perception":
+            case "spirit":
                 max = 110;
                 break;
-            case "Spelldam":
-            case "Spellcrit":
-            case "ManaReduction":
+            case "spelldam":
+            case "spellcrit":
+            case "manaReduction":
                 max = 50;
                 break;
-			case "Mitigation":
+			case "mitigation":
 				var hasBattleTraining = false;
 				for (var i = 25; i < $scope.selectedList.items.length; ++i) { // loop through Other slots
 					if ($scope.selectedList.items[i].id == 1144 || $scope.selectedList.items[i].id == 1137) {
@@ -1513,7 +1488,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 					}
 				}
 
-				var max = parseInt(Math.max(Math.min($scope.getStatTotal("Constitution"), 70) - 30, 0) / 2);
+				var max = parseInt(Math.max(Math.min($scope.getStatTotal("constitution"), 70) - 30, 0) / 2);
 				if (hasBattleTraining) {
 					max += 10;
 				}
@@ -1533,7 +1508,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         var min = null;
 
         switch (statName) {
-            case "Ac":
+            case "ac":
                 min = -250;
                 break;
             default:
@@ -1681,7 +1656,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				}
 			}
 
-			var strength = $scope.getStatTotal("Strength");
+			var strength = $scope.getStatTotal("strength");
 
 			// weight
 			if (curItem.slot == 14) {

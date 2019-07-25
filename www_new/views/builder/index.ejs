@@ -156,7 +156,7 @@
 							<td></td>
                             <td class="text-center" ng-click="onColumnLockClicked()"><i class="fas " ng-class="getColumnLockedClasses()"></i></td>
 							<td class="text-center">Total</td>
-                            <td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'same' && stat.var !== 'slot'" class="text-center" ng-class="{'bg-danger': anyStatRestrictions(stat.var), 'text-monospace': stat.var === 'alignRestriction'}" ng-style="stat.var === 'alignRestriction' && {'white-space':'pre'}" ng-trim="!stat.var === 'alignRestriction'" data-toggle="tooltip" ng-attr-data-original-title="{{getStatRestrictionText(stat.var)}}" nowrap lh-tooltip><span ng-if="anyStatRestrictions(stat.var)" data-toggle="tooltip"><i class="fas fa-question-circle"></i>&nbsp;</span>{{getStatTotal(stat.var)}}</td>
+                            <td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'name' && stat.var !== 'slot'" class="text-center" ng-class="{'bg-danger': anyStatRestrictions(stat.var), 'text-monospace': stat.var === 'alignRestriction'}" ng-style="stat.var === 'alignRestriction' && {'white-space':'pre'}" ng-trim="!stat.var === 'alignRestriction'" data-toggle="tooltip" ng-attr-data-original-title="{{getStatRestrictionText(stat.var)}}" nowrap lh-tooltip><span ng-if="anyStatRestrictions(stat.var)" data-toggle="tooltip"><i class="fas fa-question-circle"></i>&nbsp;</span>{{getStatTotal(stat.var)}}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -246,7 +246,7 @@
 									<table class="table table-striped table-sm table-hover">
 										<thead class="thead-dark">
 											<tr>
-												<th scope="col" class="clickable" ng-click="onColumnHeaderClicked('Name')" nowrap>Name&nbsp;<i ng-class="getSortClass('Name')"></i></th>
+												<th scope="col" class="clickable" ng-click="onColumnHeaderClicked('name')" nowrap>Name&nbsp;<i ng-class="getSortClass('name')"></i></th>
 												<th scope="col" class="clickable" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'name' && stat.var !== 'slot'" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
 											</tr>
 										</thead>
@@ -258,7 +258,7 @@
                                         <tbody ng-show="itemsBySlot[currentItem.slot].length > 0">
                                             <tr ng-repeat="item in getFilteredSearchResults()" ng-click="onSearchRowClicked(item)">
 												<td scope="row">
-													<a href="/items/details.html?id={{item.id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.id"><i class="fas fa-link fa-lg"></i></a>&nbsp;{{item['Name']}}</td>
+													<a href="/items/details.html?id={{item.id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.id"><i class="fas fa-link fa-lg"></i></a>&nbsp;{{item['name']}}</td>
                                                 <td ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'name' && stat.var !== 'slot'" ng-class="{'text-monospace': stat.var === 'alignRestriction'}" ng-style="stat.var === alignRestriction && {'white-space': 'pre'}" ng-trim="stat.var !== 'alignRestriction'}">
 													<span ng-if="stat.type == 'bool'">
 														<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
