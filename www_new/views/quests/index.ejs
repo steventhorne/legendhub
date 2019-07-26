@@ -5,7 +5,7 @@
     </head>
     <body ng-app="legendwiki-app" ng-controller="quests" ng-class="{'modal-open': categoryActive}">
         <%-include("../shared/header")-%>
-        <% let searchPart = (vm.query.search !== undefined ? "&search=" + vm.query.search : "");
+        <% let searchPart = (vm.query.search !== undefined ? "&search=" + vm.query.search : "") + (vm.query.stat !== undefined ? "&stat=" + vm.query.stat:"");
              let categoryPart = `${(vm.query.eraId ? `&eraId=${vm.query.eraId}`:"")}${(vm.query.areaId ? `&areaId=${vm.query.areaId}`:"")}`;
              let sortByPart = (vm.query.sortBy ? `&sortBy=${vm.query.sortBy}`:"");
              let sortAscPart = (vm.query.sortAsc ? `&sortAsc=${vm.query.sortAsc}`:"");
