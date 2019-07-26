@@ -26,10 +26,14 @@ var authFunc = async function(req, res, next) {
             res.locals.user = await authApi.utils.authToken(req.cookies.loginToken, authApi.utils.getIPFromRequest(req), false);
         }
         catch (e) {
-            if (e.message === "Invalid Token")
+            if (e.message === "Invalid Token") {
                 res.clearCookie("loginToken");
-            next(e);
-            return;
+                delete res.locals.cookies.loginToken;
+                return next();
+            }
+            else {
+                return next(e);
+            }
         }
 
         try {
@@ -53,8 +57,7 @@ var authFunc = async function(req, res, next) {
             res.locals.user.notifications = response.getNotifications.results;
         }
         catch (e) {
-            next(e);
-            return;
+            return next(e);
         }
 
         next();
