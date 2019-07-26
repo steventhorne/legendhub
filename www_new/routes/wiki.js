@@ -83,7 +83,7 @@ router.get(["/", "/index.html"], function(req, res, next) {
             activeCategory: activeCategory,
             cookies: req.cookies
         };
-        let title = vm.noSearch ? "Recent Wiki Pages" : `Results for "${req.query.search || ""}"`;
+        let title = vm.noSearch ? "Recent Wiki Pages" : `${data.getWikiPages.wikiPages.length}${data.getWikiPages.moreResults?"+":""} wiki results for "${req.query.search || ""}"`;
         res.render("wiki/index", {title, vm});
     });
 });

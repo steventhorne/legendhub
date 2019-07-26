@@ -82,7 +82,7 @@ router.get(["/", "/index.html"], function(req, res, next) {
             activeCategory: activeCategory,
             cookies: req.cookies
         };
-        let title = vm.noSearch ? "Recent Quests" : `Results for "${req.query.search || ""}"`;
+        let title = vm.noSearch ? "Recent Quests" : `${data.getQuests.quests.length}${data.getQuests.moreResults?"+":""} quest results for "${req.query.search || ""}"`;
         res.render("quests/index", {title, vm});
     });
 });

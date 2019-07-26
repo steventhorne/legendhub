@@ -431,7 +431,7 @@ router.get(["/", "/index.html"], function(req, res, next) {
             constants: itemApi.constants,
             cookies: req.cookies
         };
-        let title = vm.noSearch ? "Recent Items" : `Results for "${req.query.search || ""}"`;
+        let title = vm.noSearch ? "Recent Items" : `${items.length}${moreResults?"+":""} item results for "${req.query.search || ""}"`;
         res.render("items/index", { title, vm });
     });
 });
