@@ -14,7 +14,7 @@
             </h4>
             <%}%>
         </div>
-        <div class="row justify-content-center justify-content-md-start" nv-init="showHistory = false">
+        <div class="row justify-content-center justify-content-md-start" ng-init="showHistory = false">
             <div class="btn-group" role="group" aria-label="Toolbar">
                 <%if (vm.wikiPage.getHistories.length > 0) {%>
                 <button type="button" class="btn btn-outline-primary" ng-click="showHistory = !showHistory"><i class="fas fa-history"></i> <%=vm.wikiPage.getHistories.length%></button>
@@ -30,17 +30,21 @@
                 <%}%>
             </div>
         </div>
-        <br>
-        <div class="col-12">
-            <div class="card" ng-init="wikiContent='<%=vm.wikiPage.content.replace(/'/g, "&#39;").replace(/\\/g,"\\\\")%>'">
-                <div class="card-body" markdown-to-html="wikiContent"></div>
+        <br><br>
+        <%if (vm.wikiPage.content) {%>
+        <div class="row">
+            <div class="col-12">
+                <div class="card" ng-init="wikiContent='<%=vm.wikiPage.content.replace(/'/g, "&#39;").replace(/\\/g,"\\\\")%>'">
+                    <div class="card-body" markdown-to-html="wikiContent"></div>
+                </div>
+                <br><br>
+                <%if (vm.historyId && locals.user) {%>
+                <a class="btn btn-primary btn-block col-12 col-md-6" href="/wiki/revert.html?id=<%-vm.historyId%>" role="button">Use this version</a>
+                <br><br>
+                <%}%>
             </div>
-            <br><br>
-            <%if (vm.historyId && locals.user) {%>
-            <a class="btn btn-primary btn-block col-12 col-md-6" href="/wiki/revert.html?id=<%-vm.historyId%>" role="button">Use this version</a>
-            <br><br>
-            <%}%>
         </div>
+        <%}%>
 	</div>
     <%-include("../shared/footer");-%>
     <%-include("../shared/scripts");-%>
