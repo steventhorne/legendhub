@@ -30,10 +30,22 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Category</span>
                             </div>
-                            <select class="form-control" name="category" ng-model="wikiPage.categoryId" ng-class="{'is-invalid': wikiForm.category.$invalid}" required>
+                            <select class="form-control" name="category" ng-model="wikiPage.categoryId" ng-class="{'is-invalid': wikiForm.category.$invalid}" ng-change="onCategoryChanged()" required>
                                 <%for (let i = 0; i < vm.categories.length; ++i) {%>
                                 <option ng-value="<%-vm.categories[i].id%>"><%=vm.categories[i].name%></option>
                                 <%}%>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row" ng-show="subcategories[wikiPage.categoryId].length > 0" ng-cloak>
+                    <div class="form-group col-12 col-lg-5">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Subcategory</span>
+                            </div>
+                            <select class="form-control" name="subcategory" ng-model="wikiPage.subcategoryId" ng-class="{'is-invalid': wikiForm.subcategory.$invalid}" ng-required="subcategories[wikiPage.categoryId].length > 0">
+                                <option ng-repeat="subcategory in subcategories[wikiPage.categoryId]" ng-value="subcategory.id">{{subcategory.name}}</option>
                             </select>
                         </div>
                     </div>
@@ -87,7 +99,7 @@
                             id:<%-vm.wikiPage.id%>,
                             title:"<%-vm.wikiPage.title.replace(/"/g,"\\\"")%>",
                             categoryId:<%-vm.wikiPage.categoryId%>,
-                            subcategoryId:<%-vm.wikiPage.subcategoryId%>,
+                            subcategoryId:<%-vm.wikiPage.subcategoryId === 0 ? "null": vm.wikiPage.subcategoryId%>,
                             tags:"<%-vm.wikiPage.tags%>",
                             content:"<%-vm.wikiPage.content.replace(/\\/g,"\\\\").replace(/"/g,"\\\"").replace(/\n/g,"\\n")%>",
                         };
@@ -98,7 +110,16 @@
                             content: ""
                         };
                     <%_}_%>
-                }
+                        $scope.subcategories = {
+                            <%_for (let i = 0; i < vm.categories.length; ++i) {_%>
+                            <%-vm.categories[i].id%>: [
+                                <%_for (let j = 0; j < vm.categories[i].getSubcategories.length; ++j) {_%>
+                                {id:<%-vm.categories[i].getSubcategories[j].id%>,name:"<%-vm.categories[i].getSubcategories[j].name%>"},
+                                <%_}%>
+                            ],
+                            <%_}_%>
+                        };
+                };
 
                 <%_if (vm.wikiPage) {_%>
                     $scope.canEdit = function() {
@@ -115,14 +136,15 @@
                                 "authToken:\"",$cookies.get("loginToken"),"\",",
                                 "title:\"",wikiPage.title,"\",",
                                 "categoryId:",wikiPage.categoryId,",",
-                                "subcategoryId:",wikiPage.subcategoryId,",",
-                                "tags:",wikiPage.tags,",",
-                                "content:\"",wikiPage.content,"\") {",
+                                "subcategoryId:",wikiPage.subcategoryId === null ? "null" : wikiPage.subcategoryId,",",
+                                "tags:\"",wikiPage.tags,"\",",
+                                "content:\"\"\"",wikiPage.content,"\"\"\") {",
                                     "token ",
                                     "expires",
                                 "}",
                             "}"
                         ];
+                        console.log(query.join(""));
                         $http({
                             url: "/api",
                             method: "POST",
@@ -149,9 +171,9 @@
                                 "insertWikiPage(authToken:\"",$cookies.get("loginToken"),"\",",
                                 "title:\"",wikiPage.title,"\",",
                                 "categoryId:",wikiPage.categoryId,",",
-                                "subcategoryId:",wikiPage.subcategoryId,",",
-                                "tags:",wikiPage.tags,",",
-                                "content:\"",wikiPage.content,"\") {",
+                                "subcategoryId:",wikiPage.subcategoryId === null ? "null" : wikiPage.subcategoryId,",",
+                                "tags:\"",wikiPage.tags,"\",",
+                                "content:\"\"\"",wikiPage.content,"\"\"\") {",
                                     "id ",
                                     "tokenRenewal {",
                                         "token ",
@@ -173,6 +195,10 @@
                         });
                     };
                 <%_}_%>
+
+                $scope.onCategoryChanged = function() {
+                    $scope.wikiPage.subcategoryId = null;
+                };
 
                 initialize();
             }]);

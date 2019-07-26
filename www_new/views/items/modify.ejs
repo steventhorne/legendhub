@@ -177,7 +177,7 @@
                                     let stat = vm.itemStatCategories[i].getItemStatInfo[j];
                                     if (!stat.editable) continue;_%>
                                     <%_if(stat.type === "string") {_%>
-                                    "<%-stat.var%>:\"",item.<%-stat.var%>,"\",",
+                                    "<%-stat.var%>:\"\"\"",item.<%-stat.var%>,"\"\"\",",
                                     <%_}else if (stat.type ==="boolean"){_%>
                                     "<%-stat.var%>:",(item.<%-stat.var%> != null ? item.<%-stat.var%>:"false"),",",
                                     <%_}else{_%>
@@ -218,7 +218,7 @@
                                     let stat = vm.itemStatCategories[i].getItemStatInfo[j];
                                     if (!stat.editable) continue;_%>
                                     <%_if(stat.type === "string") {_%>
-                                    "<%-stat.var%>:\"",item.<%-stat.var%>,"\",",
+                                    "<%-stat.var%>:\"\"\"",item.<%-stat.var%>,"\"\"\",",
                                     <%_}else if (stat.type ==="boolean"){_%>
                                     "<%-stat.var%>:",(item.<%-stat.var%> != null ? item.<%-stat.var%>:"false"),",",
                                     <%_}else{_%>

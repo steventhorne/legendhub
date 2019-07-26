@@ -109,7 +109,8 @@
                     <%_} else {_%>
                         $scope.quest = {
                             whoises: "",
-                            content: ""
+                            content: "",
+                            stat: false
                         };
                     <%_}_%>
                 }
@@ -131,7 +132,7 @@
                                 "areaId:",quest.areaId,",",
                                 "whoises:\"",quest.whoises,"\",",
                                 "stat:",quest.stat,",",
-                                "content:\"",quest.content,"\") {",
+                                "content:\"\"\"",quest.content,"\"\"\") {",
                                     "token ",
                                     "expires",
                                 "}",
@@ -165,7 +166,7 @@
                                 "areaId:",quest.areaId,",",
                                 "whoises:\"",quest.whoises,"\",",
                                 "stat:",quest.stat,",",
-                                "content:\"",quest.content,"\") {",
+                                "content:\"\"\"",quest.content,"\"\"\") {",
                                     "id ",
                                     "tokenRenewal {",
                                         "token ",
