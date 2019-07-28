@@ -406,7 +406,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr ng-repeat="list in importModel.lists | filter:{Exists:true} track by $index">
+                                    <tr ng-repeat="list in importModel.lists | filter:{exists:true} track by $index">
                                         <td class="text-center">{{list.name}}</td>
                                         <td class="text-center">{{list.variants[0].name}}</td>
                                         <td class="text-center">
@@ -425,7 +425,7 @@
 			</div>
 		</div>
 	</div>
-    <div ng-include="'/shared/columnsModal.html'"></div>
+    <%-include('../shared/columnsModal')-%>
     <%-include("../shared/footer")-%>
     <%-include("../shared/scripts")-%>
 	<script src="/js/controllers/builder/main.js?%%version%%"></script>

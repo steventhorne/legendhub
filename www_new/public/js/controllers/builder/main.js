@@ -159,7 +159,6 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 			}
 		}
 
-
         return lists;
     };
 
@@ -176,7 +175,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         }
 
         // name
-        newList = {Name: variantName};
+        newList = {name: variantName};
         each.shift();
 
         // base stats
@@ -390,6 +389,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 			}
 		}
 		$scope.allLists = loadCharacterLists(listCookieStr);
+        $scope.allLists.sort(compareLists);
 
 		// load selected list
 		if ($cookies.get("cookie-consent")) {
@@ -425,13 +425,13 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		var cookieDate = new Date();
 		cookieDate.setFullYear(cookieDate.getFullYear() + 20);
 
-		$savedColumns = "";
+		let savedColumns = "";
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
-			if ($scope.statInfo[i]["showColumn"]) {
-				$savedColumns += $scope.statInfo[i]["short"] + "-";
+			if ($scope.statInfo[i].showColumn) {
+				savedColumns += $scope.statInfo[i].short + "-";
 			}
 		}
-		$cookies.put("sc2", $savedColumns, {"path": "/", 'expires': cookieDate});
+		$cookies.put("sc2", savedColumns, {"path": "/", 'expires': cookieDate});
 
 		// save lists
 		listCookieStr = "";
@@ -477,10 +477,20 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         return listCookieStr;
     };
 
+    let compareLists = function(a, b) {
+        a = a.name.toLowerCase();
+        b = b.name.toLowerCase();
+        if (a < b) return -1;
+        if (a > b) return 1;
+        return 0;
+    };
+
     var addCharacterList = function(name) {
 		$scope.allLists.push({name: name, variants: []});
-        $scope.selectedListIndex = $scope.allLists.length - 1;
-        $scope.addCharacterVariant($scope.allLists.length - 1);
+        $scope.allLists.sort(compareLists);
+        let index = $scope.allLists.map(function(e) { return e.name; }).indexOf(name);
+        $scope.selectedListIndex = index;
+        $scope.addCharacterVariant(index);
     };
 
     $scope.addCharacterVariant = function(listIndex) {
@@ -606,7 +616,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
     /** Event for when the Import button is clicked. */
     $scope.onImportClicked = function() {
-        $scope.importModel = {Input: "", Lists: [], Message: "", Loading: true};
+        $scope.importModel = {input: "", lists: [], message: "", loading: true};
         $("#importModal").modal("show");
     };
 
@@ -861,7 +871,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
             return;
         }
-		$scope.selectedList.items[$scope.currentItemIndex] = item;
+		$scope.selectedList.items[$scope.currentItemIndex] = angular.copy(item);
 		$scope.saveClientSideData();
 		applyItemRestrictions();
 		$('#itemChoiceModal').modal('hide');
@@ -949,12 +959,12 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     /** Opens the modal for editing characters. */
     $scope.openEditCharacterModal = function() {
         $scope.textInputModalModel = {
-            Title: "Edit Character",
-            Action: editCharacter,
-            Label: "Name",
-            Pattern: /^[A-Za-z\s\d]+$/,
-            Validate: validateEditCharacter,
-            Input: $scope.allLists[$scope.selectedListIndex].name
+            title: "Edit Character",
+            action: editCharacter,
+            label: "Name",
+            pattern: /^[A-Za-z\s\d]+$/,
+            validate: validateEditCharacter,
+            input: $scope.allLists[$scope.selectedListIndex].name
         };
 
         $("#textInputModal").modal("show");
@@ -972,12 +982,12 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     /** Opens the modal for adding characters. */
     $scope.openAddCharacterModal = function() {
         $scope.textInputModalModel = {
-            Title: "Add Character",
-            Action: addCharacter,
-            Label: "Name",
-            Pattern: /^[A-Za-z\s\d]+$/,
-            Validate: validateAddCharacter,
-            Input: ""
+            title: "Add Character",
+            action: addCharacter,
+            label: "Name",
+            pattern: /^[A-Za-z\s\d]+$/,
+            validate: validateAddCharacter,
+            input: ""
         };
 
         $("#textInputModal").modal("show");
@@ -996,12 +1006,12 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     /** Opens the modal for editing variants. */
     $scope.openEditVariantModal = function() {
         $scope.textInputModalModel = {
-            Title: "Edit Variant",
-            Action: editVariant,
-            Label: "Name",
-            Pattern: /^[A-Za-z\s\d]+$/,
-            Validate: validateEditVariant,
-            Input: $scope.selectedList.name
+            title: "Edit Variant",
+            action: editVariant,
+            label: "Name",
+            pattern: /^[A-Za-z\s\d]+$/,
+            validate: validateEditVariant,
+            input: $scope.selectedList.name
         };
 
         $("#textInputModal").modal("show");
@@ -1817,15 +1827,36 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
 	};
 
+    $scope.showColumn = function(statShort, def) {
+        if (!$scope.statInfo)
+            return def;
+
+        for (let i = 0; i < $scope.statInfo.length; ++i) {
+            if ($scope.statInfo[i].short === statShort) {
+                return $scope.statInfo[i].showColumn;
+            }
+        }
+
+        return def;
+    };
+
+    $scope.toggleColumn = function(statShort) {
+        if (!$scope.statInfo)
+            return;
+
+        for (let i = 0; i < $scope.statInfo.length; ++i) {
+            if ($scope.statInfo[i].short === statShort) {
+                $scope.statInfo[i].showColumn = !$scope.statInfo[i].showColumn;
+                $scope.saveClientSideData();
+                return;
+            }
+        }
+    };
+
     $scope.resetColumns = function() {
-        for (var i = 0; i < $scope.defaultStatInfo.length; ++i) {
-			for (var j = 0; j < $scope.statInfo.length; ++j) {
-                if ($scope.defaultStatInfo[i].var === $scope.statInfo[j].var) {
-				    $scope.statInfo[j].showColumn = $scope.defaultStatInfo[i].showColumn;
-                    break;
-                }
-			}
-		}
+        for (let i = 0; i < $scope.statInfo.length; ++i) {
+            $scope.statInfo[i].showColumn = $scope.statInfo[i].showColumnDefault;
+        }
 
         $scope.saveClientSideData();
 	};
