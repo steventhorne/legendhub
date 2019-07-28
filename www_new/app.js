@@ -71,7 +71,7 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
-    if (err && err.status && err.status != 404)
+    if (err && (!err.status || err.status != 404))
         console.log(err);
     if (res.headersSent)
         return next(err);
