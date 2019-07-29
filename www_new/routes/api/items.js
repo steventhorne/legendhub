@@ -433,7 +433,14 @@ let getItemsBySlotId = function(slotId) {
         return [];
 
     return new Promise(function(resolve, reject) {
-        mysql.query(`${ itemSelectSQL } FROM Items WHERE Slot = ? ORDER BY Name ASC`,
+        let sql = `${itemSelectSQL} FROM Items WHERE Slot = ? `;
+        if (slotId == 15) {
+            sql += "OR (Slot = 14 AND Holdable = 1) ";
+        }
+        if (slotId == 14) {
+            sql += "OR Slot = 15 ";
+        }
+        mysql.query(`${sql}ORDER BY Name ASC`,
             [slotId],
             function(error, results, fields) {
                 if (error) {
