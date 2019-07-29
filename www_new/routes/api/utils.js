@@ -60,8 +60,14 @@ module.exports.trackPageUpdate = function(ip) {
     module.exports.trackAttempt("pageUpdate", ip, 5, 200, 60);
 }
 
-module.exports.postAsync = async function(options) {
+module.exports.postAsync = async function(query) {
     return new Promise(function(resolve, reject) {
+        let options = {
+            url: `http://localhost:${process.env.PORT}/api`,
+            form: {
+                query
+            }
+        };
         request.post(options, function(error, response, body) {
             if (error) {
                 reject(error);
@@ -79,6 +85,31 @@ module.exports.postAsync = async function(options) {
             }
         });
     });
+};
+
+module.exports.handleNotifications = async function(authToken, notifications, objectType, objectId) {
+    for (let i = 0; i < notifications.length; ++i) {
+        if (notifications[i].objectType == objectType &&
+            notifications[i].objectId == objectId) {
+            console.log("marking");
+            console.log(notifications[i]);
+            notifications.splice(i, 1);
+            --i;
+        }
+    }
+
+    let query = `
+    mutation {
+        markNotificationAsRead(authToken:"${authToken}",objectType:"${objectType}",objectId:${objectId})
+    }
+    `;
+    try {
+        await module.exports.postAsync(query);
+    }
+    catch (e) {
+        console.log(e);
+    }
+    return notifications;
 };
 
 /* Errors */
