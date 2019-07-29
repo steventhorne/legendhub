@@ -1,5 +1,4 @@
-let express = require("express");
-let router = express.Router();
+let router = require("express").Router();
 let apiUtils = require("./api/utils");
 let auth = require("./api/auth");
 
@@ -22,16 +21,10 @@ router.get(["/", "/index.html"], async function(req, res, next) {
     }
     `;
     try {
-        var data = await apiUtils.postAsync({
-            url: `http://localhost:${process.env.PORT}/api`,
-            form: {
-                query: getChangelogQuery
-            }
-        });
+        var data = await apiUtils.postAsync(getChangelogQuery);
     }
     catch (e) {
-        next(e);
-        return;
+        return next(e);
     }
 
 
@@ -40,8 +33,7 @@ router.get(["/", "/index.html"], async function(req, res, next) {
             res.locals.user.permissions = await auth.utils.getPermissions(res.locals.user.memberId);
         }
         catch (e) {
-            next(e);
-            return;
+            return next(e);
         }
     }
 
@@ -70,16 +62,10 @@ router.get(["/details.html"], async function(req, res, next) {
     `;
 
     try {
-        var data = await apiUtils.postAsync({
-            url: `http://localhost:${process.env.PORT}/api`,
-            form: {
-                query: query
-            }
-        });
+        var data = await apiUtils.postAsync(query);
     }
     catch (e) {
-        next(e);
-        return;
+        return next(e);
     }
 
     if (res.locals.user) {
@@ -87,8 +73,7 @@ router.get(["/details.html"], async function(req, res, next) {
             res.locals.user.permissions = await auth.utils.getPermissions(res.locals.user.memberId);
         }
         catch (e) {
-            next(e);
-            return;
+            return next(e);
         }
     }
 
@@ -112,27 +97,20 @@ router.get(["/details.html"], async function(req, res, next) {
 });
 
 router.get(["/edit.html"], async function(req, res, next) {
-    if (res.locals.user) {
-        try {
-            let permissions = await auth.utils.getPermissions(res.locals.user.memberId);
-            if (!permissions || !permissions.ChangelogVersion || !permissions.ChangelogVersion.update) {
-                let error = new Error("You do not have permission to view this page.");
-                error.status = 401;
-                next(error);
-                return;
-            }
-            res.locals.user.permissions = permissions;
+    if (!res.locals.user)
+        return res.redirect(`/login.html?returnUrl=${encodeURIComponent(res.locals.url.path)}`);
+
+    try {
+        let permissions = await auth.utils.getPermissions(res.locals.user.memberId);
+        if (!permissions || !permissions.ChangelogVersion || !permissions.ChangelogVersion.update) {
+            let error = new Error("You do not have permission to view this page.");
+            error.status = 401;
+            return next(error);
         }
-        catch (e) {
-            next(e);
-            return;
-        }
+        res.locals.user.permissions = permissions;
     }
-    else {
-        let error = new Error("You must be logged in to view this page.");
-        error.status = 401;
-        next(error);
-        return;
+    catch (e) {
+        return next(e);
     }
 
     let query = `
@@ -146,16 +124,10 @@ router.get(["/edit.html"], async function(req, res, next) {
     `;
 
     try {
-        var data = await apiUtils.postAsync({
-            url: `http://localhost:${process.env.PORT}/api`,
-            form: {
-                query: query
-            }
-        });
+        var data = await apiUtils.postAsync(query);
     }
     catch (e) {
-        next(e);
-        return;
+        return next(e);
     }
 
     let changelog = data.getChangelogById;
@@ -181,27 +153,20 @@ router.get(["/edit.html"], async function(req, res, next) {
 });
 
 router.get(["/add.html"], async function(req, res, next) {
-    if (res.locals.user) {
-        try {
-            let permissions = await auth.utils.getPermissions(res.locals.user.memberId);
-            if (!permissions || !permissions.ChangelogVersion || !permissions.ChangelogVersion.update) {
-                let error = new Error("You do not have permission to view this page.");
-                error.status = 401;
-                next(error);
-                return;
-            }
-            res.locals.user.permissions = permissions;
+    if (!res.locals.user)
+        return res.redirect(`/login.html?returnUrl=${encodeURIComponent(res.locals.url.path)}`);
+
+    try {
+        let permissions = await auth.utils.getPermissions(res.locals.user.memberId);
+        if (!permissions || !permissions.ChangelogVersion || !permissions.ChangelogVersion.update) {
+            let error = new Error("You do not have permission to view this page.");
+            error.status = 401;
+            return next(error);
         }
-        catch (e) {
-            next(e);
-            return;
-        }
+        res.locals.user.permissions = permissions;
     }
-    else {
-        let error = new Error("You must be logged in to view this page.");
-        error.status = 401;
-        next(error);
-        return;
+    catch (e) {
+        return next(e);
     }
 
     let vm = {};
