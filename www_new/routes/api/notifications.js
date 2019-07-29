@@ -6,7 +6,7 @@ let apiUtils = require("./utils");
 
 class Notification {
     constructor(sqlResult) {
-        this.id;
+        this.id = sqlResult.Id;
         this.memberId = sqlResult.MemberId;
         this.actorName = sqlResult.ActorName;
         this.read = sqlResult.Read;
@@ -79,6 +79,34 @@ let getNotifications = function(req, authToken, read, page, rows) {
     });
 };
 
+let markNotificationAsRead = function(req, authToken, objectType, objectId) {
+    return new Promise(function(resolve, reject) {
+        auth.utils.authQuery(req, authToken, false).then(
+            response => {
+                let sql = `UPDATE Notifications N
+                JOIN NotificationChanges NC ON NC.Id = N.NotificationChangeId
+                SET N.Read = 1 WHERE N.MemberId = ?`;
+                let placeholders = [response.memberId];
+                if (objectType && objectId) {
+                    sql += " AND NC.ObjectType = ? AND NC.ObjectId = ?";
+                    placeholders.push(objectType, objectId);
+                }
+
+                mysql.query(sql,
+                    placeholders,
+                    function(error, results, fields) {
+                        if (error) {
+                            reject(new gql.GraphQLError(error.sqlMessage));
+                            return;
+                        }
+
+                        resolve(true);
+                    });
+            }
+        ).catch(error => reject(error));
+    });
+};
+
 let notificationType = new gql.GraphQLObjectType({
     name: "Notification",
     fields: () => ({
@@ -121,4 +149,23 @@ let qFields = {
     }
 };
 
+let mFields = {
+    markNotificationAsRead: {
+        type: new gql.GraphQLNonNull(gql.GraphQLBoolean),
+        args: {
+            authToken: {type: new gql.GraphQLNonNull(gql.GraphQLString)},
+            objectType: {type: gql.GraphQLString},
+            objectId: {type: gql.GraphQLInt}
+        },
+        resolve: function(_, {
+            authToken,
+            objectType,
+            objectId
+        }, req) {
+            return markNotificationAsRead(req, authToken, objectType, objectId);
+        }
+    }
+};
+
 module.exports.queryFields = qFields;
+module.exports.mutationFields = mFields;
