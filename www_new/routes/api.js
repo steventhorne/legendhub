@@ -10,7 +10,8 @@ let importGraphs = [
     require("./api/areas.js"),
     require("./api/categories.js"),
     require("./api/changelogs.js"),
-    require("./api/notifications.js")
+    require("./api/notifications.js"),
+    require("./api/account.js")
 ];
 
 var queryFields = {};
