@@ -44,16 +44,14 @@ var authFunc = async function(req, res, next) {
                         createdOn
                         message
                         link
+                        id
+                        objectId
+                        objectType
                     }
                 }
             }
             `;
-            let response = await apiUtils.postAsync({
-                url: `http://localhost:${process.env.PORT}/api`,
-                form: {
-                    query
-                }
-            });
+            let response = await apiUtils.postAsync(query);
             res.locals.user.notifications = response.getNotifications.results;
         }
         catch (e) {

@@ -1,8 +1,8 @@
-var express = require("express");
-var router = express.Router();
+let router = require("express").Router();
 let request = require("request");
+let apiUtils = require("./api/utils");
 
-router.get(["/", "/index.html"], function(req, res, next) {
+router.get(["/", "/index.html"], async function(req, res, next) {
     let page = req.query.page === undefined ? 1 : Number(req.query.page);
     let rows = 20;
     let getWikiPagesQuery = `
@@ -36,59 +36,50 @@ router.get(["/", "/index.html"], function(req, res, next) {
         }
     }
     `;
-    request.post({
-        url: `http://localhost:${process.env.PORT}/api`,
-        form: {
-            query: getWikiPagesQuery
-        }
-    },
-    function(error, response, body) {
-        body = JSON.parse(body);
-        if (body.errors) {
-            let error = new Error(body.errors[0].message);
-            error.status = body.errors[0].code;
-            next(error);
-            return;
-        }
 
-        let data = body.data;
-        let categories = data.getCategories;
-        let activeCategory = "";
-        for (let i = 0; i < categories.length; ++i) {
-            categories[i].subcategories = categories[i].getSubcategories;
+    try {
+        var data = await apiUtils.postAsync(getWikiPagesQuery);
+    }
+    catch (e) {
+        return next(e);
+    }
 
-            if (categories[i].id == req.query.categoryId) {
-                if (req.query.subcategoryId) {
-                    for (let j = 0; j < categories[i].subcategories.length; ++j) {
-                        if (categories[i].subcategories[j].id == req.query.subcategoryId)
-                            activeCategory = categories[i].subcategories[j].name;
-                    }
-                }
-                else {
-                    activeCategory = categories[i].name;
+    let categories = data.getCategories;
+    let activeCategory = "";
+    for (let i = 0; i < categories.length; ++i) {
+        categories[i].subcategories = categories[i].getSubcategories;
+
+        if (categories[i].id == req.query.categoryId) {
+            if (req.query.subcategoryId) {
+                for (let j = 0; j < categories[i].subcategories.length; ++j) {
+                    if (categories[i].subcategories[j].id == req.query.subcategoryId)
+                        activeCategory = categories[i].subcategories[j].name;
                 }
             }
+            else {
+                activeCategory = categories[i].name;
+            }
         }
+    }
 
-        let vm = {
-            query: req.query,
-            noSearch: req.query.search == null && !req.query.categoryId && !req.query.subcategoryId,
-            results: data.getWikiPages.wikiPages,
-            moreResults: data.getWikiPages.moreResults,
-            page: page,
-            rows: rows,
-            categories: categories,
-            categoryId: req.query.categoryId,
-            subcategoryId: req.query.subcategoryId,
-            activeCategory: activeCategory,
-            cookies: req.cookies
-        };
-        let title = vm.noSearch ? "Recent Wiki Pages" : `${data.getWikiPages.wikiPages.length}${data.getWikiPages.moreResults?"+":""} wiki results for "${req.query.search || ""}"`;
-        res.render("wiki/index", {title, vm});
-    });
+    let vm = {
+        query: req.query,
+        noSearch: req.query.search == null && !req.query.categoryId && !req.query.subcategoryId,
+        results: data.getWikiPages.wikiPages,
+        moreResults: data.getWikiPages.moreResults,
+        page: page,
+        rows: rows,
+        categories: categories,
+        categoryId: req.query.categoryId,
+        subcategoryId: req.query.subcategoryId,
+        activeCategory: activeCategory,
+        cookies: req.cookies
+    };
+    let title = vm.noSearch ? "Recent Wiki Pages" : `${data.getWikiPages.wikiPages.length}${data.getWikiPages.moreResults?"+":""} wiki results for "${req.query.search || ""}"`;
+    res.render("wiki/index", {title, vm});
 });
 
-router.get(["/details.html"], function(req, res, next) {
+router.get(["/details.html"], async function(req, res, next) {
     let query = `
     {
         getWikiPageById(id:${req.query.id}) {
@@ -113,59 +104,50 @@ router.get(["/details.html"], function(req, res, next) {
     }
     `;
 
-    request.post({
-        url: `http://localhost:${process.env.PORT}/api`,
-        form: {
-            query: query
-        }
-    },
-    function(error, response, body) {
-        body = JSON.parse(body);
-        if (body.errors) {
-            let error = new Error(body.errors[0].message);
-            error.status = body.errors[0].code;
-            next(error);
-            return;
-        }
+    try {
+        var data = await apiUtils.postAsync(query);
+    }
+    catch (e) {
+        return next(e);
+    }
 
-        let wikiPage = body.data.getWikiPageById;
-        let vm = {
-            wikiPage
-        };
-        let title = wikiPage.title;
-        res.locals.breadcrumbs = [
-            {
-                display: "Wiki",
-                href: "/wiki/"
-            }
-        ];
-        if (wikiPage.categoryId) {
-            res.locals.breadcrumbs.push(
-                {
-                    display: wikiPage.categoryName,
-                    href: `/wiki/index.html?categoryId=${wikiPage.categoryId}`
-                }
-            )
+    let wikiPage = data.getWikiPageById;
+    let vm = {
+        wikiPage
+    };
+    let title = wikiPage.title;
+    res.locals.breadcrumbs = [
+        {
+            display: "Wiki",
+            href: "/wiki/"
         }
-        if (wikiPage.subcategoryId) {
-            res.locals.breadcrumbs.push(
-                {
-                    display: wikiPage.subcategoryName,
-                    href: `/wiki/index.html?categoryId=${wikiPage.categoryId}&subcategoryId=${wikiPage.subcategoryId}`
-                }
-            )
-        }
+    ];
+    if (wikiPage.categoryId) {
         res.locals.breadcrumbs.push(
             {
-                display: wikiPage.title,
-                active: true
+                display: wikiPage.categoryName,
+                href: `/wiki/index.html?categoryId=${wikiPage.categoryId}`
             }
-        );
-        res.render("wiki/display", {title, vm});
-    });
+        )
+    }
+    if (wikiPage.subcategoryId) {
+        res.locals.breadcrumbs.push(
+            {
+                display: wikiPage.subcategoryName,
+                href: `/wiki/index.html?categoryId=${wikiPage.categoryId}&subcategoryId=${wikiPage.subcategoryId}`
+            }
+        )
+    }
+    res.locals.breadcrumbs.push(
+        {
+            display: wikiPage.title,
+            active: true
+        }
+    );
+    res.render("wiki/display", {title, vm});
 });
 
-router.get(["/history.html"], function(req, res, next) {
+router.get(["/history.html"], async function(req, res, next) {
     let query = `
     {
         getWikiPageHistoryById(id:${req.query.id}) {
@@ -192,64 +174,58 @@ router.get(["/history.html"], function(req, res, next) {
     }
     `;
 
-    request.post({
-        url: `http://localhost:${process.env.PORT}/api`,
-        form: {
-            query: query
-        }
-    },
-    function(error, response, body) {
-        body = JSON.parse(body);
-        if (body.errors) {
-            let error = new Error(body.errors[0].message);
-            error.status = body.errors[0].code;
-            next(error);
-            return;
-        }
+    try {
+        var data = await apiUtils.postAsync(query);
+    }
+    catch (e) {
+        return next(e);
+    }
 
-        let wikiPage = body.data.getWikiPageHistoryById.wikiPage;
-        let vm = {
-            wikiPage,
-            historyId: req.query.id
-        };
-        let title = `History for ${wikiPage.title}`;
-        res.locals.breadcrumbs = [
-            {
-                display: "Wiki",
-                href: "/wiki/"
-            }
-        ];
-        if (wikiPage.categoryId) {
-            res.locals.breadcrumbs.push(
-                {
-                    display: wikiPage.categoryName,
-                    href: `/wiki/index.html?categoryId=${wikiPage.categoryId}`
-                }
-            )
+    let wikiPage = data.getWikiPageHistoryById.wikiPage;
+    let vm = {
+        wikiPage,
+        historyId: req.query.id
+    };
+    let title = `History for ${wikiPage.title}`;
+    res.locals.breadcrumbs = [
+        {
+            display: "Wiki",
+            href: "/wiki/"
         }
-        if (wikiPage.subcategoryId) {
-            res.locals.breadcrumbs.push(
-                {
-                    display: wikiPage.subcategoryName,
-                    href: `/wiki/index.html?categoryId=${wikiPage.categoryId}&subcategoryId=${wikiPage.subcategoryId}`
-                }
-            )
-        }
+    ];
+    if (wikiPage.categoryId) {
         res.locals.breadcrumbs.push(
             {
-                display: wikiPage.title,
-                href: `/wiki/details.html?id=${wikiPage.id}`
-            },
-            {
-                display: new Date(wikiPage.modifiedOn).toISOString().slice(0, 16).replace("T", " ") + " UTC",
-                active: true
+                display: wikiPage.categoryName,
+                href: `/wiki/index.html?categoryId=${wikiPage.categoryId}`
             }
-        );
-        res.render("wiki/display", {title, vm});
-    });
+        )
+    }
+    if (wikiPage.subcategoryId) {
+        res.locals.breadcrumbs.push(
+            {
+                display: wikiPage.subcategoryName,
+                href: `/wiki/index.html?categoryId=${wikiPage.categoryId}&subcategoryId=${wikiPage.subcategoryId}`
+            }
+        )
+    }
+    res.locals.breadcrumbs.push(
+        {
+            display: wikiPage.title,
+            href: `/wiki/details.html?id=${wikiPage.id}`
+        },
+        {
+            display: new Date(wikiPage.modifiedOn).toISOString().slice(0, 16).replace("T", " ") + " UTC",
+            active: true
+        }
+    );
+    res.render("wiki/display", {title, vm});
 });
 
-router.get(["/edit.html"], function(req, res, next) {
+router.get(["/edit.html"], async function(req, res, next) {
+    if (!res.locals.user)
+        return res.redirect(`/login.html?returnUrl=${encodeURIComponent(res.locals.url.path)}`);
+
     let query = `
     {
         getWikiPageById(id:${req.query.id}) {
@@ -273,64 +249,58 @@ router.get(["/edit.html"], function(req, res, next) {
     }
     `;
 
-    request.post({
-        url: `http://localhost:${process.env.PORT}/api`,
-        form: {
-            query: query
-        }
-    },
-    function(error, response, body) {
-        body = JSON.parse(body);
-        if (body.errors) {
-            let error = new Error(body.errors[0].message);
-            error.status = body.errors[0].code;
-            next(error);
-            return;
-        }
+    try {
+        var data = await apiUtils.postAsync(query);
+    }
+    catch (e) {
+        return next(e);
+    }
 
-        let wikiPage = body.data.getWikiPageById;
-        let vm = {
-            wikiPage,
-            categories: body.data.getCategories
-        };
-        let title = "Edit Wiki Page";
-        res.locals.breadcrumbs = [
-            {
-                display: "Wiki",
-                href: "/wiki/",
-            }
-        ];
-        if (wikiPage.categoryId) {
-            res.locals.breadcrumbs.push(
-                {
-                    display: wikiPage.categoryName,
-                    href: `/wiki/index.html?categoryId=${wikiPage.categoryId}`
-                }
-            )
+    let wikiPage = data.getWikiPageById;
+    let vm = {
+        wikiPage,
+        categories: data.getCategories
+    };
+    let title = "Edit Wiki Page";
+    res.locals.breadcrumbs = [
+        {
+            display: "Wiki",
+            href: "/wiki/",
         }
-        if (wikiPage.subcategoryId) {
-            res.locals.breadcrumbs.push(
-                {
-                    display: wikiPage.subcategoryName,
-                    href: `/wiki/index.html?categoryId=${wikiPage.categoryId}&subcategoryId=${wikiPage.subcategoryId}`
-                }
-            )
-        }
+    ];
+    if (wikiPage.categoryId) {
         res.locals.breadcrumbs.push(
             {
-                display: wikiPage.title,
-                href: `/wiki/details.html?id=${wikiPage.id}`
-            },
-            {
-                display: "Edit",
-                active: true
+                display: wikiPage.categoryName,
+                href: `/wiki/index.html?categoryId=${wikiPage.categoryId}`
             }
-        );
-        res.render("wiki/modify", {title, vm});
-    });
+        )
+    }
+    if (wikiPage.subcategoryId) {
+        res.locals.breadcrumbs.push(
+            {
+                display: wikiPage.subcategoryName,
+                href: `/wiki/index.html?categoryId=${wikiPage.categoryId}&subcategoryId=${wikiPage.subcategoryId}`
+            }
+        )
+    }
+    res.locals.breadcrumbs.push(
+        {
+            display: wikiPage.title,
+            href: `/wiki/details.html?id=${wikiPage.id}`
+        },
+        {
+            display: "Edit",
+            active: true
+        }
+    );
+    res.render("wiki/modify", {title, vm});
 });
 
-router.get(["/add.html"], function(req, res, next) {
+router.get(["/add.html"], async function(req, res, next) {
+    if (!res.locals.user)
+        return res.redirect(`/login.html?returnUrl=${encodeURIComponent(res.locals.url.path)}`);
+
     let query = `
     {
         getCategories {
@@ -344,40 +314,34 @@ router.get(["/add.html"], function(req, res, next) {
     }
     `;
 
-    request.post({
-        url: `http://localhost:${process.env.PORT}/api`,
-        form: {
-            query: query
-        }
-    },
-    function(error, response, body) {
-        body = JSON.parse(body);
-        if (body.errors) {
-            let error = new Error(body.errors[0].message);
-            error.status = body.errors[0].code;
-            next(error);
-            return;
-        }
+    try {
+        var data = await apiUtils.postAsync(query);
+    }
+    catch (e) {
+        return next(e);
+    }
 
-        let vm = {
-            categories: body.data.getCategories
-        };
-        let title = "Add Wiki Page";
-        res.locals.breadcrumbs = [
-            {
-                display: "Wiki",
-                href: "/wiki/",
-            },
-            {
-                display: "Add",
-                active: true
-            }
-        ];
-        res.render("wiki/modify", {title, vm});
-    });
+    let vm = {
+        categories: data.getCategories
+    };
+    let title = "Add Wiki Page";
+    res.locals.breadcrumbs = [
+        {
+            display: "Wiki",
+            href: "/wiki/",
+        },
+        {
+            display: "Add",
+            active: true
+        }
+    ];
+    res.render("wiki/modify", {title, vm});
 });
 
-router.get(["/revert.html"], function(req, res, next) {
+router.get(["/revert.html"], async function(req, res, next) {
+    if (!res.locals.user)
+        return res.redirect(`/login.html?returnUrl=${encodeURIComponent(res.locals.url.path)}`);
+
     let query = `
     mutation {
         revertWikiPage (authToken:"${req.cookies.loginToken}",historyId:${req.query.id}) {
@@ -390,34 +354,25 @@ router.get(["/revert.html"], function(req, res, next) {
     }
     `;
 
-    request.post({
-        url: `http://localhost:${process.env.PORT}/api`,
-        form: {
-            query: query
-        }
-    },
-    function(error, response, body) {
-        body = JSON.parse(body);
-        if (body.errors) {
-            let error = new Error(body.errors[0].message);
-            error.status = body.errors[0].code;
-            next(error);
-            return;
-        }
+    try {
+        var data = await apiUtils.postAsync(query);
+    }
+    catch (e) {
+        return next(e);
+    }
 
-        let data = body.data.revertWikiPage;
-        res.cookie(
-            "loginToken",
-            data.tokenRenewal.token,
-            {
-                path: "/",
-                expires: data.tokenRenewal.expires,
-                secure: true,
-                sameSite: true
-            }
-        );
-        res.redirect(`/wiki/details.html?id=${data.id}`);
-    });
+    data = data.revertWikiPage;
+    res.cookie(
+        "loginToken",
+        data.tokenRenewal.token,
+        {
+            path: "/",
+            expires: data.tokenRenewal.expires,
+            secure: true,
+            sameSite: true
+        }
+    );
+    res.redirect(`/wiki/details.html?id=${data.id}`);
 });
 
 module.exports = router;

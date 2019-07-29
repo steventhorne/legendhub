@@ -1,5 +1,4 @@
-let express = require("express");
-let router = express.Router();
+let router = require("express").Router();
 let auth = require("./api/auth");
 
 router.get(["/", "index.html"], function(req, res, next) {

@@ -1,9 +1,9 @@
-var express = require("express");
-var router = express.Router();
+let router = require("express").Router();
 let request = require("request");
 let itemApi = require("./api/items");
+let apiUtils = require("./api/utils");
 
-router.get(["/", "/index.html"], function(req, res, next) {
+router.get(["/", "/index.html"], async function(req, res, next) {
     let page = req.query.page === undefined ? 1 : Number(req.query.page);
     let rows = 20;
     let getMobsQuery = `
@@ -37,62 +37,53 @@ router.get(["/", "/index.html"], function(req, res, next) {
         }
     }
     `;
-    request.post({
-        url: `http://localhost:${process.env.PORT}/api`,
-        form: {
-            query: getMobsQuery
-        }
-    },
-    function(error, response, body) {
-        body = JSON.parse(body);
-        if (body.errors) {
-            let error = new Error(body.errors[0].message);
-            error.status = body.errors[0].code;
-            next(error);
-            return;
-        }
 
-        let data = body.data;
-        let mobs = data.getMobs.mobs;
-        let moreResults = data.getMobs.moreResults;
-        let categories = data.getEras;
-        let activeCategory = "";
-        for (let i = 0; i < categories.length; ++i) {
-            categories[i].subcategories = categories[i].getAreas;
+    try {
+        var data = await apiUtils.postAsync(getMobsQuery);
+    }
+    catch (e) {
+        return next(e);
+    }
 
-            if (categories[i].id == req.query.eraId) {
-                if (req.query.areaId) {
-                    for (let j = 0; j < categories[i].subcategories.length; ++j) {
-                        if (categories[i].subcategories[j].id == req.query.areaId)
-                            activeCategory = categories[i].subcategories[j].name;
-                    }
-                }
-                else {
-                    activeCategory = categories[i].name;
+    let mobs = data.getMobs.mobs;
+    let moreResults = data.getMobs.moreResults;
+    let categories = data.getEras;
+    let activeCategory = "";
+    for (let i = 0; i < categories.length; ++i) {
+        categories[i].subcategories = categories[i].getAreas;
+
+        if (categories[i].id == req.query.eraId) {
+            if (req.query.areaId) {
+                for (let j = 0; j < categories[i].subcategories.length; ++j) {
+                    if (categories[i].subcategories[j].id == req.query.areaId)
+                        activeCategory = categories[i].subcategories[j].name;
                 }
             }
+            else {
+                activeCategory = categories[i].name;
+            }
         }
+    }
 
-        let vm = {
-            query: req.query,
-            noSearch: req.query.search == null && !req.query.eraId && !req.query.areaId,
-            searchString: req.query.search,
-            results: mobs,
-            moreResults: moreResults,
-            page: page,
-            rows: rows,
-            categories: categories,
-            categoryId: req.query.eraId,
-            subcategoryId: req.query.areaId,
-            activeCategory: activeCategory,
-            cookies: req.cookies
-        };
-        let title = vm.noSearch ? "Recent Mobs" : `${mobs.length}${moreResults?"+":""} mob results for "${req.query.search || ""}"`;
-        res.render("mobs/index", {title, vm});
-    });
+    let vm = {
+        query: req.query,
+        noSearch: req.query.search == null && !req.query.eraId && !req.query.areaId,
+        searchString: req.query.search,
+        results: mobs,
+        moreResults: moreResults,
+        page: page,
+        rows: rows,
+        categories: categories,
+        categoryId: req.query.eraId,
+        subcategoryId: req.query.areaId,
+        activeCategory: activeCategory,
+        cookies: req.cookies
+    };
+    let title = vm.noSearch ? "Recent Mobs" : `${mobs.length}${moreResults?"+":""} mob results for "${req.query.search || ""}"`;
+    res.render("mobs/index", {title, vm});
 });
 
-router.get(["/details.html"], function(req, res, next) {
+router.get(["/details.html"], async function(req, res, next) {
     let getMobQuery = `
     {
         getMobById(id:${req.query.id}) {
@@ -127,60 +118,51 @@ router.get(["/details.html"], function(req, res, next) {
     }
     `;
 
-    request.post({
-        url: `http://localhost:${process.env.PORT}/api`,
-        form: {
-            query: getMobQuery
-        }
-    },
-    function(error, response, body) {
-        body = JSON.parse(body);
-        if (body.errors) {
-            let error = new Error(body.errors[0].message);
-            error.status = body.errors[0].code;
-            next(error);
-            return;
-        }
+    try {
+        var data = await apiUtils.postAsync(getMobQuery);
+    }
+    catch (e) {
+        return next(e);
+    }
 
-        let mob = body.data.getMobById;
-        let vm = {
-            mob,
-            constants: itemApi.constants
+    let mob = data.getMobById;
+    let vm = {
+        mob,
+        constants: itemApi.constants
+    }
+    let title = mob.name;
+    res.locals.breadcrumbs = [
+        {
+            "display": "Mobs",
+            "href": "/mobs/",
         }
-        let title = mob.name;
-        res.locals.breadcrumbs = [
-            {
-                "display": "Mobs",
-                "href": "/mobs/",
-            }
-        ];
-        if (mob.eraId) {
-            res.locals.breadcrumbs.push(
-                {
-                    "display": mob.eraName,
-                    "href": `/mobs/index.html?eraId=${mob.eraId}`
-                }
-            );
-        }
-        if (mob.areaId) {
-            res.locals.breadcrumbs.push(
-                {
-                    "display": mob.areaName,
-                    "href": `/mobs/index.html?eraId=${mob.eraId}&areaId=${mob.areaId}`
-                }
-            );
-        }
+    ];
+    if (mob.eraId) {
         res.locals.breadcrumbs.push(
             {
-                "display": mob.name,
-                "active": true
+                "display": mob.eraName,
+                "href": `/mobs/index.html?eraId=${mob.eraId}`
             }
         );
-        res.render("mobs/display", {title, vm});
-    });
+    }
+    if (mob.areaId) {
+        res.locals.breadcrumbs.push(
+            {
+                "display": mob.areaName,
+                "href": `/mobs/index.html?eraId=${mob.eraId}&areaId=${mob.areaId}`
+            }
+        );
+    }
+    res.locals.breadcrumbs.push(
+        {
+            "display": mob.name,
+            "active": true
+        }
+    );
+    res.render("mobs/display", {title, vm});
 });
 
-router.get(["/history.html"], function(req, res, next) {
+router.get(["/history.html"], async function(req, res, next) {
     let getMobQuery = `
     {
         getMobHistoryById(id:${req.query.id}) {
@@ -218,68 +200,59 @@ router.get(["/history.html"], function(req, res, next) {
     }
     `;
 
-    request.post(
-        {
-            url: `http://localhost:${process.env.PORT}/api`,
-            form: {
-                query: getMobQuery
-            }
-        },
-        function(error, response, body) {
-            body = JSON.parse(body);
-            if (body.errors) {
-                let error = new Error(body.errors[0].message);
-                error.status = body.errors[0].code;
-                next(error);
-                return;
-            }
+    try {
+        var data = await apiUtils.postAsync(getMobQuery);
+    }
+    catch (e) {
+        return next(e);
+    }
 
-            let data = body.data;
-            let mob = data.getMobHistoryById.mob;
-            let vm = {
-                mob,
-                constants: itemApi.constants,
-                historyId: req.query.id
-            };
-            let title = `History for ${mob.name}`;
-            res.locals.breadcrumbs = [
-                {
-                    display: "Mobs",
-                    href: "/mobs/",
-                }
-            ];
-            if (mob.eraId) {
-                res.locals.breadcrumbs.push(
-                    {
-                        "display": mob.eraName,
-                        "href": `/mobs/index.html?eraId=${mob.eraId}`
-                    }
-                );
-            }
-            if (mob.areaId) {
-                res.locals.breadcrumbs.push(
-                    {
-                        "display": mob.areaName,
-                        "href": `/mobs/index.html?eraId=${mob.eraId}&areaId=${mob.areaId}`
-                    }
-                );
-            }
-            res.locals.breadcrumbs.push(
-                {
-                    display: mob.name,
-                    href: `/mobs/details.html?id=${mob.id}`
-                },
-                {
-                    display: new Date(mob.modifiedOn).toISOString().slice(0, 16).replace("T", " ") + " UTC",
-                    active: true
-                }
-            );
-            res.render("mobs/display", {title, vm});
+    let mob = data.getMobHistoryById.mob;
+    let vm = {
+        mob,
+        constants: itemApi.constants,
+        historyId: req.query.id
+    };
+    let title = `History for ${mob.name}`;
+    res.locals.breadcrumbs = [
+        {
+            display: "Mobs",
+            href: "/mobs/",
         }
-    )
+    ];
+    if (mob.eraId) {
+        res.locals.breadcrumbs.push(
+            {
+                "display": mob.eraName,
+                "href": `/mobs/index.html?eraId=${mob.eraId}`
+            }
+        );
+    }
+    if (mob.areaId) {
+        res.locals.breadcrumbs.push(
+            {
+                "display": mob.areaName,
+                "href": `/mobs/index.html?eraId=${mob.eraId}&areaId=${mob.areaId}`
+            }
+        );
+    }
+    res.locals.breadcrumbs.push(
+        {
+            display: mob.name,
+            href: `/mobs/details.html?id=${mob.id}`
+        },
+        {
+            display: new Date(mob.modifiedOn).toISOString().slice(0, 16).replace("T", " ") + " UTC",
+            active: true
+        }
+    );
+    res.render("mobs/display", {title, vm});
 });
 
-router.get(["/edit.html"], function(req, res, next) {
+router.get(["/edit.html"], async function(req, res, next) {
+    if (!res.locals.user)
+        return res.redirect(`/login.html?returnUrl=${encodeURIComponent(res.locals.url.path)}`);
+
     let getMobQuery = `
     {
         getMobById(id:${req.query.id}) {
@@ -302,64 +275,58 @@ router.get(["/edit.html"], function(req, res, next) {
     }
     `;
 
-    request.post({
-        url: `http://localhost:${process.env.PORT}/api`,
-        form: {
-            query: getMobQuery
-        }
-    },
-    function(error, response, body) {
-        body = JSON.parse(body);
-        if (body.errors) {
-            let error = new Error(body.errors[0].message);
-            error.status = body.errors[0].code;
-            next(error);
-            return;
-        }
+    try {
+        var data = await apiUtils.postAsync(getMobQuery);
+    }
+    catch (e) {
+        return next(e);
+    }
 
-        let mob = body.data.getMobById;
-        let vm = {
-            mob,
-            areas: body.data.getAreas
+    let mob = data.getMobById;
+    let vm = {
+        mob,
+        areas: data.getAreas
+    }
+    let title = "Edit Mob";
+    res.locals.breadcrumbs = [
+        {
+            display: "Mobs",
+            href: "/mobs/",
         }
-        let title = "Edit Mob";
-        res.locals.breadcrumbs = [
-            {
-                display: "Mobs",
-                href: "/mobs/",
-            }
-        ];
-        if (mob.eraId) {
-            res.locals.breadcrumbs.push(
-                {
-                    "display": mob.eraName,
-                    "href": `/mobs/index.html?eraId=${mob.eraId}`
-                }
-            );
-        }
-        if (mob.areaId) {
-            res.locals.breadcrumbs.push(
-                {
-                    "display": mob.areaName,
-                    "href": `/mobs/index.html?eraId=${mob.eraId}&areaId=${mob.areaId}`
-                }
-            );
-        }
+    ];
+    if (mob.eraId) {
         res.locals.breadcrumbs.push(
             {
-                display: mob.name,
-                href: `/mobs/details.html?id=${mob.id}`
-            },
-            {
-                display: "Edit",
-                active: true
+                "display": mob.eraName,
+                "href": `/mobs/index.html?eraId=${mob.eraId}`
             }
         );
-        res.render("mobs/modify", {title, vm});
-    });
+    }
+    if (mob.areaId) {
+        res.locals.breadcrumbs.push(
+            {
+                "display": mob.areaName,
+                "href": `/mobs/index.html?eraId=${mob.eraId}&areaId=${mob.areaId}`
+            }
+        );
+    }
+    res.locals.breadcrumbs.push(
+        {
+            display: mob.name,
+            href: `/mobs/details.html?id=${mob.id}`
+        },
+        {
+            display: "Edit",
+            active: true
+        }
+    );
+    res.render("mobs/modify", {title, vm});
 });
 
-router.get(["/add.html"], function(req, res, next) {
+router.get(["/add.html"], async function(req, res, next) {
+    if (!res.locals.user)
+        return res.redirect(`/login.html?returnUrl=${encodeURIComponent(res.locals.url.path)}`);
+
     let getMobQuery = `
     {
         getAreas {
@@ -370,40 +337,34 @@ router.get(["/add.html"], function(req, res, next) {
     }
     `;
 
-    request.post({
-        url: `http://localhost:${process.env.PORT}/api`,
-        form: {
-            query: getMobQuery
-        }
-    },
-    function(error, response, body) {
-        body = JSON.parse(body);
-        if (body.errors) {
-            let error = new Error(body.errors[0].message);
-            error.status = body.errors[0].code;
-            next(error);
-            return;
-        }
+    try {
+        var data = await apiUtils.postAsync(getMobQuery);
+    }
+    catch (e) {
+        return next(e);
+    }
 
-        let vm = {
-            areas: body.data.getAreas
-        };
-        let title = "Add Mob";
-        res.locals.breadcrumbs = [
-            {
-                display: "Mobs",
-                href: "/mobs/",
-            },
-            {
-                display: "Add",
-                active: true
-            }
-        ];
-        res.render("mobs/modify", {title, vm});
-    });
+    let vm = {
+        areas: data.getAreas
+    };
+    let title = "Add Mob";
+    res.locals.breadcrumbs = [
+        {
+            display: "Mobs",
+            href: "/mobs/",
+        },
+        {
+            display: "Add",
+            active: true
+        }
+    ];
+    res.render("mobs/modify", {title, vm});
 });
 
-router.get(["/revert.html"], function(req, res, next) {
+router.get(["/revert.html"], async function(req, res, next) {
+    if (!res.locals.user)
+        return res.redirect(`/login.html?returnUrl=${encodeURIComponent(res.locals.url.path)}`);
+
     let revertQuery = `
     mutation {
         revertMob (authToken:"${req.cookies.loginToken}",historyId:${req.query.id}) {
@@ -415,33 +376,25 @@ router.get(["/revert.html"], function(req, res, next) {
         }
     }
     `;
-    request.post({
-        url: `http://localhost:${process.env.PORT}/api`,
-        form: {
-            query: revertQuery
-        }
-    }, function (error, response, body) {
-        body = JSON.parse(body);
-        if (body.errors) {
-            let error = new Error(body.errors[0].message);
-            error.status = body.errors[0].code;
-            next(error);
-            return;
-        }
 
-        let data = body.data.revertMob;
-        res.cookie(
-            "loginToken",
-            data.tokenRenewal.token,
-            {
-                path: "/",
-                expires: data.tokenRenewal.expires,
-                secure: true,
-                sameSite: true
-            }
-        );
-        res.redirect(`/mobs/details.html?id=${data.id}`);
-    });
+    try {
+        var data = await apiUtils.postAsync(revertQuery);
+    }
+    catch (e) {
+        return next(e);
+    }
+
+    res.cookie(
+        "loginToken",
+        data.tokenRenewal.token,
+        {
+            path: "/",
+            expires: data.tokenRenewal.expires,
+            secure: true,
+            sameSite: true
+        }
+    );
+    res.redirect(`/mobs/details.html?id=${data.id}`);
 });
 
 module.exports = router;
