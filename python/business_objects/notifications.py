@@ -198,6 +198,13 @@ def clean_notifications():
         "WHERE N.Read = 1 AND NC.CreatedOn < :delete_date",
         {"delete_date": delete_date}
     )
+    sess.execute(
+        "DELETE NC "
+        "FROM NotificationChanges NC "
+        "LEFT JOIN Notifications N ON N.NotificationChangeId = NC.Id "
+        "GROUP BY NC.Id "
+        "HAVING MAX(N.Id) IS NULL"
+    )
     sess.commit()
     sess.close()
 
