@@ -22,7 +22,7 @@
                     <a href="/changelog/details.html?id=<%-vm.results[i].id%>" class="list-group-item list-group-item-action flex-column align-items-start">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">Version <%=vm.results[i].version%></h5>
-                            <small class="text-info"><%=vm.results[i].createdOn.slice(0, 10)%></small>
+                            <small class="text-info"><%=locals.displayDate(vm.results[i].createdOn)%></small>
                         </div>
                     </a>
                     <%}%>

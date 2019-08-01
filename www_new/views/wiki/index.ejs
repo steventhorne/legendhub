@@ -107,7 +107,7 @@
                                                     if (!vm.noSearch && vm.results[i].pinnedSearch)
                                                         pinned = true;%>
                                                 <tr ng-click="onWikiClicked('<%-vm.results[i].id%>')">
-                                                    <td scope="row" class="font-weight-bold <%-(pinned ? "text-success":"text-primary")%>"><%-(vm.results[i].locked?"<i class='fas fa-lock'></i>&nbsp;":"")%><%=vm.results[i].title%></td>
+                                                    <td scope="row" class="font-weight-bold <%-(pinned ? "text-success":"text-primary")%>"><%-(vm.results[i].locked?"<i class='fas fa-lock'></i>&nbsp;":"")%><%=vm.results[i].title%><a class="float-right" href="/wiki/details.html?id=<%-vm.results[i].id%>" target="_blank" ng-click="$event.stopPropagation()"><i class="fas fa-external-link-alt fa-lg"></i></a></td>
                                                     <td class="text-center"><%=vm.results[i].categoryName_%></td>
                                                     <td class="text-center"><%=vm.results[i].subcategoryName_%></td>
                                                 </tr>
