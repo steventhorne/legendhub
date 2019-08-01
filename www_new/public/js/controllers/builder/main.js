@@ -3,6 +3,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
     /** Initializes the controller. */
 	$scope.initialize = function() {
+        $scope.initiallyLoaded = false;
 		$scope.slots = itemConstants.selectShortOptions.slot;
         $scope.selectShortOptions = itemConstants.selectShortOptions;
 
@@ -329,6 +330,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
                     }
 
                     applyItemRestrictions(); // to apply restrictions
+                    $scope.initiallyLoaded = true;
                 }
             );
 		}
@@ -1806,10 +1808,13 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
                 let filteredByWield = false;
                 if ($scope.currentItem.slot == 14 || $scope.currentItem.slot == 15) {
-                    if ($scope.wieldSlotFilter == 1 && filteredItems[i].realSlot == 15) {
+                    if ($scope.wieldSlotFilter == 1 && filteredItems[i].realSlot != 14) {
                         filteredByWield = true;
                     }
-                    else if ($scope.wieldSlotFilter == 2 && filteredItems[i].realSlot == 14) {
+                    else if ($scope.wieldSlotFilter == 2 && filteredItems[i].realSlot != 15) {
+                        filteredByWield = true;
+                    }
+                    else if ($scope.wieldSlotFilter == 3 && filteredItems[i].realSlot != 10) {
                         filteredByWield = true;
                     }
                 }
