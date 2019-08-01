@@ -4,13 +4,9 @@
   "description": "A resource hub for LegendMUD",
   "scripts": {
     "prepare": "npm-run-all --parallel prepare:web prepare:python",
-    "prepare:web": "shx cp -n www/php/common/config-example.php www/php/common/config.php",
+    "prepare:web": "shx cp -n .env_example .env",
     "prepare:python": "shx cp -n python/sql/sql_engine_config_example.py python/sql/sql_engine_config.py",
     "build": "npm-run-all build:css build:python",
-    "build:web": "npm-run-all --sequential build:web:bin build:web:deploy",
-    "build:web:bin": "shx rm -rf www-bin && shx cp -r www www-bin",
-    "build:web:deploy": "cross-conf-env shx cp -r www-bin/. $npm_package_config_webdevdir",
-    "build:web:deploy-prod": "cross-conf-env shx cp -r www-bin/. $npm_package_config_webproddir",
     "build:python": "npm-run-all --sequential build:python:dependencies build:python:lint",
     "build:python:dependencies": "pip3 install -r python/requirements.txt",
     "build:python:lint": "pylint python/notification_listener.py",
@@ -68,7 +64,5 @@
     "stylelint-scss": "^3.5.4"
   },
   "config": {
-    "webdevdir": "../../www/legendbeta",
-    "webproddir": "../../www/legendwiki"
   }
 }
