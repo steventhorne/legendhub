@@ -84,6 +84,9 @@ router.get(["/", "/index.html"], async function(req, res, next) {
 });
 
 router.get(["/details.html"], async function(req, res, next) {
+    if (res.locals.user)
+        res.locals.user.notifications = await apiUtils.handleNotifications(req.cookies.loginToken, res.locals.user.notifications, 'mob', req.query.id);
+
     let getMobQuery = `
     {
         getMobById(id:${req.query.id}) {

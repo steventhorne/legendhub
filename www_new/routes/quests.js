@@ -79,6 +79,9 @@ router.get(["/", "/index.html"], async function(req, res, next) {
 });
 
 router.get(["/details.html"], async function(req, res, next) {
+    if (res.locals.user)
+        res.locals.user.notifications = await apiUtils.handleNotifications(req.cookies.loginToken, res.locals.user.notifications, 'quest', req.query.id);
+
     let query = `
     {
         getQuestById(id:${req.query.id}) {
