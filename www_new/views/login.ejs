@@ -4,7 +4,8 @@
     <%- include('./shared/meta') %>
 </head>
 <body ng-app="legendwiki-app" ng-controller="login" style="height: 100%;">
-	<div class="container h-100">
+    <%-include("./shared/header")-%>
+	<div class="container">
 		<div class="row h-100 align-items-center">
 			<div id="accordion" class="col-12 col-sm-8 col-md-6 col-lg-4 mx-auto">
 				<form class="card" name="loginForm" ng-submit="login()" novalidate>
@@ -72,17 +73,10 @@
 				</form>
 			</div>
 		</div>
+    <br><br>
 	</div>
-
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-	    crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-	    crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-		crossorigin="anonymous"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular-cookies.min.js"></script>
-	<script src="/js/apps/legendwiki-app.js?%%version%%"></script>
+    <%-include("./shared/footer")-%>
+    <%-include("./shared/scripts")-%>
 	<script src="/js/controllers/login.js"></script>
 </body>
 </html>
