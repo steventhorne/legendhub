@@ -14,23 +14,31 @@
             </h4>
             <%}%>
         </div>
-        <div class="row justify-content-center justify-content-md-start" ng-init="showHistory = false">
-            <div class="btn-group" role="group" aria-label="Toolbar">
-                <%if (vm.wikiPage.getHistories.length > 0) {%>
-                <button type="button" class="btn btn-outline-primary" ng-click="showHistory = !showHistory"><i class="fas fa-history"></i> <%=vm.wikiPage.getHistories.length%></button>
-                <%}%>
-                <button type="button" class="btn btn-outline-primary"><%=new Date(vm.wikiPage.modifiedOn).toISOString().slice(0,16).replace("T"," ")%> UTC <strong>by</strong> <%=vm.wikiPage.modifiedBy%></button>
-                <a class="btn btn-outline-primary" role="button" href="<%-(!locals.user ? "/login.html?returnUrl=" : "")%>/wiki/edit.html?id=<%-vm.wikiPage.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
+        <div class="row justify-content-center justify-content-md-start">
+            <div class="card" style="border:0;background:none">
+                <div class="card-header p-0" style="border:0;background:none">
+                    <div class="justify-content-center" ng-init="showHistory = false">
+                        <div class="btn-group" role="group" aria-label="Toolbar">
+                            <%if (vm.wikiPage.getHistories.length > 0) {%>
+                            <button type="button" class="btn btn-outline-primary" ng-click="showHistory = !showHistory"><i class="fas fa-history"></i> <%=vm.wikiPage.getHistories.length%></button>
+                            <%}%>
+                            <button type="button" class="btn btn-outline-primary"><%=locals.displayDateTime(vm.wikiPage.modifiedOn)%> <strong>by</strong> <%=vm.wikiPage.modifiedBy%></button>
+                            <a class="btn btn-outline-primary" role="button" href="<%-(!locals.user ? "/login.html?returnUrl=" : "")%>/wiki/edit.html?id=<%-vm.wikiPage.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0" style="border:0">
+                    <div class="justify-content-center" ng-if="showHistory" ng-cloak>
+                        <div class="list-group justify-content-center">
+                            <%for (let i = 0; i < vm.wikiPage.getHistories.length; ++i) {%>
+                            <a href="/wiki/history.html?id=<%-vm.wikiPage.getHistories[i].id%>" class="text-center list-group-item list-group-item-action<%-((vm.historyId && vm.wikiPage.getHistories[i].id == vm.historyId) ? ' active' : '')%>"><%=locals.displayDateTime(vm.wikiPage.getHistories[i].wikiPage.modifiedOn)%> <strong>by</strong> <%=vm.wikiPage.getHistories[i].wikiPage.modifiedBy%></a>
+                            <%}%>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="row justify-content-center justify-content-md-start" ng-if="showHistory" ng-cloak>
-            <div class="list-group justify-content-center justify-content-md-start">
-                <%for (let i = 0; i < vm.wikiPage.getHistories.length; ++i) {%>
-                <a href="/wiki/history.html?id=<%-vm.wikiPage.getHistories[i].id%>" class="text-center text-md-left list-group-item list-group-item-action<%-((vm.historyId && vm.wikiPage.getHistories[i].id == vm.historyId) ? ' active' : '')%>"><%=new Date(vm.wikiPage.getHistories[i].wikiPage.modifiedOn).toISOString().slice(0,16).replace("T", " ")%> <strong>by</strong> <%=vm.wikiPage.getHistories[i].wikiPage.modifiedBy%></a>
-                <%}%>
-            </div>
-        </div>
-        <br><br>
+        <br>
         <%if (vm.wikiPage.content) {%>
         <div class="row">
             <div class="col-12">
