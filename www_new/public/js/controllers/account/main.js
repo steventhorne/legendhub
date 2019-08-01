@@ -1,12 +1,13 @@
-app.controller('account', ['$scope', '$http', '$q', function($scope, $http, $q) {
+app.controller('account', ['$scope', '$http', '$q', '$cookies', function($scope, $http, $q, $cookies) {
     /** Initializes the controller */
 	$scope.init = function() {
-        $scope.notificationOptions = [{Value: 0, Name: 'Off'},
-                                      {Value: 1, Name: 'On'}];
+        $scope.notificationOptions = [{Value: false, Name: 'Off'},
+                                      {Value: true, Name: 'On'}];
         $scope.getNotificationSettingsAsync().then(
             function (data) {
                 $scope.notificationSettings = data;
-            });
+            }
+        );
 	};
 
     /**
@@ -17,10 +18,27 @@ app.controller('account', ['$scope', '$http', '$q', function($scope, $http, $q) 
     $scope.getNotificationSettingsAsync = function() {
         var deferred = $q.defer();
 
+        let query = [
+            "{",
+                "getNotificationSettings(authToken:\"",$cookies.get("loginToken"),"\") {",
+                    "itemAdded ",
+                    "itemUpdated ",
+                    "mobAdded ",
+                    "mobUpdated ",
+                    "questAdded ",
+                    "questUpdated ",
+                    "wikiPageAdded ",
+                    "wikiPageUpdated",
+                "}",
+            "}"
+        ];
+
         $http({
-			url: '/php/account/getNotificationSettings.php'
+			url: '/api',
+            method: "POST",
+            data: {query: query.join("")}
 		}).then(function succcessCallback(response) {
-            deferred.resolve(response.data);
+            deferred.resolve(response.data.data.getNotificationSettings);
 		}, function errorCallback(response){
             deferred.reject(response);
 		});
@@ -35,11 +53,33 @@ app.controller('account', ['$scope', '$http', '$q', function($scope, $http, $q) 
      * @param {Array} settings - notificationSettings array that needs to be saved.
      */
     $scope.saveNotifications = function(settings) {
+        let query = [
+            "mutation {",
+                "updateNotificationSettings(authToken:\"",$cookies.get("loginToken"),"\",",
+                    "itemAdded:",settings.itemAdded,
+                    ",itemUpdated:",settings.itemUpdated,
+                    ",mobAdded:",settings.mobAdded,
+                    ",mobUpdated:",settings.mobUpdated,
+                    ",questAdded:",settings.questAdded,
+                    ",questUpdated:",settings.questUpdated,
+                    ",wikiPageAdded:",settings.wikiPageAdded,
+                    ",wikiPageUpdated:",settings.wikiPageUpdated,") {",
+                    "token ",
+                    "expires",
+                "}",
+            "}"
+        ];
         $http({
-            url: '/php/account/updateNotificationSettings.php',
+            url: '/api',
             method: 'POST',
-            data: settings
+            data: {query: query.join("")}
         }).then(function successCallback(response) {
+            let data = response.data.data.updateNotificationSettings;
+            let cookieData = {"path": "/", "samesite": "strict", "secure": true};
+            if (data.expires)
+                cookieData["expires"] = new Date(data.expires);
+
+            $cookies.put("loginToken", data.token, cookieData);
             $scope.editingNotifications = false;
         }, function errorCallback(response) {
         });
@@ -51,7 +91,11 @@ app.controller('account', ['$scope', '$http', '$q', function($scope, $http, $q) 
      * Replaces the current dirty settings with the settings from the DB.
      */
     $scope.cancelNotifications = function() {
-        $scope.getNotificationSettingsAsync();
+        $scope.getNotificationSettingsAsync().then(
+            function (data) {
+                $scope.notificationSettings = data;
+            }
+        );
         $scope.editingNotifications = false;
     };
 
@@ -81,35 +125,38 @@ app.controller('account', ['$scope', '$http', '$q', function($scope, $http, $q) 
      */
     $scope.savePassword = function(oldPassword, newPassword) {
         $scope.dbfail = false;
+
+        let query = [
+            "mutation {",
+                "updatePassword(authToken:\"",$cookies.get("loginToken"),"\",",
+                "currentPassword:\"",oldPassword,"\",",
+                "newPassword:\"",newPassword,"\") {",
+                    "success ",
+                    "tokenRenewal {",
+                        "token ",
+                        "expires",
+                    "}",
+                "}",
+            "}"
+        ];
         $http({
-            url: '/php/account/updatePassword.php',
+            url: '/api',
             method: 'POST',
-            data: {'oldPassword': oldPassword,
-                    'newPassword': newPassword}
+            data: {query: query.join("")}
         }).then(function successCallback(response) {
-            $scope.dbfail = !response.data.success;
-            if (response.success) {
+            let data = response.data.data.updatePassword;
+            let cookieData = {"path": "/", "samesite": "strict", "secure": true};
+            if (data.tokenRenewal.expires)
+                cookieData["expires"] = new Date(data.tokenRenewal.expires);
+
+            $cookies.put("loginToken", data.tokenRenewal.token, cookieData);
+
+            $scope.dbfail = !data.success;
+            if (data.success)
                 $scope.editingPassword = false;
-            }
         }, function errorCallback(response) {
-        });
-    };
-
-    /**
-     * Resets the password for the specified user.
-     *
-     * @param {string} username - The username of the account to reset
-     * @param {string} newPassword - The new password
-     */
-    $scope.resetPassword = function(username, newPassword) {
-        $http({
-            url: '/php/login/resetPassword.php',
-            method: 'POST',
-            data: {'username': username, 'password': newPassword}
-        }).then(function successCallback(response) {
-
-        }, function errorCallback(response) {
-
+            console.log(response);
+            $scope.dbfail = true;
         });
     };
 
