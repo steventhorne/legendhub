@@ -91,8 +91,6 @@ module.exports.handleNotifications = async function(authToken, notifications, ob
     for (let i = 0; i < notifications.length; ++i) {
         if (notifications[i].objectType == objectType &&
             notifications[i].objectId == objectId) {
-            console.log("marking");
-            console.log(notifications[i]);
             notifications.splice(i, 1);
             --i;
         }
