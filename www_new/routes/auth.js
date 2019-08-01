@@ -21,12 +21,25 @@ var authFunc = async function(req, res, next) {
         }
     };
 
+    res.locals.displayDate = function(date) {
+        let offset = res.locals.cookies.tzoffset;
+        if (offset) {
+            let displayDate = new Date(date);
+            offset -= displayDate.getTimezoneOffset();
+            displayDate.setMinutes(displayDate.getMinutes() + offset*(-1));
+            return displayDate.toISOString().slice(0, 10);
+        }
+        else {
+            return new Date(date).toISOString().slice(0, 10) + " UTC";
+        }
+    };
+
     if (req.cookies.loginToken) {
         try {
             res.locals.user = await authApi.utils.authToken(req.cookies.loginToken, authApi.utils.getIPFromRequest(req), false);
         }
         catch (e) {
-            if (e.message === "Invalid Token") {
+            if (e.message === "Invalid token") {
                 res.clearCookie("loginToken");
                 delete res.locals.cookies.loginToken;
                 return next();
