@@ -19,9 +19,9 @@
     "build:css:lint": "stylelint --syntax scss \"css/scss/**/*.scss\"",
     "build:css:prefix": "postcss --config css/build/postcss.config.js --replace \"css/dist/css/*.css\" \"!css/dist/css/*.min.css\"",
     "build:css:minify": "cleancss --level 1 --source-map --source-map-inline-sources --output css/dist/css/bootstrap-light.min.css css/dist/css/bootstrap-light.css && cleancss --level 1 --source-map --source-map-inline-sources --output css/dist/css/bootstrap-dark.min.css css/dist/css/bootstrap-dark.css && cleancss --level 1 --source-map --source-map-inline-sources --output css/dist/css/bootstrap-solarized-dark.min.css css/dist/css/bootstrap-solarized-dark.css",
-    "build:css:copy": "shx cp css/dist/css/*.min.css www_new/public/css/",
+    "build:css:copy": "shx cp css/dist/css/*.min.css www/public/css/",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node www_new/app.js"
+    "start": "node www/app.js"
   },
   "repository": {
     "type": "git",
