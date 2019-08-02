@@ -15,6 +15,7 @@ www_new/.env
 .env
 
 # notification listener
+python/env/
 python/__pycache__/
 python/**/*.py[cod]
 python/**/*$py.class
