@@ -53,6 +53,7 @@ var authFunc = async function(req, res, next) {
             let query = `
             {
                 getNotifications(authToken:"${req.cookies.loginToken}",read:false) {
+                    moreResults
                     results {
                         createdOn
                         message
@@ -65,6 +66,7 @@ var authFunc = async function(req, res, next) {
             }
             `;
             let response = await apiUtils.postAsync(query);
+            res.locals.user.moreNotifications = response.getNotifications.moreResults;
             res.locals.user.notifications = response.getNotifications.results;
         }
         catch (e) {
