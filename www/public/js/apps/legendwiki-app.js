@@ -428,19 +428,24 @@ app.factory('categories', function() {
 	return new Categories();
 });
 
-app.controller('header', ['$scope', '$http', '$cookies', 'breadcrumb', function($scope, $http, $cookies, breadcrumb) {
+app.controller('header', ['$scope', '$http', '$cookies', '$compile', 'breadcrumb', function($scope, $http, $cookies, $compile, breadcrumb) {
 	$scope.initialize = function() {
         $scope.themes = ['Light', 'Dark', 'Solarized Dark'];
 		$scope.bcFactory = breadcrumb;
 		$scope.returnUrl = window.location.pathname + window.location.search;
+
         let popover = $("[id^=not-pop]");
-            popover.popover({
-                container: "body",
-                content: $("#notification-window").html(),
-                html: true,
-                trigger: "focus",
-                placement: "bottom"
-            });
+        popover.popover({
+            container: "header",
+            content: $("#notification-window").html(),
+            html: true,
+            trigger: "focus",
+            placement: "bottom"
+        });
+        popover.on('shown.bs.popover', function() {
+            $compile($(".popover-body").contents())($scope);
+        });
+
         let cookieDate = new Date();
         let offset = cookieDate.getTimezoneOffset();
         cookieDate.setTime(2144232732000);
