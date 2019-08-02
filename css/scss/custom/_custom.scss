@@ -107,6 +107,11 @@ body {
   display: none;
 }
 
+blockquote {
+  padding: 0 1rem;
+  border-left: .25rem solid $secondary;
+}
+
 .clickable {
   cursor: pointer;
 }
