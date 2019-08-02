@@ -8666,6 +8666,11 @@ body > .container-fluid {
   display: none;
 }
 
+blockquote {
+  padding: 0 1rem;
+  border-left: 0.25rem solid #6c757d;
+}
+
 .clickable {
   cursor: pointer;
 }
