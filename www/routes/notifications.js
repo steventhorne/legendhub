@@ -29,12 +29,7 @@ router.get(["/", "/index.html"], async function(req, res, next) {
     }
     `;
     try {
-        var data = await apiUtils.postAsync({
-            url: `http://localhost:${process.env.PORT}/api`,
-            form: {
-                query
-            }
-        });
+        var data = await apiUtils.postAsync(query);
     }
     catch (e) {
         return next(e);
