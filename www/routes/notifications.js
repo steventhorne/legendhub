@@ -4,11 +4,8 @@ let apiUtils = require("./api/utils");
 let auth = require("./api/auth");
 
 router.get(["/", "/index.html"], async function(req, res, next) {
-    if (!res.locals.user) {
-        let error = new Error("You must be logged in to view this page.");
-        error.status = 401;
-        return next(error);
-    }
+    if (!res.locals.user)
+        return res.redirect(`/login.html?returnUrl=${encodeURIComponent(res.locals.url.path)}`);
 
     let page = req.query.page === undefined ? 1 : Number(req.query.page);
     let rows = 20;
