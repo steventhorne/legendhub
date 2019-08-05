@@ -1,18 +1,12 @@
 {
   "name": "legendhub",
-  "version": "1.9.1",
+  "version": "2.0.0",
   "description": "A resource hub for LegendMUD",
   "scripts": {
     "prepare": "npm-run-all --parallel prepare:web prepare:python",
-    "prepare:web": "shx cp -n www/php/common/config-example.php www/php/common/config.php",
+    "prepare:web": "shx cp -n .env_example .env",
     "prepare:python": "shx cp -n python/sql/sql_engine_config_example.py python/sql/sql_engine_config.py",
-    "build": "npm-run-all build:css --parallel build:web build:python",
-    "build:web": "npm-run-all --sequential build:web:bin build:web:version build:web:concat-js build:web:deploy",
-    "build:web:bin": "shx rm -rf www-bin && shx cp -r www www-bin",
-    "build:web:version": "replace-in-file '/%%version%%/g' 'v='$npm_package_version www-bin/**/*.html,www-bin/js/js.cookie.min.js --isRegex",
-    "build:web:concat-js": "concat -o www-bin/js/apps/legendwiki-app.js www-bin/js/apps/src/*",
-    "build:web:deploy": "cross-conf-env shx cp -r www-bin/. $npm_package_config_webdevdir",
-    "build:web:deploy-prod": "cross-conf-env shx cp -r www-bin/. $npm_package_config_webproddir",
+    "build": "npm-run-all build:css build:python",
     "build:python": "npm-run-all --sequential build:python:dependencies build:python:lint",
     "build:python:dependencies": "pip3 install -r python/requirements.txt",
     "build:python:lint": "pylint python/notification_listener.py",
@@ -21,8 +15,10 @@
     "build:css:lint": "stylelint --syntax scss \"css/scss/**/*.scss\"",
     "build:css:prefix": "postcss --config css/build/postcss.config.js --replace \"css/dist/css/*.css\" \"!css/dist/css/*.min.css\"",
     "build:css:minify": "cleancss --level 1 --source-map --source-map-inline-sources --output css/dist/css/bootstrap-light.min.css css/dist/css/bootstrap-light.css && cleancss --level 1 --source-map --source-map-inline-sources --output css/dist/css/bootstrap-dark.min.css css/dist/css/bootstrap-dark.css && cleancss --level 1 --source-map --source-map-inline-sources --output css/dist/css/bootstrap-solarized-dark.min.css css/dist/css/bootstrap-solarized-dark.css",
-    "build:css:copy": "shx cp css/dist/css/*.min.css www/css/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:css:copy": "shx cp css/dist/css/*.min.css www/public/css/",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "set NODE_ENV=production && node www/app.js",
+    "start:beta": "set NODE_ENV=development && node www/app.js"
   },
   "repository": {
     "type": "git",
@@ -45,13 +41,22 @@
   "homepage": "https://github.com/SvarturH/legendhub#readme",
   "dependencies": {
     "clean-css-cli": "^4.1.11",
-    "concat": "^1.0.3",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.4",
     "cross-conf-env": "^1.1.2",
     "cross-var": "^1.1.0",
+    "dotenv": "^7.0.0",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "express-graphql": "^0.8.0",
+    "graphql": "^14.2.1",
+    "graphql-iso-date": "^3.6.1",
+    "morgan": "^1.9.1",
+    "mysql": "^2.16.0",
+    "node-php-password": "^0.1.2",
     "node-sass": "^4.11.0",
     "npm-run-all": "^4.1.5",
     "postcss-cli": "^5.0.1",
-    "replace-in-file": "^3.4.4",
     "shx": "^0.3.2",
     "stylelint": "^9.10.1",
     "stylelint-config-recommended-scss": "^3.2.0",
@@ -60,7 +65,5 @@
     "stylelint-scss": "^3.5.4"
   },
   "config": {
-    "webdevdir": "../../www/legendbeta",
-    "webproddir": "../../www/legendwiki"
   }
 }

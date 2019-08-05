@@ -1,0 +1,37 @@
+<div id="mobModal" aria-labelledby="mobModalLabel" class="modal" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="mobModalLabel">Choose a Mob</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+					<p class="text-info">Ensure the mob does not exist before adding a new one.</p>
+					<form name="searchMobForm" ng-submit="searchMobs(mobSearchName)" class="mb-3">
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<span class="input-group-text">
+									<i class="fas fa-search"></i>
+								</span>
+							</div>
+							<input id="mobSearchInput" ng-model="mobSearchName" type="text" class="form-control" placeholder="Search for mob..." aria-label="Search for mob">
+							<div class="input-group-append">
+								<button type="submit" class="btn btn-primary">Search</button>
+							</div>
+						</div>
+					</form>
+					<div class="mb-3" ng-show="mobSearchResults.length > 0">
+						<div class="table-responsive col-12">
+							<div class="list-group">
+								<button type="button" class="list-group-item list-group-item-secondary list-group-item-action" ng-click="onMobSelected(mob)" ng-repeat="mob in mobSearchResults">{{mob.name}}</button>
+							</div>
+						</div>
+					</div>
+                    <a class="btn btn-outline-success btn-block" href="/mobs/add.html" target="_blank">Add new mob</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

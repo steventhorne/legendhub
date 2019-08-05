@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <%-include("../shared/meta");-%>
+</head>
+<body ng-app="legendwiki-app">
+    <%-include("../shared/header");-%>
+	<div class="container">
+        <div class="row">
+            <h1 class="col-12 text-center text-md-left text-primary"><%=vm.quest.title%></h1>
+            <%if (vm.historyId) {%>
+            <h4 class="d-inline col-12 text-center text-md-left">
+                <a class="text-warning" href="/quests/details.html?id=<%-vm.quest.id%>">view latest version</a>
+            </h4>
+            <%}%>
+        </div>
+        <div class="row justify-content-center justify-content-md-start">
+            <div class="card" style="border:0;background:none">
+                <div class="card-header p-0" style="border:0;background:none">
+                    <div class="justify-content-center" nv-init="showHistory = false">
+                        <div class="btn-group" role="group" aria-label="Toolbar">
+                            <%if (vm.quest.getHistories.length > 0) {%>
+                            <button type="button" class="btn btn-outline-primary" ng-click="showHistory = !showHistory"><i class="fas fa-history"></i> <%=vm.quest.getHistories.length%></button>
+                            <%}%>
+                            <button type="button" class="btn btn-outline-primary"><%=locals.displayDateTime(vm.quest.modifiedOn)%> <strong>by</strong> <%=vm.quest.modifiedBy%></button>
+                            <a class="btn btn-outline-primary" role="button" href="<%-(!locals.user ? "/login.html?returnUrl=" : "")%>/quests/edit.html?id=<%-vm.quest.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0" style="border:0">
+                    <div class="justify-content-center" ng-if="showHistory" ng-cloak>
+                        <div class="list-group justify-content-center">
+                            <%for (let i = 0; i < vm.quest.getHistories.length; ++i) {%>
+                            <a href="/quests/history.html?id=<%-vm.quest.getHistories[i].id%>" class="text-center list-group-item list-group-item-action<%-((vm.historyId && vm.quest.getHistories[i].id == vm.historyId) ? ' active' : '')%>"><%=locals.displayDateTime(vm.quest.getHistories[i].quest.modifiedOn)%> <strong>by</strong> <%=vm.quest.getHistories[i].quest.modifiedBy%></a>
+                            <%}%>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <%for (let i = 0; i < vm.quest.getItems.length; ++i) {%>
+        <div class="row">
+            <span class="col-12 text-info">&lt;<%-vm.constants.selectOptions.slot[vm.quest.getItems[i].slot]%>&gt; <a href="/items/details.html?id=<%-vm.quest.getItems[i].id%>"><%=vm.quest.getItems[i].name%></a></span>
+        </div>
+        <br>
+        <%}%>
+        <div class="row">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="row">
+                    <div class="col-2 font-weight-bold">Area</div>
+                    <div class="col-10 text-right text-md-left"><span class="text-info"><%=vm.quest.eraName ? `(${vm.quest.eraName}) ` : ""%></span><%=vm.quest.areaName%></div>
+                </div>
+                <% if (vm.quest.whoises) {
+                    let whoises = vm.quest.whoises.split(";");
+                     for (let i = 0; i < whoises.length; ++i) {%>
+                <div class="row">
+                    <%if (i == 0) {%>
+                    <div class="col-2 font-weight-bold">Whois</div>
+                    <%}%>
+                    <div class="<%-i > 0 ? "offset-2 ":""%>col-10 text-right text-md-left"><%=whoises[i]%></div>
+                </div>
+                <%}}%>
+            </div>
+        </div>
+        <br>
+        <%if (vm.quest.content) {%>
+        <div class="row" ng-cloak>
+            <div class="col-12">
+                <div class="card" ng-init="questContent='<%=vm.quest.content.replace(/'/g, "&#39;").replace(/\\/g,"\\\\")%>'">
+                    <div class="card-body" markdown-to-html="questContent"></div>
+                </div>
+            </div>
+        </div>
+        <%}%>
+        <br><br>
+        <%if (vm.historyId && locals.user) {%>
+        <a class="btn btn-primary btn-block col-6 col-md-3" href="/quests/revert.html?id=<%-vm.historyId%>" role="button">Use this version</a>
+        <br><br>
+        <%}%>
+	</div>
+    <%-include("../shared/footer");-%>
+    <%-include("../shared/scripts");-%>
+    <%-include("../shared/markdown");-%>
+</body>
+
+</html>
