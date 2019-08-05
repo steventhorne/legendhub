@@ -44,7 +44,7 @@ app.use(cookieParser());
 // such as .map and favicon files
 app.use(function(req,res,next) {
     let url = require("url").parse(req.url);
-    if (url.pathname.endsWith(".map") || url.pathname === "/favicon.ico")
+    if (url.pathname.endsWith(".map"))
         res.sendStatus(404);
     else
         next();
