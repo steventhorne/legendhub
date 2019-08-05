@@ -1,7 +1,7 @@
 # [LegendHUB](https://www.legendhub.org)
 > A resource hub for [LegendMUD](www.legendmud.org).
 
-[![Version v=1.9.1](http://img.shields.io/badge/version-v=1.9.1-brightgreen.svg?style=flat-square)](https://www.legendhub.org) [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+[![Version v=2.0.0](http://img.shields.io/badge/version-v=2.0.0-brightgreen.svg?style=flat-square)](https://www.legendhub.org) [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 ## Table of Contents
 - [Not Included](#not-included)
@@ -26,21 +26,19 @@ The following are not included:
 - [Download and install the latest version of Python 3](https://www.python.org/downloads/) - Used for the notification process.
 - Clone this repo to your local machine using `git clone https://github.com/SvarturH/legendhub.git`
 - Navigate to the root directory of the cloned repo and run `npm install` to install the necessary dependencies.
-- This will create two files:
-    - www/php/common/config.php
+- This will create the following file:
+    - .env
     - python/sql/sql_engine_config.py
 - Replace the default values in the config files with your sql database information.
-- Open the package.json file and replace the `webdevdir` and `webproddir` config values with the absolute or relative paths of your deployment directories. (Where your HTTP server expects your web files to be placed)
 
 ## Building and Deploying
 - Run `npm run build` to build all of the projects.
-- This will deploy the web project to the `webdevdir` directory, as well.
-- If you want to deploy to the `webproddir` directory, you must run `npm run build:web:deploy-prod` after building.
 - To build each project individually run the following commands:
-    - `npm run build:web`
     - `npm run build:python`
     - `npm run build:css`
-- Building the css project will copy the new css files to the www directory. You must run `npm run build:web` **afterwards** in order for your new css files to be included in the web build. `npm run build` will automatically build the projects in the correct order.
+- Building the css project will copy the new css files to the www directory. This is only necessary if you make changes to the CSS project, as the web project already has the latest CSS.
+- Once everything is built, simply run `npm start` or `npm start-dev` to run the project in production or development mode.
+- The project will now be listening on the port provided in the .env file.
 
 ## Sql Database Backup
 - The latest backup file can be downloaded from [here](https://drive.google.com/open?id=17RJ2vnmmH4G4-DWjlvEBYX-UI8I5RgC5).
