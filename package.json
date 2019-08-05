@@ -40,11 +40,8 @@
   },
   "homepage": "https://github.com/SvarturH/legendhub#readme",
   "dependencies": {
-    "clean-css-cli": "^4.1.11",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.4",
-    "cross-conf-env": "^1.1.2",
-    "cross-var": "^1.1.0",
     "dotenv": "^7.0.0",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
@@ -53,17 +50,19 @@
     "graphql-iso-date": "^3.6.1",
     "morgan": "^1.9.1",
     "mysql": "^2.16.0",
-    "node-php-password": "^0.1.2",
-    "node-sass": "^4.11.0",
+    "node-php-password": "^0.1.2"
+  },
+  "config": {},
+  "devDependencies": {
+    "clean-css-cli": "^4.3.0",
+    "node-sass": "^4.12.0",
     "npm-run-all": "^4.1.5",
     "postcss-cli": "^5.0.1",
     "shx": "^0.3.2",
     "stylelint": "^9.10.1",
-    "stylelint-config-recommended-scss": "^3.2.0",
-    "stylelint-config-standard": "^18.2.0",
+    "stylelint-config-recommended-scss": "^3.3.0",
+    "stylelint-config-standard": "^18.3.0",
     "stylelint-order": "^0.8.1",
-    "stylelint-scss": "^3.5.4"
-  },
-  "config": {
+    "stylelint-scss": "^3.9.3"
   }
 }
