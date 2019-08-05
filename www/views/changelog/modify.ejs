@@ -6,7 +6,7 @@
     <body ng-app="legendwiki-app" ng-controller="changelog-modify">
         <%-include("../shared/header")-%>
         <div class="container">
-            <form name="form">
+            <form name="form" ng-submit="<%-(vm.changelog ? "editChangelog(changelog)" : "addChangelog(changelog)")%>">
                 <div class="form-row">
                     <div class="form-group col-12 col-lg-5">
                         <div class="input-group">
@@ -74,7 +74,7 @@
                             "updateChangelog(id:",changelog.id,",",
                             "authToken:\"",$cookies.get("loginToken"),"\",",
                             "version:\"",changelog.version,"\",",
-                            "notes:\"",changelog.notes,"\") {",
+                            "notes:\"\"\"",changelog.notes,"\"\"\") {",
                                 "token ",
                                 "expires",
                             "}",
@@ -94,14 +94,16 @@
                 };
 
                 $scope.addChangelog = function(changelog) {
+                    console.log("enter");
                     if (!$scope.canAdd())
                         return;
+                    console.log("can");
 
                     let query = [
                         "mutation {",
                             "insertChangelog(authToken:\"",$cookies.get("loginToken"),"\",",
                             "version:\"",changelog.version,"\",",
-                            "notes:\"",changelog.notes,"\") {",
+                            "notes:\"\"\"",changelog.notes,"\"\"\") {",
                                 "id ",
                                 "tokenRenewal {",
                                     "token ",
@@ -110,6 +112,7 @@
                             "}",
                         "}"
                     ];
+                    console.log(query.join(""));
                     $http({
                         url: "/api",
                         method: "POST",
@@ -120,6 +123,8 @@
                         let expireDate = data.tokenRenewal.expires;
                         $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "strict"});
                         window.location = "/changelog/details.html?id=" + data.id;
+                    }, function(response) {
+                        console.log(response);
                     });
                 };
                 <%_}_%>
