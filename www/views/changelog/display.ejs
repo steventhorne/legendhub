@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <%-include("../shared/meta")-%>
+    </head>
+    <body ng-app="legendwiki-app">
+        <%-include("../shared/header")-%>
+        <div class="container">
+            <div class="row">
+                <h1 class="text-primary"><%=title%></h1>
+            </div>
+            <div class="row justify-content-center justify-content-md-start">
+                <div class="btn-group btn-block" role="group" aria-label="Toolbar">
+                    <button type="button" class="btn btn-outline-primary">Released on <%=locals.displayDateTime(vm.changelog.createdOn)%></button>
+                    <%if(locals.user && locals.user.permissions.ChangelogVersion.update) {%>
+                    <a class="btn btn-outline-primary" role="button" href="<%-(!locals.user ? "/login.html?returnUrl=" : "")%>/changelog/edit.html?id=<%-vm.changelog.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
+                    <%}%>
+                </div>
+            </div>
+            <br><br>
+            <div class="row" ng-cloak>
+                <div class="card col-12" ng-init="changelogNotes='<%=vm.changelog.notes.replace(/'/g,"&#39;").replace(/\\/g,"\\\\")%>'">
+                    <div class="card-body" markdown-to-html="changelogNotes"></div>
+                </div>
+            </div>
+        </div>
+        <%-include("../shared/footer")-%>
+        <%-include("../shared/scripts")-%>
+        <%-include("../shared/markdown")-%>
+    </body>
+</html>

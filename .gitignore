@@ -9,7 +9,13 @@ www/bin/*
 www/deploy.sh.conf
 www-bin
 
+# dotenv
+www/.env
+www_new/.env
+.env
+
 # notification listener
+python/env/
 python/__pycache__/
 python/**/*.py[cod]
 python/**/*$py.class
@@ -17,3 +23,6 @@ python/sql/sql_engine_config.py
 
 # NPM
 node_modules/
+
+# TMP
+www_express/

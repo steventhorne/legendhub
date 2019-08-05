@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en" style="height: 100%;">
+<head>
+    <%- include('./shared/meta') %>
+</head>
+<body ng-app="legendwiki-app" ng-controller="login" style="height: 100%;">
+    <%-include("./shared/header")-%>
+	<div class="container">
+		<div class="row h-100 align-items-center">
+			<div id="accordion" class="col-12 col-sm-8 col-md-6 col-lg-4 mx-auto">
+				<form class="card" name="loginForm" ng-submit="login()" novalidate>
+					<div class="card-header" id="loginHeading" style="cursor: pointer;" data-toggle="collapse" data-target="#loginCollapse" aria-expanded="true"
+					    aria-controls="loginCollapse">
+						<h3 class="text-center">Login</h3>
+					</div>
+					<div id="loginCollapse" class="collapse show" aria-labelledby="loginHeading" data-parent="#accordion">
+						<div class="card-body">
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text" id="usernameLabel">Username</span>
+								</div>
+								<input name="username" type="text" class="form-control" aria-label="Username" aria-describedby="usernameLabel" ng-model="loginModel.Username" required lh-autofocus>
+							</div>
+							<br />
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text" id="passwordLabel">Password</span>
+								</div>
+								<input name="passwordInput" type="password" class="form-control" aria-label="Password" aria-describedby="passwordLabel" ng-model="loginModel.Password" required>
+							</div>
+                            <div ng-repeat="error in loginErrors" class="text-danger" ng-cloak>{{error.message}}</div>
+							<div class="custom-control custom-checkbox mt-2 mb-3">
+								<input type="checkbox" class="custom-control-input" ng-model="loginModel.StayLoggedIn" id="stayLoggedInCheck">
+								<label class="custom-control-label" for="stayLoggedInCheck" style="cursor:pointer">Stay logged in</label>
+							</div>
+							<button ng-disabled="!loginForm.$valid" class="btn btn-primary col-12">Login</button>
+						</div>
+					</div>
+				</form>
+				<form class="card" name="registerForm" ng-submit="register()" novalidate>
+					<div class="card-header" id="registerHeading" style="cursor: pointer;" data-toggle="collapse" data-target="#registerCollapse"
+					    aria-expanded="false" aria-controls="registerCollapse">
+						<h3 class="text-center">Register</h3>
+					</div>
+					<div id="registerCollapse" class="collapse" aria-labelledby="registerHeading" data-parent="#accordion">
+						<div class="card-body">
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text" id="usernameLabel">Username</span>
+								</div>
+								<input name="usernameInput" ng-pattern="/^[A-Za-z0-9]*$/" type="text" class="form-control" aria-label="Username" aria-describedby="usernameLabel" ng-change="checkUsername()" ng-model="registerModel.Username" ng-model-options="{debounce: 200}" required>
+							</div>
+							<br />
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text" id="passwordLabel">Password</span>
+								</div>
+								<input name="passwordInput" type="password" class="form-control" aria-label="Password" aria-describedby="passwordLabel" ng-change="checkPassword()" ng-model="registerModel.Password" ng-model-options="{debounce: 200}" required>
+							</div>
+							<br />
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text" id="confirmPasswordLabel">Confirm</span>
+								</div>
+								<input name="confirmPasswordInput" type="password" class="form-control" aria-label="ConfirmPassword" aria-describedby="confirmPasswordLabel" ng-change="checkPassword()" ng-model="registerModel.ConfirmPassword" ng-model-options="{debounce: 200}" required>
+							</div>
+                            <div ng-repeat="error in registerErrors" class="text-danger" ng-cloak>{{error.message}}</div>
+                            <div ng-if="registerForm.confirmPasswordInput.$error.match" class="text-danger" ng-cloak>Passwords do not match.</div>
+							<br />
+							<button ng-disabled="!registerForm.$valid" class="btn btn-primary col-12" type="submit">Register</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+    <br><br>
+	</div>
+    <%-include("./shared/footer")-%>
+    <%-include("./shared/scripts")-%>
+	<script src="/js/controllers/login.js"></script>
+</body>
+</html>

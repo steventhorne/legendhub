@@ -8570,12 +8570,22 @@ body {
   min-height: 100vh;
 }
 
-body > .container {
+body > .container,
+body > .container-fluid {
   flex: 1 0 auto;
 }
 
 [ng-click] {
   cursor: pointer;
+}
+
+[ng\:cloak],
+[ng-cloak],
+[data-ng-cloak],
+[x-ng-cloak],
+.ng-cloak,
+.x-ng-cloak {
+  display: none !important;
 }
 
 .footer {
@@ -8601,11 +8611,12 @@ body > .container {
 }
 
 .breadcrumbListLink a {
-  color: #268bd2;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .breadcrumbListLink a:hover {
-  color: #268bd2;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
 }
 
 .breadcrumbListLink a .active {
@@ -8616,18 +8627,32 @@ body > .container {
   content: " > ";
 }
 
+.categoryListContainer {
+  min-width: 250px;
+  padding: 0 30px 0 15px;
+}
+
+.categoryListContainer h2 {
+  text-align: center;
+}
+
 .categoryList {
-  height: 100%;
-  padding-left: 20px;
+  padding-left: 5px;
   font-size: 1.1em;
   list-style: none;
 }
 
+.categoryList li a {
+  color: rgba(238, 232, 213, 0.7);
+}
+
 .categoryList li a:hover {
+  color: #eee8d5;
   text-decoration: none;
 }
 
-.categoryList li a .active {
+.categoryList li a.active {
+  font-weight: 700;
   color: #268bd2;
 }
 
@@ -8635,6 +8660,15 @@ body > .container {
   padding-left: 20px;
   font-size: .9em;
   list-style: none;
+}
+
+.categoryListClose {
+  display: none;
+}
+
+blockquote {
+  padding: 0 1rem;
+  border-left: 0.25rem solid #586e75;
 }
 
 .clickable {
@@ -8689,31 +8723,63 @@ body > .container {
 }
 
 @media (max-width: 767px) {
-  .categoryListContainer {
+  .categoryListBackground {
     position: fixed;
     top: 0;
     bottom: 0;
     left: -250px;
     z-index: 100;
-    width: 250px;
-    padding: 15px;
-    background-color: #002b36 !important;
+    width: calc(100% + 250px);
+    cursor: default;
+    visibility: hidden;
+    background-color: rgba(0, 0, 0, 0);
   }
-  .categoryListContainer.active {
+  .categoryListBackground.active {
     left: 0;
+    visibility: visible;
+    background-color: rgba(0, 0, 0, 0.5);
     transition: all 150ms linear;
   }
 }
 
 @media screen and (max-width: 767px) and (prefers-reduced-motion: reduce) {
-  .categoryListContainer.active {
+  .categoryListBackground.active {
     transition: none;
   }
 }
 
 @media (max-width: 767px) {
+  .categoryListContainer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    padding: 0;
+    overflow-x: visible;
+    background-color: #002b36;
+    border-right: 1px solid rgba(5, 35, 43, 0.95);
+  }
   .categoryListContainer h2 {
-    color: #fff !important;
+    padding: 10px 20px;
+    margin-bottom: 0;
+    background-color: #05232b;
+    border-bottom: 1px solid rgba(5, 35, 43, 0.95);
+  }
+  .categoryListClose {
+    position: absolute;
+    left: 250px;
+    display: block;
+    padding: 0 15px;
+    font-size: 2.5rem;
+    color: #fff;
+  }
+  .categoryList {
+    padding: 10px 15px 50px 15px;
+    margin: 0;
+    overflow-y: auto;
   }
 }
 

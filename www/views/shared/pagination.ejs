@@ -1,0 +1,33 @@
+<div class="row">
+    <nav class="col" aria-label="Result navigation">
+        <ul class="pagination">
+            <li class="page-item<%-page === 1 ? " disabled":""%>">
+                <a href="<%-baseUrl%>" class="page-link" aria-label="first">
+                    <span aria-hidden="true">
+                        <i class="fas fa-angle-double-left"></i>
+                    </span>
+                    <span class="sr-only">First</span>
+                </a>
+            </li>
+            <li class="page-item<%- page === 1 ? " disabled":""%>">
+                <a href="<%-baseUrl + "&page=" + (page - 1)%>" class="page-link" aria-label="previous">
+                    <span aria-hidden="true">
+                        <i class="fas fa-angle-left"></i>
+                    </span>
+                    <span class="sr-only">Previous</span>
+                </a>
+            </li>
+            <li class="page-item<%-moreResults ? "":" disabled"%>">
+                <a href="<%-baseUrl+"&page=" + (page + 1)%>" class="page-link" aria-label="next">
+                    <span aria-hidden="true">
+                        <i class="fas fa-angle-right"></i>
+                    </span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link">Results: <%-(rows * (page - 1)) + 1%> - <%-(rows * (page - 1)) + resultLength %></span>
+            </li>
+        </ul>
+    </nav>
+</div>
