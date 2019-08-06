@@ -8,7 +8,7 @@
 	<div class="collapse navbar-collapse" id="navbarSupportedContent">
 		<ul class="navbar-nav mr-auto">
 			<li class="nav-item">
-				<a class="nav-link" target="_blank" href="http://www.topmudsites.com/vote-legend.html">Vote!</a>
+				<a class="nav-link" target="_blank" href="http://www.topmudsites.com/vote-legend.html" rel="noopener" rel="noreferrer">Vote!</a>
 			</li>
 			<li class="nav-item">
 				<a class="nav-link" href="/builder/">Builder</a>
@@ -31,9 +31,9 @@
                 <%-include("notification", {classes: "btn btn-dark d-none d-sm-inline-block", id: "not-pop-2"})-%>
             </li>
 			<li class="nav-item dropdown float-right">
-                <a class="nav-link dropdown-toggle dropdown-toggle-no-caret" href="#" id="themeDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <div class="nav-link dropdown-toggle dropdown-toggle-no-caret clickable" href="#" id="themeDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-palette"></i>
-                </a>
+                </div>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="themeDropdown">
                    <a ng-repeat="theme in themes" class="dropdown-item" href="" ng-click="setTheme(theme)">{{::theme}}</a>
                 </div>
