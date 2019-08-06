@@ -440,7 +440,8 @@ app.controller('header', ['$scope', '$http', '$cookies', '$compile', 'breadcrumb
             content: $("#notification-window").html(),
             html: true,
             trigger: "focus",
-            placement: "bottom"
+            placement: "bottom",
+            sanitize: false
         });
         popover.on('shown.bs.popover', function() {
             $compile($(".popover-body").contents())($scope);

@@ -6,9 +6,9 @@
     <p class="text-center">No unread notifications.</p>
     <%}%>
 
-    <span class="d-flex justify-content-between">
-        <a class="px-1" href="/notifications/">View all</a>|<button class="btn btn-link py-0 px-1 m-0 border-0" style="font-size:.875rem" ng-click="markAllNotificationsAsRead()">Mark all as read</button>|<a class="px-1" href="/account/">Settings</a></span>
-    </span>
+    <div class="d-flex justify-content-between">
+        <a class="px-1" href="/notifications/">View all</a>|<span class="clickable btn-link py-0 px-1 m-0 border-0" style="font-size:.875rem" ng-click="markAllNotificationsAsRead()">Mark all as read</span>|<a class="px-1" href="/account/">Settings</a></span>
+    </div>
 
     <%if (locals.user.notifications.length > 0) {%>
     <div class="list-group" style="max-height:50vh;overflow-y:auto">
