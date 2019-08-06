@@ -1543,7 +1543,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 		}
 
         // Handle special case.
-		if (statName == 'AlignRestriction') {
+		if (statName == 'alignRestriction') {
 			return getAlignmentTotal();
 		}
 
