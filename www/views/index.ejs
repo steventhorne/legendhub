@@ -2,15 +2,21 @@
 <html lang="en">
     <head>
         <%- include('shared/meta'); -%>
+        <meta property="og:description" content="LegendHUB is a community driven resource for all things LegendMUD, the Multi User Dungeon. Find all the information you need to play a legendary MUD." />
     </head>
     <body ng-app="legendwiki-app">
         <%- include('shared/header'); -%>
         <div class="container">
+            <div class="row mb-3">
+                <div class="col-12 text-center">
+                    <h1>Welcome to LegendHUB!</h1>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h5>New to LegendMUD?<small class="float-right text-info">2019-07-25</small></h5>
+                            <span>New to LegendMUD?<small class="float-right text-info">2019-07-25</small></span>
                         </div>
                         <div class="card-body text-center">
                             <p>Check out this comprehensive <a href="/wiki/details.html?id=716">newbie guide</a> written by our community in the wiki section.</p>
@@ -23,7 +29,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h5>Welcome to LegendHUB!<small class="float-right text-info">2018-06-19</small></h5>
+                            <span>What is LegendHUB?<small class="float-right text-info">2018-06-19</small></span>
                         </div>
                         <div class="card-body text-center">
                             <p>Welcome to LegendHUB, a community-driven resource designed to provide updated information and easily-accessible, user-friendly tools.</p>
@@ -35,6 +41,7 @@
                     </div>
                 </div>
             </div>
+            <br><br>
         </div>
         <%- include('shared/footer'); -%>
         <%- include('shared/scripts'); -%>
