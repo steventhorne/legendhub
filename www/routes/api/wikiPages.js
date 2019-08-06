@@ -88,7 +88,7 @@ let getWikiPageById = function(id) {
                 if (results.length > 0)
                     resolve(new WikiPage(results[0]));
                 else
-                    reject(Error(`WikiPage with id, ${id}, not found.`));
+                    reject(new apiUtils.NotFoundError(`WikiPage with id, ${id}, not found.`));
             });
     });
 };
