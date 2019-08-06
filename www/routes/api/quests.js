@@ -104,7 +104,7 @@ let getQuestById = function(id) {
                 if (results.length > 0)
                     resolve(new Quest(results[0]));
                 else
-                    reject(Error(`Quest with id (${id}) not found.`));
+                    reject(new apiUtils.NotFoundError(`Quest with id (${id}) not found.`));
             });
     });
 };

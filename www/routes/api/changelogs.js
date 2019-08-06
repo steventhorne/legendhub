@@ -38,7 +38,7 @@ let getChangelogById = function(id) {
                 if (results.length > 0)
                     resolve(new Changelog(results[0]));
                 else
-                    reject(Error(`Changelog with id, ${id}, not found.`));
+                    reject(new apiUtils.NotFoundError(`Changelog with id, ${id}, not found.`));
             });
     });
 };
