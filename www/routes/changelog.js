@@ -4,6 +4,7 @@ let auth = require("./api/auth");
 
 router.get(["/", "/index.html"], async function(req, res, next) {
     let page = req.query.page === undefined ? 1 : Number(req.query.page);
+    if (page < 1) page = 1;
     let rows = 20;
     let getChangelogQuery = `
     {
