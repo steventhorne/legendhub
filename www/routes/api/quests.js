@@ -117,7 +117,7 @@ let getQuests = function(searchString, eraId, areaId, stat, sortBy, sortAsc, pag
         sortBy = noSearch ? "modifiedOn" : "title";
     if (sortAsc == null)
         sortAsc = !noSearch;
-    if (page == null)
+    if (page == null || page < 1)
         page = 1;
     if (rows == null)
         rows = 20;

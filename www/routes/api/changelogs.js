@@ -44,7 +44,7 @@ let getChangelogById = function(id) {
 };
 
 let getChangelogs = function(page, rows) {
-    if (page == null)
+    if (page == null || page < 1)
         page = 1;
     if (rows == null)
         rows = 20;

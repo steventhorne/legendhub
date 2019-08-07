@@ -101,7 +101,7 @@ let getWikiPages = function(searchString, categoryId, subcategoryId, sortBy, sor
         sortBy = noSearch ? "modifiedOn" : "title";
     if (sortAsc == null)
         sortAsc = !noSearch;
-    if (page == null)
+    if (page == null || page < 1)
         page = 1;
     if (rows == null)
         rows = 20;

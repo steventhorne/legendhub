@@ -119,13 +119,13 @@ let getMobs = function(searchString, eraId, areaId, sortBy, sortAsc, page, rows)
     let noSearch = searchString == null && eraId == null && areaId == null;
     if (searchString == null)
         searchString = "";
-    if (sortBy === undefined)
+    if (sortBy == null)
         sortBy = noSearch ? "modifiedOn" : "name";
-    if (sortAsc === undefined)
+    if (sortAsc == null)
         sortAsc = !noSearch;
-    if (page === undefined)
+    if (page == null || page < 1)
         page = 1;
-    if (rows === undefined)
+    if (rows == null)
         rows = 20;
 
     return new Promise(function(resolve, reject) {
