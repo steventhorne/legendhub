@@ -10,11 +10,17 @@
                 <h1 class="text-primary"><%=title%></h1>
             </div>
             <div class="row justify-content-center justify-content-md-start">
-                <div class="btn-group btn-block" role="group" aria-label="Toolbar">
-                    <button type="button" class="btn btn-outline-primary">Released on <%=locals.displayDateTime(vm.changelog.createdOn)%></button>
-                    <%if(locals.user && locals.user.permissions.ChangelogVersion.update) {%>
-                    <a class="btn btn-outline-primary" role="button" href="<%-(!locals.user ? "/login.html?returnUrl=" : "")%>/changelog/edit.html?id=<%-vm.changelog.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
-                    <%}%>
+                <div class="card" style="border:0;background:none">
+                    <div class="card-header p-0" style="border:0;background:none">
+                        <div class="justify-content-center">
+                            <div class="btn-group" role="group" aria-label="Toolbar">
+                                <button type="button" class="btn btn-outline-primary">Released on <%=locals.displayDateTime(vm.changelog.createdOn)%></button>
+                                <%if(locals.user && locals.user.permissions.ChangelogVersion && locals.user.permissions.ChangelogVersion.update) {%>
+                                <a class="btn btn-outline-primary" role="button" href="<%-(!locals.user ? "/login.html?returnUrl=" : "")%>/changelog/edit.html?id=<%-vm.changelog.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
+                                <%}%>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <br><br>
