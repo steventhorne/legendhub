@@ -1,7 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
+    <%
+    let searchPart = (vm.query.search !== undefined ? '&search=' + vm.query.search : '');
+    let filterPart = (vm.query.filters ? '&filters=' + vm.query.filters : '');
+    let sortByPart = (vm.query.sortBy ? '&sortBy=' + vm.query.sortBy : '');
+    let sortAscPart = (vm.query.sortAsc ? '&sortAsc=' + vm.query.sortAsc : '');
+    let pageBaseUrl = '/items/index.html?' + searchPart + filterPart + sortByPart + sortAscPart;
+    let sortBaseUrl = '/items/index.html?' + searchPart + filterPart;
+    %>
     <%- include('../shared/meta') %>
+    <link href="https://www.legendhub.org<%-pageBaseUrl%>&page=<%-vm.page%>" rel="canonical">
+    <meta name="robots" content="noindex">
 </head>
 <body ng-app="legendwiki-app" ng-controller="items">
     <%- include('../shared/header') %>
@@ -35,14 +45,7 @@
 						</form>
 					</div>
 					<br>
-                    <%
-                    let searchPart = (vm.query.search !== undefined ? '&search=' + vm.query.search : '');
-                    let filterPart = (vm.query.filters ? '&filters=' + vm.query.filters : '');
-                    let sortByPart = (vm.query.sortBy ? '&sortBy=' + vm.query.sortBy : '');
-                    let sortAscPart = (vm.query.sortAsc ? '&sortAsc=' + vm.query.sortAsc : '');
-                    let pageBaseUrl = '/items/index.html?' + searchPart + filterPart + sortByPart + sortAscPart;
-                    let sortBaseUrl = '/items/index.html?' + searchPart + filterPart;
-                    %>
+                    
                     <%-include("../shared/pagination", {baseUrl: pageBaseUrl, page: vm.page, rows: vm.rows, resultLength: vm.results.length, moreResults: vm.moreResults})%>
 					<div class="row">
 						<div class="col-12">

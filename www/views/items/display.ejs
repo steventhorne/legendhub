@@ -33,6 +33,12 @@ Perception: <%- vm.item.perception %>
 Spirit: <%- vm.item.spirit %>
 <%_}_%>
 AC: <%-vm.item.ac%>" />
+    <%if (vm.historyId) {%>
+    <link href="https://www.legendhub.org/items/history.html?id=<%-vm.historyId%>" rel="canonical">
+    <meta name="robots" content="none">
+    <%}else{%>
+    <link href="https://www.legendhub.org/items/details.html?id=<%-vm.item.id%>" rel="canonical">
+    <%}%>
 </head>
 <body ng-app="legendwiki-app">
     <%- include('../shared/header') %>
