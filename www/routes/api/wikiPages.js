@@ -325,7 +325,7 @@ let wikiPageType = new gql.GraphQLObjectType({
         pinnedSearch: { type: new gql.GraphQLNonNull(gql.GraphQLBoolean) },
         locked: { type: new gql.GraphQLNonNull(gql.GraphQLBoolean) },
         categoryId: { type: new gql.GraphQLNonNull(gql.GraphQLInt) },
-        categoryName: { type: new gql.GraphQLNonNull(gql.GraphQLString) },
+        categoryName: { type: gql.GraphQLString },
         subcategoryId: { type: new gql.GraphQLNonNull(gql.GraphQLInt) },
         subcategoryName: { type: gql.GraphQLString },
         tags: { type: new gql.GraphQLNonNull(gql.GraphQLString) },

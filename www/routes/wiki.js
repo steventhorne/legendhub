@@ -126,7 +126,7 @@ router.get(["/details.html"], async function(req, res, next) {
             href: "/wiki/"
         }
     ];
-    if (wikiPage.categoryId) {
+    if (wikiPage.categoryName) {
         res.locals.breadcrumbs.push(
             {
                 display: wikiPage.categoryName,
@@ -134,7 +134,7 @@ router.get(["/details.html"], async function(req, res, next) {
             }
         )
     }
-    if (wikiPage.subcategoryId) {
+    if (wikiPage.subcategoryName) {
         res.locals.breadcrumbs.push(
             {
                 display: wikiPage.subcategoryName,
@@ -197,7 +197,7 @@ router.get(["/history.html"], async function(req, res, next) {
             href: "/wiki/"
         }
     ];
-    if (wikiPage.categoryId) {
+    if (wikiPage.categoryName) {
         res.locals.breadcrumbs.push(
             {
                 display: wikiPage.categoryName,
@@ -205,7 +205,7 @@ router.get(["/history.html"], async function(req, res, next) {
             }
         )
     }
-    if (wikiPage.subcategoryId) {
+    if (wikiPage.subcategoryName) {
         res.locals.breadcrumbs.push(
             {
                 display: wikiPage.subcategoryName,
