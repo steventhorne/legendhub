@@ -2,18 +2,21 @@
 <html lang="en">
     <head>
         <%-include("../shared/meta")-%>
+        <%
+        let searchPart = (vm.query.search !== undefined ? "&search=" + vm.query.search : "") + (vm.query.stat !== undefined ? "&stat=" + vm.query.stat:"");
+        let categoryPart = `${(vm.query.eraId ? `&eraId=${vm.query.eraId}`:"")}${(vm.query.areaId ? `&areaId=${vm.query.areaId}`:"")}`;
+        let sortByPart = (vm.query.sortBy ? `&sortBy=${vm.query.sortBy}`:"");
+        let sortAscPart = (vm.query.sortAsc ? `&sortAsc=${vm.query.sortAsc}`:"");
+        let baseUrl = "/quests/index.html?";
+        let searchBaseUrl = baseUrl + searchPart;
+        let categoryBaseUrl = searchBaseUrl + categoryPart;
+        let sortBaseUrl = categoryBaseUrl + sortByPart + sortAscPart;
+        %>
+        <link href="https://www.legendhub.org<%-sortBaseUrl%>&page=<%-vm.page%>" rel="canonical">
+        <meta name="robots" content="noindex">
     </head>
     <body ng-app="legendwiki-app" ng-controller="quests" ng-class="{'modal-open': categoryActive}">
         <%-include("../shared/header")-%>
-        <% let searchPart = (vm.query.search !== undefined ? "&search=" + vm.query.search : "") + (vm.query.stat !== undefined ? "&stat=" + vm.query.stat:"");
-             let categoryPart = `${(vm.query.eraId ? `&eraId=${vm.query.eraId}`:"")}${(vm.query.areaId ? `&areaId=${vm.query.areaId}`:"")}`;
-             let sortByPart = (vm.query.sortBy ? `&sortBy=${vm.query.sortBy}`:"");
-             let sortAscPart = (vm.query.sortAsc ? `&sortAsc=${vm.query.sortAsc}`:"");
-             let baseUrl = "/quests/index.html?";
-             let searchBaseUrl = baseUrl + searchPart;
-             let categoryBaseUrl = searchBaseUrl + categoryPart;
-             let sortBaseUrl = categoryBaseUrl + sortByPart + sortAscPart;
-         %>
         <div class="container-fluid">
             <div class="px-0">
                 <div class="row">

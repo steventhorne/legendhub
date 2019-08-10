@@ -2,6 +2,12 @@
 <html lang="en">
     <head>
         <%- include("../shared/meta"); -%>
+        <%if (vm.item) {%>
+        <link href="https://www.legendhub.org/items/edit.html?id=<%-vm.item.id%>" rel="canonical">
+        <%}else{%>
+        <link href="https://www.legendhub.org/items/add.html" rel="canonical">
+        <%}%>
+        <meta name="robots" content="none">
     </head>
     <body ng-app="legendwiki-app" ng-controller="items-modify">
         <%- include("../shared/header"); -%>
