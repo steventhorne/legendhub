@@ -334,6 +334,9 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
                 }
             );
 		}
+        else {
+            $scope.initiallyLoaded = true;
+        }
 		applyItemRestrictions(); // to apply restrictions
 
 		$scope.characterName = list.name;
@@ -413,7 +416,6 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         else {
             selectListByName();
         }
-
 	};
 
     /**
