@@ -178,6 +178,9 @@
                         "mutation {",
                             "updateItem(id:",item.id,",",
                             "authToken:\"",$cookies.get("loginToken"),"\",",
+                            "mobId:",(item.mobId != null ? item.mobId : "0"),",",
+                            "questId:",(item.questId != null ? item.questId : "0"),",",
+                            "notes:\"\"\"",item.notes,"\"\"\",",
                             <%_for (let i = 0; i < vm.itemStatCategories.length; ++i) {
                                 for (let j = 0; j < vm.itemStatCategories[i].getItemStatInfo.length; ++j) {
                                     let stat = vm.itemStatCategories[i].getItemStatInfo[j];
@@ -219,6 +222,9 @@
                     let query = [
                         "mutation {",
                             "insertItem(authToken:\"",$cookies.get("loginToken"),"\",",
+                                "mobId:",(item.mobId != null ? item.mobId : "0"),",",
+                                "questId:",(item.questId != null ? item.questId : "0"),",",
+                                "notes:\"\"\"",item.notes,"\"\"\",",
                             <%_for (let i = 0; i < vm.itemStatCategories.length; ++i) {
                                 for (let j = 0; j < vm.itemStatCategories[i].getItemStatInfo.length; ++j) {
                                     let stat = vm.itemStatCategories[i].getItemStatInfo[j];
