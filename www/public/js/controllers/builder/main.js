@@ -1678,11 +1678,6 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 					$scope.itemRestrictions[i].push("weight");
 				}
 			}
-			else if (curItem.slot == 15) {
-				if (curItem.weight * 5 > strength) {
-					$scope.itemRestrictions[i].push("holdWeight");
-				}
-			}
 
 			// hand limit
 			if (!handApplied && curItem.slot == 14 || curItem.slot == 15) {
