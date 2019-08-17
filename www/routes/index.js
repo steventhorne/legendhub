@@ -1,5 +1,6 @@
 let router = require("express").Router();
 let auth = require("./api/auth");
+let request = require("request");
 let mysql = require("./api/mysql-connection");
 
 router.get(["/", "/index.html"], function(req, res, next) {
@@ -21,7 +22,88 @@ router.get(["/logout.html"], function(req, res, next) {
 
 router.get(["/cookies.html"], function(req, res, next) {
     res.render("cookies", {title: "Cookie Policy"});
-})
+});
+
+router.all(["/feedback.html"], function(req, res, next) {
+    const feedbackTitle = req.body.feedbackTitle;
+    const feedbackBody = req.body.feedbackBody;
+    const recaptcha = req.body["g-recaptcha-response"];
+
+    let vm = {};
+    if (req.method === "POST") {
+        if (recaptcha) {
+            request.post({
+                url: "https://www.google.com/recaptcha/api/siteverify",
+                json: true,
+                form: {
+                    secret: process.env.RECAPTCHA_SECRET,
+                    response: recaptcha
+                }
+            }, function(error, response, body) {
+                if (error)
+                    return next(error);
+
+                if (body.success) {
+                    if (feedbackTitle) {
+                        let query = `mutation {createIssue(input:{repositoryId:"""${process.env.GITHUB_REPOSITORY}""",title:"""${feedbackTitle}"""${feedbackBody?`,body:"""${feedbackBody}"""`:""}}) {issue {url}}}`;
+                        let options = {
+                            url: "https://api.github.com/graphql",
+                            headers: {
+                                "Authorization": `bearer ${process.env.GITHUB_TOKEN}`,
+                                "User-Agent": "LegendHUB"
+                            },
+                            json: true,
+                            body: {query}
+                        };
+
+                        request.post(options, function(error, response, body) {
+                            if (error)
+                                return next(error);
+
+                            body = body.data;
+                            if (body.errors) {
+                                return next(new Error(body.errors[0].message));
+                            }
+                            else {
+                                vm.type = "success";
+                                vm.url = body.createIssue.issue.url;
+                                return res.render("feedback", {title:"Feedback Sent", vm});
+                            }
+                        })
+                    }
+                    else {
+                        vm.type = "error";
+                        vm.message = "All required fields must be filled out.";
+                        vm.values = {title: feedbackTitle, body: feedbackBody};
+                        return res.render("feedback", {title: "Feedback Error", vm});
+                    }
+                }
+                else {
+                    vm.type = "error";
+                    vm.message = "Invalid reCAPTCHA.";
+                    vm.values = {title: feedbackTitle, body: feedbackBody};
+                    return res.render("feedback", {title: "Feedback Error", vm});
+                }
+                return;
+            });
+        }
+        else {
+            vm.type = "error";
+            vm.message = "The reCAPTCHA must be filled out.";
+            vm.values = {title: feedbackTitle, body: feedbackBody};
+            res.render("feedback", {title: "Feedback Error", vm});
+        }
+    }
+    else {
+        vm.type = "normal";
+        vm.values = {title: "", body: ""};
+        res.render("feedback", {title: "Send Feedback", vm});
+    }
+});
+
+//router.all(["/play.html"], function(req, res, next) {
+    //res.render("play", {title: "Play LegendMUD"});
+//});
 
 let getSitemapQuery = function(table) {
     return new Promise(function(resolve, reject) {
