@@ -655,12 +655,18 @@ let insertItem = function(args) {
                                 }
                             }
                             keys.push(
+                                "Notes",
+                                "MobId",
+                                "QuestId",
                                 "NetStat",
                                 "ModifiedBy",
                                 "ModifiedOn",
                                 "ModifiedByIP"
                             );
                             values.push(
+                                args["notes"],
+                                args["mobId"],
+                                args["questId"],
                                 netStat,
                                 authResponse.username,
                                 new Date(),
@@ -750,9 +756,18 @@ let updateItem = function(args) {
                                         "?? = ?",
                                         "?? = ?",
                                         "?? = ?",
+                                        "?? = ?",
+                                        "?? = ?",
+                                        "?? = ?",
                                         "?? = ?"
                                     );
                                     placeholderValues.push(
+                                        "Notes",
+                                        args["notes"],
+                                        "MobId",
+                                        args["mobId"],
+                                        "QuestId",
+                                        args["questId"],
                                         "NetStat",
                                         netStat,
                                         "ModifiedBy",
