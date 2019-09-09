@@ -199,11 +199,12 @@ def clean_notifications():
         {"delete_date": delete_date}
     )
     sess.execute(
-        "DELETE NC "
-        "FROM NotificationChanges NC "
+        "DELETE FROM NotificationChanges "
+        "WHERE NotificationChanges.Id IN "
+        "(SELECT tblTmp.Id FROM "
+        "(SELECT NC.Id FROM NotificationChanges NC "
         "LEFT JOIN Notifications N ON N.NotificationChangeId = NC.Id "
-        "GROUP BY NC.Id "
-        "HAVING MAX(N.Id) IS NULL"
+        "GROUP BY NC.Id HAVING MAX(N.Id) IS NULL)tblTmp)"
     )
     sess.commit()
     sess.close()
