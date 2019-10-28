@@ -25,23 +25,19 @@ let app = express();
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
+// Setup logger
+//winston.add(journald_transport.Journald);
+//app.use(morgan("combined", { stream: winston.stream }));
+
 // middleware for all requests
 app.use(compression());
-app.use(logger("dev", {
-    skip: function (req, res) {return res.statusCode < 400;}
-}));
+app.use(logger("dev"));//, { skip: function (req, res) {return res.statusCode < 400;} }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// handle api requests
-app.use("/api", apiRouter);
-
-// middleware for non-api requests
-app.use(cookieParser());
-
-// 404 items we know we don't have
-// such as .map and favicon files
+/// 404 items we know we don't have
+// such as .map
 app.use(function(req,res,next) {
     let url = require("url").parse(req.url);
     if (url.pathname.endsWith(".map"))
@@ -49,6 +45,12 @@ app.use(function(req,res,next) {
     else
         next();
 });
+
+// handle api requests
+app.use("/api", apiRouter);
+
+// middleware for non-api requests
+app.use(cookieParser());
 
 // auth request for views
 app.use(authRouter);

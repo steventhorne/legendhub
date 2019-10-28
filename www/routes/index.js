@@ -1,5 +1,6 @@
 let router = require("express").Router();
 let auth = require("./api/auth");
+let apiUtils = require("./api/utils");
 let request = require("request");
 let mysql = require("./api/mysql-connection");
 
@@ -7,9 +8,116 @@ router.get(["/", "/index.html"], function(req, res, next) {
     res.render("index", {title: "Home"});
 });
 
-router.get(["/login.html"], function(req, res, next) {
-    res.render("login", {title: "Login"});
+router.all(["/login.html"], async function(req, res, next) {
+    let vm = {body: req.body};
+
+    console.log(req.body);
+    if (req.body.login_username) {
+        let query = `
+        mutation {
+            authLogin(username:"${req.body.login_username}",
+                password:"${req.body.login_password}",
+                stayLoggedIn:${!!req.body.login_stayLoggedIn}) {
+                token
+                expires
+            }
+        }
+        `;
+
+        let data;
+        try {
+            data = await apiUtils.postAsync(query);
+        }
+        catch (e) {
+            vm.login_error = e.message;
+            return res.render("login", {title: "Login", vm});
+        }
+
+        res.cookie(
+            "loginToken",
+            data.authLogin.token,
+            {
+                path: "/",
+                expires: data.authLogin.expires,
+                secure: true,
+                sameSite: true
+            }
+        );
+        return res.redirect("/");
+    }
+    else if (req.body.register_username) {
+        let recaptcha = req.body["g-recaptcha-response"];
+        if (!recaptcha) {
+            vm.register_error = "Error: Please fill out reCAPTCHA.";
+            return res.render("login", {title: "Login", vm});
+        }
+
+        if (req.body.register_password !== req.body.register_confirmPassword) {
+            vm.register_error = "Error: Passwords must match.";
+            return res.render("login", {title: "Login", vm});
+        }
+
+        let recaptchaResponse;
+        try {
+            recaptchaResponse = await verifyReCAPTCHA(recaptcha);
+        }
+        catch (e) {
+            vm.register_error = e.message;
+            return res.render("login", {title: "Login", vm});
+        }
+
+        if (recaptchaResponse) {
+            let data;
+            try {
+                let query = `
+                mutation {
+                    register(username:"${req.body.register_username}",
+                        password:"${req.body.register_password}",
+                        recaptcha:"${recaptcha}")
+                }
+                `;
+                data = await apiUtils.postAsync(query);
+            }
+            catch (e) {
+                vm.register_error = e.message;
+                return res.render("login", {title: "Login", vm});
+            }
+
+            if (data.register)
+                vm.login_message = "Successfuly registered.";
+            else
+                vm.register_error = "Error: Register failed.";
+            return res.render("login", {title: "Login", vm});
+        }
+        else {
+            vm.register_error = "Error: reCAPTCHA failed.";
+            return res.render("login", {title: "Login", vm});
+        }
+    }
+    else {
+        return res.render("login", {title: "Login", vm});
+    }
 });
+
+let verifyReCAPTCHA = function(recaptcha) {
+    return new Promise(function(resolve, reject) {
+        let options = {
+            url: "https://www.google.com/recaptcha/api/siteverify",
+            json: true,
+            form: {
+                secret: process.env.RECAPTCHA_SECRET,
+                response: recaptcha
+            }
+        };
+        request.post(options, function(error, response, body) {
+            if (error) {
+                return reject(error);
+            }
+
+            resolve(body.success);
+        })
+    })
+};
 
 router.get(["/logout.html"], function(req, res, next) {
     if (req.cookies.loginToken) {

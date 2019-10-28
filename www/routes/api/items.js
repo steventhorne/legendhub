@@ -238,7 +238,7 @@ class Item {
 
         let id = this.id;
         return new Promise(function(resolve, reject) {
-            mysql.query(`${ itemSelectSQL }, ItemId FROM Items_AuditTrail WHERE ItemId = ? ORDER BY ModifiedOn DESC`,
+            mysql.query(`${ itemSelectSQL }, ItemId FROM Items_AuditTrail WHERE ItemId = ? AND Deleted = 0 ORDER BY ModifiedOn DESC`,
             [id],
                 function(error, results, fields){
                     if (error) {
@@ -361,7 +361,7 @@ let getItemById = function(id) {
         return null;
 
     return new Promise(function(resolve, reject) {
-        mysql.query(`${ itemSelectSQL } FROM Items WHERE Id = ?`,
+        mysql.query(`${ itemSelectSQL } FROM Items WHERE Id = ? AND Deleted = 0`,
             [id],
             function(error, results, fields) {
                 if (error) {
@@ -382,7 +382,7 @@ let getItemsInIds = function(ids) {
         return [];
 
     return new Promise(function(resolve, reject) {
-        mysql.query(`${ itemSelectSQL } FROM Items WHERE Id IN (?)`,
+        mysql.query(`${ itemSelectSQL } FROM Items WHERE Id IN (?) AND Deleted = 0`,
             [ids],
             function(error, results, fields) {
                 if (error) {
@@ -409,7 +409,7 @@ let getItemHistoryById = function(id) {
         return null;
 
     return new Promise(function(resolve, reject) {
-        mysql.query(`${ itemSelectSQL }, ItemId FROM Items_AuditTrail WHERE Id = ?`,
+        mysql.query(`${ itemSelectSQL }, ItemId FROM Items_AuditTrail WHERE Id = ? AND Deleted = 0`,
             [id],
             function(error, results, fields) {
                 if (error) {
@@ -433,7 +433,7 @@ let getItemsBySlotId = function(slotId) {
         return [];
 
     return new Promise(function(resolve, reject) {
-        let sql = `${itemSelectSQL} FROM Items WHERE Slot = ? `;
+        let sql = `${itemSelectSQL} FROM Items WHERE Slot = ? AND Deleted = 0 `;
         if (slotId == 15) {
             sql += "OR (Slot = 14 AND Holdable = 1) OR Slot = 10 ";
         }
@@ -570,7 +570,7 @@ let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows)
                         }
                     }
 
-                    mysql.query(`${ itemSelectSQL } FROM Items WHERE (? = '' OR Name LIKE ?)${filterQuery} ORDER BY ${actualSortBy} ${sortAsc ? "ASC" : "DESC"} LIMIT ${(page - 1) * rows}, ${rows + 1}`,
+                    mysql.query(`${ itemSelectSQL } FROM Items WHERE Deleted = 0 AND (? = '' OR Name LIKE ?)${filterQuery} ORDER BY ${actualSortBy} ${sortAsc ? "ASC" : "DESC"} LIMIT ${(page - 1) * rows}, ${rows + 1}`,
                         [searchString, "%" + searchString + "%"],
                         function(error, results, fields) {
                             if (error) {
@@ -882,6 +882,34 @@ let revertItem = function(req, authToken, historyId) {
                 reject(new apiUtils.UnauthorizedError(reason));
             }
         );
+    });
+};
+
+let deleteItem = function(req, authToken, id) {
+    let ip = auth.utils.getIPFromRequest(req);
+    if (apiUtils.isIPBlocked(ip))
+        return new apiUtils.TooManyRequestsError("Too many attempts. Try again later.");
+
+    return new Promise(function(resolve, reject) {
+        auth.utils.authMutation(req, authToken, true).then(
+            function(response) {
+                if (response.permissions.hasPermission("Item", 0, 0, 0, 1))
+                {
+                    mysql.query("UPDATE Items SET Delete = 1 WHERE Id = ?",
+                        [id],
+                        function(error, results, fields) {
+                            if (error)
+                                return reject(new gql.GraphQLError(error.sqlMessage));
+
+                            apiUtils.trackPageUpdate(response.ip);
+                            return resolve({token: response.token, expires: response.expires});
+                        });
+                }
+                else {
+                    return reject(apiUtils.UnauthorizedError());
+                }
+            }
+        ).catch(error => reject(error));
     });
 };
 
@@ -1406,6 +1434,16 @@ let mFields = {
         },
         resolve: function(_, {authToken, historyId}, req) {
             return revertItem(req, authToken, historyId);
+        }
+    },
+    deleteItem: {
+        type: new graphql.GraphQLNonNull(auth.types.tokenRenewalType),
+        args: {
+            authToken: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
+            id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) }
+        },
+        resolve: function(_, {authToken, id}, req) {
+            return deleteItem(req, authToken, id);
         }
     }
 };
