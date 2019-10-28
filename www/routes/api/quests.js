@@ -44,7 +44,7 @@ class Quest {
     getItems() {
         let questId = this.id;
         return new Promise(function(resolve, reject) {
-            mysql.query(`${ itemSchema.selectSQL.itemSelectSQL } FROM Items WHERE QuestId = ?`,
+            mysql.query(`${ itemSchema.selectSQL.itemSelectSQL } FROM Items WHERE QuestId = ? AND Deleted = 0`,
                 [questId],
                 function(error, results, fields) {
                     if (error)
@@ -69,7 +69,7 @@ class Quest {
 
         let id = this.id;
         return new Promise(function(resolve, reject) {
-            mysql.query(`${questSelectSQL}, QuestId FROM Quests_AuditTrail Q LEFT JOIN Areas A ON A.Id = Q.AreaId LEFT JOIN Eras E ON E.Id = A.EraId WHERE QuestId = ? ORDER BY ModifiedOn DESC`,
+            mysql.query(`${questSelectSQL}, QuestId FROM Quests_AuditTrail Q LEFT JOIN Areas A ON A.Id = Q.AreaId LEFT JOIN Eras E ON E.Id = A.EraId WHERE QuestId = ? AND Q.Deleted = 0 ORDER BY ModifiedOn DESC`,
                 [id],
                 function(error, results, fields) {
                     if (error) {
@@ -95,7 +95,7 @@ class Quest {
 
 let getQuestById = function(id) {
     return new Promise(function(resolve, reject) {
-        mysql.query(`${questSelectSQL} ${questSelectTables} WHERE Q.Id = ?`,
+        mysql.query(`${questSelectSQL} ${questSelectTables} WHERE Q.Id = ? AND Q.Deleted = 0`,
             [id],
             function(error, results, fields) {
                 if (error)
@@ -132,7 +132,7 @@ let getQuests = function(searchString, eraId, areaId, stat, sortBy, sortAsc, pag
             actualSortBy = "A.Name";
 
         let likeSearchString = `%${searchString}%`;
-        let sql = [questSelectSQL, questSelectTables, "WHERE (Q.Title LIKE ? OR Q.Content LIKE ? OR Q.Whoises LIKE ? OR A.Name LIKE ?)"];
+        let sql = [questSelectSQL, questSelectTables, "WHERE Q.Deleted = 0 AND (Q.Title LIKE ? OR Q.Content LIKE ? OR Q.Whoises LIKE ? OR A.Name LIKE ?)"];
         let placeholders = [likeSearchString, likeSearchString, likeSearchString, likeSearchString];
         if (eraId) {
             sql.push("AND A.EraId = ?");
@@ -175,7 +175,7 @@ let getQuestHistoryById = function(id) {
         return null;
 
     return new Promise(function(resolve, reject) {
-        mysql.query(`${questSelectSQL}, QuestId FROM Quests_AuditTrail Q LEFT JOIN Areas A ON A.Id = Q.AreaId LEFT JOIN Eras E on E.Id = A.EraId WHERE Q.Id = ?`,
+        mysql.query(`${questSelectSQL}, QuestId FROM Quests_AuditTrail Q LEFT JOIN Areas A ON A.Id = Q.AreaId LEFT JOIN Eras E on E.Id = A.EraId WHERE Q.Id = ? AND Q.Deleted = 0`,
             [id],
             function(error, results, fields) {
                 if (error) {

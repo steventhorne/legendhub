@@ -221,12 +221,29 @@ let getPermissions = function(memberId) {
                         delete: results[i].Delete
                     };
                 }
+
+                permissionDict.hasPermission = function(name, create, read, update, del) {
+                    if (!this.hasOwnProperty(name))
+                        return false;
+
+                    if (create && !this[name].create)
+                        return false;
+
+                    if (read && !this[name].read)
+                        return false;
+
+                    if (update && !this[name].update)
+                        return false;
+
+                    if (del && !this[name].delete)
+                        return false;
+                }
                 resolve(permissionDict);
             });
     });
 };
 
-let register = function(username, password, ip) {
+let register = function(username, password, reCaptcha, ip) {
     if (apiUtils.isIPBlocked(ip))
         return new gql.GraphQLError("Too many attempts. Try again later.");
 

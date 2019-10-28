@@ -46,7 +46,7 @@ class Mob {
     getItems() {
         let mobId = this.id;
         return new Promise(function(resolve, reject) {
-            mysql.query(`${ itemSchema.selectSQL.itemSelectSQL } FROM Items WHERE MobId = ?`,
+            mysql.query(`${ itemSchema.selectSQL.itemSelectSQL } FROM Items WHERE MobId = ? AND Deleted = 0`,
                 [mobId],
                 function(error, results, fields) {
                     if (error) {
@@ -73,7 +73,7 @@ class Mob {
 
         let id = this.id;
         return new Promise(function(resolve, reject) {
-            mysql.query(`${ mobSelectSQL }, MobId FROM Mobs_AuditTrail M LEFT JOIN Areas A ON A.Id = M.AreaId LEFT JOIN Eras E ON E.Id = A.EraId WHERE MobId = ? ORDER BY ModifiedOn DESC`,
+            mysql.query(`${ mobSelectSQL }, MobId FROM Mobs_AuditTrail M LEFT JOIN Areas A ON A.Id = M.AreaId LEFT JOIN Eras E ON E.Id = A.EraId WHERE MobId = ? AND Deleted = 0 ORDER BY ModifiedOn DESC`,
             [id],
                 function(error, results, fields){
                     if (error) {
@@ -99,7 +99,7 @@ class Mob {
 
 let getMobById = function(id) {
     return new Promise(function(resolve, reject) {
-        mysql.query(`${mobSelectSQL} ${mobSelectTables} WHERE M.Id = ?`,
+        mysql.query(`${mobSelectSQL} ${mobSelectTables} WHERE M.Id = ? AND Deleted = 0`,
             [id],
             function(error, results, fields) {
                 if (error) {
@@ -140,7 +140,7 @@ let getMobs = function(searchString, eraId, areaId, sortBy, sortAsc, page, rows)
         else if (sortBy === "areaName")
             actualSortBy = "A.Name";
 
-        let sql = [mobSelectSQL, mobSelectTables, "WHERE M.Name LIKE ?"];
+        let sql = [mobSelectSQL, mobSelectTables, "WHERE M.Name LIKE ? AND M.Deleted = 0"];
         let placeholders = [`%${searchString}%`];
         if (eraId) {
             sql.push("AND A.EraId = ?");
@@ -180,7 +180,7 @@ let getMobHistoryById = function(id) {
         return null;
 
     return new Promise(function(resolve, reject) {
-        mysql.query(`${ mobSelectSQL }, MobId FROM Mobs_AuditTrail M LEFT JOIN Areas A ON A.Id = M.AreaId LEFT JOIN Eras E ON E.Id = A.EraId WHERE M.Id = ?`,
+        mysql.query(`${ mobSelectSQL }, MobId FROM Mobs_AuditTrail M LEFT JOIN Areas A ON A.Id = M.AreaId LEFT JOIN Eras E ON E.Id = A.EraId WHERE M.Id = ? AND M.Deleted = 0`,
             [id],
             function(error, results, fields) {
                 if (error) {

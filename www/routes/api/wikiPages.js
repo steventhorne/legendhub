@@ -51,7 +51,7 @@ class WikiPage {
 
         let id = this.id;
         return new Promise(function(resolve, reject) {
-            mysql.query(`${wikiPageSelectSQL}, WikiPageId ${wikiPageHistorySelectTables} WHERE WikiPageId = ? ORDER BY ModifiedOn DESC`,
+            mysql.query(`${wikiPageSelectSQL}, WikiPageId ${wikiPageHistorySelectTables} WHERE WikiPageId = ? AND W.Deleted = 0 ORDER BY ModifiedOn DESC`,
                 [id],
                 function(error, results, fields) {
                     if (error) {
@@ -77,7 +77,7 @@ class WikiPage {
 
 let getWikiPageById = function(id) {
     return new Promise(function(resolve, reject) {
-        mysql.query(`${wikiPageSelectSQL} ${wikiPageSelectTables} WHERE W.Id = ?`,
+        mysql.query(`${wikiPageSelectSQL} ${wikiPageSelectTables} WHERE W.Id = ? AND W.Deleted = 0`,
             [id],
             function(error, results, fields) {
                 if (error) {
@@ -118,7 +118,7 @@ let getWikiPages = function(searchString, categoryId, subcategoryId, sortBy, sor
             actualSortBy = "SC.Name";
 
         let likeSearchString = `%${searchString}%`;
-        let sql = [wikiPageSelectSQL, wikiPageSelectTables, "WHERE (W.Title LIKE ? OR W.Tags LIKE ? OR Content LIKE ?)"];
+        let sql = [wikiPageSelectSQL, wikiPageSelectTables, "WHERE W.Deleted = 0 AND (W.Title LIKE ? OR W.Tags LIKE ? OR Content LIKE ?)"];
         let placeholders = [likeSearchString, likeSearchString, likeSearchString];
         if (categoryId) {
             sql.push("AND W.CategoryId = ?");
@@ -171,7 +171,7 @@ let getWikiPageHistoryById = function(id) {
         return null;
 
     return new Promise(function(resolve, reject) {
-        mysql.query(`${wikiPageSelectSQL}, WikiPageId ${wikiPageHistorySelectTables} WHERE W.Id = ?`,
+        mysql.query(`${wikiPageSelectSQL}, WikiPageId ${wikiPageHistorySelectTables} WHERE W.Id = ? AND W.Deleted = 0`,
             [id],
             function(error, results, fields) {
                 if (error) {

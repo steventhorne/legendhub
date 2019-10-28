@@ -36,7 +36,7 @@ var authFunc = async function(req, res, next) {
 
     if (req.cookies.loginToken) {
         try {
-            res.locals.user = await authApi.utils.authToken(req.cookies.loginToken, authApi.utils.getIPFromRequest(req), false);
+            res.locals.user = await authApi.utils.authToken(req.cookies.loginToken, authApi.utils.getIPFromRequest(req), false, true);
         }
         catch (e) {
             if (e.message === "Invalid token") {

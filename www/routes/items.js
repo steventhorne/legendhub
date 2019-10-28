@@ -378,5 +378,10 @@ router.get(["/edit.html"], async function(req, res, next) {
     res.render("items/modify", {title, vm});
 });
 
+router.get(["/delete.html"], async function(req, res, next) {
+    if (!res.locals.user)
+        return res.redirect(`/login.html?returnUrl=${encodeURIComponent(res.locals.url.path)}`);
+})
+
 
 module.exports = router;
