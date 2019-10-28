@@ -208,7 +208,7 @@ router.get(["/history.html"], async function(req, res, next) {
         var data = await apiUtils.postAsync(getItemQuery);
     }
     catch (e) {
-        next(e);
+        return next(e);
     }
     let item = data.getItemHistoryById.item;
     let statCategories = data.getItemStatCategories;
