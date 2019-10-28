@@ -412,18 +412,16 @@ let getItemHistoryById = function(id) {
         mysql.query(`${ itemSelectSQL }, ItemId FROM Items_AuditTrail WHERE Id = ? AND Deleted = 0`,
             [id],
             function(error, results, fields) {
-                if (error) {
-                    reject(new graphql.GraphQLError(error.sqlMessage));
-                    return;
-                }
+                if (error)
+                    return reject(new graphql.GraphQLError(error.sqlMessage));
 
-                if (results.length > 0){
+                if (results.length > 0) {
                     let historyId = results[0].Id;
                     results[0].Id = results[0].ItemId;
-                    resolve({id: historyId, item: new Item(results[0])});
+                    return resolve({id: historyId, item: new Item(results[0])});
                 }
                 else
-                    reject(new apiUtils.NotFoundError(`Item History with id (${id}) not found.`));
+                    return reject(new apiUtils.NotFoundError(`Item History with id (${id}) not found.`));
             });
     });
 };
