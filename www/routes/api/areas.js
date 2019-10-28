@@ -42,7 +42,7 @@ class Era {
         let eraId = this.id;
         let eraName = this.name;
         return new Promise(function(resolve, reject) {
-            mysql.query("SELECT A.Id, A.Name, A.EraId, E.Name AS EraName FROM Eras E JOIN Areas A ON A.EraId = E.Id WHERE E.Id = ?",
+            mysql.query("SELECT A.Id, A.Name, A.EraId, E.Name AS EraName FROM Eras E JOIN Areas A ON A.EraId = E.Id WHERE E.Id = ? ORDER BY A.Name ASC",
                 [eraId],
                 function(error, results, fields) {
                     if (error) {
@@ -61,7 +61,7 @@ class Era {
 
 let getAreas = function() {
     return new Promise(function(resolve, reject) {
-        mysql.query("SELECT A.Id, A.Name, A.EraId, E.Name AS EraName FROM Areas A JOIN Eras E ON E.Id = A.EraId ORDER BY E.Id, A.Id",
+        mysql.query("SELECT A.Id, A.Name, A.EraId, E.Name AS EraName FROM Areas A JOIN Eras E ON E.Id = A.EraId ORDER BY E.Id, A.Name ASC",
             [],
             function(error, results, fields) {
                 if (error) {
