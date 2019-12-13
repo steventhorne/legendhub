@@ -29,6 +29,7 @@
 								</div>
                                 <input id="login_password" name="login_password" type="password" class="form-control" aria-describedby="login_passwordLabel" value="<%-vm.body.login_password%>" required>
 							</div>
+                            <input name="returnUrl" type="hidden" value="<%=locals.url.query.returnUrl%>" />
                             <% if (vm.login_error) {%>
                             <div class="text-danger"><%=vm.login_error%></div>
                             <%}%>
@@ -43,7 +44,7 @@
 						</div>
 					</div>
 				</form>
-				<form action="/login.html" method="POST" class="card" name="register">
+				<form action="/login.html?returnUrl=<%=locals.url.query.returnUrl%>" method="POST" class="card" name="register">
 					<div class="card-header" id="registerHeading" style="cursor: pointer;" data-toggle="collapse" data-target=".multi-collapse"
                                                                                                                   aria-expanded="<%-!!vm.register_error%>" aria-controls="loginCollapse registerCollapse">
 						<h3 class="text-center">Register</h3>

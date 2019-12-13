@@ -4,7 +4,7 @@ let apiUtils = require("./api/utils");
 let url = require("url");
 
 var authFunc = async function(req, res, next) {
-    res.locals.url = url.parse(req.url);
+    res.locals.url = url.parse(req.url, true);
     res.locals.version = process.env.npm_package_version;
     res.locals.cookies = req.cookies;
 

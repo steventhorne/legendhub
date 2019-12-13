@@ -26,24 +26,33 @@ router.all(["/login.html"], async function(req, res, next) {
 
         let data;
         try {
-            data = await apiUtils.postAsync(query);
+            data = await apiUtils.postAsync(query, req.ip);
         }
         catch (e) {
             vm.login_error = e.message;
             return res.render("login", {title: "Login", vm});
         }
 
+        let cookieOptions = {
+            path: "/",
+            expires: new Date(data.authLogin.expires),
+            secure: true,
+            sameSite: true
+        };
+
+        if (data.authLogin.expires != null) {
+            cookieOptions.expires = new Date(data.authLogin.expires);
+        }
+        else {
+            cookieOptions.expires = 0;
+        }
+
         res.cookie(
             "loginToken",
             data.authLogin.token,
-            {
-                path: "/",
-                expires: data.authLogin.expires,
-                secure: true,
-                sameSite: true
-            }
+            cookieOptions
         );
-        return res.redirect("/");
+        return res.redirect(req.body.returnUrl || "/");
     }
     else if (req.body.register_username) {
         let recaptcha = req.body["g-recaptcha-response"];
@@ -57,67 +66,32 @@ router.all(["/login.html"], async function(req, res, next) {
             return res.render("login", {title: "Login", vm});
         }
 
-        let recaptchaResponse;
+        let data;
         try {
-            recaptchaResponse = await verifyReCAPTCHA(recaptcha);
+            let query = `
+            mutation {
+                register(username:"${req.body.register_username}",
+                    password:"${req.body.register_password}",
+                    recaptcha:"${recaptcha}")
+            }
+            `;
+            data = await apiUtils.postAsync(query);
         }
         catch (e) {
             vm.register_error = e.message;
             return res.render("login", {title: "Login", vm});
         }
 
-        if (recaptchaResponse) {
-            let data;
-            try {
-                let query = `
-                mutation {
-                    register(username:"${req.body.register_username}",
-                        password:"${req.body.register_password}",
-                        recaptcha:"${recaptcha}")
-                }
-                `;
-                data = await apiUtils.postAsync(query);
-            }
-            catch (e) {
-                vm.register_error = e.message;
-                return res.render("login", {title: "Login", vm});
-            }
-
-            if (data.register)
-                vm.login_message = "Successfuly registered.";
-            else
-                vm.register_error = "Error: Register failed.";
-            return res.render("login", {title: "Login", vm});
-        }
-        else {
-            vm.register_error = "Error: reCAPTCHA failed.";
-            return res.render("login", {title: "Login", vm});
-        }
+        if (data.register)
+            vm.login_message = "Successfuly registered.";
+        else
+            vm.register_error = "Error: Register failed.";
+        return res.render("login", {title: "Login", vm});
     }
     else {
         return res.render("login", {title: "Login", vm});
     }
 });
-
-let verifyReCAPTCHA = function(recaptcha) {
-    return new Promise(function(resolve, reject) {
-        let options = {
-            url: "https://www.google.com/recaptcha/api/siteverify",
-            json: true,
-            form: {
-                secret: process.env.RECAPTCHA_SECRET,
-                response: recaptcha
-            }
-        };
-        request.post(options, function(error, response, body) {
-            if (error) {
-                return reject(error);
-            }
-
-            resolve(body.success);
-        })
-    })
-};
 
 router.get(["/logout.html"], function(req, res, next) {
     if (req.cookies.loginToken) {
