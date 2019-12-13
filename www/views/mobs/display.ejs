@@ -40,6 +40,9 @@ Agg: <%=vm.mob.aggro ? "Yes" : "No"%>
                             <%}%>
                             <button type="button" class="btn btn-outline-primary"><%=locals.displayDateTime(vm.mob.modifiedOn)%> <strong>by</strong> <%=vm.mob.modifiedBy%></button>
                             <a class="btn btn-outline-primary" role="button" href="<%-(!locals.user ? "/login.html?returnUrl=" : "")%>/mobs/edit.html?id=<%-vm.mob.id%>"><i class="far fa-edit"></i><span class="d-none d-md-inline"> Edit</span></a>
+                            <% if (locals.permissions && locals.permissions.hasPermission("Mob", 0, 0, 0, 1)) {%>
+                            <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteModal"><i class="fas fa-trash"></i><span class="d-none d-md-inline"></span></a>
+                            <%}%>
                         </div>
                     </div>
                 </div>
@@ -92,6 +95,27 @@ Agg: <%=vm.mob.aggro ? "Yes" : "No"%>
             </div>
         </div>
 	</div>
+    <div class="modal" id="deleteModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Are you sure?</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center">
+              <p>Are you sure you want to delete this mob?</p>
+              <p class="text-primary"><%=vm.mob.name%></p>
+              <p>This operation cannot be undone.</p>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <a href="/mobs/delete.html?id=<%-vm.mob.id%>" role="button" class="btn btn-danger">Delete</a>
+          </div>
+        </div>
+      </div>
+    </div>
     <%-include("../shared/footer");-%>
     <%-include("../shared/scripts");-%>
     <%-include("../shared/markdown");-%>

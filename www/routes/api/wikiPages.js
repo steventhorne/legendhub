@@ -316,6 +316,30 @@ let revertWikiPage = function(req, authToken, historyId) {
     });
 };
 
+let deleteWikiPage = function(req, authToken, id) {
+    return new Promise(function(resolve, reject) {
+        auth.utils.authMutation(req, authToken, true).then(
+            function(response) {
+                if (response.permissions.hasPermission("WikiPage", 0, 0, 0, 1))
+                {
+                    mysql.query("UPDATE WikiPages SET Delete = 1 WHERE Id = ?",
+                        [id],
+                        function(error, results, fields) {
+                            if (error)
+                                return reject(new gql.GraphQLError(error.sqlMessage));
+
+                            apiUtils.trackPageUpdate(response.ip);
+                            return resolve({token: response.token, expires: response.expires});
+                        });
+                }
+                else {
+                    return reject(new apiUtils.UnauthorizedError());
+                }
+            }
+        ).catch(error => reject(error));
+    });
+};
+
 let wikiPageType = new gql.GraphQLObjectType({
     name: "WikiPage",
     fields: () => ({
@@ -451,6 +475,16 @@ let mFields = {
         },
         resolve: function(_, {authToken, historyId}, req) {
             return revertWikiPage(req, authToken, historyId);
+        }
+    },
+    deleteWikiPage: {
+        type: new gql.GraphQLNonNull(auth.types.tokenRenewalType),
+        args: {
+            authToken: { type: new gql.GraphQLNonNull(gql.GraphQLString) },
+            id: { type: new gql.GraphQLNonNull(gql.GraphQLInt) }
+        },
+        resolve: function(_, {authToken, id}, req) {
+            return deleteMob(req, authToken, id);
         }
     }
 };

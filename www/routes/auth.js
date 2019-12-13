@@ -50,6 +50,11 @@ var authFunc = async function(req, res, next) {
         }
 
         try {
+            res.locals.permissions = await authApi.utils.getPermissions(res.locals.user.memberId);
+        }
+        catch (e) {}
+
+        try {
             let query = `
             {
                 getNotifications(authToken:"${req.cookies.loginToken}",read:false) {

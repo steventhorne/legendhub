@@ -379,4 +379,37 @@ router.get(["/revert.html"], async function(req, res, next) {
     res.redirect(`/wiki/details.html?id=${data.id}`);
 });
 
+router.get(["/delete.html"], async function(req, res, next) {
+    if (!res.locals.user)
+        return res.redirect(`/login.html?returnUrl=${encodeURIComponent(res.locals.url.path)}`);
+
+    let deleteQuery = `
+    mutation {
+        deleteWikiPage (authToken:"${req.cookies.loginToken}", id:${req.query.id}) {
+            token,
+            expires
+        }
+    }
+    `;
+
+    try {
+        var data = await apiUtils.postAsync(deleteQuery, req.ip);
+    }
+    catch (e) {
+        return next(e);
+    }
+
+    res.cookie(
+        "loginToken",
+        data.token,
+        {
+            path: "/",
+            expires: data.expires,
+            secure: true,
+            sameSite: true
+        }
+    );
+    res.redirect(`/wiki/`);
+});
+
 module.exports = router;
