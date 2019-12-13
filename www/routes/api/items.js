@@ -515,11 +515,9 @@ let getItemStatInfo = function(categoryId, varName) {
 
 let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows) {
     // set defaults
-    let noSearch = searchString === undefined && !filterString;
+    let noSearch = searchString == null && filterString == null && sortBy == null;
     if (searchString == null)
         searchString = "";
-    if (sortBy == null)
-        sortBy = noSearch ? "modifiedOn" : "name";
     if (sortAsc == null)
         sortAsc = !noSearch;
     if (page == null || page < 1)
@@ -557,9 +555,8 @@ let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows)
                     }
 
                     // validate sorting
-                    let actualSortBy = "Name";
-                    if (noSearch) {
-                        actualSortBy = "ModifiedOn";
+                    if (sortBy == null) {
+                        actualSortBy = noSearch ? "ModifiedOn" : "Name";
                     }
                     else {
                         for (let i = 0; i < results.length; ++i) {
