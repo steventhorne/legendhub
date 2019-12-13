@@ -4,6 +4,7 @@ let { GraphQLDateTime } = require("graphql-iso-date");
 let phpPass = require("node-php-password");
 let crypto = require("crypto");
 let apiUtils = require("./utils");
+let request = require("request");
 
 let getIPFromRequest = function(request) {
     let ip = (request.headers['x-forwarded-for'] || "").split(",")[0];
@@ -245,9 +246,21 @@ let getPermissions = function(memberId) {
     });
 };
 
-let register = function(username, password, reCaptcha, ip) {
+let register = async function(username, password, recaptcha, ip) {
     if (apiUtils.isIPBlocked(ip))
         return new gql.GraphQLError("Too many attempts. Try again later.");
+
+    let recaptchaResponse;
+    try {
+        recaptchaResponse = await verifyReCAPTCHA(recaptcha);
+    }
+    catch (e) {
+        return new gql.GraphQLError(e.message);
+    }
+
+    if (!recaptchaResponse) {
+        return new gql.GraphQLError("reCAPTCHA failed.");
+    }
 
     let cleanUsername = username.replace(/[^A-Za-z0-9]*/g, "");
     if (cleanUsername.toLowerCase() === "dataimport")
@@ -300,6 +313,26 @@ let register = function(username, password, reCaptcha, ip) {
     });
 };
 
+let verifyReCAPTCHA = async function(recaptcha) {
+    return new Promise(function(resolve, reject) {
+        let options = {
+            url: "https://www.google.com/recaptcha/api/siteverify",
+            json: true,
+            form: {
+                secret: process.env.RECAPTCHA_SECRET,
+                response: recaptcha
+            }
+        };
+        request.post(options, function(error, response, body) {
+            if (error) {
+                return reject(error);
+            }
+
+            resolve(body.success);
+        })
+    })
+};
+
 let tokenRenewalType = new gql.GraphQLObjectType({
     name: "TokenRenewal",
     fields: () => ({
@@ -332,10 +365,11 @@ let mFields = {
         type: new gql.GraphQLNonNull(gql.GraphQLBoolean),
         args: {
             username: {type: gql.GraphQLString},
-            password: {type: gql.GraphQLString}
+            password: {type: gql.GraphQLString},
+            recaptcha: {type: gql.GraphQLString}
         },
-        resolve: function(_, {username, password}, req) {
-            return register(username, password, getIPFromRequest(req));
+        resolve: function(_, {username, password, recaptcha}, req) {
+            return register(username, password, recaptcha, getIPFromRequest(req));
         }
     }
 };
