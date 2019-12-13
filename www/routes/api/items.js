@@ -594,10 +594,6 @@ let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows)
 };
 
 let insertItem = function(args) {
-    let ip = auth.utils.getIPFromRequest(args["req"])
-    if (apiUtils.isIPBlocked(ip))
-        return new apiUtils.TooManyRequestsError("Too many attempts. Try again later.");
-
     let statValues = {};
     return new Promise(function(resolve, reject) {
         auth.utils.authToken(args["authToken"], ip).then(
@@ -692,10 +688,6 @@ let insertItem = function(args) {
 };
 
 let updateItem = function(args) {
-    let ip = auth.utils.getIPFromRequest(args["req"]);
-    if (apiUtils.isIPBlocked(ip))
-        return new apiUtils.TooManyRequestsError("Too many attempts. Try again later.");
-
     let statValues = {};
     return new Promise(function(resolve, reject) {
         auth.utils.authToken(args["authToken"], ip).then(
@@ -799,10 +791,6 @@ let updateItem = function(args) {
 };
 
 let revertItem = function(req, authToken, historyId) {
-    let ip = auth.utils.getIPFromRequest(req);
-    if (apiUtils.isIPBlocked(ip))
-        return new apiUtils.TooManyRequestsError("Too many attempts. Try again later.");
-
     return new Promise(function(resolve, reject) {
         auth.utils.authToken(authToken, ip).then(
             function(response) {
@@ -881,10 +869,6 @@ let revertItem = function(req, authToken, historyId) {
 };
 
 let deleteItem = function(req, authToken, id) {
-    let ip = auth.utils.getIPFromRequest(req);
-    if (apiUtils.isIPBlocked(ip))
-        return new apiUtils.TooManyRequestsError("Too many attempts. Try again later.");
-
     return new Promise(function(resolve, reject) {
         auth.utils.authMutation(req, authToken, true).then(
             function(response) {
