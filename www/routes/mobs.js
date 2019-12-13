@@ -382,7 +382,7 @@ router.get(["/revert.html"], async function(req, res, next) {
     `;
 
     try {
-        var data = await apiUtils.postAsync(revertQuery);
+        var data = await apiUtils.postAsync(revertQuery, req.ip);
     }
     catch (e) {
         return next(e);
