@@ -60,7 +60,7 @@ module.exports.trackPageUpdate = function(ip) {
     module.exports.trackAttempt("pageUpdate", ip, 5, 200, 60);
 }
 
-module.exports.postAsync = async function(query) {
+module.exports.postAsync = async function(query, ip) {
     return new Promise(function(resolve, reject) {
         let options = {
             url: `http://localhost:${process.env.PORT}/api`,
@@ -68,6 +68,10 @@ module.exports.postAsync = async function(query) {
                 query
             }
         };
+
+        if (ip)
+            options.headers = {'x-forwarded-for': ip};
+
         request.post(options, function(error, response, body) {
             if (error) {
                 reject(error);

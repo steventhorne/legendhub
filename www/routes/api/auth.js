@@ -235,8 +235,10 @@ let getPermissions = function(memberId) {
                     if (update && !this[name].update)
                         return false;
 
-                    if (del && !this[name].delete)
+                    if (del && !this[name]["delete"])
                         return false;
+
+                    return true;
                 }
                 resolve(permissionDict);
             });

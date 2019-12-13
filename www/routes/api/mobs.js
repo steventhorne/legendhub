@@ -289,6 +289,30 @@ let updateMob = function(req, authToken, id, name, xp, areaId, gold, notes, aggr
     });
 };
 
+let deleteMob = function(req, authToken, id) {
+    return new Promise(function(resolve, reject) {
+        auth.utils.authMutation(req, authToken, true).then(
+            function(response) {
+                if (response.permissions.hasPermission("Mob", 0, 0, 0, 1))
+                {
+                    mysql.query("UPDATE Mobs SET Delete = 1 WHERE Id = ?",
+                        [id],
+                        function(error, results, fields) {
+                            if (error)
+                                return reject(new graphql.GraphQLError(error.sqlMessage));
+
+                            apiUtils.trackPageUpdate(response.ip);
+                            return resolve({token: response.token, expires: response.expires});
+                        });
+                }
+                else {
+                    return reject(new apiUtils.UnauthorizedError());
+                }
+            }
+        ).catch(error => reject(error));
+    });
+};
+
 let revertMob = function(req, authToken, historyId) {
     return new Promise(function(resolve, reject) {
         auth.utils.authMutation(req, authToken).then(
@@ -491,6 +515,16 @@ let mFields = {
         },
         resolve: function(_, {authToken, historyId}, req) {
             return revertMob(req, authToken, historyId);
+        }
+    },
+    deleteMob: {
+        type: new graphql.GraphQLNonNull(auth.types.tokenRenewalType),
+        args: {
+            authToken: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
+            id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) }
+        },
+        resolve: function(_, {authToken, id}, req) {
+            return deleteMob(req, authToken, id);
         }
     }
 };

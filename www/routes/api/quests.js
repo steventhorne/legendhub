@@ -330,6 +330,30 @@ let revertQuest = function(req, authToken, historyId) {
     });
 };
 
+let deleteQuest = function(req, authToken, id) {
+    return new Promise(function(resolve, reject) {
+        auth.utils.authMutation(req, authToken, true).then(
+            function(response) {
+                if (response.permissions.hasPermission("Quest", 0, 0, 0, 1))
+                {
+                    mysql.query("UPDATE Quests SET Delete = 1 WHERE Id = ?",
+                        [id],
+                        function(error, results, fields) {
+                            if (error)
+                                return reject(new gql.GraphQLError(error.sqlMessage));
+
+                            apiUtils.trackPageUpdate(response.ip);
+                            return resolve({token: response.token, expires: response.expires});
+                        });
+                }
+                else {
+                    return reject(new apiUtils.UnauthorizedError());
+                }
+            }
+        ).catch(error => reject(error));
+    });
+};
+
 let questType = new gql.GraphQLObjectType({
     name: "Quest",
     fields: () => ({
@@ -466,6 +490,16 @@ let mFields = {
         },
         resolve: function(_, {authToken, historyId}, req) {
             return revertQuest(req, authToken, historyId);
+        }
+    },
+    deleteQuest: {
+        type: new gql.GraphQLNonNull(auth.types.tokenRenewalType),
+        args: {
+            authToken: {type: new gql.GraphQLNonNull(gql.GraphQLString)},
+            id: {type: new gql.GraphQLNonNull(gql.GraphQLInt)}
+        },
+        resolve: function(_, {authToken, id}, req) {
+            return deleteQuest(req, authToken, id);
         }
     }
 };
