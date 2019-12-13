@@ -11,7 +11,6 @@ router.get(["/", "/index.html"], function(req, res, next) {
 router.all(["/login.html"], async function(req, res, next) {
     let vm = {body: req.body};
 
-    console.log(req.body);
     if (req.body.login_username) {
         let query = `
         mutation {

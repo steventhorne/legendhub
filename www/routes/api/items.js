@@ -878,14 +878,14 @@ let deleteItem = function(req, authToken, id) {
                         [id],
                         function(error, results, fields) {
                             if (error)
-                                return reject(new gql.GraphQLError(error.sqlMessage));
+                                return reject(new graphql.GraphQLError(error.sqlMessage));
 
                             apiUtils.trackPageUpdate(response.ip);
                             return resolve({token: response.token, expires: response.expires});
                         });
                 }
                 else {
-                    return reject(apiUtils.UnauthorizedError());
+                    return reject(new apiUtils.UnauthorizedError());
                 }
             }
         ).catch(error => reject(error));
