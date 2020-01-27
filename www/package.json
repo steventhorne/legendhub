@@ -1,0 +1,42 @@
+{
+    "name": "legendhub",
+    "version": "2.1.0",
+    "description": "A resource hub for LegendMUD",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node app.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/steventhorne/legendhub.git"
+    },
+    "keywords": [
+        "legendhub",
+        "legendmud",
+        "hub",
+        "mud"
+    ],
+    "author": {
+        "name": "Steve Thorne",
+        "url": "https://www.sthorne.dev"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/steventhorne/legendhub/issues"
+    },
+    "homepage": "https://github.com/steventhorne/legendhub#readme",
+    "dependencies": {
+        "compression": "^1.7.4",
+        "cookie-parser": "^1.4.4",
+        "dotenv": "^7.0.0",
+        "ejs": "^2.7.1",
+        "express": "^4.17.1",
+        "express-graphql": "^0.8.0",
+        "graphql": "^14.5.4",
+        "graphql-iso-date": "^3.6.1",
+        "morgan": "^1.9.1",
+        "mysql": "^2.17.1",
+        "node-php-password": "^0.1.2",
+        "request": "^2.88.0"
+    }
+}
