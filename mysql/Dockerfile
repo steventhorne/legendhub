@@ -1,0 +1,26 @@
+FROM debian:stretch
+
+WORKDIR /docker-entrypoint-initdb.d
+
+COPY copy .
+
+RUN groupadd -r mysql && useradd -r -g mysql mysql
+
+RUN { \
+        echo mysql-server mysql-server/data-dir select ''; \
+        echo mysql-server mysql-server/root-pass password ''; \
+        echo mysql-server mysql-server/re-root-pass password ''; \
+        echo mysql-server mysql-server/remove-test-db select false; \
+        } | debconf-set-selections \
+        && apt update && apt install -y wget mysql-server=5.5* && rm -rf /var/lib/apt/lists/* \
+        && rm -rf /var/lib/mysql && mkdir -p /var/lib/mysql && chown -R mysql:mysql /var/lib/mysql
+
+RUN sed -Ei 's/^(log)/#&/' /etc/mysql/my.cnf
+RUN echo "[mysqld]" >> /etc/mysql/my.cnf
+RUN echo "bind-address = 0.0.0.0" >> /etc/mysql/my.cnf
+
+COPY entrypoint.sh /
+RUN chmod a+x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
+EXPOSE $MYSQL_INTERNAL_PORT

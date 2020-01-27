@@ -1,0 +1,44 @@
+version: '3'
+
+volumes:
+    database:
+    database-logs:
+
+networks:
+    legendhub:
+
+services:
+    legendhub-mysql:
+        build:
+            context: ./mysql
+        ports:
+            - "${MYSQL_PORT}:3306"
+        environment:
+            - MYSQL_PORT=${MYSQL_PORT}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+        networks:
+            - legendhub
+        volumes:
+            - database:/var/lib/mysql
+            - database-logs:/var/log
+        tty: true
+    legendhub-www:
+        build:
+            context: ./www
+        ports:
+            - "${WWW_PORT}:80"
+        environment:
+            - PORT=${PORT}
+            - MYSQL_PORT=${MYSQL_INTERNAL_PORT}
+            - MYSQL_HOST=${MYSQL_HOST}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - GITHUB_TOKEN=${GITHUB_TOKEN}
+            - GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
+            - RECAPTCHA_SECRET=${RECAPTCHA_SECRET}
+        networks:
+            - legendhub
