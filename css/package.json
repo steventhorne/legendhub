@@ -1,0 +1,47 @@
+{
+  "name": "legendhub.css",
+  "version": "2.1.0",
+  "description": "CSS for LegendMUD",
+  "scripts": {
+    "build": "npm-run-all --parallel build:lint build:compile --sequential build:prefix build:minify build:copy",
+    "build:compile": "node-sass --output-style expanded --source-map true --source-map-contents true --precision 6 --output dist/css/ scss",
+    "build:lint": "stylelint --syntax scss \"scss/**/*.scss\"",
+    "build:prefix": "postcss --config build/postcss.config.js --replace \"dist/css/*.css\" \"!dist/css/*.min.css\"",
+    "build:minify": "cleancss --level 1 --source-map --source-map-inline-sources --output dist/css/bootstrap-light.min.css dist/css/bootstrap-light.css && cleancss --level 1 --source-map --source-map-inline-sources --output dist/css/bootstrap-dark.min.css dist/css/bootstrap-dark.css && cleancss --level 1 --source-map --source-map-inline-sources --output dist/css/bootstrap-solarized-dark.min.css dist/css/bootstrap-solarized-dark.css",
+    "build:copy": "shx cp dist/css/*.min.css ../www/public/css/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SvarturH/legendhub.git"
+  },
+  "keywords": [
+    "legendhub",
+    "legendmud",
+    "hub",
+    "mud",
+    "css"
+  ],
+  "author": {
+    "name": "Svartur",
+    "url": "https://www.github.com/SvarturH/"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SvarturH/legendhub/issues"
+  },
+  "homepage": "https://github.com/SvarturH/legendhub#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "clean-css-cli": "^4.3.0",
+    "node-sass": "^4.12.0",
+    "npm-run-all": "^4.1.5",
+    "postcss-cli": "^5.0.1",
+    "shx": "^0.3.2",
+    "stylelint": "^9.10.1",
+    "stylelint-config-recommended-scss": "^3.3.0",
+    "stylelint-config-standard": "^18.3.0",
+    "stylelint-order": "^0.8.1",
+    "stylelint-scss": "^3.10.1"
+  }
+}
