@@ -40,6 +40,8 @@ ENDOFSQL
     fi
 
     sed -i s/legendwiki/$MYSQL_DATABASE/g $backupSqlFile
+    sed -i s/webapps/$MYSQL_USER/g $backupSqlFile
+    sed -Ei 's/\$\{MYSQL_USER\}/'"$MYSQL_USER"'/g; s/\$\{MYSQL_PASSWORD\}/'"$MYSQL_PASSWORD"'/g; s/\$\{MYSQL_DATABASE\}/'"$MYSQL_DATABASE"'/g' /etc/cron.d/cron-mysql
     echo "CREATE DATABASE \`$MYSQL_DATABASE\`;USE \`$MYSQL_DATABASE\`;" | cat - $backupSqlFile > temp && mv temp $backupSqlFile
 else
     rm -f $backupSqlFile
@@ -58,7 +60,6 @@ if [ -f $tempSqlFile ]; then
     mysql --max_allowed_packet=32505856 -u root < $tempSqlFile
     echo "Init file loaded."
 fi
-mysql --max_allowed_packet=32505856 -u root -p"$MYSQL_ROOT_PASSWORD" -e "SHOW DATABASES"
 if [ -f $backupSqlFile ]; then
     echo "---------------------------"
     echo "Loading from backup file..."
