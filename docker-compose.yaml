@@ -24,6 +24,7 @@ services:
             - database:/var/lib/mysql
             - database-logs:/var/log
         tty: true
+        restart: always
     www:
         build:
             context: ./www
@@ -48,6 +49,7 @@ services:
             update_config:
                 parallelism: 1
                 delay: 20s
+        restart: always
     python:
         build:
             context: ./python
@@ -63,3 +65,4 @@ services:
             - legendhub
         volumes:
             - python-logs:/var/log
+        restart: always
