@@ -1,0 +1,9 @@
+MYSQL_PORT=${MYSQL_PORT}
+MYSQL_HOST=${MYSQL_HOST}
+MYSQL_USER=${MYSQL_USER}
+MYSQL_PASSWORD=${MYSQL_PASSWORD}
+MYSQL_DATABASE=${MYSQL_DATABASE}
+
+*/2 * * * * root /usr/bin/python3 /python/notification_listener.py >> /var/log/cron.log 2>&1
+0 0 * * * root /usr/bin/python3 /python/routine_maintenance.py >> /var/log/cron.log 2>&1
+
