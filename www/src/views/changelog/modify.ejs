@@ -122,7 +122,7 @@
                         let data = response.data.data.insertChangelog;
                         let newToken = data.tokenRenewal.token;
                         let expireDate = data.tokenRenewal.expires;
-                        $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "strict"});
+                        $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
                         window.location = "/changelog/details.html?id=" + data.id;
                     }, function(response) {
                         console.log(response);

@@ -595,6 +595,7 @@ let getItems = function(searchString, filterString, sortBy, sortAsc, page, rows)
 
 let insertItem = function(args) {
     let statValues = {};
+    let ip = auth.utils.getIPFromRequest(args["req"]);
     return new Promise(function(resolve, reject) {
         auth.utils.authToken(args["authToken"], ip).then(
             function(response) {
@@ -689,6 +690,7 @@ let insertItem = function(args) {
 
 let updateItem = function(args) {
     let statValues = {};
+    let ip = auth.utils.getIPFromRequest(args["req"]);
     return new Promise(function(resolve, reject) {
         auth.utils.authToken(args["authToken"], ip).then(
             function(response) {
@@ -791,6 +793,7 @@ let updateItem = function(args) {
 };
 
 let revertItem = function(req, authToken, historyId) {
+    let ip = auth.utils.getIPFromRequest(req);
     return new Promise(function(resolve, reject) {
         auth.utils.authToken(authToken, ip).then(
             function(response) {

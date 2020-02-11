@@ -58,7 +58,7 @@ app.controller('login', ['$scope', '$cookies', '$http', function($scope, $cookie
             if (response.data.data) {
                 let data = response.data.data;
                 if (data.authLogin.token && $cookies.get("cookie-consent")) {
-                    let cookieData = {"path": "/", "samesite": "strict", "secure": true};
+                    let cookieData = {"path": "/", "samesite": "lax", "secure": true};
                     if (stayLoggedIn)
                         cookieData["expires"] = data.authLogin.expires;
 
