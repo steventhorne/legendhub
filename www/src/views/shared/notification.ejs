@@ -1,0 +1,8 @@
+<%if(locals.user) {%>
+<div id="<%-id%>" class="<%-classes%> clickable" tabindex="0" role="button" data-toggle="popover">
+    <%if (locals.user.notifications.length > 0) {%>
+    <span class="badge badge-pill badge-danger"><%-locals.user.notifications.length%><%-locals.user.moreNotifications?"+":""%></span>&nbsp;
+    <%_}_%>
+    <i class="fas fa-bell"></i></span>
+</div>
+<%}%>

@@ -1,0 +1,38 @@
+<div id="questModal" aria-labelledby="questModalLabel" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="questModalLabel">Choose a Quest</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+					<p class="text-info">Ensure the quest does not exist before adding a new one.</p>
+                    <form name="searchQuestForm" ng-submit="searchQuests(questSearchName)" class="mb-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                            <input id="questSearchInput" ng-model="questSearchName" type="text" class="form-control" placeholder="Search by title, whois, area, or content..." aria-label="Search for quest">
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-primary">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="mb-3" ng-show="questSearchResults.length > 0">
+                        <div class="table-responsive col-12">
+                            <div class="list-group">
+                                <button type="button" class="list-group-item list-group-item-secondary list-group-item-action" ng-click="onQuestSelected(quest)" ng-repeat="quest in questSearchResults">{{quest.title}}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <a class="btn btn-outline-success btn-block" href="/quests/add.html" target="_blank">Add new quest</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

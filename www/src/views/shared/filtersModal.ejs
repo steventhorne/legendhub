@@ -1,0 +1,54 @@
+<div id="filtersModal" aria-labelledby="filtersModalLabel" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Select search filters</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <p class="col-12 text-info">Use these to only show results with those stats.</p>
+                    <p class="col-12 text-info">Search again after selecting.</p>
+                </div>
+                <div class="row">
+                    <button class="col-12 btn btn-primary btn-block" ng-click="resetFilters()">Reset to defaults</button>
+                </div>
+                <br />
+                <div class="list-group">
+                <% for (let i = 0; i < vm.itemStatCategories.length; ++i) { %>
+                    <div class="list-group-item flex-column align-items-start">
+                        <h4 class="mb-3"><%= vm.itemStatCategories[i].name %></h4>
+                        <div class="list-group list-group-flush">
+                        <%
+                        for(let j = 0; j < vm.itemStatCategories[i].getItemStatInfo.length; ++j) {
+                            let stat = vm.itemStatCategories[i].getItemStatInfo[j];
+                        %>
+                        <% if (stat.type !== 'select') { %>
+                            <button ng-click="toggleFilter('<%- stat.var %>')" type="button" class="list-group-item list-group-item-action list-group-item-light">
+                                <div class="d-flex col justify-content-between">
+                                    <h5><%= stat.display %></h5>
+                                    <span><i ng-class="{'text-success fa-check': isFilterEnabled('<%- stat.var %>', <%- vm.selectedFilters.hasOwnProperty(stat.var) %>), 'text-danger fa-times': !isFilterEnabled('<%- stat.var %>', <%- vm.selectedFilters.hasOwnProperty(stat.var) %>)}" class="fas"></i></span>
+                                </div>
+                            </button>
+                        <% } else { %>
+                            <select class="list-group-item list-group-item-action list-group-item-light" ng-model="multiValueFilters['<%- stat.var %>']" ng-change="onFilterDropdownChange('<%- stat.var %>')"<%- stat.var === "alignRestriction" ? "style='white-space:pre'" : "" %>>
+                                <option value="">Choose a <%- stat.display %>...</option>
+                                <% for (let k = 0; k < vm.constants.selectShortOptions[stat.var].length; ++k) { %>
+                                <% if (stat.var === "alignRestriction") { %>
+                                <option value="<%- k %>" class="text-monospace"><%- vm.constants.selectShortOptions[stat.var][k].replace(/\s/g, "&nbsp;") %></option>
+                                <% } else { %>
+                                <option value="<%- k %>"><%= vm.constants.selectShortOptions[stat.var][k] %></option>
+                                <% }} %>
+                            </select>
+                        <% } %>
+                        <% } %>
+                        </div>
+                    </div>
+                <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

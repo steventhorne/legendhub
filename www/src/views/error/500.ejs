@@ -1,0 +1,27 @@
+<!doctype html>
+<% this.title = "500 Error"; %>
+<html lang="en">
+    <head>
+        <%-include('../shared/meta');-%>
+        <meta name="robots" content="none">
+    </head>
+    <body ng-app="legendwiki-app">
+        <%-include('../shared/header');-%>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <h1>Server Error</h1>
+                        </div>
+                        <div class="card-body text-center">
+                            <p>An unexpected server error has occurred. Please contact the system administrator.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%-include('../shared/footer');-%>
+        <%-include('../shared/scripts');-%>
+    </body>
+</html>
