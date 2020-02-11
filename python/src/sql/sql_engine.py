@@ -21,9 +21,10 @@ furnished to do so, subject to the following conditions:
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
 """
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sql import sql_engine_config as conf
 
 class SqlEngine(object):
     """ Used for connecting to sql.
@@ -39,13 +40,13 @@ class SqlEngine(object):
     def __init__(self):
         """ Creates an instance of the SqlEngine class """
         self.engine = create_engine(
-            '%s://%s:%s@%s:%d/%s' % (
-                conf.DB_ENGINE,
-                conf.DB_USERNAME,
-                conf.DB_PASSWORD,
-                conf.DB_HOSTNAME,
-                conf.DB_PORT,
-                conf.DB_DATABASE
+            '%s://%s:%s@%s:%s/%s' % (
+                "mysql+pymysql",
+                os.environ["MYSQL_USER"],
+                os.environ["MYSQL_PASSWORD"],
+                os.environ["MYSQL_HOST"],
+                os.environ["MYSQL_PORT"],
+                os.environ["MYSQL_DATABASE"]
             )
         )
 

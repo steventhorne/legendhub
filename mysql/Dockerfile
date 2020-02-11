@@ -2,7 +2,7 @@ FROM debian:stretch
 
 WORKDIR /docker-entrypoint-initdb.d
 
-COPY copy .
+COPY backup.sql /docker-entrypoint-initdb.d/
 
 RUN groupadd -r mysql && useradd -r -g mysql mysql
 
@@ -18,6 +18,8 @@ RUN { \
 RUN sed -Ei 's/^(log)/#&/' /etc/mysql/my.cnf
 RUN echo "[mysqld]" >> /etc/mysql/my.cnf
 RUN echo "bind-address = 0.0.0.0" >> /etc/mysql/my.cnf
+
+COPY cron-mysql /etc/cron.d/
 
 COPY entrypoint.sh /
 RUN chmod a+x /entrypoint.sh
