@@ -21,8 +21,9 @@ RUN echo "bind-address = 0.0.0.0" >> /etc/mysql/my.cnf
 
 COPY cron-mysql /etc/cron.d/
 
-RUN mkdir -p /backups/public
-RUN mkdir -p /backups/private
+RUN mkdir /backups
+RUN mkdir /backups/public
+RUN mkdir /backups/private
 
 COPY entrypoint.sh /
 RUN chmod a+x /entrypoint.sh
