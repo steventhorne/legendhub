@@ -38,6 +38,7 @@ services:
             - "${EXTERNAL_PORT}:${PORT}"
         environment:
             - PORT=${PORT}
+            - NODE_ENV=${NODE_ENV}
             - MYSQL_PORT=${MYSQL_PORT}
             - MYSQL_HOST=mysql
             - MYSQL_USER=${MYSQL_USER}

@@ -40,11 +40,13 @@ app.use(express.static(path.join(__dirname, "public")));
 /// 404 items we know we don't have
 // such as .map
 app.use(function(req,res,next) {
-    let url = require("url").parse(req.url);
-    if (url.pathname.endsWith(".map"))
-        res.sendStatus(404);
-    else
-        next();
+    if (process.env.NODE_ENV === "production") {
+        let url = require("url").parse(req.url);
+        if (url.pathname.endsWith(".map"))
+            return res.sendStatus(404);
+    }
+
+    return next();
 });
 
 // handle api requests
