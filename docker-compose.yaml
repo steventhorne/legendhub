@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 volumes:
     database:
@@ -30,6 +30,10 @@ services:
             context: ./www
         depends_on:
             - mysql
+        volumes:
+            - type: bind
+              source: ./www/src
+              target: /app/src
         ports:
             - "${EXTERNAL_PORT}:${PORT}"
         environment:

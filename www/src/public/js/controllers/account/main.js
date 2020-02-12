@@ -75,7 +75,7 @@ app.controller('account', ['$scope', '$http', '$q', '$cookies', function($scope,
             data: {query: query.join("")}
         }).then(function successCallback(response) {
             let data = response.data.data.updateNotificationSettings;
-            let cookieData = {"path": "/", "samesite": "strict", "secure": true};
+            let cookieData = {"path": "/", "samesite": "lax", "secure": true};
             if (data.expires)
                 cookieData["expires"] = new Date(data.expires);
 
@@ -145,7 +145,7 @@ app.controller('account', ['$scope', '$http', '$q', '$cookies', function($scope,
             data: {query: query.join("")}
         }).then(function successCallback(response) {
             let data = response.data.data.updatePassword;
-            let cookieData = {"path": "/", "samesite": "strict", "secure": true};
+            let cookieData = {"path": "/", "samesite": "lax", "secure": true};
             if (data.tokenRenewal.expires)
                 cookieData["expires"] = new Date(data.tokenRenewal.expires);
 

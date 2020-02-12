@@ -159,7 +159,7 @@
                             let data = response.data.data.updateWikiPage;
                             let newToken = data.token;
                             let expireDate = data.expires;
-                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "strict"});
+                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
                             window.location = "/wiki/details.html?id=" + wikiPage.id;
                         });
                     };
@@ -196,7 +196,7 @@
                             let data = response.data.data.insertWikiPage;
                             let newToken = data.tokenRenewal.token;
                             let expireDate = data.tokenRenewal.expires;
-                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "strict"});
+                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
                             window.location = "/wiki/details.html?id=" + data.id;
                         });
                     };
