@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <%-include("../shared/meta");-%>
+        <%if (vm.quest) {%>
+        <link href="https://www.legendhub.org/quests/edit.html?id=<%-vm.quest.id%>" rel="canonical">
+        <%}else{%>
+        <link href="https://www.legendhub.org/quests/add.html" rel="canonical">
+        <%}%>
+        <meta name="robots" content="none">
+    </head>
+    <body ng-app="legendwiki-app" ng-controller="quests-modify">
+        <%-include("../shared/header");-%>
+        <div class="container">
+            <form name="questForm" ng-submit="<%-(vm.quest ? "editQuest(quest)" : "addQuest(quest)")%>">
+                <div class="form-row">
+                    <%if (vm.quest) {%>
+                    <h1>Edit Quest</h1>
+                    <%} else {%>
+                    <h1>Add Quest</h1>
+                    <%}%>
+                </div>
+                <span class="text-info">You can assign this quest to an item on the item edit page.</span>
+                <div class="form-row">
+                    <div class="form-group col-12 col-lg-5">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Title</span>
+                            </div>
+                            <input class="form-control" type="text" name="title" ng-model="quest.title" ng-class="{'is-invalid': questForm.title.$invalid}" required lh-autofocus>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-12 col-lg-5">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Area</span>
+                            </div>
+                            <select class="form-control" name="area" ng-model="quest.areaId" ng-class="{'is-invalid': questForm.area.$invalid}" required>
+                                <%for (let i = 0; i < vm.areas.length; ++i) {%>
+                                <option ng-value="<%-vm.areas[i].id%>"><%=vm.areas[i].name%><%=(vm.areas[i].eraName ? ` (${vm.areas[i].eraName})`:"")%></option>
+                                <%}%>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <span class="text-info">Use a semicolon to split multiple whoises.</span>
+                <div class="form-row">
+                    <div class="form-group col-12 col-lg-5">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Whoises</span>
+                            </div>
+                            <input class="form-control" type="text" name="whoises" ng-model="quest.whoises" ng-class="{'is-invalid': questForm.whoises.$invalid}">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-12 col-lg-5">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Stat Quest</span>
+                            </div>
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <input type="checkbox" ng-model="quest.stat">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <span>This field supports <a href="https://github.com/showdownjs/showdown/wiki/Showdown's-Markdown-syntax" target="_blank">markdown</a> and <a href="https://github.com/showdownjs/showdown/wiki/Emojis" target="_blank">emoji</a>.</span>
+                <div class="form-row">
+                    <div class="form-group col-12">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Content</span>
+                            </div>
+                            <textarea class="form-control" rows="10" ng-model="quest.content"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-12">
+                        <div class="card">
+                            <div class="card-header">Preview</div>
+                            <div class="card-body" markdown-to-html="quest.content"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="btn btn-primary btn-block col-12 offset-md-8 col-md-4 offset-lg-10 col-lg-2" type="submit" ng-disabled="<%-(vm.quest ? "!canEdit()" : "!canAdd()")%>">Save</button>
+                </div>
+                <br><br>
+            </form>
+        </div>
+        <%-include("../shared/footer");-%>
+        <%-include("../shared/scripts");-%>
+        <%-include("../shared/markdown");-%>
+        <script>
+            app.controller("quests-modify", ["$scope", "$http", "$cookies", function($scope, $http, $cookies) {
+                let initialize = function() {
+                    <%_if (vm.quest) {%>
+                        $scope.quest = {
+                            id:<%-vm.quest.id%>,
+                            title:"<%-vm.quest.title.replace(/"/g,"\\\"")%>",
+                            areaId:<%-vm.quest.areaId%>,
+                            whoises:"<%-vm.quest.whoises ? vm.quest.whoises.replace(/"/g,"\\\""):""%>",
+                            stat:<%-vm.quest.stat%>,
+                            content:"<%-vm.quest.content.replace(/\\/g,"\\\\").replace(/"/g,"\\\"").replace(/\n/g,"\\n").replace(/\r/g,"\\n")%>",
+                        };
+                        $scope.initialQuest = angular.copy($scope.quest);
+                    <%_} else {_%>
+                        $scope.quest = {
+                            whoises: "",
+                            content: "",
+                            stat: false
+                        };
+                    <%_}_%>
+                }
+
+                <%_if (vm.quest) {_%>
+                    $scope.canEdit = function() {
+                        return $scope.questForm.$valid && angular.toJson($scope.quest) !== angular.toJson($scope.initialQuest);
+                    };
+
+                    $scope.editQuest = function(quest) {
+                        if (!$scope.canEdit())
+                            return;
+
+                        let query = [
+                            "mutation {",
+                                "updateQuest(id:",quest.id,",",
+                                "authToken:\"",$cookies.get("loginToken"),"\",",
+                                "title:\"",quest.title,"\",",
+                                "areaId:",quest.areaId,",",
+                                "whoises:\"",quest.whoises,"\",",
+                                "stat:",quest.stat,",",
+                                "content:\"\"\"",quest.content,"\"\"\") {",
+                                    "token ",
+                                    "expires",
+                                "}",
+                            "}"
+                        ];
+                        $http({
+                            url: "/api",
+                            method: "POST",
+                            data: {"query": query.join("")}
+                        }).then((response) => {
+                            let data = response.data.data.updateQuest;
+                            let newToken = data.token;
+                            let expireDate = data.expires;
+                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
+                            window.location = "/quests/details.html?id=" + quest.id;
+                        });
+                    };
+                <%_} else {_%>
+                    $scope.canAdd = function() {
+                        return $scope.questForm.$valid;
+                    };
+
+                    $scope.addQuest = function(quest) {
+                        if (!$scope.canAdd())
+                            return;
+
+                        let query = [
+                            "mutation {",
+                                "insertQuest(authToken:\"",$cookies.get("loginToken"),"\",",
+                                "title:\"",quest.title,"\",",
+                                "areaId:",quest.areaId,",",
+                                "whoises:\"",quest.whoises,"\",",
+                                "stat:",quest.stat,",",
+                                "content:\"\"\"",quest.content,"\"\"\") {",
+                                    "id ",
+                                    "tokenRenewal {",
+                                        "token ",
+                                        "expires",
+                                    "}",
+                                "}",
+                            "}"
+                        ];
+                        console.log(query.join(""));
+                        $http({
+                            url: "/api",
+                            method: "POST",
+                            data: {"query": query.join("")}
+                        }).then((response) => {
+                            console.log(response);
+                            let data = response.data.data.insertQuest;
+                            let newToken = data.tokenRenewal.token;
+                            let expireDate = data.tokenRenewal.expires;
+                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
+                            window.location = "/quests/details.html?id=" + data.id;
+                        });
+                    };
+                <%_}_%>
+
+                initialize();
+            }]);
+        </script>
+    </body>
+</html>

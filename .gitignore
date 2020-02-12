@@ -1,28 +1,16 @@
 # IDE
 .vscode
 
-# WWW
-www/php/common/config.php
-www/php/scrape/*
-www/sql/*
-www/bin/*
-www/deploy.sh.conf
-www-bin
-
 # dotenv
-www/.env
-www_new/.env
 .env
 
 # notification listener
-python/env/
-python/__pycache__/
+python/src/__pycache__/
 python/**/*.py[cod]
 python/**/*$py.class
-python/sql/sql_engine_config.py
 
 # NPM
 node_modules/
 
-# TMP
-www_express/
+# mysql
+mysql/backup.sql

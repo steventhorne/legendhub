@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <%-include("../shared/meta");-%>
+        <%if (vm.mob) {%>
+        <link href="https://www.legendhub.org/mobs/edit.html?id=<%-vm.mob.id%>" rel="canonical">
+        <%}else{%>
+        <link href="https://www.legendhub.org/mobs/add.html" rel="canonical">
+        <%}%>
+        <meta name="robots" content="none">
+    </head>
+    <body ng-app="legendwiki-app" ng-controller="mobs-modify">
+        <%-include("../shared/header");-%>
+        <div class="container">
+            <form name="mobForm" ng-submit="<%-(vm.mob ? "editMob(mob)" : "addMob(mob)")%>">
+                <div class="form-row">
+                    <%if (vm.mob) {%>
+                    <h1>Edit Mob</h1>
+                    <%} else {%>
+                    <h1>Add Mob</h1>
+                    <%}%>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-12 col-lg-5">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Name</span>
+                            </div>
+                            <input class="form-control" type="text" name="name" ng-model="mob.name" ng-class="{'is-invalid': mobForm.name.$invalid}" required lh-autofocus>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-12 col-lg-5">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Area</span>
+                            </div>
+                            <select class="form-control" name="area" ng-model="mob.areaId" ng-class="{'is-invalid': mobForm.area.$invalid}" required>
+                                <%for (let i = 0; i < vm.areas.length; ++i) {%>
+                                <option ng-value="<%-vm.areas[i].id%>"><%=vm.areas[i].name%><%=(vm.areas[i].eraName ? ` (${vm.areas[i].eraName})`:"")%></option>
+                                <%}%>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-4 col-lg-2">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Xp</span>
+                            </div>
+                            <input class="form-control" type="number" name="xp" ng-model="mob.xp" min="0" ng-class="{'is-invalid': mobForm.xp.$invalid}" required>
+                        </div>
+                    </div>
+                    <div class="form-group col-4 col-lg-2">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Gold</span>
+                            </div>
+                            <input class="form-control" type="number" name="gold" ng-model="mob.gold" ng-class="{'is-invalid': mobForm.gold.$invalid}" required>
+                        </div>
+                    </div>
+                    <div class="form-group col-4 col-lg-2">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Aggro</span>
+                            </div>
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <input type="checkbox" ng-model="mob.aggro">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <span>This field supports <a href="https://github.com/showdownjs/showdown/wiki/Showdown's-Markdown-syntax" target="_blank">markdown</a> and <a href="https://github.com/showdownjs/showdown/wiki/Emojis" target="_blank">emoji</a>.</span>
+                <div class="form-row">
+                    <div class="form-group col-12 col-lg-6">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Notes</span>
+                            </div>
+                            <textarea class="form-control" rows="5" ng-model="mob.notes"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <button class="btn btn-primary btn-block col-12 offset-md-8 col-md-4 offset-lg-10 col-lg-2" type="submit" ng-disabled="<%-(vm.mob ? "!canEdit()" : "!canAdd()")%>">Save</button>
+                </div>
+                <br><br>
+            </form>
+        </div>
+        <%-include("../shared/footer");-%>
+        <%-include("../shared/scripts");-%>
+        <%-include("../shared/markdown");-%>
+        <script>
+            app.controller("mobs-modify", ["$scope", "$http", "$cookies", function($scope, $http, $cookies) {
+                let initialize = function() {
+                    <%_if (vm.mob) {%>
+                        $scope.mob = {
+                            id:<%-vm.mob.id%>,
+                            name:"<%-vm.mob.name.replace(/"/g,"\\\"")%>",
+                            xp:<%-vm.mob.xp%>,
+                            areaId:<%-vm.mob.areaId%>,
+                            gold:<%-vm.mob.gold%>,
+                            notes:"<%-vm.mob.notes ? vm.mob.notes.replace(/\\/g,"\\\\").replace(/"/g,"\\\"").replace(/\n/g,"\\n").replace(/\r/g,"\\n") : ''%>",
+                            aggro:<%-vm.mob.aggro%>
+                        };
+                        $scope.initialMob = angular.copy($scope.mob);
+                    <%_} else {_%>
+                        $scope.mob = {
+                            xp: 0,
+                            gold: 0,
+                            aggro: false
+                        };
+                    <%_}_%>
+                }
+
+                <%_if (vm.mob) {_%>
+                    $scope.canEdit = function() {
+                        return $scope.mobForm.$valid && angular.toJson($scope.mob) !== angular.toJson($scope.initialMob);
+                    };
+
+                    $scope.editMob = function(mob) {
+                        if (!$scope.canEdit())
+                            return;
+
+                        let query = [
+                            "mutation {",
+                                "updateMob(id:",mob.id,",",
+                                "authToken:\"",$cookies.get("loginToken"),"\",",
+                                "name:\"",mob.name,"\",",
+                                "xp:",mob.xp,",",
+                                "areaId:",mob.areaId,",",
+                                "gold:",mob.gold,",",
+                                "notes:\"\"\"",mob.notes,"\"\"\",",
+                                "aggro:",mob.aggro,") {",
+                                    "token ",
+                                    "expires",
+                                "}",
+                            "}"
+                        ];
+                        $http({
+                            url: "/api",
+                            method: "POST",
+                            data: {"query": query.join("")}
+                        }).then((response) => {
+                            let data = response.data.data.updateMob;
+                            let newToken = data.token;
+                            let expireDate = data.expires;
+                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
+                            window.location = "/mobs/details.html?id=" + mob.id;
+                        });
+                    };
+                <%_} else {_%>
+                    $scope.canAdd = function() {
+                        return $scope.mobForm.$valid;
+                    };
+
+                    $scope.addMob = function(mob) {
+                        if (!$scope.canAdd())
+                            return;
+
+                        let query = [
+                            "mutation {",
+                                "insertMob(authToken:\"",$cookies.get("loginToken"),"\",",
+                                "name:\"",mob.name,"\",",
+                                "xp:",mob.xp,",",
+                                "areaId:",mob.areaId,",",
+                                "gold:",mob.gold,",",
+                                "notes:\"\"\"",mob.notes,"\"\"\",",
+                                "aggro:",mob.aggro,") {",
+                                    "id ",
+                                    "tokenRenewal {",
+                                        "token ",
+                                        "expires",
+                                    "}",
+                                "}",
+                            "}"
+                        ];
+                        $http({
+                            url: "/api",
+                            method: "POST",
+                            data: {"query": query.join("")}
+                        }).then((response) => {
+                            let data = response.data.data.insertMob;
+                            let newToken = data.tokenRenewal.token;
+                            let expireDate = data.tokenRenewal.expires;
+                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
+                            window.location = "/mobs/details.html?id=" + data.id;
+                        });
+                    };
+                <%_}_%>
+
+                initialize();
+            }]);
+        </script>
+    </body>
+</html>

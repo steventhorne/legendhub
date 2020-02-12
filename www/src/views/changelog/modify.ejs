@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <%-include("../shared/meta")-%>
+        <meta name="robots" content="none">
+    </head>
+    <body ng-app="legendwiki-app" ng-controller="changelog-modify">
+        <%-include("../shared/header")-%>
+        <div class="container">
+            <form name="form" ng-submit="<%-(vm.changelog ? "editChangelog(changelog)" : "addChangelog(changelog)")%>">
+                <div class="form-row">
+                    <div class="form-group col-12 col-lg-5">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Version</span>
+                            </div>
+                            <input class="form-control" type="text" name="versionControl" ng-model="changelog.version" ng-class="{'is-invalid': !form.versionControl.$valid}" maxlength="20" required lh-autofocus>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="form-row">
+                    <span>This field supports <a href="https://github.com/showdownjs/showdown/wiki/Showdown's-Markdown-syntax" target="_blank">markdown</a> and <a href="https://github.com/showdownjs/showdown/wiki/Emojis" target="_blank">emoji</a>.</span>
+                    <div class="form-group col-12">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Notes</span>
+                            </div>
+                            <textarea class="form-control" type="text" name="notesControl" rows="10" ng-model="changelog.notes" ng-class="{'is-invalid': !form.notesControl.$valid}" required></textarea>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">Preview</div>
+                            <div class="card-body" markdown-to-html="changelog.notes"></div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <button class="btn btn-primary btn-block col-12 offset-md-8 col-md-4 offset-lg-10 col-lg-2" type="submit" ng-disabled="<%-(vm.changelog ? "!canEdit()" : "!canAdd()")%>">Save</button>
+                </div>
+                <br><br>
+            </form>
+        </div>
+        <%-include("../shared/footer")-%>
+        <%-include("../shared/scripts")-%>
+        <%-include("../shared/markdown")-%>
+        <script>
+            app.controller("changelog-modify", ["$scope", "$http", "$cookies", function($scope, $http, $cookies) {
+                let initialize = function() {
+                    <%_if (vm.changelog) {%>
+                        $scope.changelog = {
+                            version:"<%-vm.changelog.version.replace(/"/g, "\\\"")%>",
+                            notes:"<%-vm.changelog.notes.replace(/\\/g,"\\\\").replace(/"/g,"\\\"").replace(/\n/g,"\\n")%>"
+                        };
+                    $scope.initialChangelog = angular.copy($scope.changelog);
+                    <%_}else{_%>
+                        $scope.changelog = {
+                            version: "",
+                            notes: ""
+                        }
+                    <%_}_%>
+                };
+
+                <%_if (vm.changelog) {_%>
+                $scope.canEdit = function() {
+                    return $scope.form.$valid && angular.toJson($scope.changelog) !== angular.toJson($scope.initialChangelog);
+                };
+
+                $scope.editChangelog = function(changelog) {
+                    if (!$scope.canEdit())
+                        return;
+
+                    let query = [
+                        "mutation {",
+                            "updateChangelog(id:",changelog.id,",",
+                            "authToken:\"",$cookies.get("loginToken"),"\",",
+                            "version:\"",changelog.version,"\",",
+                            "notes:\"\"\"",changelog.notes,"\"\"\") {",
+                                "token ",
+                                "expires",
+                            "}",
+                        "}"
+                    ];
+                    $http({
+                        url: "/api",
+                        method: "POST",
+                        data: {"query": query.join("")}
+                    }).then((response) => {
+
+                    });
+                };
+                <%_}else{_%>
+                $scope.canAdd = function() {
+                    return $scope.form.$valid;
+                };
+
+                $scope.addChangelog = function(changelog) {
+                    console.log("enter");
+                    if (!$scope.canAdd())
+                        return;
+                    console.log("can");
+
+                    let query = [
+                        "mutation {",
+                            "insertChangelog(authToken:\"",$cookies.get("loginToken"),"\",",
+                            "version:\"",changelog.version,"\",",
+                            "notes:\"\"\"",changelog.notes,"\"\"\") {",
+                                "id ",
+                                "tokenRenewal {",
+                                    "token ",
+                                    "expires",
+                                "}",
+                            "}",
+                        "}"
+                    ];
+                    console.log(query.join(""));
+                    $http({
+                        url: "/api",
+                        method: "POST",
+                        data: {"query": query.join("")}
+                    }).then((response) => {
+                        let data = response.data.data.insertChangelog;
+                        let newToken = data.tokenRenewal.token;
+                        let expireDate = data.tokenRenewal.expires;
+                        $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
+                        window.location = "/changelog/details.html?id=" + data.id;
+                    }, function(response) {
+                        console.log(response);
+                    });
+                };
+                <%_}_%>
+
+                initialize();
+            }]);
+        </script>
+    </body>
+</html>

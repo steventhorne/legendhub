@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 volumes:
     database:
@@ -24,11 +24,16 @@ services:
             - database:/var/lib/mysql
             - database-logs:/var/log
         tty: true
+        restart: always
     www:
         build:
             context: ./www
         depends_on:
             - mysql
+        volumes:
+            - type: bind
+              source: ./www/src
+              target: /app/src
         ports:
             - "${EXTERNAL_PORT}:${PORT}"
         environment:
@@ -48,6 +53,7 @@ services:
             update_config:
                 parallelism: 1
                 delay: 20s
+        restart: always
     python:
         build:
             context: ./python
@@ -63,3 +69,4 @@ services:
             - legendhub
         volumes:
             - python-logs:/var/log
+        restart: always
