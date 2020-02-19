@@ -48,6 +48,11 @@ else
     rm -f $tempSqlFile
 fi
 
+service cron restart
+
+mkdir -p /backups/public
+mkdir -p /backups/private
+
 mkdir -p /var/run/mysqld
 chown -R mysql:mysql /var/run/mysqld
 chown -R mysql:mysql "$DATADIR"
