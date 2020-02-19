@@ -1371,10 +1371,10 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				var wearingConWeap = false;
 				for (var i = 0; i < $scope.selectedList.items.length; ++i) {
 					if ($scope.selectedList.items[i].slot == 14 || $scope.selectedList.items[i].slot == 15) {
-						if ($scope.selectedList.items[i].weaponType == 1) {
+						if ($scope.selectedList.items[i].weaponStat == 1) {
 							wearingStrWeap = true;
 						}
-						else if ($scope.selectedList.items[i].weaponType == 3) {
+						else if ($scope.selectedList.items[i].weaponStat == 3) {
 							wearingConWeap = true;
 						}
 					}
