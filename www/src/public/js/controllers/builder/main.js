@@ -1614,7 +1614,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
         var fromSpells = 0;
         for (let i = 24; i < $scope.selectedList.items.length; ++i) {
             if ($scope.selectedList.items[i][statName]) {
-				fromItems += $scope.selectedList.items[i][statName];
+				fromSpells += $scope.selectedList.items[i][statName];
 			}
         }
 
@@ -1651,6 +1651,13 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
                 });
             }
 		}
+
+        switch (statName) {
+            case "dam":
+            case "hit":
+                total = total + " (" + fromItems + ")";
+                break;
+        }
 
 		return total;
 	};
