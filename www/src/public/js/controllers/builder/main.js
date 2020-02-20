@@ -1343,6 +1343,15 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 
 		switch (statName)
 		{
+            case "hp":
+                fromBonus += 381 + (($scope.getStatTotal("constitution") - 30) * 5);
+                break;
+            case "ma":
+                fromBonus += 446 + (($scope.getStatTotal("mind") - 30) * 5);
+                break;
+            case "mv":
+                fromBonus += 496 + ((Math.max($scope.getStatTotal("constitution"), $scope.getStatTotal("dexterity")) - 30) * 5);
+                break;
 			case "spelldam":
 			    fromBonus += parseInt(($scope.getStatTotal("mind") - 52) / 2);
 				break;
