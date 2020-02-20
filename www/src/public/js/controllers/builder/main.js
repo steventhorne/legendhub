@@ -15,7 +15,10 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 								"Eagle -- ( per - str )",
 								"Moose -- ( str - con )",
 								"Snake -- ( dex - per )",
-								"Turtle -- ( con - spi )"];
+								"Turtle -- ( con - spi )",
+                                "Dragon -- ( dex - con )",
+                                "Hydra -- ( per - dex )",
+                                "Wyvern -- ( min - spi )"];
 
 		$scope.amuletList = ["Strength", "Mind", "Dexterity", "Constitution", "Perception", "Spirit"];
 
@@ -1258,7 +1261,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				if ($scope.selectedList.baseStats.amulet == 1) {
 					fromStatQuests += 10;
 				}
-				if ($scope.selectedList.baseStats.longhouse == 1) {
+				if ($scope.selectedList.baseStats.longhouse == 1 || $scope.selectedList.baseStats.longhouse == 8) {
 					fromStatQuests += 5;
 				}
 				if ($scope.selectedList.baseStats.longhouse == 0) {
@@ -1272,10 +1275,10 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				if ($scope.selectedList.baseStats.amulet == 2) {
 					fromStatQuests += 10;
 				}
-				if ($scope.selectedList.baseStats.longhouse == 4) {
+				if ($scope.selectedList.baseStats.longhouse == 4 || $scope.selectedList.baseStats.longhouse == 6) {
 					fromStatQuests += 5;
 				}
-				if ($scope.selectedList.baseStats.longhouse == 1) {
+				if ($scope.selectedList.baseStats.longhouse == 1 || $scope.selectedList.baseStats.longhouse == 7) {
 					fromStatQuests += 3;
 				}
 				break;
@@ -1289,7 +1292,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				if ($scope.selectedList.baseStats.longhouse == 5) {
 					fromStatQuests += 5;
 				}
-				if ($scope.selectedList.baseStats.longhouse == 3) {
+				if ($scope.selectedList.baseStats.longhouse == 3 || $scope.selectedList.baseStats.longhouse == 6) {
 					fromStatQuests += 3;
 				}
 				break;
@@ -1300,7 +1303,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				if ($scope.selectedList.baseStats.amulet == 4) {
 					fromStatQuests += 10;
 				}
-				if ($scope.selectedList.baseStats.longhouse == 2) {
+				if ($scope.selectedList.baseStats.longhouse == 2 || $scope.selectedList.baseStats.longhouse == 7) {
 					fromStatQuests += 5;
 				}
 				if ($scope.selectedList.baseStats.longhouse == 4) {
@@ -1317,7 +1320,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 				if ($scope.selectedList.baseStats.longhouse == 0) {
 					fromStatQuests += 5;
 				}
-				if ($scope.selectedList.baseStats.longhouse == 5) {
+				if ($scope.selectedList.baseStats.longhouse == 5 || $scope.selectedList.baseStats.longhouse == 8) {
 					fromStatQuests += 3;
 				}
 				break;
