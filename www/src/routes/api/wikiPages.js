@@ -320,9 +320,9 @@ let deleteWikiPage = function(req, authToken, id) {
     return new Promise(function(resolve, reject) {
         auth.utils.authMutation(req, authToken, true).then(
             function(response) {
-                if (response.permissions.hasPermission("WikiPage", 0, 0, 0, 1))
+                if (response.permissions.hasPermission("Wiki", 0, 0, 0, 1))
                 {
-                    mysql.query("UPDATE WikiPages SET Delete = 1 WHERE Id = ?",
+                    mysql.query("UPDATE WikiPages SET Deleted = 1 WHERE Id = ?",
                         [id],
                         function(error, results, fields) {
                             if (error)
@@ -484,7 +484,7 @@ let mFields = {
             id: { type: new gql.GraphQLNonNull(gql.GraphQLInt) }
         },
         resolve: function(_, {authToken, id}, req) {
-            return deleteMob(req, authToken, id);
+            return deleteWikiPage(req, authToken, id);
         }
     }
 };

@@ -336,7 +336,7 @@ let deleteQuest = function(req, authToken, id) {
             function(response) {
                 if (response.permissions.hasPermission("Quest", 0, 0, 0, 1))
                 {
-                    mysql.query("UPDATE Quests SET Delete = 1 WHERE Id = ?",
+                    mysql.query("UPDATE Quests SET Deleted = 1 WHERE Id = ?",
                         [id],
                         function(error, results, fields) {
                             if (error)
