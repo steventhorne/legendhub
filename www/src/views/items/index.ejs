@@ -67,7 +67,7 @@
 										<thead class="thead-dark">
 											<tr>
                                                 <% for (let i = 0; i < vm.itemStatInfo.length; ++i) { %>
-                                                <th class="text-center" ng-if="showColumn('<%- vm.itemStatInfo[i].short %>', <%- vm.selectedColumns.includes(vm.itemStatInfo[i].short) %>)"ng-click="onColumnHeaderClicked('<%- sortBaseUrl + "&sortBy=" + vm.itemStatInfo[i].var + "&sortAsc=" + (vm.query.sortBy === vm.itemStatInfo[i].var ? !(vm.query.sortAsc === 'true') : false) %>')"<%- vm.selectedColumns.includes(vm.itemStatInfo[i].short) ? '' : ' ng-cloak' %> nowrap><%= vm.itemStatInfo[i].display %>&nbsp;
+                                                <th class="text-center" ng-if="showColumn('<%- vm.itemStatInfo[i].short %>', <%- vm.selectedColumns.includes(vm.itemStatInfo[i].short) %>)"ng-click="onColumnHeaderClicked('<%- sortBaseUrl + "&sortBy=" + vm.itemStatInfo[i].var + "&sortAsc=" + (vm.query.sortBy === vm.itemStatInfo[i].var ? !(vm.query.sortAsc === 'true') : false) %>')"<%- vm.selectedColumns.includes(vm.itemStatInfo[i].short) ? '' : ' ng-cloak' %> title="<%=vm.itemStatInfo[i].display%>" nowrap><%= vm.itemStatInfo[i].short %>&nbsp;
                                                     <% if (vm.query.sortBy === vm.itemStatInfo[i].var) { %>
                                                     <i class="fas fa-sort-<%- (vm.query.sortAsc === 'true') ? "up" : "down" %>"></i>
                                                     <% } else if (!vm.query.sortBy) { %>

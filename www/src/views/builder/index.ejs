@@ -124,7 +124,7 @@
 							<th scope="col" class="text-center">Slot</th>
                             <th scope="col" class="text-center">Lock</th>
 							<th scope="col" class="text-center">Name</th>
-							<th scope="col" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'name' && stat.var !== 'slot'" class="text-center">{{::stat.short}}</th>
+							<th scope="col" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'name' && stat.var !== 'slot'" class="text-center" ng-attr-title="{{stat.display}}">{{::stat.short}}</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -204,7 +204,7 @@
                                                         <th scope="col" class="text-center">Slot</th>
                                                         <th scope="col" class="text-center">Lock</th>
                                                         <th scope="col" class="text-center">Name</th>
-                                                        <th scope="col" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'name' && stat.var !== 'slot'" class="text-center">{{::stat.short}}</th>
+                                                        <th scope="col" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'name' && stat.var !== 'slot'" ng-attr-title="{{stat.display}}" class="text-center">{{::stat.short}}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -249,7 +249,7 @@
 										<thead class="thead-dark">
 											<tr>
 												<th scope="col" class="clickable" ng-click="onColumnHeaderClicked('name')" nowrap>Name&nbsp;<i ng-class="getSortClass('name')"></i></th>
-												<th scope="col" class="clickable" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'name' && stat.var !== 'slot'" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
+												<th scope="col" class="clickable" ng-repeat="stat in statInfo" ng-if="stat.showColumn && stat.var !== 'name' && stat.var !== 'slot'" ng-attr-title="{{stat.display}}" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
 											</tr>
 										</thead>
                                         <tbody ng-show="itemsBySlot[currentItem.slot].length === 0">
