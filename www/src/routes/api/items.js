@@ -877,7 +877,7 @@ let deleteItem = function(req, authToken, id) {
             function(response) {
                 if (response.permissions.hasPermission("Item", 0, 0, 0, 1))
                 {
-                    mysql.query("UPDATE Items SET Delete = 1 WHERE Id = ?",
+                    mysql.query("UPDATE Items SET Deleted = 1 WHERE Id = ?",
                         [id],
                         function(error, results, fields) {
                             if (error)

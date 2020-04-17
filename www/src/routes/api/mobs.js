@@ -295,7 +295,7 @@ let deleteMob = function(req, authToken, id) {
             function(response) {
                 if (response.permissions.hasPermission("Mob", 0, 0, 0, 1))
                 {
-                    mysql.query("UPDATE Mobs SET Delete = 1 WHERE Id = ?",
+                    mysql.query("UPDATE Mobs SET Deleted = 1 WHERE Id = ?",
                         [id],
                         function(error, results, fields) {
                             if (error)
