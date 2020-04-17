@@ -400,10 +400,10 @@ router.get(["/delete.html"], async function(req, res, next) {
 
     res.cookie(
         "loginToken",
-        data.token,
+        data.deleteItem.token,
         {
             path: "/",
-            expires: data.expires,
+            expires: data.deleteItem.expires,
             secure: true,
             sameSite: true
         }
