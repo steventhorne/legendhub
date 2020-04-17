@@ -75,11 +75,11 @@ let authToken = function(token, ip, renew, shouldGetPermissions) {
         shouldGetPermissions = false;
 
     return new Promise(function(resolve, reject) {
-        if (!token)
-            reject(new gql.GraphQLError("No token provided."));
+        if (token == null || token == "undefined")
+            return reject(new gql.GraphQLError("Invalid token"));
         let tokenInfo = token.split("-");
         if (tokenInfo.length != 2)
-            reject(new gql.GraphQLError("Invalid token"));
+            return reject(new gql.GraphQLError("Invalid token"));
         mysql.query(`SELECT AT.Id, M.Id AS MemberId, M.Username, AT.HashedValidator, AT.Expires, AT.StayLoggedIn, M.Banned
             FROM AuthTokens AT
             JOIN Members M ON M.Id = AT.MemberId
@@ -149,14 +149,14 @@ let authToken = function(token, ip, renew, shouldGetPermissions) {
                             ).catch(error => reject(error));
                         }
                         else {
-                            resolve(response);
+                            return resolve(response);
                         }
 
                         return;
                     }
                 }
 
-                reject(new gql.GraphQLError("Invalid token"));
+                return reject(new gql.GraphQLError("Invalid token"));
             });
     });
 };
