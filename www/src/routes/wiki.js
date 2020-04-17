@@ -401,10 +401,10 @@ router.get(["/delete.html"], async function(req, res, next) {
 
     res.cookie(
         "loginToken",
-        data.token,
+        data.deleteWikiPage.token,
         {
             path: "/",
-            expires: data.expires,
+            expires: data.deleteWikiPage.expires,
             secure: true,
             sameSite: true
         }

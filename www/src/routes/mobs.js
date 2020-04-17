@@ -423,10 +423,10 @@ router.get(["/delete.html"], async function(req, res, next) {
 
     res.cookie(
         "loginToken",
-        data.token,
+        data.deleteMob.token,
         {
             path: "/",
-            expires: data.expires,
+            expires: data.deleteMob.expires,
             secure: true,
             sameSite: true
         }
