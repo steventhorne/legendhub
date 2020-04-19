@@ -235,14 +235,30 @@
                                     </div>
                                 </div>
 							</div>
-                            <div class="row mb-3" ng-if="currentItem.slot == 14 || currentItem.slot == 15">
-                                <div class="col-12">
-                                    <select class="custom-select" ng-model="$parent.$parent.wieldSlotFilter" ng-change="filterSearchResults()" ng-init="$parent.$parent.wieldSlotFilter = '0'">
-                                        <option value="0">Wield, Hold, &amp; Shield slots</option>
-                                        <option value="1">Wield slot only</option>
-                                        <option value="2">Hold slot only</option>
-                                        <option value="3">Shield slot only</option>
-                                    </select>
+                            <div class="row mb-3">
+								<!-- <div class="col-auto">
+									<div class="input-group input-group-sm">
+										<div class="input-group-prepend">
+											<span class="input-group-text">Rows Per Page</span>
+										</div>
+										<select class="custom-select"
+											ng-model="itemsPerPage"
+											ng-options="o as o for o in itemsPerPageOptions"
+											ng-change="saveClientSideData()"></select>
+									</div>
+                                </div> -->
+                                <div class="col-auto" ng-if="currentItem.slot == 14 || currentItem.slot == 15">
+									<div class="input-group input-group-sm">
+										<div class="input-group-prepend">
+											<span class="input-group-text">Slot Filter</span>
+										</div>
+										<select class="custom-select" ng-model="$parent.$parent.wieldSlotFilter" ng-change="filterSearchResults()" ng-init="$parent.$parent.wieldSlotFilter = '0'">
+											<option value="0">Wield, Hold, &amp; Shield slots</option>
+											<option value="1">Wield slot only</option>
+											<option value="2">Hold slot only</option>
+											<option value="3">Shield slot only</option>
+										</select>
+									</div>
                                 </div>
                             </div>
 							<div class="row">
@@ -422,7 +438,7 @@
                                 </tbody>
                             </table>
                         </div>
-						<button class="btn btn-primary float-right" type="button" ng-click="onImportSubmitClicked()">Yes</button>
+						<button class="btn btn-primary float-right" type="button" ng-click="onImportSubmitClicked()" ng-disabled="!importModel.exists">Yes</button>
 					</div>
 				</div>
 			</div>
