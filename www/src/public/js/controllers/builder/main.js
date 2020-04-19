@@ -3,7 +3,6 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
     /** Initializes the controller. */
 	$scope.initialize = function() {
-        $scope.initiallyLoaded = false;
 		$scope.slots = itemConstants.selectShortOptions.slot;
         $scope.selectShortOptions = itemConstants.selectShortOptions;
 
@@ -66,17 +65,8 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
             $scope.defaultStatInfo = angular.copy($scope.statInfo);
 
             $scope.itemFragment = response.data.data.getItemFragment;
-            loadClientSideData();
+            $timeout(loadClientSideData());
         });
-        //$q.all([getStatCategories(), getStatInfo()]).then(
-            //function(data) {
-                //$scope.statCategories = data[0];
-                //$scope.statInfo = data[1]
-                //$scope.defaultStatInfo = angular.copy(data[1])
-
-                //loadClientSideData();
-            //}
-        //);
     };
 
     /**
@@ -314,6 +304,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 		}
 
 		if (ids.length > 0) {
+            $timeout(function() {
             getItemsInId(ids).then(
                 function(data) {
                     for (var i = 0; i < list.items.length; ++i) {
@@ -332,18 +323,15 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
                         }
                     }
 
-                    applyItemRestrictions(); // to apply restrictions
-                    $scope.initiallyLoaded = true;
+                        applyItemRestrictions();
                 }
             );
+            });
 		}
-        else {
-            $scope.initiallyLoaded = true;
-        }
 		applyItemRestrictions(); // to apply restrictions
 
 		$scope.characterName = list.name;
-		$scope.saveClientSideData();
+        $timeout($scope.saveClientSideData());
     };
 
     /**
@@ -419,6 +407,8 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
         else {
             selectListByName();
         }
+
+        $timeout($scope.loadItemsForAllSlotsAsync());
 	};
 
     /**
@@ -592,6 +582,32 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
 		$('#itemChoiceModal').modal();
 	};
+
+    $scope.loadItemsForAllSlotsAsync = function() {
+        for (var j = 0; j < $scope.slots.length; ++j) {
+            getItemsBySlotAsync(j).then(
+                (function(slot) {
+                    return function(data) {
+                        // force the items coming in to be the slot we want (for weapons/hold slot shenanigans)
+                        for (var i = 0; i < data.length; ++i) {
+                            data[i].realSlot = data[i].slot;
+                            data[i].slot = slot;
+                        }
+
+                        $scope.itemsBySlot[slot] = data;
+                        $scope.itemsBySlot[slot].splice(0, 0,
+                            {
+                                "realSlot": -1,
+                                "slot": slot,
+                                "id": 0,
+                                "name": "-"
+                            }
+                        );
+                    }
+                })(j)
+            );
+        }
+    };
 
     /**
      * Event for when the lock button is clicked.
