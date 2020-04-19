@@ -1,4 +1,4 @@
-app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "itemConstants", function($scope, $cookies, $http, $q, $timeout, itemConstants) {
+function builderController($scope, $cookies, $http, $q, $timeout, itemConstants, encoder) {
 	//#region ~~~~~~~~~ INITIALIZATION ~~~~~~~~~
 
     /** Initializes the controller. */
@@ -264,7 +264,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     /**
      * Selects a character list via the index of the list in the array.
      *
-     * @param {int} index - The index of the list in the character list array.
+     * @param {number} index - The index of the list in the character list array.
      */
     var selectListByIndex = function(index, variantIndex = 0) {
         $scope.selectedListIndex = index;
@@ -275,8 +275,8 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     /**
      * Selects a character variant list via the index of both the list and variant in the arrays.
      *
-     * @param {int} listIndex - The index of the list in the character list array.
-     * @param {int} variantIndex - The index of the variant in the variant array of the character list.
+     * @param {number} listIndex - The index of the list in the character list array.
+     * @param {number} variantIndex - The index of the variant in the variant array of the character list.
      */
     var selectListVariantByIndex = function(listIndex, variantIndex) {
         $scope.selectedListVariantIndex = variantIndex;
@@ -552,7 +552,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      * Event for when a row is clicked in the builder.
      * Opens the item search modal
      *
-     * @param {int} index - the index of the item slot.
+     * @param {number} index - the index of the item slot.
      */
 	$scope.onRowClicked = function(index) {
 		var item = $scope.selectedList.items[index];
@@ -598,7 +598,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      * Used on each row of the builder and in
      * the item search modal.
      *
-     * @param {int} index - the index of the item slot.
+     * @param {number} index - the index of the item slot.
      */
     $scope.onRowLockClicked = function(index) {
         var item = $scope.selectedList.items[index];
@@ -801,7 +801,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     /**
      * Gets the items for a specified slot
      *
-     * @param {int} slot - the slot you want to get items for.
+     * @param {number} slot - the slot you want to get items for.
      * @return {Promise} the promise containing the items.
      */
     var getItemsBySlotAsync = function(slot) {
@@ -851,7 +851,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     /**
      * Event for when a particular page button is clicked in pagination.
      *
-     * @param {int} num - the page number that was clicked.
+     * @param {number} num - the page number that was clicked.
      */
 	$scope.onPageClicked = function(num) {
 		$scope.currentPage = num + 1;
@@ -1097,7 +1097,6 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     /** Closes the confirm modal and calls the confirm callback. */
 	$scope.confirm = function() {
 		$scope.confirmFunc();
-
 		$("#confirmModal").modal("hide");
 	};
 
@@ -1232,7 +1231,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
     /** Calculates the total from stat quests for a given stat.
      *
      * @param {string} statName - the variable name of the stat to be totalled.
-     * @return {int} the total acquired via stat quests.
+     * @return {number} the total acquired via stat quests.
      */
     var getTotalFromStatQuests = function(statName) {
         var fromStatQuests = 0;
@@ -1336,7 +1335,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      * WARNING: be careful of stack overflow errors when calling getStatTotal in here.
      *
      * @param {string} statName - the variable name of the stat to be totalled.
-     * @return {int} the total bonuses gained from other stats.
+     * @return {number} the total bonuses gained from other stats.
      */
     var getTotalFromStatBonuses = function(statName) {
         var fromBonus = 0;
@@ -1435,8 +1434,8 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      * Gets the bonus that should be applied to the stat total.
      *
      * @param {string} statName - the variable name of the stat to get the total bonus for.
-     * @param {int} curTotal - the current total for the stat.
-     * @return {int} the bonus amount based on the current total.
+     * @param {number} curTotal - the current total for the stat.
+     * @return {number} the bonus amount based on the current total.
      */
     var getStatTotalBonus = function(statName, curTotal) {
         switch (statName) {
@@ -1458,7 +1457,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      * Gets the max total from items for a given stat.
      *
      * @param {string} statName - the variable name of the stat to get the max item total for.
-     * @return {int} the max total a stat can gain from items.
+     * @return {number} the max total a stat can gain from items.
      */
     var getItemTotalMax = function(statName) {
         var max = null;
@@ -1484,7 +1483,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      * Gets the max total for a given stat.
      *
      * @param {string} statName - the variable name of the stat to get the max total for.
-     * @return {int} the max total for the given stat.
+     * @return {number} the max total for the given stat.
      */
     var getStatTotalMax = function(statName) {
     	var max = null;
@@ -1528,7 +1527,7 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
      * Gets the min total for a given stat.
      *
      * @param {string} statName - the variable name of the stat to get the min total for.
-     * @return {int} the min total for the given stat.
+     * @return {number} the min total for the given stat.
      */
     var getStatTotalMin = function(statName) {
         var min = null;
@@ -1906,4 +1905,8 @@ app.controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "ite
 	};
 
 	$scope.initialize();
-}]);
+};
+
+angular
+    .module("legendwiki-app")
+    .controller('builder', ["$scope", "$cookies", "$http", "$q", "$timeout", "itemConstants", "encoder", builderController]);
