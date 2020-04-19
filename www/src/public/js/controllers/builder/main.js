@@ -7,6 +7,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
         $scope.selectShortOptions = itemConstants.selectShortOptions;
 
 		$scope.itemsPerPage = 20;
+        $scope.itemsPerPageOptions = [20, 50, 100, 200, 500, 1000];
 
 		$scope.slotOrder = [0,1,1,2,2,3,4,5,6,7,8,9,11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21];
 		$scope.longhouseList = ["Bear -- ( spi - min )",
