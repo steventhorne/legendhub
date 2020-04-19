@@ -6,7 +6,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 		$scope.slots = itemConstants.selectShortOptions.slot;
         $scope.selectShortOptions = itemConstants.selectShortOptions;
 
-		$scope.itemsPerPage = 20;
+        $scope.itemsPerPage = 20;
         $scope.itemsPerPageOptions = [20, 50, 100, 200, 500, 1000];
 
 		$scope.slotOrder = [0,1,1,2,2,3,4,5,6,7,8,9,11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21];
@@ -125,16 +125,38 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
     /**
      * Loads the users lists from the cookie
      *
-     * @param {string} listCookie - the cookie string that contains the saved lists.
      * @return {array} The array of character lists.
      */
-    var loadCharacterLists = function(listCookie) {
+    var loadCharacterLists = function() {
         var lists = [];
 
-        if (listCookie) {
-			var listStrs = listCookie.split("*").filter(function(el) {return el.length != 0});
+        // load lists
+		if ($cookies.get("cookie-consent")) {
+            var listVersion = -1;
+            var listCookieStr = localStorage.getItem("cl2");
+            if (listCookieStr) {
+                listVersion = 2;
+            }
+            else {
+                var listCookieStr = localStorage.getItem("cl");
+                if (!listCookieStr) {
+                    listCookieStr = $cookies.get("cl1");
+                }
+                listVersion = 1;
+            }
+
+            var listStrs = listCookieStr.split("*").filter(function(el) {return el.length != 0});
 			for (var i = 0; i < listStrs.length; ++i) {
-				var newList = createListFromString(listStrs[i]);
+                switch (listVersion) {
+                    case 1:
+                        var newList = createListFromString(listStrs[i]);
+                        break;
+                    case 2:
+                        var newList = createListFromStringV2(listStrs[i]);
+                        break;
+                    default:
+                        break;
+                }
 
                 var found = false;
                 for (let j = 0; j < lists.length; ++j) {
@@ -152,7 +174,9 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
                 foundList.variants.push(newList.variants[0]);
 			}
-		}
+        }
+
+        console.log("Lists loaded using version", listVersion);
 
         return lists;
     };
@@ -216,6 +240,77 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
         }
 
         return {name: name, variants: [newList]};
+    };
+
+    var createListFromStringV2 = function(listStr) {
+        var index = listStr.indexOf('~');
+        var name = listStr.slice(0, index);
+        listStr = listStr.substring(++index);
+
+        index = listStr.indexOf('~');
+        var variantName = listStr.slice(0, index);
+        listStr = listStr.substring(++index);
+
+        var baseStats = {};
+        var statList = ["strength", "mind", "dexterity", "constitution", "perception", "spirit"];
+        for (var i = 0; i < statList.length; ++i) {
+            baseStats[statList[i]] = encoder.toNumber(listStr.slice(0,2));
+            listStr = listStr.substring(2);
+        }
+
+        if (statList[0] === '_')
+            baseStats.longhouse = -1;
+        else
+            baseStats.longhouse = encoder.toNumber(listStr.slice(0,1));
+        listStr = listStr.substring(1);
+
+        if (statList[0] === '_')
+            baseStats.amulet = -1;
+        else
+            baseStats.amulet = encoder.toNumber(listStr.slice(0,1));
+        listStr = listStr.substring(1);
+
+        var items = [];
+        var itemIndex = 0;
+        while (listStr.length > 0) {
+            if (listStr[0] === '_') {
+                items.push({
+                    id: 0,
+                    slot: $scope.slotOrder[itemIndex],
+                    locked: false
+                });
+                listStr = listStr.substring(1);
+            }
+            else {
+                if (listStr[0] === '.') {
+                    items.push({
+                        id: encoder.toNumber(listStr.slice(1,4)),
+                        slot: $scope.slotOrder[itemIndex],
+                        locked: true
+                    });
+                    listStr = listStr.substring(4);
+                }
+                else {
+                    items.push({
+                        id: encoder.toNumber(listStr.slice(0,3)),
+                        slot: $scope.slotOrder[itemIndex],
+                        locked: false
+                    });
+                    listStr = listStr.substring(3);
+                }
+            }
+
+            itemIndex++;
+        }
+
+        return {
+            name: name,
+            variants: [{
+                name: variantName,
+                baseStats: baseStats,
+                items: items
+            }]
+        };
     };
 
     /**
@@ -306,32 +401,32 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
 		if (ids.length > 0) {
             $timeout(function() {
-            getItemsInId(ids).then(
-                function(data) {
-                    for (var i = 0; i < list.items.length; ++i) {
-                        for (var j = 0; j < data.length; ++j) {
-                            if (list.items[i].id == data[j].id) {
-                                var isLocked = list.items[i].locked;
-                                list.items[i] = angular.copy(data[j]);
-                                list.items[i].locked = isLocked;
-                                list.items[i].slot = $scope.slotOrder[i];
-                                break;
+                getItemsInId(ids).then(
+                    function(data) {
+                        for (var i = 0; i < list.items.length; ++i) {
+                            for (var j = 0; j < data.length; ++j) {
+                                if (list.items[i].id == data[j].id) {
+                                    var isLocked = list.items[i].locked;
+                                    list.items[i] = angular.copy(data[j]);
+                                    list.items[i].locked = isLocked;
+                                    list.items[i].slot = $scope.slotOrder[i];
+                                    break;
+                                }
+                            }
+    
+                            if (list.items[i].name == "Loading...") {
+                                list.items[i].name = "DELETED";
                             }
                         }
-
-                        if (list.items[i].name == "Loading...") {
-                            list.items[i].name = "DELETED";
-                        }
-                    }
-
+    
                         applyItemRestrictions();
-                }
-            );
+                    }
+                );
             });
 		}
 		applyItemRestrictions(); // to apply restrictions
 
-		$scope.characterName = list.name;
+        $scope.characterName = list.name;
         $timeout($scope.saveClientSideData());
     };
 
@@ -369,27 +464,27 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
      * Loads the user data from cookies and local storage
      */
 	var loadClientSideData = function() {
+        var cookieConsent = $cookies.get("cookie-consent");
+
 		// remove old cookies
-		$cookies.remove("sc1", {"path": "/"});
+        $cookies.remove("sc1", {"path": "/"});
+        
+        if (cookieConsent) {
+            console.log($cookies.get("ipp"));
+            $scope.itemsPerPage = Number($cookies.get("ipp") || "20");
+        }
 
 		// load columns
-		if ($cookies.get("cookie-consent")) {
+		if (cookieConsent) {
 			var columnCookie = $cookies.get("sc2");
 		}
         loadSelectedColumns(columnCookie, $scope.statInfo);
 
-		// load lists
-		if ($cookies.get("cookie-consent")) {
-			var listCookieStr = localStorage.getItem("cl");
-			if (!listCookieStr) {
-				listCookieStr = $cookies.get("cl1");
-			}
-		}
-		$scope.allLists = loadCharacterLists(listCookieStr);
+		$scope.allLists = loadCharacterLists();
         $scope.allLists.sort(compareLists);
 
 		// load selected list
-		if ($cookies.get("cookie-consent")) {
+		if (cookieConsent) {
 			var selectedListCookie = localStorage.getItem("scl");
 			if (!selectedListCookie) {
 				selectedListCookie = $cookies.get("scl1");
@@ -421,7 +516,9 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 		}
 		// save columns
 		var cookieDate = new Date();
-		cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+        cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+        
+        $cookies.put("ipp", $scope.itemsPerPage, {path: "/", expires: cookieDate});
 
 		let savedColumns = "";
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
@@ -444,7 +541,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
             }
         }
 
-		localStorage.setItem("cl", listCookieStr);
+		localStorage.setItem("cl2", listCookieStr);
 		localStorage.setItem("scl", $scope.allLists[$scope.selectedListIndex].name + "!" + $scope.selectedList.name);
 
 		if ($cookies.get("cl1")) {
@@ -454,21 +551,30 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 	};
 
     var createStringFromList = function(listName, list) {
-        var listCookieStr = listName + "!" + list.name + "_";
-        listCookieStr += list.baseStats.strength + "_";
-        listCookieStr += list.baseStats.mind + "_";
-        listCookieStr += list.baseStats.dexterity + "_";
-        listCookieStr += list.baseStats.constitution + "_";
-        listCookieStr += list.baseStats.perception + "_";
-        listCookieStr += list.baseStats.spirit + "_";
-        listCookieStr += list.baseStats.longhouse + "_";
-        listCookieStr += list.baseStats.amulet;
+        var listCookieStr = listName + "~" + list.name + "~";
+        listCookieStr += encoder.fromNumber(list.baseStats.strength,2);
+        listCookieStr += encoder.fromNumber(list.baseStats.mind,2);
+        listCookieStr += encoder.fromNumber(list.baseStats.dexterity,2);
+        listCookieStr += encoder.fromNumber(list.baseStats.constitution,2);
+        listCookieStr += encoder.fromNumber(list.baseStats.perception,2);
+        listCookieStr += encoder.fromNumber(list.baseStats.spirit,2);
+
+        if (list.baseStats.longhouse >= 0)
+            listCookieStr += encoder.fromNumber(list.baseStats.longhouse,1);
+        else
+            listCookieStr += "_";
+
+        if (list.baseStats.amulet >= 0)
+            listCookieStr += encoder.fromNumber(list.baseStats.amulet,1);
+        else
+            listCookieStr += "_";
+            
         for (let k = 0; k < list.items.length; ++k) {
             if (list.items[k].id) {
-                listCookieStr += "_" + (list.items[k].locked ? "!" : "") + list.items[k].id;
+                listCookieStr += (list.items[k].locked ? "." : "") + encoder.fromNumber(list.items[k].id,3);
             }
             else {
-                listCookieStr += "_0";
+                listCookieStr += "_";
             }
         }
 
@@ -537,7 +643,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
 		applyItemRestrictions();
 		$scope.saveClientSideData();
-	};
+    };
 
     /**
      * Event for when a row is clicked in the builder.
@@ -553,7 +659,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 		$scope.sortStat = "";
 		$scope.sortDir = "";
 		$scope.currentItem = item;
-		$scope.currentItemIndex = index;
+        $scope.currentItemIndex = index;
 
 		if ($scope.itemsBySlot[item.slot].length == 0) {
 			$scope.loadingModal = true;
@@ -579,11 +685,11 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 				    $scope.filterSearchResults();
                 }
             );
-		}
+        }
 
 		$('#itemChoiceModal').modal();
-	};
-
+    };
+    
     $scope.loadItemsForAllSlotsAsync = function() {
         for (var j = 0; j < $scope.slots.length; ++j) {
             getItemsBySlotAsync(j).then(
@@ -648,10 +754,12 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
     $scope.onImportInputChanged = function() {
         $scope.importModel.lists = [];
         $scope.importModel.loading = true;
+        $scope.importModel.message = "";
+        $scope.importModel.exists = false;
         if ($scope.importModel.input) {
 			var listStrs = $scope.importModel.input.split("*").filter(function(el) {return el.length != 0});;
 			for (let i = 0; i < listStrs.length; ++i) {
-				var newList = createListFromString(listStrs[i]);
+				var newList = createListFromStringV2(listStrs[i]);
 
                 // check if list exists
                 for (let j = 0; j < $scope.allLists.length; ++j) {
@@ -674,6 +782,9 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
         if ($scope.importModel.lists.filter(l => l.exists).length > 0) {
             $scope.importModel.exists = true;
             $scope.importModel.message = "The following lists already exist and will be overwritten unless otherwise specified:";
+        }
+        else if ($scope.importModel.input && $scope.importModel.lists.length === 0) {
+            $scope.importModel.message = "Invalid list import string.";
         }
 
         $scope.importModel.loading = false;
@@ -1113,8 +1224,8 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
     /** Closes the confirm modal and calls the confirm callback. */
 	$scope.confirm = function() {
-		$scope.confirmFunc();
-		$("#confirmModal").modal("hide");
+        $scope.confirmFunc();
+        $("#confirmModal").modal("hide");
 	};
 
     /** Deletes all lists. */

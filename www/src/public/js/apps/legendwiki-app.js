@@ -532,3 +532,50 @@ app.directive('lhPopover', function($compile) {
         }
     };
 });
+
+app.factory('encoder', [function() {
+	var rixits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	
+	return {
+		fromNumber : function(number, minLength) {
+			if (isNaN(Number(number)) || number === null
+				|| number === Number.POSITIVE_INFINITY
+			  || number === Number.NEGATIVE_INFINITY)
+				  throw "The input is not valid";
+			var negative = number < 0;
+			number = Math.abs(number);
+	
+			var rixit;
+			var residual = Math.floor(number);
+			var result = '';
+			while (true) {
+				rixit = residual % rixits.length;
+				result = rixits.charAt(rixit) + result;
+				residual = Math.floor(residual / rixits.length);
+	
+				if (residual == 0)
+					break;
+			}
+			while (minLength != null && result.length < minLength)
+				result = '0' + result;
+			if (negative)
+				result = '-' + result;
+			return result;
+		},
+		toNumber : function(r) {
+			var result = 0;
+			r = r.split('');
+			var negative = r[0] == '-';
+			if (negative)
+				r.shift();
+			
+			for (var e = 0; e < r.length; e++)
+				result = (result * rixits.length) + rixits.indexOf(r[e]);
+
+			if (negative) 
+				return result * -1;
+
+			return result;
+		}
+	}
+}]);
