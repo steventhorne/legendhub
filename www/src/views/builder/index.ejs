@@ -58,42 +58,76 @@
 			<div class="col-lg-6 col-12 mb-4">
 				<div class="card border-primary h-100 pb-0">
 					<div class="card-header py-2">
-						<h4 class="mb-0">Base Stats</h4>
+						<h4 class="mb-0">Stats</h4>
 					</div>
 					<div class="card-body py-2">
-						<div class="row">
-							<div class="form-group col-4 col-sm-2 text-center">
-								<label class="col-form-label col-form-label-sm" for="strInput">Str</label>
-								<input type="number" id="strInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.strength" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-								<span ng-show="showStatQuests()">3</span>
+						<form name="baseStatsForm">
+							<p class="h5 mb-0">Base</p>
+							<div class="row">
+								<div class="col-4 col-sm-2 text-center">
+									<label class="col-form-label col-form-label-sm" for="strInput">Str</label>
+									<input type="number" id="strInput" name="strInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.strength" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
+									<span ng-show="showStatQuests()">3</span>
+								</div>
+								<div class="col-4 col-sm-2 text-center">
+									<label class="col-form-label col-form-label-sm" for="minInput">Min</label>
+									<input type="number" id="minInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.mind" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
+									<span ng-show="showStatQuests()">3</span>
+								</div>
+								<div class="col-4 col-sm-2 text-center">
+									<label class="col-form-label col-form-label-sm" for="dexInput">Dex</label>
+									<input type="number" id="dexInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.dexterity" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
+									<span ng-show="showStatQuests()">3</span>
+								</div>
+								<div class="col-4 col-sm-2 text-center">
+									<label class="col-form-label col-form-label-sm" for="conInput">Con</label>
+									<input type="number" id="conInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.constitution" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
+									<span ng-show="showStatQuests()">3</span>
+								</div>
+								<div class="col-4 col-sm-2 text-center">
+									<label class="col-form-label col-form-label-sm" for="perInput">Per</label>
+									<input type="number" id="perInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.perception" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
+									<span ng-show="showStatQuests()">3</span>
+								</div>
+								<div class="col-4 col-sm-2 text-center">
+									<label class="col-form-label col-form-label-sm" for="spiInput">Spi</label>
+									<input type="number" id="spiInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.spirit" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
+									<span ng-show="showStatQuests()">13</span>
+								</div>
 							</div>
-							<div class="form-group col-4 col-sm-2 text-center">
-								<label class="col-form-label col-form-label-sm" for="minInput">Min</label>
-								<input type="number" id="minInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.mind" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-								<span ng-show="showStatQuests()">3</span>
+							<p ng-show="baseStatsForm.strInput.$error.total" class="text-danger">Base stats should add up to either 198 or 244.</p>
+						</form>
+						<form name="ksmStatsForm">
+							<p class="h5 mt-3 mb-0">KSM Swap</h5>
+							<div class="row mb-3">
+								<div class="col-4 col-sm-2 text-center">
+									<label class="col-form-label col-form-label-sm" for="ksmStrInput">Str</label>
+									<input type="number" id="ksmStrInput" name="ksmStrInput" class="form-control form-control-sm" ng-model="selectedList.ksmStats.strength" ng-change="onStatChanged()" ng-model-options="{debounce:250}" max="3" min="-3">
+								</div>
+								<div class="col-4 col-sm-2 text-center">
+									<label class="col-form-label col-form-label-sm" for="ksmMinInput">Min</label>
+									<input type="number" id="ksmMinInput" class="form-control form-control-sm" ng-model="selectedList.ksmStats.mind" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
+								</div>
+								<div class="col-4 col-sm-2 text-center">
+									<label class="col-form-label col-form-label-sm" for="ksmDexInput">Dex</label>
+									<input type="number" id="ksmDexInput" class="form-control form-control-sm" ng-model="selectedList.ksmStats.dexterity" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
+								</div>
+								<div class="col-4 col-sm-2 text-center">
+									<label class="col-form-label col-form-label-sm" for="ksmConInput">Con</label>
+									<input type="number" id="ksmConInput" class="form-control form-control-sm" ng-model="selectedList.ksmStats.constitution" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
+								</div>
+								<div class="col-4 col-sm-2 text-center">
+									<label class="col-form-label col-form-label-sm" for="ksmPerInput">Per</label>
+									<input type="number" id="ksmPerInput" class="form-control form-control-sm" ng-model="selectedList.ksmStats.perception" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
+								</div>
+								<div class="col-4 col-sm-2 text-center">
+									<label class="col-form-label col-form-label-sm" for="ksmSpiInput">Spi</label>
+									<input type="number" id="ksmSpiInput" class="form-control form-control-sm" ng-model="selectedList.ksmStats.spirit" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
+								</div>
 							</div>
-							<div class="form-group col-4 col-sm-2 text-center">
-								<label class="col-form-label col-form-label-sm" for="dexInput">Dex</label>
-								<input type="number" id="dexInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.dexterity" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-								<span ng-show="showStatQuests()">3</span>
-							</div>
-							<div class="form-group col-4 col-sm-2 text-center">
-								<label class="col-form-label col-form-label-sm" for="conInput">Con</label>
-								<input type="number" id="conInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.constitution" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-								<span ng-show="showStatQuests()">3</span>
-							</div>
-							<div class="form-group col-4 col-sm-2 text-center">
-								<label class="col-form-label col-form-label-sm" for="perInput">Per</label>
-								<input type="number" id="perInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.perception" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-								<span ng-show="showStatQuests()">3</span>
-							</div>
-							<div class="form-group col-4 col-sm-2 text-center">
-								<label class="col-form-label col-form-label-sm" for="spiInput">Spi</label>
-								<input type="number" id="spiInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.spirit" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-								<span ng-show="showStatQuests()">13</span>
-							</div>
-						</div>
-						<p ng-show="showStatError" class="text-danger">Base stats should add up to either 198 or 244.</p>
+							<p ng-show="ksmStatsForm.ksmStrInput.$error.balanced" class="text-danger">Total KSM stats must equal zero.</p>
+							<p ng-show="ksmStatsForm.ksmStrInput.$error.max" class="text-danger">You can only swap stats a maximum of three times.</p>
+						</form>
 						<div class="row">
 							<div class="input-group input-group-sm col-12 col-sm-6 mb-3 mb-sm-0">
 								<div class="input-group-prepend">
