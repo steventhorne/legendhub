@@ -223,6 +223,15 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
         newList.baseStats.amulet = Number(each[0]);
         each.shift();
 
+        newList.ksmStats = {
+            strength: 0,
+            mind: 0,
+            dexterity: 0,
+            constitution: 0,
+            perception: 0,
+            spirit: 0
+        };
+
         // items
         newList.items = [];
         for (var j = 0; j < each.length; ++j) {
@@ -253,9 +262,18 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
         var baseStats = {};
         var statList = ["strength", "mind", "dexterity", "constitution", "perception", "spirit"];
+        var takeAmt;
         for (var i = 0; i < statList.length; ++i) {
-            baseStats[statList[i]] = encoder.toNumber(listStr.slice(0,2));
-            listStr = listStr.substring(2);
+            takeAmt = listStr[0] === '-' ? 3 : 2;
+            baseStats[statList[i]] = encoder.toNumber(listStr.slice(0,takeAmt));
+            listStr = listStr.substring(takeAmt);
+        }
+
+        var ksmStats = {};
+        for (var i = 0; i < statList.length; ++i) {
+            takeAmt = listStr[0] === '-' ? 2 : 1;
+            ksmStats[statList[i]] = encoder.toNumber(listStr.slice(0,takeAmt));
+            listStr = listStr.substring(takeAmt);
         }
 
         if (statList[0] === '_')
@@ -308,6 +326,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
             variants: [{
                 name: variantName,
                 baseStats: baseStats,
+                ksmStats: ksmStats,
                 items: items
             }]
         };
@@ -420,11 +439,13 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
                         }
     
                         applyItemRestrictions();
+                        $scope.onStatChanged();
                     }
                 );
             });
-		}
-		applyItemRestrictions(); // to apply restrictions
+        }
+        applyItemRestrictions(); // to apply restrictions
+        $scope.onStatChanged();
 
         $scope.characterName = list.name;
         $timeout($scope.saveClientSideData());
@@ -559,6 +580,13 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
         listCookieStr += encoder.fromNumber(list.baseStats.perception,2);
         listCookieStr += encoder.fromNumber(list.baseStats.spirit,2);
 
+        listCookieStr += encoder.fromNumber(list.ksmStats.strength,1);
+        listCookieStr += encoder.fromNumber(list.ksmStats.mind,1);
+        listCookieStr += encoder.fromNumber(list.ksmStats.dexterity,1);
+        listCookieStr += encoder.fromNumber(list.ksmStats.constitution,1);
+        listCookieStr += encoder.fromNumber(list.ksmStats.perception,1);
+        listCookieStr += encoder.fromNumber(list.ksmStats.spirit,1);
+
         if (list.baseStats.longhouse >= 0)
             listCookieStr += encoder.fromNumber(list.baseStats.longhouse,1);
         else
@@ -627,19 +655,44 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
     /** Event for when a stat is changed in the view. */
 	$scope.onStatChanged = function() {
 		// check stat total
-		$scope.showStatError = false;
+        $scope.baseStatsForm.strInput.$setValidity("total", true);
 		if ($scope.selectedList.baseStats) {
 			var total = $scope.selectedList.baseStats.strength + $scope.selectedList.baseStats.mind + $scope.selectedList.baseStats.dexterity + $scope.selectedList.baseStats.constitution + $scope.selectedList.baseStats.perception + $scope.selectedList.baseStats.spirit;
 
 			if (total != 198 && total != 244) {
-				$scope.showStatError = true;
+				$scope.baseStatsForm.strInput.$setValidity("total", false);
 			}
 
             if (total === 244) {
                 $scope.selectedList.baseStats.longhouse = -1;
                 $scope.selectedList.baseStats.amulet = -1;
             }
-		}
+        }
+        
+        $scope.ksmStatsForm.ksmStrInput.$setValidity("balanced", true);
+        $scope.ksmStatsForm.ksmStrInput.$setValidity("max", true);
+        if ($scope.selectedList.ksmStats) {
+            var total = $scope.selectedList.ksmStats.strength +
+            $scope.selectedList.ksmStats.mind +
+            $scope.selectedList.ksmStats.dexterity +
+            $scope.selectedList.ksmStats.constitution +
+            $scope.selectedList.ksmStats.perception +
+            $scope.selectedList.ksmStats.spirit;
+            if (total !== 0) {
+                $scope.ksmStatsForm.ksmStrInput.$setValidity("balanced", false);
+                console.log($scope.ksmStatsForm.ksmStrInput);
+            }
+            else {
+                total = Math.abs($scope.selectedList.ksmStats.strength) +
+                Math.abs($scope.selectedList.ksmStats.mind) +
+                Math.abs($scope.selectedList.ksmStats.dexterity) +
+                Math.abs($scope.selectedList.ksmStats.constitution) +
+                Math.abs($scope.selectedList.ksmStats.perception) +
+                Math.abs($scope.selectedList.ksmStats.spirit);
+            if (total > 6)
+                $scope.ksmStatsForm.ksmStrInput.$setValidity("max", false);
+            }
+        }
 
 		applyItemRestrictions();
 		$scope.saveClientSideData();
@@ -1364,7 +1417,12 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
     var getTotalFromStatQuests = function(statName) {
         var fromStatQuests = 0;
 
-		var totalBaseStats = $scope.selectedList.baseStats.strength + $scope.selectedList.baseStats.mind + $scope.selectedList.baseStats.dexterity + $scope.selectedList.baseStats.constitution + $scope.selectedList.baseStats.perception + $scope.selectedList.baseStats.spirit;
+        var totalBaseStats = $scope.selectedList.baseStats.strength +
+            $scope.selectedList.baseStats.mind +
+            $scope.selectedList.baseStats.dexterity +
+            $scope.selectedList.baseStats.constitution +
+            $scope.selectedList.baseStats.perception +
+            $scope.selectedList.baseStats.spirit;
 
         switch (statName) {
 			case "strength":
@@ -1711,7 +1769,13 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 		var fromBaseStats = 0;
 		if ($scope.selectedList.baseStats[statName]) {
 			fromBaseStats += $scope.selectedList.baseStats[statName];
-		}
+        }
+        
+        // KSM stat swap
+        var fromKSMStats = 0;
+        if ($scope.selectedList.ksmStats[statName]) {
+            fromKSMStats += $scope.selectedList.ksmStats[statName];
+        }
 
         // Stat quests
 		var fromStatQuests = getTotalFromStatQuests(statName);
@@ -1749,7 +1813,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 		var fromBonus = getTotalFromStatBonuses(statName);
 
         // sum up the different sections
-		var total = fromBaseStats + fromStatQuests + fromItems + fromSpells + fromBonus;
+		var total = fromBaseStats + fromKSMStats + fromStatQuests + fromItems + fromSpells + fromBonus;
 
         // apply total bonuses
         total += getStatTotalBonus(statName, total);
