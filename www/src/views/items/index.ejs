@@ -85,7 +85,7 @@
                                                     let stat = vm.itemStatInfo[j];
                                                 %>
                                                 <% if (stat.var === "name") { %>
-                                                <td class="text-primary font-weight-bold" ng-if="showColumn('<%- stat.short %>', <%- vm.selectedColumns.includes(stat.short) %>)"<%- vm.selectedColumns.includes(stat.short) ? '' : ' ng-cloak' %>>
+                                                <td class="text-primary font-weight-bold text-nowrap" ng-if="showColumn('<%- stat.short %>', <%- vm.selectedColumns.includes(stat.short) %>)"<%- vm.selectedColumns.includes(stat.short) ? '' : ' ng-cloak' %>>
                                                 <% } else if (stat.var === "alignRestriction") { %>
                                                 <td class="text-center text-monospace" ng-if="showColumn('<%- stat.short %>', <%- vm.selectedColumns.includes(stat.short) %>)"<%- vm.selectedColumns.includes(stat.short) ? '' : ' ng-cloak' %>>
                                                 <% } else { %>
