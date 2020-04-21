@@ -80,7 +80,8 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 		list.name = name;
 
 		// base stats
-		list.baseStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0, "longhouse": -1, "amulet": -1};
+        list.baseStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0, "longhouse": -1, "amulet": -1};
+        list.ksmStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0};
 
 		// items
 		list.items = [];
@@ -491,7 +492,6 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
         $cookies.remove("sc1", {"path": "/"});
         
         if (cookieConsent) {
-            console.log($cookies.get("ipp"));
             $scope.itemsPerPage = Number($cookies.get("ipp") || "20");
         }
 
