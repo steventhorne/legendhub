@@ -49,6 +49,7 @@
                 let initialize = function() {
                     <%_if (vm.changelog) {%>
                         $scope.changelog = {
+                            id:<%-vm.changelog.id%>,
                             version:"<%-vm.changelog.version.replace(/"/g, "\\\"")%>",
                             notes:"<%-vm.changelog.notes.replace(/\\/g,"\\\\").replace(/"/g,"\\\"").replace(/\n/g,"\\n")%>"
                         };
