@@ -200,22 +200,22 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
         // base stats
         newList.baseStats = {};
-        newList.baseStats.strength = Number(each[0]);
+        newList.baseStats.strength = each[0] == 'NaN' ? 0 : Number(each[0]);
         each.shift();
 
-        newList.baseStats.mind = Number(each[0]);
+        newList.baseStats.mind = each[0] == 'NaN' ? 0 : Number(each[0]);
         each.shift();
 
-        newList.baseStats.dexterity = Number(each[0]);
+        newList.baseStats.dexterity = each[0] == 'NaN' ? 0 : Number(each[0]);
         each.shift();
 
-        newList.baseStats.constitution = Number(each[0]);
+        newList.baseStats.constitution = each[0] == 'NaN' ? 0 : Number(each[0]);
         each.shift();
 
-        newList.baseStats.perception = Number(each[0]);
+        newList.baseStats.perception = each[0] == 'NaN' ? 0 : Number(each[0]);
         each.shift();
 
-        newList.baseStats.spirit = Number(each[0]);
+        newList.baseStats.spirit = each[0] == 'NaN' ? 0 : Number(each[0]);
         each.shift();
 
         newList.baseStats.longhouse = Number(each[0]);
