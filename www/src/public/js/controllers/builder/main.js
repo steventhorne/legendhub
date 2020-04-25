@@ -255,10 +255,17 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
     var createListFromStringV2 = function(listStr) {
         var index = listStr.indexOf('~');
         var name = listStr.slice(0, index);
+        if (!(/^[A-Za-z\s\d]+$/).test(name)) {
+            throw "Invalid list.";
+        }
+
         listStr = listStr.substring(++index);
 
         index = listStr.indexOf('~');
         var variantName = listStr.slice(0, index);
+        if (!(/^[A-Za-z\s\d]+$/).test(variantName)) {
+            throw "Invalid list.";
+        }
         listStr = listStr.substring(++index);
 
         var baseStats = {};
@@ -680,7 +687,6 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
             $scope.selectedList.ksmStats.spirit;
             if (total !== 0) {
                 $scope.ksmStatsForm.ksmStrInput.$setValidity("balanced", false);
-                console.log($scope.ksmStatsForm.ksmStrInput);
             }
             else {
                 total = Math.abs($scope.selectedList.ksmStats.strength) +
@@ -812,7 +818,13 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
         if ($scope.importModel.input) {
 			var listStrs = $scope.importModel.input.split("*").filter(function(el) {return el.length != 0});;
 			for (let i = 0; i < listStrs.length; ++i) {
-				var newList = createListFromStringV2(listStrs[i]);
+                var newList;
+                try {
+                    newList = createListFromStringV2(listStrs[i]);
+                }
+                catch (e) {
+                    newList = createListFromString(listStrs[i]);
+                }
 
                 // check if list exists
                 for (let j = 0; j < $scope.allLists.length; ++j) {
