@@ -2,7 +2,13 @@
 <html lang="en">
 <head>
     <%-include("../shared/meta")-%>
-    <link href="https://www.legendhub.org/builder/index.html" rel="canonical">
+	<link href="https://www.legendhub.org/builder/index.html" rel="canonical">
+	<style>
+		.multiline-tooltip .tooltip-inner {
+			white-space: pre;
+			max-width: none;
+		}
+	</style>
 </head>
 <body ng-app="legendwiki-app" ng-controller="builder">
     <%-include("../shared/header")-%>
@@ -67,32 +73,32 @@
 								<div class="col-4 col-sm-2 text-center">
 									<label class="col-form-label col-form-label-sm" for="strInput">Str</label>
 									<input type="number" id="strInput" name="strInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.strength" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-									<span ng-show="showStatQuests()">3</span>
+									<span ng-show="showStatQuests()">3&nbsp;<i class="far fa-question-circle" data-toggle="tooltip" data-placement="bottom" data-container=".multiline-tooltip" data-html="true" title="<div><span>...has been rewarded for aiding a goddess!</span></div>" lh-tooltip></i></span>
 								</div>
 								<div class="col-4 col-sm-2 text-center">
 									<label class="col-form-label col-form-label-sm" for="minInput">Min</label>
 									<input type="number" id="minInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.mind" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-									<span ng-show="showStatQuests()">3</span>
+									<span ng-show="showStatQuests()">3&nbsp;<i class="far fa-question-circle" data-toggle="tooltip" data-placement="bottom" data-container=".multiline-tooltip" data-html="true" title="<div><span>...is smarter than the average Cyclops!</span></div>" lh-tooltip></i></span>
 								</div>
 								<div class="col-4 col-sm-2 text-center">
 									<label class="col-form-label col-form-label-sm" for="dexInput">Dex</label>
 									<input type="number" id="dexInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.dexterity" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-									<span ng-show="showStatQuests()">3</span>
+									<span ng-show="showStatQuests()">3&nbsp;<i class="far fa-question-circle" data-toggle="tooltip" data-placement="bottom" data-container=".multiline-tooltip" data-html="true" title="<div><span>...has bested the tricks and traps on the island of Circe!</span></div>" lh-tooltip></i></span>
 								</div>
 								<div class="col-4 col-sm-2 text-center">
 									<label class="col-form-label col-form-label-sm" for="conInput">Con</label>
 									<input type="number" id="conInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.constitution" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-									<span ng-show="showStatQuests()">3</span>
+									<span ng-show="showStatQuests()">3&nbsp;<i class="far fa-question-circle" data-toggle="tooltip" data-placement="bottom" data-container=".multiline-tooltip" data-html="true" title="<div><span>...has ventured into the Realm of the Dead and returned to tell the tale!</span></div>" lh-tooltip></i></span>
 								</div>
 								<div class="col-4 col-sm-2 text-center">
 									<label class="col-form-label col-form-label-sm" for="perInput">Per</label>
 									<input type="number" id="perInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.perception" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-									<span ng-show="showStatQuests()">3</span>
+									<span ng-show="showStatQuests()">3&nbsp;<i class="far fa-question-circle" data-toggle="tooltip" data-placement="bottom" data-container=".multiline-tooltip" data-html="true" title="<div><span>...drank the nectar of the Black Lotus and lived to tell the tale!</span></div>" lh-tooltip></i></span>
 								</div>
 								<div class="col-4 col-sm-2 text-center">
 									<label class="col-form-label col-form-label-sm" for="spiInput">Spi</label>
 									<input type="number" id="spiInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.spirit" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-									<span ng-show="showStatQuests()">13</span>
+									<span ng-show="showStatQuests()">13&nbsp;<i class="far fa-question-circle" data-toggle="tooltip" data-placement="bottom" data-container=".multiline-tooltip" data-html="true" title="<div><span>...has learned of the art and spirit of music.</span><br><span>...traveled to the Well of Saegais and ate from the magical hazelnut trees.</span></div>" lh-tooltip></i></span>
 								</div>
 							</div>
 							<p ng-show="baseStatsForm.strInput.$error.total" class="text-danger">Base stats should add up to either 198 or 244.</p>
@@ -478,6 +484,7 @@
 			</div>
 		</div>
 	</div>
+	<div class="multiline-tooltip"></div>
     <%-include('../shared/columnsModal')-%>
     <%-include("../shared/footer")-%>
     <%-include("../shared/scripts")-%>
