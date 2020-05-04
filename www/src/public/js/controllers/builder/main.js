@@ -146,35 +146,37 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
                 listVersion = 1;
             }
 
-            var listStrs = listCookieStr.split("*").filter(function(el) {return el.length != 0});
-			for (var i = 0; i < listStrs.length; ++i) {
-                switch (listVersion) {
-                    case 1:
-                        var newList = createListFromString(listStrs[i]);
-                        break;
-                    case 2:
-                        var newList = createListFromStringV2(listStrs[i]);
-                        break;
-                    default:
-                        break;
-                }
-
-                var found = false;
-                for (let j = 0; j < lists.length; ++j) {
-                    if (newList.name === lists[j].name) {
-                        foundList = lists[j];
-                        found = true;
-                        break;
+            if (listCookieStr) {
+                var listStrs = listCookieStr.split("*").filter(function(el) {return el.length != 0});
+                for (var i = 0; i < listStrs.length; ++i) {
+                    switch (listVersion) {
+                        case 1:
+                            var newList = createListFromString(listStrs[i]);
+                            break;
+                        case 2:
+                            var newList = createListFromStringV2(listStrs[i]);
+                            break;
+                        default:
+                            break;
                     }
-                }
 
-                if (!found) {
-                    lists.push({name: newList.name, variants: []});
-                    foundList = lists[lists.length - 1];
-                }
+                    var found = false;
+                    for (let j = 0; j < lists.length; ++j) {
+                        if (newList.name === lists[j].name) {
+                            foundList = lists[j];
+                            found = true;
+                            break;
+                        }
+                    }
 
-                foundList.variants.push(newList.variants[0]);
-			}
+                    if (!found) {
+                        lists.push({name: newList.name, variants: []});
+                        foundList = lists[lists.length - 1];
+                    }
+
+                    foundList.variants.push(newList.variants[0]);
+                }
+            }
         }
 
         console.log("Lists loaded using version", listVersion);
@@ -408,7 +410,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 							if (slotItems[j].id == list.items[i].id) {
 								found = true;
                                 var isLocked = list.items[i].locked;
-								list.items[i] = slotItems[j];
+								list.items[i] = angular.copy(slotItems[j]);
                                 list.items[i].locked = isLocked;
 								break;
 							}
