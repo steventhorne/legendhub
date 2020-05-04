@@ -97,9 +97,9 @@
                  else
                  return "";
                  };%>
+                 <th scope="col" class="text-center" style="width:1%;min-width:150px" ng-click="onColumnHeaderClicked('<%-`${categoryBaseUrl}&sortBy=subcategoryName&sortAsc=${(vm.query.sortBy==="subcategoryName"?!(vm.query.sortAsc==="true"):true)}`%>')" nowrap>Subcategory&nbsp;<i class="<%-sortClass('subcategoryName')%>"></i></th>
                  <th scope="col" class="text-center" ng-click="onColumnHeaderClicked('<%-`${categoryBaseUrl}&sortBy=title&sortAsc=${(vm.query.sortBy==="title"?!(vm.query.sortAsc==="true"):true)}`%>')" nowrap>Title&nbsp;<i class="<%-sortClass('title')%>"></i></th>
                  <th scope="col" class="text-center" ng-click="onColumnHeaderClicked('<%-`${categoryBaseUrl}&sortBy=categoryName&sortAsc=${(vm.query.sortBy==="categoryName"?!(vm.query.sortAsc==="true"):true)}`%>')" nowrap>Category&nbsp;<i class="<%-sortClass('categoryName')%>"></i></th>
-                 <th scope="col" class="text-center" ng-click="onColumnHeaderClicked('<%-`${categoryBaseUrl}&sortBy=subcategoryName&sortAsc=${(vm.query.sortBy==="subcategoryName"?!(vm.query.sortAsc==="true"):true)}`%>')" nowrap>Subcategory&nbsp;<i class="<%-sortClass('subcategoryName')%>"></i></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -110,9 +110,9 @@
                                                     if (!vm.noSearch && vm.results[i].pinnedSearch)
                                                         pinned = true;%>
                                                 <tr ng-click="onWikiClicked('<%-vm.results[i].id%>')">
-                                                    <td scope="row" class="font-weight-bold <%-(pinned ? "text-success":"text-primary")%>"><%-(vm.results[i].locked?"<i class='fas fa-lock'></i>&nbsp;":"")%><%=vm.results[i].title%><a class="float-right" href="/wiki/details.html?id=<%-vm.results[i].id%>" target="_blank" ng-click="$event.stopPropagation()"><i class="fas fa-external-link-alt fa-lg"></i></a></td>
-                                                    <td class="text-center"><%=vm.results[i].categoryName_%></td>
-                                                    <td class="text-center"><%=vm.results[i].subcategoryName_%></td>
+                                                    <td class="text-center text-nowrap px-3"><%=vm.results[i].subcategoryName_%></td>
+                                                    <td scope="row text-nowrap" class="font-weight-bold <%-(pinned ? "text-success":"text-primary")%>"><%-(vm.results[i].locked?"<i class='fas fa-lock'></i>&nbsp;":"")%><%=vm.results[i].title%><a class="float-right" href="/wiki/details.html?id=<%-vm.results[i].id%>" target="_blank" ng-click="$event.stopPropagation()"><i class="fas fa-external-link-alt fa-lg"></i></a></td>
+                                                    <td class="text-center text-nowrap"><%=vm.results[i].categoryName_%></td>
                                                 </tr>
                                                 <%}%>
                                             </tbody>
