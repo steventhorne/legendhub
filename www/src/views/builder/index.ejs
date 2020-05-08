@@ -383,7 +383,7 @@
 									</div>
 									<input name="textInput" id="textInputModalInput" type="text" ng-model="textInputModalModel.input" class="form-control" ng-pattern="textInputModalModel.pattern" ng-change="textInputModalModel.validate()" ng-model-options="{debounce: 250}" />
 									<div class="input-group-append">
-										<button class="btn btn-outline-primary" type="submit" ng-disabled="!textInputModalForm.$valid">Add</button>
+										<button class="btn btn-outline-primary" type="submit" ng-disabled="!textInputModalForm.$valid">{{textInputModalModel.buttonLabel}}</button>
 									</div>
 								</div>
 							</div>

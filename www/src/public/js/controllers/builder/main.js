@@ -1210,6 +1210,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
             title: "Edit Character",
             action: editCharacter,
             label: "Name",
+            buttonLabel: "Save",
             pattern: /^[A-Za-z\s\d]+$/,
             validate: validateEditCharacter,
             input: $scope.allLists[$scope.selectedListIndex].name
@@ -1233,6 +1234,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
             title: "Add Character",
             action: addCharacter,
             label: "Name",
+            buttonLabel: "Add",
             pattern: /^[A-Za-z\s\d]+$/,
             validate: validateAddCharacter,
             input: ""
@@ -1257,6 +1259,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
             title: "Edit Variant",
             action: editVariant,
             label: "Name",
+            buttonLabel: "Save",
             pattern: /^[A-Za-z\s\d]+$/,
             validate: validateEditVariant,
             input: $scope.selectedList.name
@@ -1303,7 +1306,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
     /** Opens the modal for clearing items from a list. */
 	$scope.openClearModal = function() {
-		$scope.confirmMessage = "Are you sure you want to clear all of " + $scope.selectedList.name + "'s items?";
+		$scope.confirmMessage = "Are you sure you want to clear all of " + $scope.selectedList.name + "'s items? Only locked items will remain.";
 
 		$scope.confirmFunc = $scope.clearItemsFromList;
 		$("#confirmModal").modal("show");
