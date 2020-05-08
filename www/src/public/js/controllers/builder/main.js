@@ -577,8 +577,41 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 		if ($cookies.get("cl1")) {
 			$cookies.remove("cl1");
 			$cookies.remove("scl1");
-		}
-	};
+        }
+        
+        $scope.clientSideDataSize = $scope.getClientSideDataSize();
+    };
+    
+    $scope.getClientSideDataSize = function() {
+        var total = 0, len, item;
+        for (item in localStorage) {
+            if (!localStorage.hasOwnProperty(item))
+                continue;
+
+            len = ((localStorage[item].length + item.length) * 2);
+            total += len;
+        }
+        return total;
+    };
+
+    $scope.displayClientSideDataSize = function() {
+        if (!$scope.clientSideDataSize) return "";
+
+        var display = ["Storage Size: "];
+        var label = "B";
+        var size = $scope.clientSideDataSize;
+        var percent = size / 10485760;
+        if (size > 1024) {
+            size = size / 1024;
+            label = "KB";
+            if (size > 1024) {
+                size = size / 1024;
+                label = "MB";
+            }
+        }
+        display.push(size.toFixed(2), label, "/10MB ", percent.toFixed(2), "%");
+        return display.join("");
+    }
 
     var createStringFromList = function(listName, list) {
         var listCookieStr = listName + "~" + list.name + "~";
@@ -647,6 +680,19 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
         $scope.allLists[listIndex].variants.push(variantCopy);
         selectListVariantByIndex(listIndex, $scope.allLists[listIndex].variants.length - 1);
+    };
+
+    $scope.isVariantPrimary = function() {
+        return $scope.selectedListVariantIndex == null || $scope.selectedListVariantIndex === 0;
+    };
+
+    $scope.makeVariantPrimary = function() {
+        var tmp = $scope.allLists[$scope.selectedListIndex].variants[0];
+        $scope.allLists[$scope.selectedListIndex].variants[0] = $scope.allLists[$scope.selectedListIndex].variants[$scope.selectedListVariantIndex];
+        $scope.allLists[$scope.selectedListIndex].variants[$scope.selectedListVariantIndex] = tmp;
+        $scope.selectedListVariantIndex = 0;
+
+        $scope.saveClientSideData();
     };
 	//#endregion
 
