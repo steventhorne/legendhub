@@ -17,34 +17,43 @@
 			<div class="col-lg-6 col-12 mb-4">
 				<div class="card border-primary h-100">
 					<div class="card-header py-2">
-						<h4 class="mb-0">Character</h4>
+						<div class="row  align-items-center justify-content-between">
+							<span class="col-auto h4 mb-0">Character</span><span class="col-auto h6 mb-0" ng-cloak>{{displayClientSideDataSize()}}</span>
+						</div>
 					</div>
-					<div class="card-body py-2">
-						<div class="input-group">
-							<select class="custom-select" ng-model="selectedListIndex" ng-change="onListChanged()">
-								<option ng-if="allLists == null" ng-value="">Loading...</option>
-								<option ng-repeat="list in allLists track by $index" ng-value="$index">{{list.name}}</option>
-							</select>
-							<div class="input-group-append">
-								<button class="btn btn-outline-danger" type="button" ng-click="openDeleteModal()"><i class="fas fa-trash"></i></button>
-								<button class="btn btn-outline-secondary" type="button" ng-click="openEditCharacterModal()"><i class="fas fa-edit"></i></button>
-								<button class="btn btn-outline-success" type="button" ng-click="openAddCharacterModal()"><i class="fas fa-plus"></i></button>
+					<div class="card-body p-3">
+						<div class="row mb-3">
+							<div class="col-12 input-group">
+								<select class="custom-select" ng-model="selectedListIndex" ng-change="onListChanged()">
+									<option ng-if="allLists == null" ng-value="">Loading...</option>
+									<option ng-repeat="list in allLists track by $index" ng-value="$index">{{list.name}}</option>
+								</select>
+								<div class="input-group-append">
+									<button class="btn btn-outline-danger" type="button" ng-click="openDeleteModal()"><i class="fas fa-trash" title="Delete Character"></i></button>
+									<button class="btn btn-outline-secondary" type="button" ng-click="openEditCharacterModal()"><i class="fas fa-edit" title="Edit Character"></i></button>
+									<button class="btn btn-outline-success" type="button" ng-click="openAddCharacterModal()"><i class="fas fa-plus" title="Add Character"></i></button>
+								</div>
 							</div>
 						</div>
-						<br />
-                        <div class="input-group">
-                            <select class="custom-select" ng-model="selectedListVariantIndex" ng-change="onListVariantChanged()">
-								<option ng-if="allLists == null" ng-value="">Loading...</option>
-                                <option ng-repeat="variant in allLists[selectedListIndex].variants track by $index" ng-value="$index">{{variant.name}} Variant</option>
-                            </select>
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-danger" type="button" ng-click="openDeleteVariantModal()"><i class="fas fa-trash"></i></button>
-								<button class="btn btn-outline-secondary" type="button" ng-click="openEditVariantModal()"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-outline-success" type="button" ng-click="addCharacterVariant(selectedListIndex)"><i class="fas fa-clone"></i></button>
-                            </div>
-                        </div>
-                        <br />
-                        <div class="row">
+						<div class="row">
+							<div class="col-12 input-group">
+								<select class="custom-select" ng-model="selectedListVariantIndex" ng-change="onListVariantChanged()">
+									<option ng-if="allLists == null" ng-value="">Loading...</option>
+									<option ng-repeat="variant in allLists[selectedListIndex].variants track by $index" ng-value="$index">{{variant.name}} Variant</option>
+								</select>
+								<div class="input-group-append">
+									<button class="btn btn-outline-danger" type="button" ng-click="openDeleteVariantModal()"><i class="fas fa-trash" title="Delete Variant"></i></button>
+									<button class="btn btn-outline-secondary" type="button" ng-click="openEditVariantModal()"><i class="fas fa-edit" title="Edit Variant"></i></button>
+									<button class="btn btn-outline-success" type="button" ng-click="addCharacterVariant(selectedListIndex)" title="Add Variant"><i class="fas fa-clone"></i></button>
+								</div>
+							</div>
+						</div>
+						<div class="row mt-1" ng-show="!isVariantPrimary()" ng-cloak>
+							<div class="col-12">
+								<button class="btn btn-block btn-outline-primary" ng-click="makeVariantPrimary()">Set Variant as Primary</button>
+							</div>
+						</div>
+                        <div class="row mt-4">
                             <div class="btn-group d-none d-md-flex col" role="group" aria-label="Character Options">
                                 <button type="button" class="btn btn-outline-secondary col" ng-click="onImportClicked()">Import</button>
                                 <button type="button" class="btn btn-outline-secondary col" ng-click="onExportClicked()">Export</button>
@@ -66,9 +75,9 @@
 					<div class="card-header py-2">
 						<h4 class="mb-0">Stats</h4>
 					</div>
-					<div class="card-body py-2">
+					<div class="card-body pb-3 px-3 pt-2">
 						<form name="baseStatsForm">
-							<p class="h5 mb-0">Base</p>
+							<p class="h5 my-0">Base</p>
 							<div class="row">
 								<div class="col-4 col-sm-2 text-center">
 									<label class="col-form-label col-form-label-sm" for="strInput">Str</label>
