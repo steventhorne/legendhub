@@ -80,7 +80,6 @@ let errorFormatFn = function(error) {
 
 module.exports = exgraphql({
     schema: schema,
-    rootValue: root,
     graphiql: true,
     validationRules: [limitMutationRule],
     customFormatErrorFn: errorFormatFn

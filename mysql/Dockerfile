@@ -2,7 +2,8 @@ FROM debian:stretch
 
 WORKDIR /docker-entrypoint-initdb.d
 
-COPY backup.sql /docker-entrypoint-initdb.d/
+COPY Dockerfile backup.sq[l] /docker-entrypoint-initdb.d/
+RUN rm -rf /docker-entrypoint-initdb.d/Dockerfile
 
 RUN groupadd -r mysql && useradd -r -g mysql mysql
 

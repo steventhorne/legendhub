@@ -1,46 +1,23 @@
 # [LegendHUB](https://www.legendhub.org)
 > A resource hub for [LegendMUD](www.legendmud.org).
 
-[![Version v=2.1.0](http://img.shields.io/badge/version-v=2.1.0-brightgreen.svg?style=flat-square)](https://www.legendhub.org) [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+[![Version v=2.2.7](http://img.shields.io/badge/version-v=2.2.7-brightgreen.svg?style=flat-square)](https://www.legendhub.org) [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 ## Table of Contents
-- [Not Included](#not-included)
+- [Prerequisites](#prerequisites)
 - [Installation](#installation)
-- [Building and Deploying](#building-and-deploying)
-- [Sql Database Backup](#sql-database-backup)
 
-## Not Included
-> This repo does not include everything that [legendhub.org](https://www.legendhub.org) currently accomplishes. You are responsible for setting these systems up if you want them.
+## Prerequisites
+> This repo requires certain software in order to be deployed and run. This software will make it a lot easier to work with legendhub.
 
-The following are not included:
-- Web server config (apache2/nginx)
-- SSL certificate creation/renewal process
-- An automatic mysql backup process
-- A schedule for creating new notifications. The python app only processes the notification queue once before exiting, you are responsible for running it on a schedule.
-- A connection to the sql database is not provided, though the backup for a mysql database **is** included and can be used to host your own database (accounts and their settings are not included in this backup - new accounts will need to be created).
+- Download and install [Docker](https://www.docker.com/) for your system.
+- Download and install [Docker Compose](https://docs.docker.com/compose/install/) for your system.
+- If you are using Docker Desktop edition, make sure to add the repository's directory to the File Sharing list in Docker's Settings -> Resources -> File Sharing.
 
 ## Installation
 > This repo contains a simple to use install process which assumes you have an HTTP server setup on that system.
 
-- [Download and install Node.js](https://nodejs.org/en/download/) - Used for installing dependencies.
-- [Download and install the latest version of Python 3](https://www.python.org/downloads/) - Used for the notification process.
-- Clone this repo to your local machine using `git clone https://github.com/SvarturH/legendhub.git`
-- Navigate to the root directory of the cloned repo and run `npm install` to install the necessary dependencies.
-- This will create the following file:
-    - .env
-    - python/sql/sql_engine_config.py
-- Replace the default values in the config files with your sql database information.
-
-## Building and Deploying
-- Run `npm run build` to build all of the projects.
-- To build each project individually run the following commands:
-    - `npm run build:python`
-    - `npm run build:css`
-- Building the css project will copy the new css files to the www directory. This is only necessary if you make changes to the CSS project, as the web project already has the latest CSS.
-- Once everything is built, simply run `npm start` or `npm start-dev` to run the project in production or development mode.
-- The project will now be listening on the port provided in the .env file.
-
-## Sql Database Backup
-- The latest backup file can be downloaded from [here](https://drive.google.com/open?id=17RJ2vnmmH4G4-DWjlvEBYX-UI8I5RgC5).
-- Use the following command to import the backup:
-    - `mysql –u[user name] -p[password] -h[hostname] [database name] < [path-to-file].sql`
+- Navigate to the directory where you've downloaded the legendhub repository.
+- Copy the `.env_example` and rename it to `.env`.
+- Replace the dummy data in `.env` with your desired environment variables.
+- Run `docker-compose up` or `docker-compose up -d` to run it in detached mode.

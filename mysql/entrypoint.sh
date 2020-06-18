@@ -36,11 +36,11 @@ ENDOFSQL
         echo "Using provided backup file."
     else
         echo "No backup file provided, downloading latest backup from LegendHUB drive."
-        wget "http://drive.google.com/uc?export=download&id=1cU3ViGyvUx-W-RvL9Vj3Mp0xpENdb749" -O "/docker-entrypoint-initdb.d/backup.sql"
+        wget "drive.google.com/uc?export=download&id=1ahubTEMFuRfbK6o0KANL4em_T2zKypQ8" -O "/docker-entrypoint-initdb.d/backup.sql"
     fi
 
-    sed -i s/legendwiki/$MYSQL_DATABASE/g $backupSqlFile
-    sed -i s/webapps/$MYSQL_USER/g $backupSqlFile
+    sed -i s/legendhub/$MYSQL_DATABASE/g $backupSqlFile
+    sed -i s/legendhub/$MYSQL_USER/g $backupSqlFile
     sed -Ei 's/\$\{MYSQL_USER\}/'"$MYSQL_USER"'/g; s/\$\{MYSQL_PASSWORD\}/'"$MYSQL_PASSWORD"'/g; s/\$\{MYSQL_DATABASE\}/'"$MYSQL_DATABASE"'/g' /etc/cron.d/cron-mysql
     echo "CREATE DATABASE \`$MYSQL_DATABASE\`;USE \`$MYSQL_DATABASE\`;" | cat - $backupSqlFile > temp && mv temp $backupSqlFile
 else
