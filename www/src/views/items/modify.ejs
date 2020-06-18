@@ -23,7 +23,7 @@
                 <% for (let i = 0; i < vm.itemStatCategories.length; ++i) {
                     let category = vm.itemStatCategories[i]; %>
                     <%if (category.name === "Weapon") {%>
-                    <div ng-show="item.slot === 14">
+                    <div ng-show="item.slot === 14 || (item.slot == 15 && item.accuracy > 0)">
                     <% } else { %>
                     <div>
                     <% } %>
@@ -44,7 +44,13 @@
                         <% for (let j = 0; j < category.getItemStatInfo.length; ++j) {
                             let stat = category.getItemStatInfo[j];
                             if (stat.editable && stat.var !== "name") {%>
-                            <div class="form-group col-6 col-md-4 col-lg-<%- (stat.type === "bool" ? "2" : "3")%>">
+                            <div class="form-group col-6 col-md-4 col-lg-<%- (stat.type === "bool" ? "2" : "3")%>"
+                            <% if (stat.var === "holdable" || stat.var === "weaponType" || stat.var === "weaponStat") {%>
+                                ng-show="item.slot === 14"
+                            <%} else if (stat.var === "accuracy") {%>
+                                ng-show="item.slot === 14 || item.slot === 15"
+                            <%}%>
+                            >
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><%=stat.short%></span>

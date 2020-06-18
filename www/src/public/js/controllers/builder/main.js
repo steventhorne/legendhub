@@ -442,12 +442,12 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
                                     break;
                                 }
                             }
-    
+
                             if (list.items[i].name == "Loading...") {
                                 list.items[i].name = "DELETED";
                             }
                         }
-    
+
                         applyItemRestrictions();
                         $scope.onStatChanged();
                     }
@@ -499,7 +499,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
 		// remove old cookies
         $cookies.remove("sc1", {"path": "/"});
-        
+
         if (cookieConsent) {
             $scope.itemsPerPage = Number($cookies.get("ipp") || "20");
         }
@@ -547,7 +547,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 		// save columns
 		var cookieDate = new Date();
         cookieDate.setFullYear(cookieDate.getFullYear() + 20);
-        
+
         $cookies.put("ipp", $scope.itemsPerPage, {path: "/", expires: cookieDate});
 
 		let savedColumns = "";
@@ -578,10 +578,10 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 			$cookies.remove("cl1");
 			$cookies.remove("scl1");
         }
-        
+
         $scope.clientSideDataSize = $scope.getClientSideDataSize();
     };
-    
+
     $scope.getClientSideDataSize = function() {
         var total = 0, len, item;
         for (item in localStorage) {
@@ -638,7 +638,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
             listCookieStr += encoder.fromNumber(list.baseStats.amulet,1);
         else
             listCookieStr += "_";
-            
+
         for (let k = 0; k < list.items.length; ++k) {
             if (list.items[k].id) {
                 listCookieStr += (list.items[k].locked ? "." : "") + encoder.fromNumber(list.items[k].id,3);
@@ -723,7 +723,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
                 $scope.selectedList.baseStats.amulet = -1;
             }
         }
-        
+
         $scope.ksmStatsForm.ksmStrInput.$setValidity("balanced", true);
         $scope.ksmStatsForm.ksmStrInput.$setValidity("max", true);
         if ($scope.selectedList.ksmStats) {
@@ -796,7 +796,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
 		$('#itemChoiceModal').modal();
     };
-    
+
     $scope.loadItemsForAllSlotsAsync = function() {
         for (var j = 0; j < $scope.slots.length; ++j) {
             getItemsBySlotAsync(j).then(
@@ -1592,7 +1592,10 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 		switch (statName)
 		{
             case "hp":
-                fromBonus += 381 + (($scope.getStatTotal("constitution") - 30) * 5);
+                var con = $scope.getStatTotal("constitution");
+                fromBonus += 381 + ((con - 30) * 5);
+                if (con > 89)
+                    fromBonus += Math.max(con - 88, 0) * 5;
                 break;
             case "ma":
                 fromBonus += 446 + (($scope.getStatTotal("mind") - 30) * 5);
@@ -1672,6 +1675,13 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
 				fromBonus += totalAC;
 				break;
+            case "hpr":
+                var con = $scope.getStatTotal("constitution");
+
+                fromBonus += parseInt(Math.max(con - 75, 0) * 0.2);
+                if (con > 79)
+                    fromBonus += parseInt(Math.max(con - 70, 0) * 0.2);
+                fromBonus += Math.max(con - 100, 0);
             default:
                 break;
 		}
@@ -1717,6 +1727,11 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
                 max = 27;
                 break;
             case "hpr":
+                var con = $scope.getStatTotal("constitution");
+
+                max = 20;
+                max -= parseInt(Math.max(con - 75, 0) * 0.2);
+                break;
             case "mar":
             case "mvr":
                 max = 20;
@@ -1833,7 +1848,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 		if ($scope.selectedList.baseStats[statName]) {
 			fromBaseStats += $scope.selectedList.baseStats[statName];
         }
-        
+
         // KSM stat swap
         var fromKSMStats = 0;
         if ($scope.selectedList.ksmStats[statName]) {
@@ -1909,6 +1924,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
         switch (statName) {
             case "dam":
             case "hit":
+            case "hpr":
                 total = total + " (" + fromItems + ")";
                 break;
         }
