@@ -1,6 +1,6 @@
 {
     "name": "legendhub",
-    "version": "2.2.3",
+    "version": "2.2.7",
     "description": "A resource hub for LegendMUD",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
