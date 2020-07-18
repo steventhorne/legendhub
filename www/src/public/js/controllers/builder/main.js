@@ -1665,7 +1665,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 
 				var totalAC = 83;
 				totalAC += parseInt(Math.max(dex - 40, 0) * -0.5);
-				totalAC += parseInt(Math.max(per - 4, 0) * -0.125);
+				totalAC += parseInt(Math.max(per - 30, 0) / -6);
 				if (str >= 20 && dex >= 20 && con >= 20) {
 					totalAC -= 5;
 					if (dex >= 40 && con >= 40) {
