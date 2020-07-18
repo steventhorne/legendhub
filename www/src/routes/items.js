@@ -304,7 +304,35 @@ router.get(["/add.html"], async function(req, res, next) {
 
     let itemStatCategories = data.getItemStatCategories;
     let title = "Add Item";
+
+    // setup defaults
+    let item = {};
+    for (let i = 0; i < itemStatCategories.length; ++i) {
+        for (let j = 0; j < itemStatCategories[i].getItemStatInfo.length; ++j) {
+            let stat = itemStatCategories[i].getItemStatInfo[j];
+            if (!stat.editable) continue;
+            
+            if (!stat.defaultValue) {
+                item[stat.var] = undefined;
+            }
+            else {
+                if (stat.type === "int" || stat.type === "select") {
+                    item[stat.var] = parseInt(stat.defaultValue);
+                } else if (stat.type === "decimal") {
+                    item[stat.var] = parseFloat(stat.defaultValue);
+                } else if (stat.type === "bool") {
+                    item[stat.var] = stat.defaultValue == "true";
+                } else if (stat.type === "string") {
+                    item[stat.var] = stat.defaultValue;
+                }
+            }
+        }
+    }
+
+    console.log(item);
+
     let vm = {
+        item,
         itemStatCategories,
         constants: itemApi.constants
     };
@@ -325,11 +353,11 @@ router.get(["/edit.html"], async function(req, res, next) {
     if (!res.locals.user)
         return res.redirect(`/login.html?returnUrl=${encodeURIComponent(res.locals.url.path)}`);
 
-    let query = `
+    let query = `${itemApi.fragment}
+
     {
         getItemById(id:${req.query.id}) {
-            id
-            name
+            ... ItemAll
         }
         getItemStatCategories {
             name
