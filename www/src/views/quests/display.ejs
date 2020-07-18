@@ -47,13 +47,15 @@
                 </div>
             </div>
         </div>
-        <br>
         <%for (let i = 0; i < vm.quest.getItems.length; ++i) {%>
+        <% if (i == 0) {%>
+        <br>
+        <%}%>
         <div class="row">
             <span class="col-12 text-info">&lt;<%-vm.constants.selectOptions.slot[vm.quest.getItems[i].slot]%>&gt; <a href="/items/details.html?id=<%-vm.quest.getItems[i].id%>"><%=vm.quest.getItems[i].name%></a></span>
         </div>
-        <br>
         <%}%>
+        <br>
         <div class="row">
             <div class="col-12 col-md-10 col-lg-8">
                 <div class="row">
