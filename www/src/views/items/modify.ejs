@@ -9,10 +9,10 @@
         <%}%>
         <meta name="robots" content="none">
     </head>
-    <body ng-app="legendwiki-app" ng-controller="items-modify">
+    <body ng-app="legendwiki-app" ng-controller="ModifyItemsController as modifyItems" ng-init="modifyItems.init(<%=JSON.stringify(vm.item)%>)">
         <%- include("../shared/header"); -%>
         <div class="container">
-            <form name="itemForm" ng-submit="<%-(vm.item ? "editItem(item)" : "addItem(item)")%>" ng-cloak>
+            <form name="itemForm" ng-submit="modifyItems.submit()" ng-cloak>
                 <div class="row">
                     <% if (vm.item) { %>
                     <h1>Edit Item</h1>
@@ -23,7 +23,7 @@
                 <% for (let i = 0; i < vm.itemStatCategories.length; ++i) {
                     let category = vm.itemStatCategories[i]; %>
                     <%if (category.name === "Weapon") {%>
-                    <div ng-show="item.slot === 14 || (item.slot == 15 && item.accuracy > 0)">
+                    <div ng-show="modifyItems.item.slot === 14 || (modifyItems.item.slot == 15 && modifyItems.item.accuracy > 0)">
                     <% } else { %>
                     <div>
                     <% } %>
@@ -37,7 +37,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">Name</span>
                                     </div>
-                                    <input class="form-control" type="text" name="name" ng-model="item.name" ng-class="{'is-invalid': itemForm.name.$invalid}" required lh-autofocus>
+                                    <input class="form-control" type="text" name="name" ng-model="modifyItems.item.name" ng-class="{'is-invalid': itemForm.name.$invalid}" required lh-autofocus>
                                 </div>
                             </div>
                         <% } %>
@@ -46,9 +46,9 @@
                             if (stat.editable && stat.var !== "name") {%>
                             <div class="form-group col-6 col-md-4 col-lg-<%- (stat.type === "bool" ? "2" : "3")%>"
                             <% if (stat.var === "holdable" || stat.var === "weaponType" || stat.var === "weaponStat") {%>
-                                ng-show="item.slot === 14"
+                                ng-show="modifyItems.item.slot === 14"
                             <%} else if (stat.var === "accuracy") {%>
-                                ng-show="item.slot === 14 || item.slot === 15"
+                                ng-show="modifyItems.item.slot === 14 || modifyItems.item.slot === 15"
                             <%}%>
                             >
                                 <div class="input-group">
@@ -56,19 +56,19 @@
                                         <span class="input-group-text"><%=stat.short%></span>
                                     </div>
                                     <% if (stat.type === "int") { %>
-                                    <input type="number" name="<%-stat.var%>" ng-model="item.<%-stat.var%>" class="form-control" ng-class="{'is-invalid': itemForm.<%-stat.var%>.$invalid}" required>
+                                    <input type="number" name="<%-stat.var%>" ng-model="modifyItems.item.<%-stat.var%>" class="form-control" ng-class="{'is-invalid': itemForm.<%-stat.var%>.$invalid}" required>
                                     <% } else if (stat.type === "decimal") { %>
-                                    <input type="number" name="<%-stat.var%>" ng-model="item.<%-stat.var%>" class="form-control" ng-class="{'is-invalid': itemForm.<%-stat.var%>.$invalid}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" step="0.01" required>
+                                    <input type="number" name="<%-stat.var%>" ng-model="modifyItems.item.<%-stat.var%>" class="form-control" ng-class="{'is-invalid': itemForm.<%-stat.var%>.$invalid}" ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/" step="0.01" required>
                                     <% } else if (stat.type === "string") { %>
-                                    <input type="text" name="<%-stat.var%>" ng-model="item.<%-stat.var%>" class="form-control" ng-class="{'is-invalid': itemForm.<%-stat.var%>.$invalid}">
+                                    <input type="text" name="<%-stat.var%>" ng-model="modifyItems.item.<%-stat.var%>" class="form-control" ng-class="{'is-invalid': itemForm.<%-stat.var%>.$invalid}">
                                     <% } else if (stat.type === "bool") { %>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
-                                            <input type="checkbox" name="<%-stat.var%>" ng-model="item.<%-stat.var%>">
+                                            <input type="checkbox" name="<%-stat.var%>" ng-model="modifyItems.item.<%-stat.var%>">
                                         </div>
                                     </div>
                                     <% } else if (stat.type === "select") { %>
-                                    <select name="<%-stat.var%>" ng-model="item.<%-stat.var%>" class="form-control" ng-class="{'is-invalid': itemForm.<%-stat.var%>.$invalid}"<%- (category.name === "Weapon" ? " ng-required='item.slot === 14'" : "") %>>
+                                    <select name="<%-stat.var%>" ng-model="modifyItems.item.<%-stat.var%>" class="form-control" ng-class="{'is-invalid': itemForm.<%-stat.var%>.$invalid}"<%- (category.name === "Weapon" ? " ng-required='modifyItems.item.slot === 14'" : "") %>>
                                         <option ng-value>Choose a <%=stat.short%></option>
                                         <% for (let k = 0; k < vm.constants.selectOptions[stat.var].length; ++k) { %>
                                         <option ng-value="<%- k %>"><%= vm.constants.selectOptions[stat.var][k] %></option>
@@ -80,10 +80,10 @@
                         <% }} %>
                         <% if (category.name === "Basic") { %>
                             <div class="form-group col-12 col-md-4 col-lg-3">
-                                <button class="btn btn-outline-secondary col-12 text-truncate" type="button" data-toggle="modal" data-target="#mobModal">{{item.getMob ? item.getMob.name : "Choose a Mob"}}</button>
+                                <button class="btn btn-outline-secondary col-12 text-truncate" type="button" data-toggle="modal" data-target="#mobModal">{{modifyItems.item.getMob ? modifyItems.item.getMob.name : "Choose a Mob"}}</button>
                             </div>
                             <div class="form-group col-12 col-md-4 col-lg-3">
-                                <button class="btn btn-outline-secondary col-12 text-truncate" type="button" data-toggle="modal" data-target="#questModal">{{item.getQuest ? item.getQuest.title : "Choose a Quest"}}</button>
+                                <button class="btn btn-outline-secondary col-12 text-truncate" type="button" data-toggle="modal" data-target="#questModal">{{modifyItems.item.getQuest ? modifyItems.item.getQuest.title : "Choose a Quest"}}</button>
                             </div>
                         <% } %>
                         </div>
@@ -97,17 +97,17 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Notes</span>
                             </div>
-                            <textarea class="form-control" rows="5" ng-model="item.notes"></textarea>
+                            <textarea class="form-control" rows="5" ng-model="modifyItems.item.notes"></textarea>
                         </div>
                         <div class="card">
                             <div class="card-header">Preview</div>
-                            <div class="card-body" markdown-to-html="item.notes"></div>
+                            <div class="card-body" markdown-to-html="modifyItems.item.notes"></div>
                         </div>
                     </div>
                 </div>
                 <br>
                 <div class="row">
-                    <button class="btn btn-primary btn-block col-12 offset-md-8 col-md-4 offset-lg-10 col-lg-2" type="submit" ng-disabled="<%- (vm.item ? "!canEdit()" : "!canAdd()")%>">Save</button>
+                    <button class="btn btn-primary btn-block col-12 offset-md-8 col-md-4 offset-lg-10 col-lg-2" type="submit" ng-disabled="!modifyItems.canSubmit()">Save</button>
                 </div>
                 <br><br>
             </form>
@@ -118,223 +118,238 @@
         <%- include("../shared/scripts"); -%>
         <%- include("../shared/markdown"); -%>
         <script>
-            app.controller('items-modify', ['$scope', '$http', '$q', '$cookies', function($scope, $http, $q, $cookies) {
-                let initialize = function() {
-                    <%_if (vm.item) {%>
-                        getItemAsync(getUrlParameter("id")).then(
-                            function(data) {
-                                $scope.item = data;
-                                $scope.initialItem = angular.copy($scope.item);
-                            }
-                        );
-                    <%_} else {_%>
-                        $scope.item = {};
-                        <%_for (let i = 0; i < vm.itemStatCategories.length; ++i) {
+            (function() {
+                angular
+                    .module("legendwiki-app")
+                    .controller("ModifyItemsController", ModifyItemsController);
+
+                ModifyItemsController.$inject = ["$scope", "$http", "$q", "$cookies"];
+
+                function ModifyItemsController($scope, $http, $q, $cookies) {
+                    var vm = this;
+
+                    vm.init = init;
+                    vm.canSubmit = canSubmit;
+                    vm.submit = submit;
+                    vm.searchMobs = searchMobs;
+                    vm.onMobSelected = onMobSelected;
+                    vm.searchQuests = searchQuests;
+                    vm.onQuestSelected = onQuestSelected;
+
+                    function init(item) {
+                        vm.edit = item.id != null;
+
+                        vm.item = item;
+                        vm.initialItem = angular.copy(vm.item);
+
+                        getItemStatCategories()
+                            .then(function(data) {
+                                vm.itemStatCategories = data.data.data.getItemStatCategories;
+                            })
+                            .catch(function(errors) {
+                                if (errors)
+                                    console.error(errors);
+                            });
+                    };
+
+                    function getItemStatCategories() {
+                        let query = [
+                            "{",
+                                "getItemStatCategories {",
+                                    "name ",
+                                    "getItemStatInfo {",
+                                        "display ",
+                                        "short ",
+                                        "var ",
+                                        "type ",
+                                        "editable ",
+                                        "defaultValue ",
+                                    "}",
+                                "}",
+                            "}",
+                        ];
+                        return $http({
+                            url: "/api",
+                            method: "POST",
+                            data: {"query": query.join("")}
+                        });
+                    };
+
+                    function canSubmit() {
+                        return vm.edit ? canEdit() : canAdd();
+                    };
+
+                    function canEdit() {
+                        return $scope.itemForm.$valid && angular.toJson(vm.item) !== angular.toJson(vm.initialItem);
+                    };
+                    
+                    function canAdd() {
+                        return $scope.itemForm.$valid;
+                    };
+
+                    function submit() {
+                        if (vm.edit)
+                            editItem();
+                        else
+                            addItem();
+                    };
+
+                    function editItem() {
+                        if (!canEdit())
+                            return;
+
+                        let query = [
+                            "mutation {",
+                            "updateItem(id:",vm.item.id,",",
+                            "authToken:\"",$cookies.get("loginToken"),"\",",
+                            "mobId:",(vm.item.mobId != null ? vm.item.mobId : "0"),",",
+                            "questId:",(vm.item.questId != null ? vm.item.questId : "0"),",",
+                            "notes:\"\"\"",vm.item.notes,"\"\"\","
+                        ];
+                        
+                        for (let i = 0; i < vm.itemStatCategories.length; ++i) {
                             for (let j = 0; j < vm.itemStatCategories[i].getItemStatInfo.length; ++j) {
                                 let stat = vm.itemStatCategories[i].getItemStatInfo[j];
-                                if (!stat.editable) continue;_%>
-                                    <%_if (!stat.defaultValue) {_%>
-                        $scope.item["<%-stat.var%>"] = undefined;
-                                    <%_}else{_%>
-                                    <%_if (stat.type === "string") {_%>
-                        $scope.item["<%-stat.var%>"] = "<%-stat.defaultValue%>";
-                                    <%_}else{_%>
-                        $scope.item["<%-stat.var%>"] = <%-stat.defaultValue%>;
-                                    <%_}}_%>
-                    <%_}}}_%>
-                };
+                                if (!stat.editable) continue;
 
-                <%_if (vm.item) {_%>
-                let getItemAsync = function(id) {
-                    let deferred = $q.defer();
+                                query.push(stat.var, ":");
+                                if(stat.type === "string") {
+                                    query.push("\"\"\"", vm.item[stat.var], "\"\"\",");
+                                }
+                                else if (stat.type ==="bool"){
+                                    query.push(vm.item[stat.var] ? "true" : "false", ",");
+                                }
+                                else {
+                                    query.push(vm.item[stat.var] || "0", ",");
+                                }
+                            }
+                        }
 
-                    let query = [
-                        "<%-vm.itemFragment%>",
-                        "{",
-                            "getItemById(id:<%-vm.item.id%>){",
-                                "... ItemAll",
-                                "getMob{name}",
-                                "getQuest{title}",
-                            "}",
-                        "}"
-                    ];
+                        query.push(") {", "token ", "expires", "}", "}");
+                        
+                        $http({
+                            url: "/api",
+                            method: "POST",
+                            data: {"query": query.join("")}
+                        }).then((response) => {
+                            let data = response.data.data.updateItem;
+                            let newToken = data.token;
+                            let expireDate = data.expires;
+                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
+                            window.location = "/items/details.html?id=" + vm.item.id;
+                        });
+                    };
 
-                    $http({
-                        url: "/api",
-                        method: "POST",
-                        data: {"query": query.join("\n")}
-                    }).then((response) => {
-                        deferred.resolve(response.data.data.getItemById);
-                    }, (response) => {
-                        deferred.reject(response);
-                    });
+                    function addItem() {
+                        if (!canAdd())
+                            return;
 
-                    return deferred.promise;
-                };
-
-                $scope.canEdit = function() {
-                    return $scope.itemForm.$valid && angular.toJson($scope.item) !== angular.toJson($scope.initialItem);
-                };
-
-                $scope.editItem = function(item) {
-                    if (!$scope.canEdit())
-                        return;
-
-                    let query = [
-                        "mutation {",
-                            "updateItem(id:",item.id,",",
-                            "authToken:\"",$cookies.get("loginToken"),"\",",
-                            "mobId:",(item.mobId != null ? item.mobId : "0"),",",
-                            "questId:",(item.questId != null ? item.questId : "0"),",",
-                            "notes:\"\"\"",item.notes,"\"\"\",",
-                            <%_for (let i = 0; i < vm.itemStatCategories.length; ++i) {
-                                for (let j = 0; j < vm.itemStatCategories[i].getItemStatInfo.length; ++j) {
-                                    let stat = vm.itemStatCategories[i].getItemStatInfo[j];
-                                    if (!stat.editable) continue;_%>
-                                    <%_if(stat.type === "string") {_%>
-                                    "<%-stat.var%>:\"\"\"",item.<%-stat.var%>,"\"\"\",",
-                                    <%_}else if (stat.type ==="boolean"){_%>
-                                    "<%-stat.var%>:",(item.<%-stat.var%> != null ? item.<%-stat.var%>:"false"),",",
-                                    <%_}else{_%>
-                                    "<%-stat.var%>:",(item.<%-stat.var%> != null ? item.<%-stat.var%>:"0"),",",
-                            <%_}}}_%>
-                            ") {",
-                                "token ",
-                                "expires",
-                            "}",
-                        "}"
-                    ];
-                    $http({
-                        url: "/api",
-                        method: "POST",
-                        data: {"query": query.join("")}
-                    }).then((response) => {
-                        let data = response.data.data.updateItem;
-                        let newToken = data.token;
-                        let expireDate = data.expires;
-                        $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
-                        window.location = "/items/details.html?id=" + item.id;
-                    });
-                };
-                <%_}else{_%>
-                $scope.canAdd = function() {
-                    return $scope.itemForm.$valid;
-                }
-
-                $scope.addItem = function(item) {
-                    if (!$scope.canAdd())
-                        return;
-
-                    let query = [
-                        "mutation {",
+                        let query = [
+                            "mutation {",
                             "insertItem(authToken:\"",$cookies.get("loginToken"),"\",",
-                                "mobId:",(item.mobId != null ? item.mobId : "0"),",",
-                                "questId:",(item.questId != null ? item.questId : "0"),",",
-                                "notes:\"\"\"",item.notes,"\"\"\",",
-                            <%_for (let i = 0; i < vm.itemStatCategories.length; ++i) {
-                                for (let j = 0; j < vm.itemStatCategories[i].getItemStatInfo.length; ++j) {
-                                    let stat = vm.itemStatCategories[i].getItemStatInfo[j];
-                                    if (!stat.editable) continue;_%>
-                                    <%_if(stat.type === "string") {_%>
-                                    "<%-stat.var%>:\"\"\"",item.<%-stat.var%>,"\"\"\",",
-                                    <%_}else if (stat.type ==="boolean"){_%>
-                                    "<%-stat.var%>:",(item.<%-stat.var%> != null ? item.<%-stat.var%>:"false"),",",
-                                    <%_}else{_%>
-                                    "<%-stat.var%>:",(item.<%-stat.var%> != null ? item.<%-stat.var%>:"0"),",",
-                            <%_}}}_%>
-                            ") {",
-                                "id ",
-                                "tokenRenewal {",
-                                    "token ",
-                                    "expires",
-                                "}",
-                            "}",
-                        "}"
-                    ];
-                    $http({
-                        url: "/api",
-                        method: "POST",
-                        data: {"query": query.join("")}
-                    }).then((response) => {
-                        let data = response.data.data.insertItem;
-                        let newToken = data.tokenRenewal.token;
-                        let expireDate = data.tokenRenewal.expires;
-                        $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
-                        window.location = "/items/details.html?id=" + data.id;
+                            "mobId:",(vm.item.mobId != null ? vm.item.mobId : "0"),",",
+                            "questId:",(vm.item.questId != null ? vm.item.questId : "0"),",",
+                            "notes:\"\"\"",vm.item.notes,"\"\"\","
+                        ];
+                        for (let i = 0; i < vm.itemStatCategories.length; ++i) {
+                            for (let j = 0; j < vm.itemStatCategories[i].getItemStatInfo.length; ++j) {
+                                let stat = vm.itemStatCategories[i].getItemStatInfo[j];
+                                if (!stat.editable) continue;
+
+                                query.push(stat.var, ":");
+                                if(stat.type === "string")
+                                    query.push("\"\"\"", vm.item[stat.var], "\"\"\",");
+                                else if (stat.type ==="bool")
+                                    query.push(vm.item[stat.var] ? "true" : "false", ",");
+                                else
+                                    query.push(vm.item[stat.var] || "0", ",");
+                            }
+                        }
+
+                        query.push(") {", "id ", "tokenRenewal {", "token ", "expires", "}", "}", "}");
+
+                        $http({
+                            url: "/api",
+                            method: "POST",
+                            data: {"query": query.join("")}
+                        }).then((response) => {
+                            let data = response.data.data.insertItem;
+                            let newToken = data.tokenRenewal.token;
+                            let expireDate = data.tokenRenewal.expires;
+                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
+                            window.location = "/items/details.html?id=" + data.id;
+                        });
+                    };
+
+                    $('#mobModal').on('shown.bs.modal', e => {
+                        $('#mobSearchInput').trigger('focus');
                     });
-                };
-                <%_}_%>
 
-                $('#mobModal').on('shown.bs.modal', e => {
-                    $('#mobSearchInput').trigger('focus');
-                });
-
-                $scope.searchMobs = function(searchString) {
-                    let query = [
-                        "{",
-                            "getMobs(searchString:\"",searchString,"\") {",
-                                "mobs {",
-                                    "id ",
-                                    "name",
+                    function searchMobs(searchString) {
+                        let query = [
+                            "{",
+                                "getMobs(searchString:\"",searchString,"\") {",
+                                    "mobs {",
+                                        "id ",
+                                        "name",
+                                    "}",
                                 "}",
-                            "}",
-                        "}"
-                    ];
-                    $http({
-                        url: '/api',
-                        method: 'POST',
-                        data: {"query": query.join("")}
-                    }).then(response => {
-                        $scope.mobSearchResults = response.data.data.getMobs.mobs;
+                            "}"
+                        ];
+                        $http({
+                            url: '/api',
+                            method: 'POST',
+                            data: {"query": query.join("")}
+                        }).then(response => {
+                            vm.mobSearchResults = response.data.data.getMobs.mobs;
+                        });
+                    };
+
+                    function onMobSelected(mob) {
+                        vm.item.mobId = mob.id;
+
+                        if (!vm.item.getMob)
+                            vm.item.getMob = {};
+
+                        vm.item.getMob.name = mob.name;
+                        $('#mobModal').modal('hide');
+                    };
+
+                    $('#questModal').on('shown.bs.modal', e => {
+                        $('#questSearchInput').trigger('focus');
                     });
-                };
 
-                $scope.onMobSelected = function(mob) {
-                    $scope.item.mobId = mob.id;
-
-                    if (!$scope.item.getMob)
-                        $scope.item.getMob = {};
-
-                    $scope.item.getMob.name = mob.name;
-                    $('#mobModal').modal('hide');
-                };
-
-                $('#questModal').on('shown.bs.modal', e => {
-                    $('#questSearchInput').trigger('focus');
-                });
-
-                $scope.searchQuests = function(searchString) {
-                    let query = [
-                        "{",
-                            "getQuests(searchString:\"",searchString,"\") {",
-                                "quests {",
-                                    "id ",
-                                    "title",
+                    function searchQuests(searchString) {
+                        let query = [
+                            "{",
+                                "getQuests(searchString:\"",searchString,"\") {",
+                                    "quests {",
+                                        "id ",
+                                        "title",
+                                    "}",
                                 "}",
-                            "}",
-                        "}"
-                    ];
-                    $http({
-                        url: '/api',
-                        method: 'POST',
-                        data: {"query": query.join("")}
-                    }).then(response => {
-                        $scope.questSearchResults = response.data.data.getQuests.quests;
-                    });
-                };
+                            "}"
+                        ];
+                        $http({
+                            url: '/api',
+                            method: 'POST',
+                            data: {"query": query.join("")}
+                        }).then(response => {
+                            vm.questSearchResults = response.data.data.getQuests.quests;
+                        });
+                    };
 
-                $scope.onQuestSelected = function(quest) {
-                    $scope.item.questId = quest.id;
+                    function onQuestSelected(quest) {
+                        vm.item.questId = quest.id;
 
-                    if (!$scope.item.getQuest)
-                        $scope.item.getQuest = {};
+                        if (!vm.item.getQuest)
+                            vm.item.getQuest = {};
 
-                    $scope.item.getQuest.title = quest.title;
-                    $('#questModal').modal('hide');
-                };
-
-                initialize();
-            }]);
+                        vm.item.getQuest.title = quest.title;
+                        $('#questModal').modal('hide');
+                    };
+                }
+            })();
         </script>
     </body>
 </html>

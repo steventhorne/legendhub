@@ -9,23 +9,23 @@
 			</div>
 			<div class="modal-body">
 					<p class="text-info">Ensure the mob does not exist before adding a new one.</p>
-					<form name="searchMobForm" ng-submit="searchMobs(mobSearchName)" class="mb-3">
+					<form name="searchMobForm" ng-submit="modifyItems.searchMobs(modifyItems.mobSearchName)" class="mb-3">
 						<div class="input-group">
 							<div class="input-group-prepend">
 								<span class="input-group-text">
 									<i class="fas fa-search"></i>
 								</span>
 							</div>
-							<input id="mobSearchInput" ng-model="mobSearchName" type="text" class="form-control" placeholder="Search for mob..." aria-label="Search for mob">
+							<input id="mobSearchInput" ng-model="modifyItems.mobSearchName" type="text" class="form-control" placeholder="Search for mob..." aria-label="Search for mob">
 							<div class="input-group-append">
 								<button type="submit" class="btn btn-primary">Search</button>
 							</div>
 						</div>
 					</form>
-					<div class="mb-3" ng-show="mobSearchResults.length > 0">
+					<div class="mb-3" ng-show="modifyItems.mobSearchResults.length > 0">
 						<div class="table-responsive col-12">
 							<div class="list-group">
-								<button type="button" class="list-group-item list-group-item-secondary list-group-item-action" ng-click="onMobSelected(mob)" ng-repeat="mob in mobSearchResults">{{mob.name}}</button>
+								<button type="button" class="list-group-item list-group-item-secondary list-group-item-action" ng-click="modifyItems.onMobSelected(mob)" ng-repeat="mob in modifyItems.mobSearchResults">{{mob.name}}</button>
 							</div>
 						</div>
 					</div>
