@@ -237,7 +237,7 @@ app.controller('items', ["$scope", "$q", "$cookies", "$http", "itemConstants", f
 
         $savedColumns = $scope.columns.join("-");
 		if ($cookies.get("cookie-consent")) {
-			$cookies.put("sc2", $savedColumns, {"path": "/", 'expires': cookieDate});
+			$cookies.put("sc2", $savedColumns, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
 		}
 	};
 

@@ -548,7 +548,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 		var cookieDate = new Date();
         cookieDate.setFullYear(cookieDate.getFullYear() + 20);
 
-        $cookies.put("ipp", $scope.itemsPerPage, {path: "/", expires: cookieDate});
+        $cookies.put("ipp", $scope.itemsPerPage, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
 
 		let savedColumns = "";
 		for (var i = 0; i < $scope.statInfo.length; ++i) {
@@ -556,7 +556,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 				savedColumns += $scope.statInfo[i].short + "-";
 			}
 		}
-		$cookies.put("sc2", savedColumns, {"path": "/", 'expires': cookieDate});
+		$cookies.put("sc2", savedColumns, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
 
 		// save lists
 		listCookieStr = "";

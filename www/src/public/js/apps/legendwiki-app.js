@@ -450,7 +450,7 @@ app.controller('header', ['$scope', '$http', '$cookies', '$compile', 'breadcrumb
         let cookieDate = new Date();
         let offset = cookieDate.getTimezoneOffset();
         cookieDate.setTime(2144232732000);
-        $cookies.put("tzoffset", offset, {"path": "/", "expires": cookieDate});
+        $cookies.put("tzoffset", offset, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
 	};
 
 	$scope.setTheme = function(theme) {
@@ -458,7 +458,7 @@ app.controller('header', ['$scope', '$http', '$cookies', '$compile', 'breadcrumb
             theme = theme.toLowerCase().replace(/\s/g, '-');
             var cookieDate = new Date();
             cookieDate.setFullYear(cookieDate.getFullYear() + 20);
-            $cookies.put("theme", theme, {"path": "/", 'expires': cookieDate});
+            $cookies.put("theme", theme, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
             $('link[id="theme"]').attr('href', '/css/bootstrap-' + theme + '.min.css');
         }
 	}
@@ -499,7 +499,7 @@ app.directive("lhCookieConsent", function($cookies) {
             element.bind("click", function() {
                 let cookieDate = new Date();
                 cookieDate.setTime(2144232732000);
-                $cookies.put("cookie-consent", true, {"path": "/", "expires": cookieDate});
+                $cookies.put("cookie-consent", true, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
                 element.parent().parent().parent().parent().remove();
             });
         }
@@ -535,7 +535,7 @@ app.directive('lhPopover', function($compile) {
 
 app.factory('encoder', [function() {
 	var rixits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-	
+
 	return {
 		fromNumber : function(number, minLength) {
 			if (isNaN(Number(number)) || number === null
@@ -544,7 +544,7 @@ app.factory('encoder', [function() {
 				  throw "The input is not valid";
 			var negative = number < 0;
 			number = Math.abs(number);
-	
+
 			var rixit;
 			var residual = Math.floor(number);
 			var result = '';
@@ -552,7 +552,7 @@ app.factory('encoder', [function() {
 				rixit = residual % rixits.length;
 				result = rixits.charAt(rixit) + result;
 				residual = Math.floor(residual / rixits.length);
-	
+
 				if (residual == 0)
 					break;
 			}
@@ -568,11 +568,11 @@ app.factory('encoder', [function() {
 			var negative = r[0] == '-';
 			if (negative)
 				r.shift();
-			
+
 			for (var e = 0; e < r.length; e++)
 				result = (result * rixits.length) + rixits.indexOf(r[e]);
 
-			if (negative) 
+			if (negative)
 				return result * -1;
 
 			return result;
