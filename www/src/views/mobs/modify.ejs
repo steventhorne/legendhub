@@ -2,19 +2,19 @@
 <html lang="en">
     <head>
         <%-include("../shared/meta");-%>
-        <%if (vm.mob) {%>
+        <%if (vm.mob.id) {%>
         <link href="https://www.legendhub.org/mobs/edit.html?id=<%-vm.mob.id%>" rel="canonical">
         <%}else{%>
         <link href="https://www.legendhub.org/mobs/add.html" rel="canonical">
         <%}%>
         <meta name="robots" content="none">
     </head>
-    <body ng-app="legendwiki-app" ng-controller="mobs-modify">
+    <body ng-app="legendwiki-app" ng-controller="ModifyMobsController as modifyMobs" ng-init="modifyMobs.init(<%=JSON.stringify(vm.mob)%>)">
         <%-include("../shared/header");-%>
         <div class="container">
-            <form name="mobForm" ng-submit="<%-(vm.mob ? "editMob(mob)" : "addMob(mob)")%>">
+            <form name="mobForm" ng-submit="modifyMobs.submit()">
                 <div class="form-row">
-                    <%if (vm.mob) {%>
+                    <%if (vm.mob.id) {%>
                     <h1>Edit Mob</h1>
                     <%} else {%>
                     <h1>Add Mob</h1>
@@ -26,7 +26,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Name</span>
                             </div>
-                            <input class="form-control" type="text" name="name" ng-model="mob.name" ng-class="{'is-invalid': mobForm.name.$invalid}" required lh-autofocus>
+                            <input class="form-control" type="text" name="name" ng-model="modifyMobs.mob.name" ng-class="{'is-invalid': mobForm.name.$invalid}" required lh-autofocus>
                         </div>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Area</span>
                             </div>
-                            <select class="form-control" name="area" ng-model="mob.areaId" ng-class="{'is-invalid': mobForm.area.$invalid}" required>
+                            <select class="form-control" name="area" ng-model="modifyMobs.mob.areaId" ng-class="{'is-invalid': mobForm.area.$invalid}" required>
                                 <%for (let i = 0; i < vm.areas.length; ++i) {%>
                                 <option ng-value="<%-vm.areas[i].id%>"><%=vm.areas[i].name%><%=(vm.areas[i].eraName ? ` (${vm.areas[i].eraName})`:"")%></option>
                                 <%}%>
@@ -50,7 +50,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Xp</span>
                             </div>
-                            <input class="form-control" type="number" name="xp" ng-model="mob.xp" min="0" ng-class="{'is-invalid': mobForm.xp.$invalid}" required>
+                            <input class="form-control" type="number" name="xp" ng-model="modifyMobs.mob.xp" min="0" ng-class="{'is-invalid': mobForm.xp.$invalid}" required>
                         </div>
                     </div>
                     <div class="form-group col-4 col-lg-2">
@@ -58,7 +58,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Gold</span>
                             </div>
-                            <input class="form-control" type="number" name="gold" ng-model="mob.gold" ng-class="{'is-invalid': mobForm.gold.$invalid}" required>
+                            <input class="form-control" type="number" name="gold" ng-model="modifyMobs.mob.gold" ng-class="{'is-invalid': mobForm.gold.$invalid}" required>
                         </div>
                     </div>
                     <div class="form-group col-4 col-lg-2">
@@ -68,7 +68,7 @@
                             </div>
                             <div class="input-group-append">
                                 <div class="input-group-text">
-                                    <input type="checkbox" ng-model="mob.aggro">
+                                    <input type="checkbox" ng-model="modifyMobs.mob.aggro">
                                 </div>
                             </div>
                         </div>
@@ -82,13 +82,13 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Notes</span>
                             </div>
-                            <textarea class="form-control" rows="5" ng-model="mob.notes"></textarea>
+                            <textarea class="form-control" rows="5" ng-model="modifyMobs.mob.notes"></textarea>
                         </div>
                     </div>
                 </div>
                 <br>
                 <div class="row">
-                    <button class="btn btn-primary btn-block col-12 offset-md-8 col-md-4 offset-lg-10 col-lg-2" type="submit" ng-disabled="<%-(vm.mob ? "!canEdit()" : "!canAdd()")%>">Save</button>
+                    <button class="btn btn-primary btn-block col-12 offset-md-8 col-md-4 offset-lg-10 col-lg-2" type="submit" ng-disabled="!modifyMobs.canSubmit()">Save</button>
                 </div>
                 <br><br>
             </form>
@@ -97,47 +97,45 @@
         <%-include("../shared/scripts");-%>
         <%-include("../shared/markdown");-%>
         <script>
-            app.controller("mobs-modify", ["$scope", "$http", "$cookies", function($scope, $http, $cookies) {
-                let initialize = function() {
-                    <%_if (vm.mob) {%>
-                        $scope.mob = {
-                            id:<%-vm.mob.id%>,
-                            name:"<%-vm.mob.name.replace(/"/g,"\\\"")%>",
-                            xp:<%-vm.mob.xp%>,
-                            areaId:<%-vm.mob.areaId%>,
-                            gold:<%-vm.mob.gold%>,
-                            notes:"<%-vm.mob.notes ? vm.mob.notes.replace(/\\/g,"\\\\").replace(/"/g,"\\\"").replace(/\n/g,"\\n").replace(/\r/g,"\\n") : ''%>",
-                            aggro:<%-vm.mob.aggro%>
-                        };
-                        $scope.initialMob = angular.copy($scope.mob);
-                    <%_} else {_%>
-                        $scope.mob = {
-                            xp: 0,
-                            gold: 0,
-                            aggro: false
-                        };
-                    <%_}_%>
-                }
+            (function() {
+                angular
+                .module("legendwiki-app")
+                .controller("ModifyMobsController", ModifyMobsController);
 
-                <%_if (vm.mob) {_%>
-                    $scope.canEdit = function() {
-                        return $scope.mobForm.$valid && angular.toJson($scope.mob) !== angular.toJson($scope.initialMob);
+                ModifyMobsController.$inject = ["$scope", "$http", "$cookies"];
+
+                function ModifyMobsController($scope, $http, $cookies) {
+                    var vm = this;
+
+                    vm.init = init;
+                    vm.canSubmit = canSubmit;
+                    vm.submit = submit;
+
+                    function init(mob) {
+                        vm.edit = mob.id != null;
+
+                        vm.mob = mob;
+                        vm.initialMob = angular.copy(vm.mob);
                     };
 
-                    $scope.editMob = function(mob) {
-                        if (!$scope.canEdit())
+                    function canEdit() {
+                        return $scope.mobForm.$valid && angular.toJson(vm.mob) !== angular.toJson(vm.initialMob);
+                    };
+
+                    function editMob() {
+                        if (!canEdit())
                             return;
 
                         let query = [
                             "mutation {",
-                                "updateMob(id:",mob.id,",",
+                                "updateMob(id:",vm.mob.id,",",
                                 "authToken:\"",$cookies.get("loginToken"),"\",",
-                                "name:\"",mob.name,"\",",
-                                "xp:",mob.xp,",",
-                                "areaId:",mob.areaId,",",
-                                "gold:",mob.gold,",",
-                                "notes:\"\"\"",mob.notes,"\"\"\",",
-                                "aggro:",mob.aggro,") {",
+                                "name:\"",vm.mob.name,"\",",
+                                "xp:",vm.mob.xp,",",
+                                "areaId:",vm.mob.areaId,",",
+                                "gold:",vm.mob.gold,",",
+                                "notes:\"\"\"",vm.mob.notes,"\"\"\",",
+                                "aggro:",vm.mob.aggro,") {",
                                     "token ",
                                     "expires",
                                 "}",
@@ -151,28 +149,28 @@
                             let data = response.data.data.updateMob;
                             let newToken = data.token;
                             let expireDate = data.expires;
-                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
-                            window.location = "/mobs/details.html?id=" + mob.id;
+                            $cookies.put("loginToken", newToken, {path: "/", expires: expireDate, secure: true, samesite: "lax"});
+                            window.location = "/mobs/details.html?id=" + vm.mob.id;
                         });
                     };
-                <%_} else {_%>
-                    $scope.canAdd = function() {
+
+                    function canAdd() {
                         return $scope.mobForm.$valid;
                     };
 
-                    $scope.addMob = function(mob) {
-                        if (!$scope.canAdd())
+                    function addMob() {
+                        if (!canAdd())
                             return;
 
                         let query = [
                             "mutation {",
                                 "insertMob(authToken:\"",$cookies.get("loginToken"),"\",",
-                                "name:\"",mob.name,"\",",
-                                "xp:",mob.xp,",",
-                                "areaId:",mob.areaId,",",
-                                "gold:",mob.gold,",",
-                                "notes:\"\"\"",mob.notes,"\"\"\",",
-                                "aggro:",mob.aggro,") {",
+                                "name:\"",vm.mob.name,"\",",
+                                "xp:",vm.mob.xp,",",
+                                "areaId:",vm.mob.areaId,",",
+                                "gold:",vm.mob.gold,",",
+                                "notes:\"\"\"",vm.mob.notes,"\"\"\",",
+                                "aggro:",vm.mob.aggro,") {",
                                     "id ",
                                     "tokenRenewal {",
                                         "token ",
@@ -189,14 +187,25 @@
                             let data = response.data.data.insertMob;
                             let newToken = data.tokenRenewal.token;
                             let expireDate = data.tokenRenewal.expires;
-                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
+                            $cookies.put("loginToken", newToken, {path: "/", expires: expireDate, secure: true, samesite: "lax"});
                             window.location = "/mobs/details.html?id=" + data.id;
+                        }).catch(function(errors) {
+                            vm.errors = errors;
                         });
                     };
-                <%_}_%>
 
-                initialize();
-            }]);
+                    function canSubmit() {
+                        return vm.edit ? canEdit() : canAdd();
+                    };
+
+                    function submit() {
+                        if (vm.edit)
+                            editMob();
+                        else
+                            addMob();
+                    };
+                };
+            })();
         </script>
     </body>
 </html>
