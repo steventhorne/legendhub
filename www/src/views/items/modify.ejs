@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <%- include("../shared/meta"); -%>
-        <%if (vm.item) {%>
+        <%if (vm.item.id) {%>
         <link href="https://www.legendhub.org/items/edit.html?id=<%-vm.item.id%>" rel="canonical">
         <%}else{%>
         <link href="https://www.legendhub.org/items/add.html" rel="canonical">
@@ -14,7 +14,7 @@
         <div class="container">
             <form name="itemForm" ng-submit="modifyItems.submit()" ng-cloak>
                 <div class="row">
-                    <% if (vm.item) { %>
+                    <% if (vm.item.id) { %>
                     <h1>Edit Item</h1>
                     <% } else { %>
                     <h1>Add Item</h1>
