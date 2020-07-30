@@ -109,7 +109,7 @@ module.exports.handleNotifications = async function(authToken, notifications, ob
         await module.exports.postAsync(query);
     }
     catch (e) {
-        console.log(e);
+        console.error(e);
     }
     return notifications;
 };
