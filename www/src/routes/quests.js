@@ -338,6 +338,11 @@ router.get(["/add.html"], async function(req, res, next) {
     }
 
     let vm = {
+        quest: {
+            whoises: "",
+            content: "",
+            stat: ""
+        },
         areas: data.getAreas
     };
     let title = "Add Quest";
