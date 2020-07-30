@@ -260,10 +260,17 @@ router.get(["/edit.html"], async function(req, res, next) {
         return next(e);
     }
 
+
+    let subcategories = {};
+    for (let i = 0; i < data.getCategories.length; ++i) {
+        subcategories[data.getCategories[i].id] = data.getCategories[i].getSubcategories;
+    }
+
     let wikiPage = data.getWikiPageById;
     let vm = {
         wikiPage,
-        categories: data.getCategories
+        categories: data.getCategories,
+        subcategories: subcategories
     };
     let title = "Edit Wiki Page";
     res.locals.breadcrumbs = [
@@ -325,8 +332,18 @@ router.get(["/add.html"], async function(req, res, next) {
         return next(e);
     }
 
+    let subcategories = {};
+    for (let i = 0; i < data.getCategories.length; ++i) {
+        subcategories[data.getCategories[i].id] = data.getCategories[i].getSubcategories;
+    }
+
     let vm = {
-        categories: data.getCategories
+        wikiPage: {
+            tage: "",
+            content: ""
+        },
+        categories: data.getCategories,
+        subcategories: subcategories
     };
     let title = "Add Wiki Page";
     res.locals.breadcrumbs = [

@@ -2,19 +2,19 @@
 <html lang="en">
     <head>
         <%-include("../shared/meta");-%>
-        <%if (vm.wikiPage) {%>
+        <%if (vm.wikiPage.id) {%>
         <link href="https://www.legendhub.org/wiki/edit.html?id=<%-vm.wikiPage.id%>" rel="canonical">
         <%}else{%>
         <link href="https://www.legendhub.org/wiki/add.html" rel="canonical">
         <%}%>
         <meta name="robots" content="none">
     </head>
-    <body ng-app="legendwiki-app" ng-controller="wiki-modify">
+    <body ng-app="legendwiki-app" ng-controller="ModifyWikiController as modifyWiki" ng-init="modifyWiki.init(<%=JSON.stringify(vm.wikiPage)%>, <%=JSON.stringify(vm.subcategories)%>)">
         <%-include("../shared/header");-%>
         <div class="container">
-            <form name="wikiForm" ng-submit="<%-(vm.wikiPage ? "editWikiPage(wikiPage)" : "addWikiPage(wikiPage)")%>" ng-cloak>
+            <form name="wikiForm" ng-submit="modifyWiki.submit()" ng-cloak>
                 <div class="form-row">
-                    <%if (vm.wikiPage) {%>
+                    <%if (vm.wikiPage.id) {%>
                     <h1>Edit Wiki Page</h1>
                     <%} else {%>
                     <h1>Add Wiki Page</h1>
@@ -26,7 +26,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Title</span>
                             </div>
-                            <input class="form-control" type="text" name="title" ng-model="wikiPage.title" ng-class="{'is-invalid': wikiForm.title.$invalid}" required lh-autofocus>
+                            <input class="form-control" type="text" name="title" ng-model="modifyWiki.wikiPage.title" ng-class="{'is-invalid': wikiForm.title.$invalid}" required lh-autofocus>
                         </div>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Category</span>
                             </div>
-                            <select class="form-control" name="category" ng-model="wikiPage.categoryId" ng-class="{'is-invalid': wikiForm.category.$invalid}" ng-change="onCategoryChanged()" required>
+                            <select class="form-control" name="category" ng-model="modifyWiki.wikiPage.categoryId" ng-class="{'is-invalid': wikiForm.category.$invalid}" ng-change="modifyWiki.onCategoryChanged()" required>
                                 <%for (let i = 0; i < vm.categories.length; ++i) {%>
                                 <option ng-value="<%-vm.categories[i].id%>"><%=vm.categories[i].name%></option>
                                 <%}%>
@@ -44,14 +44,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-row" ng-show="subcategories[wikiPage.categoryId].length > 0" ng-cloak>
+                <div class="form-row" ng-show="modifyWiki.subcategories[modifyWiki.wikiPage.categoryId].length > 0" ng-cloak>
                     <div class="form-group col-12 col-lg-5">
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Subcategory</span>
                             </div>
-                            <select class="form-control" name="subcategory" ng-model="wikiPage.subcategoryId" ng-class="{'is-invalid': wikiForm.subcategory.$invalid}" ng-required="subcategories[wikiPage.categoryId].length > 0">
-                                <option ng-repeat="subcategory in subcategories[wikiPage.categoryId]" ng-value="subcategory.id">{{subcategory.name}}</option>
+                            <select class="form-control" name="subcategory" ng-model="modifyWiki.wikiPage.subcategoryId" ng-class="{'is-invalid': wikiForm.subcategory.$invalid}" ng-required="modifyWiki.subcategories[modifyWiki.wikiPage.categoryId].length > 0">
+                                <option ng-repeat="subcategory in modifyWiki.subcategories[modifyWiki.wikiPage.categoryId]" ng-value="subcategory.id">{{subcategory.name}}</option>
                             </select>
                         </div>
                     </div>
@@ -63,7 +63,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Tags</span>
                             </div>
-                            <input class="form-control" type="text" name="tags" ng-model="wikiPage.tags" min="0" ng-class="{'is-invalid': wikiForm.tags.$invalid}">
+                            <input class="form-control" type="text" name="tags" ng-model="modifyWiki.wikiPage.tags" min="0" ng-class="{'is-invalid': wikiForm.tags.$invalid}">
                         </div>
                     </div>
                 </div>
@@ -75,7 +75,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Content</span>
                             </div>
-                            <textarea class="form-control" rows="10" ng-model="wikiPage.content"></textarea>
+                            <textarea class="form-control" rows="10" ng-model="modifyWiki.wikiPage.content"></textarea>
                         </div>
                     </div>
                 </div>
@@ -83,13 +83,13 @@
                     <div class="form-group col-12">
                         <div class="card">
                             <div class="card-header">Preview</div>
-                            <div class="card-body" markdown-to-html="wikiPage.content"></div>
+                            <div class="card-body" markdown-to-html="modifyWiki.wikiPage.content"></div>
                         </div>
                     </div>
                 </div>
                 <br>
                 <div class="row">
-                    <button class="btn btn-primary btn-block col-12 offset-md-8 col-md-4 offset-lg-10 col-lg-2" type="submit" ng-disabled="<%-(vm.wikiPage ? "!canEdit()" : "!canAdd()")%>">Save</button>
+                    <button class="btn btn-primary btn-block col-12 offset-md-8 col-md-4 offset-lg-10 col-lg-2" type="submit" ng-disabled="!modifyWiki.canSubmit()">Save</button>
                 </div>
                 <br><br>
             </form>
@@ -98,116 +98,117 @@
         <%-include("../shared/scripts");-%>
         <%-include("../shared/markdown");-%>
         <script>
-            app.controller("wiki-modify", ["$scope", "$http", "$cookies", function($scope, $http, $cookies) {
-                let initialize = function() {
-                    <%_if (vm.wikiPage) {%>
-                        $scope.wikiPage = {
-                            id:<%-vm.wikiPage.id%>,
-                            title:"<%-vm.wikiPage.title.replace(/"/g,"\\\"")%>",
-                            categoryId:<%-vm.wikiPage.categoryId%>,
-                            subcategoryId:<%-vm.wikiPage.subcategoryId === 0 ? "null": vm.wikiPage.subcategoryId%>,
-                            tags:"<%-vm.wikiPage.tags%>",
-                            content:"<%-vm.wikiPage.content.replace(/\\/g,"\\\\").replace(/"/g,"\\\"").replace(/\n/g,"\\n")%>",
-                        };
-                        $scope.initialWikiPage = angular.copy($scope.wikiPage);
-                    <%_} else {_%>
-                        $scope.wikiPage = {
-                            tags: "",
-                            content: ""
-                        };
-                    <%_}_%>
-                        $scope.subcategories = {
-                            <%_for (let i = 0; i < vm.categories.length; ++i) {_%>
-                            <%-vm.categories[i].id%>: [
-                                <%_for (let j = 0; j < vm.categories[i].getSubcategories.length; ++j) {_%>
-                                {id:<%-vm.categories[i].getSubcategories[j].id%>,name:"<%-vm.categories[i].getSubcategories[j].name%>"},
-                                <%_}%>
-                            ],
-                            <%_}_%>
-                        };
+            angular
+                .module("legendwiki-app")
+                .controller("ModifyWikiController", ModifyWikiController);
+
+            ModifyWikiController.$inject = ["$scope", "$http", "$cookies"];
+
+            function ModifyWikiController($scope, $http, $cookies) {
+                var vm = this;
+
+                vm.init = init;
+                vm.canSubmit = canSubmit;
+                vm.submit = submit;
+                vm.onCategoryChanged = onCategoryChanged;
+
+                function init(wikiPage, subcategories) {
+                    vm.edit = wikiPage.id != null;
+
+                    vm.wikiPage = wikiPage;
+                    vm.initialWikiPage = angular.copy(vm.wikiPage);
+
+                    vm.subcategories = subcategories;
                 };
 
-                <%_if (vm.wikiPage) {_%>
-                    $scope.canEdit = function() {
-                        return $scope.wikiForm.$valid && angular.toJson($scope.wikiPage) !== angular.toJson($scope.initialWikiPage);
-                    };
+                function canEdit() {
+                    return $scope.wikiForm.$valid && angular.toJson(vm.wikiPage) !== angular.toJson(vm.initialWikiPage);
+                };
 
-                    $scope.editWikiPage = function(wikiPage) {
-                        if (!$scope.canEdit())
-                            return;
+                function editWikiPage() {
+                    if (!canEdit())
+                        return;
 
-                        let query = [
-                            "mutation {",
-                                "updateWikiPage(id:",wikiPage.id,",",
-                                "authToken:\"",$cookies.get("loginToken"),"\",",
-                                "title:\"",wikiPage.title,"\",",
-                                "categoryId:",wikiPage.categoryId,",",
-                                "subcategoryId:",wikiPage.subcategoryId === null ? "null" : wikiPage.subcategoryId,",",
-                                "tags:\"",wikiPage.tags,"\",",
-                                "content:\"\"\"",wikiPage.content,"\"\"\") {",
+                    let query = [
+                        "mutation {",
+                            "updateWikiPage(id:",vm.wikiPage.id,",",
+                            "authToken:\"",$cookies.get("loginToken"),"\",",
+                            "title:\"",vm.wikiPage.title,"\",",
+                            "categoryId:",vm.wikiPage.categoryId,",",
+                            "subcategoryId:",vm.wikiPage.subcategoryId === null ? "null" : vm.wikiPage.subcategoryId,",",
+                            "tags:\"",vm.wikiPage.tags,"\",",
+                            "content:\"\"\"",vm.wikiPage.content,"\"\"\") {",
+                                "token ",
+                                "expires",
+                            "}",
+                        "}"
+                    ];
+
+                    $http({
+                        url: "/api",
+                        method: "POST",
+                        data: {"query": query.join("")}
+                    }).then((response) => {
+                        let data = response.data.data.updateWikiPage;
+                        let newToken = data.token;
+                        let expireDate = data.expires;
+                        $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
+                        window.location = "/wiki/details.html?id=" + vm.wikiPage.id;
+                    });
+                };
+
+                function canAdd() {
+                    return $scope.wikiForm.$valid;
+                };
+
+                function addWikiPage() {
+                    if (!canAdd())
+                        return;
+
+                    let query = [
+                        "mutation {",
+                            "insertWikiPage(authToken:\"",$cookies.get("loginToken"),"\",",
+                            "title:\"",vm.wikiPage.title,"\",",
+                            "categoryId:",vm.wikiPage.categoryId,",",
+                            "subcategoryId:",vm.wikiPage.subcategoryId === null ? "null" : vm.wikiPage.subcategoryId,",",
+                            "tags:\"",vm.wikiPage.tags,"\",",
+                            "content:\"\"\"",vm.wikiPage.content,"\"\"\") {",
+                                "id ",
+                                "tokenRenewal {",
                                     "token ",
                                     "expires",
                                 "}",
-                            "}"
-                        ];
-                        console.log(query.join(""));
-                        $http({
-                            url: "/api",
-                            method: "POST",
-                            data: {"query": query.join("")}
-                        }).then((response) => {
-                            let data = response.data.data.updateWikiPage;
-                            let newToken = data.token;
-                            let expireDate = data.expires;
-                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
-                            window.location = "/wiki/details.html?id=" + wikiPage.id;
-                        });
-                    };
-                <%_} else {_%>
-                    $scope.canAdd = function() {
-                        return $scope.wikiForm.$valid;
-                    };
-
-                    $scope.addWikiPage = function(wikiPage) {
-                        if (!$scope.canAdd())
-                            return;
-
-                        let query = [
-                            "mutation {",
-                                "insertWikiPage(authToken:\"",$cookies.get("loginToken"),"\",",
-                                "title:\"",wikiPage.title,"\",",
-                                "categoryId:",wikiPage.categoryId,",",
-                                "subcategoryId:",wikiPage.subcategoryId === null ? "null" : wikiPage.subcategoryId,",",
-                                "tags:\"",wikiPage.tags,"\",",
-                                "content:\"\"\"",wikiPage.content,"\"\"\") {",
-                                    "id ",
-                                    "tokenRenewal {",
-                                        "token ",
-                                        "expires",
-                                    "}",
-                                "}",
-                            "}"
-                        ];
-                        $http({
-                            url: "/api",
-                            method: "POST",
-                            data: {"query": query.join("")}
-                        }).then((response) => {
-                            let data = response.data.data.insertWikiPage;
-                            let newToken = data.tokenRenewal.token;
-                            let expireDate = data.tokenRenewal.expires;
-                            $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
-                            window.location = "/wiki/details.html?id=" + data.id;
-                        });
-                    };
-                <%_}_%>
-
-                $scope.onCategoryChanged = function() {
-                    $scope.wikiPage.subcategoryId = null;
+                            "}",
+                        "}"
+                    ];
+                    $http({
+                        url: "/api",
+                        method: "POST",
+                        data: {"query": query.join("")}
+                    }).then((response) => {
+                        let data = response.data.data.insertWikiPage;
+                        let newToken = data.tokenRenewal.token;
+                        let expireDate = data.tokenRenewal.expires;
+                        $cookies.put("loginToken", newToken, {"path": "/", "expires": expireDate, "secure": true, "samesite": "lax"});
+                        window.location = "/wiki/details.html?id=" + data.id;
+                    });
                 };
 
-                initialize();
-            }]);
+                function canSubmit() {
+                    return vm.edit ? canEdit() : canAdd();
+                };
+
+                function submit() {
+                    if (vm.edit)
+                        editWikiPage();
+                    else
+                        addWikiPage();
+                }
+
+                function onCategoryChanged() {
+                    vm.wikiPage.subcategoryId = null;
+                };
+            };
         </script>
     </body>
 </html>
