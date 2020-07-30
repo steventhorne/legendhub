@@ -519,7 +519,9 @@ function autofocusDirective($timeout) {
 
 app.directive("lhCookieConsent", cookieConsentDirective);
 
-function cookieConsentDirective() {
+cookieConsentDirective.$inject = ["$cookies"];
+
+function cookieConsentDirective($cookies) {
     return {
         restrict: "A",
         link: function(scope, element, attrs) {
