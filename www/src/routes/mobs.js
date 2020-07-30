@@ -349,6 +349,11 @@ router.get(["/add.html"], async function(req, res, next) {
     }
 
     let vm = {
+        mob: {
+            xp: 0,
+            gold: 0,
+            aggro: false
+        },
         areas: data.getAreas
     };
     let title = "Add Mob";
