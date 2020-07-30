@@ -311,7 +311,7 @@ router.get(["/add.html"], async function(req, res, next) {
         for (let j = 0; j < itemStatCategories[i].getItemStatInfo.length; ++j) {
             let stat = itemStatCategories[i].getItemStatInfo[j];
             if (!stat.editable) continue;
-            
+
             if (!stat.defaultValue) {
                 item[stat.var] = undefined;
             }
@@ -358,6 +358,9 @@ router.get(["/edit.html"], async function(req, res, next) {
     {
         getItemById(id:${req.query.id}) {
             ... ItemAll
+
+            getMob {name}
+            getQuest {title}
         }
         getItemStatCategories {
             name
