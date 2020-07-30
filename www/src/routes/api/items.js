@@ -1,4 +1,5 @@
 let mysql = require("./mysql-connection");
+let syncRpc = require("sync-rpc");
 let graphql = require("graphql");
 let { GraphQLDateTime } = require("graphql-iso-date");
 let auth = require("./auth");
@@ -12,66 +13,20 @@ String.prototype.format = function() {
     return a;
 }
 
+const rpcClient = syncRpc(__dirname + "/sync-mysql-worker.js");
+let itemColumnsResults = rpcClient("SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'legendhub' AND TABLE_NAME = 'Items'");
+let itemColumns = [];
+for (let i = 0; i < itemColumnsResults.length; ++i) {
+    itemColumns.push({
+        name: itemColumnsResults[i]["COLUMN_NAME"],
+        type: itemColumnsResults[i]["DATA_TYPE"],
+        nullable: itemColumnsResults[i]["IS_NULLABLE"] == "YES"
+    });
+}
+
 // required api schemas
 let mobSchema = require("./mobs.js");
 let questSchema = require("./quests.js");
-let itemColumns = [
-    {name: "Id", type: "INT"},
-    {name: "Name", type: "VARCHAR"},
-    {name: "Slot", type: "INT"},
-    {name: "Strength", type: "INT"},
-    {name: "Mind", type: "INT"},
-    {name: "Dexterity", type: "INT"},
-    {name: "Constitution", type: "INT"},
-    {name: "Perception", type: "INT"},
-    {name: "Spirit", type: "INT"},
-    {name: "Ac", type: "INT"},
-    {name: "Hit", type: "INT"},
-    {name: "Dam", type: "INT"},
-    {name: "Hp", type: "INT"},
-    {name: "Hpr", type: "INT"},
-    {name: "Ma", type: "INT"},
-    {name: "Mar", type: "INT"},
-    {name: "Mv", type: "INT"},
-    {name: "Mvr", type: "INT"},
-    {name: "Spelldam", type: "INT"},
-    {name: "Spellcrit", type: "INT"},
-    {name: "ManaReduction", type: "INT"},
-    {name: "Mitigation", type: "INT"},
-    {name: "Accuracy", type: "INT"},
-    {name: "Ammo", type: "INT"},
-    {name: "TwoHanded", type: "TINYINT"},
-    {name: "Quality", type: "INT"},
-    {name: "MaxDam", type: "INT"},
-    {name: "AvgDam", type: "INT"},
-    {name: "MinDam", type: "INT"},
-    {name: "Parry", type: "INT"},
-    {name: "Holdable", type: "TINYINT"},
-    {name: "Rent", type: "INT"},
-    {name: "Value", type: "INT"},
-    {name: "Weight", type: "DECIMAL"},
-    {name: "SpeedFactor", type: "INT"},
-    {name: "Notes", type: "VARCHAR"},
-    {name: "ModifiedBy", type: "VARCHAR"},
-    {name: "ModifiedOn", type: "DATETIME"},
-    {name: "UniqueWear", type: "TINYINT"},
-    {name: "ModifiedByIP", type: "VARCHAR"},
-    {name: "ModifiedByIPForward", type: "VARCHAR"},
-    {name: "AlignRestriction", type: "INT"},
-    {name: "Bonded", type: "TINYINT"},
-    {name: "Soulbound", type: "TINYINT"},
-    {name: "Casts", type: "VARCHAR"},
-    {name: "Level", type: "INT"},
-    {name: "NetStat", type: "DECIMAL"},
-    {name: "Concentration", type: "INT"},
-    {name: "RangedAccuracy", type: "INT"},
-    {name: "MobId", type: "INT"},
-    {name: "QuestId", type: "INT"},
-    {name: "WeaponType", type: "INT"},
-    {name: "WeaponStat", type: "INT"},
-    {name: "IsLight", type: "TINYINT"},
-    {name: "IsHeroic", type: "TINYINT"}
-];
 
 let selectOptions = {
     slot: [
@@ -896,69 +851,62 @@ let deleteItem = function(req, authToken, id) {
     });
 };
 
+function getItemFields(withId, withDeleted, optional) {
+    let fields = {};
+    let t = undefined;
+    for (let i = 0; i < itemColumns.length; ++i) {
+        if (!withId && itemColumns[i].name === "Id")
+            continue;
+
+        if (!withDeleted && itemColumns[i].name === "Deleted")
+            continue;
+
+        switch (itemColumns[i].type) {
+            case "int":
+                t = graphql.GraphQLInt;
+                break;
+            case "decimal":
+                t = graphql.GraphQLFloat;
+                break;
+            case "tinyint":
+                t = graphql.GraphQLBoolean;
+                break;
+            case "varchar":
+            case "text":
+                t = graphql.GraphQLString;
+                break;
+            case "datetime":
+                t = GraphQLDateTime;
+                break;
+            default:
+                break;
+        }
+
+        if ((!optional || itemColumns[i].name === "Id")
+            && !itemColumns[i].nullable
+            && itemColumns[i].name !== "ModifiedBy"
+            && itemColumns[i].name !== "ModifiedOn") {
+            fields[itemColumns[i].name[0].toLowerCase() + itemColumns[i].name.slice(1)] = { type: new graphql.GraphQLNonNull(t) };
+        }
+        else {
+            fields[itemColumns[i].name[0].toLowerCase() + itemColumns[i].name.slice(1)] = { type: t };
+        }
+    }
+
+    return fields;
+};
+
 let itemType = new graphql.GraphQLObjectType({
     name: "Item",
-    fields: () => ({
-        id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt)  },
-        name: { type: new graphql.GraphQLNonNull(graphql.GraphQLString)  },
-        slot: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt)  },
-        strength: { type: graphql.GraphQLInt  },
-        mind: { type: graphql.GraphQLInt  },
-        dexterity: { type: graphql.GraphQLInt  },
-        constitution: { type: graphql.GraphQLInt  },
-        perception: { type: graphql.GraphQLInt  },
-        spirit: { type: graphql.GraphQLInt  },
-        ac: { type: graphql.GraphQLInt  },
-        hit: { type: graphql.GraphQLInt  },
-        dam: { type: graphql.GraphQLInt  },
-        hp: { type: graphql.GraphQLInt  },
-        hpr: { type: graphql.GraphQLInt  },
-        ma: { type: graphql.GraphQLInt  },
-        mar: { type: graphql.GraphQLInt  },
-        mv: { type: graphql.GraphQLInt  },
-        mvr: { type: graphql.GraphQLInt  },
-        spelldam: { type: graphql.GraphQLInt  },
-        spellcrit: { type: graphql.GraphQLInt  },
-        manaReduction: { type: graphql.GraphQLInt  },
-        mitigation: { type: graphql.GraphQLInt  },
-        accuracy: { type: graphql.GraphQLInt  },
-        ammo: { type: graphql.GraphQLInt  },
-        twoHanded: { type: graphql.GraphQLBoolean  },
-        quality: { type: graphql.GraphQLInt  },
-        maxDam: { type: graphql.GraphQLInt  },
-        avgDam: { type: graphql.GraphQLInt  },
-        minDam: { type: graphql.GraphQLInt  },
-        parry: { type: graphql.GraphQLInt  },
-        holdable: { type: graphql.GraphQLBoolean  },
-        rent: { type: graphql.GraphQLInt  },
-        value: { type: graphql.GraphQLInt  },
-        weight: { type: graphql.GraphQLFloat  },
-        speedFactor: { type: graphql.GraphQLInt  },
-        notes: { type: graphql.GraphQLString  },
-        modifiedBy: { type: new graphql.GraphQLNonNull(graphql.GraphQLString)  },
-        modifiedOn: { type: new graphql.GraphQLNonNull(GraphQLDateTime)  },
-        uniqueWear: { type: graphql.GraphQLBoolean  },
-        modifiedByIP: { type: graphql.GraphQLString  },
-        modifiedByIPForward: { type: graphql.GraphQLString  },
-        alignRestriction: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt)  },
-        bonded: { type: graphql.GraphQLBoolean  },
-        soulbound: { type: graphql.GraphQLBoolean },
-        casts: { type: graphql.GraphQLString  },
-        level: { type: graphql.GraphQLInt  },
-        netStat: { type: graphql.GraphQLFloat  },
-        concentration: { type: graphql.GraphQLInt  },
-        rangedAccuracy: { type: graphql.GraphQLInt  },
-        mobId: { type: graphql.GraphQLInt  },
-        questId: { type: graphql.GraphQLInt  },
-        weaponType: { type: graphql.GraphQLInt  },
-        weaponStat: { type: graphql.GraphQLInt  },
-        isLight: { type: new graphql.GraphQLNonNull(graphql.GraphQLBoolean)  },
-        isHeroic: { type: new graphql.GraphQLNonNull(graphql.GraphQLBoolean)  },
+    fields: () => {
+        let f = getItemFields(true, true);
 
-        getMob: { type: mobSchema.types.mobType },
-        getQuest: { type: questSchema.types.questType },
-        getHistories: { type: new graphql.GraphQLList(itemHistoryType) }
-    })
+        f.getMob = { type: mobSchema.types.mobType },
+        f.getQuest = { type: questSchema.types.questType },
+        f.getHistories = { type: new graphql.GraphQLList(itemHistoryType) }
+
+        return f;
+    }
 });
 
 let itemStatCategoryType = new graphql.GraphQLObjectType({
@@ -1084,336 +1032,28 @@ let qFields = {
     }
 };
 
+let insertItemArgs = getItemFields(false, false);
+insertItemArgs.authToken = { type: new graphql.GraphQLNonNull(graphql.GraphQLString) };
+
+let updateItemArgs = getItemFields(false, false, true);
+updateItemArgs.authToken = { type: new graphql.GraphQLNonNull(graphql.GraphQLString) };
+updateItemArgs.id = { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) };
+
 let mFields = {
     insertItem: {
         type: auth.types.idMutationResponseType,
-        args: {
-            authToken: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
-            name: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
-            slot: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) },
-            strength: { type: graphql.GraphQLInt },
-            mind: { type: graphql.GraphQLInt },
-            dexterity: { type: graphql.GraphQLInt },
-            constitution: { type: graphql.GraphQLInt },
-            perception: { type: graphql.GraphQLInt },
-            spirit: { type: graphql.GraphQLInt },
-            ac: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) },
-            hit: { type: graphql.GraphQLInt },
-            dam: { type: graphql.GraphQLInt },
-            hp: { type: graphql.GraphQLInt },
-            hpr: { type: graphql.GraphQLInt },
-            ma: { type: graphql.GraphQLInt },
-            mar: { type: graphql.GraphQLInt },
-            mv: { type: graphql.GraphQLInt },
-            mvr: { type: graphql.GraphQLInt },
-            spelldam: { type: graphql.GraphQLInt },
-            spellcrit: { type: graphql.GraphQLInt },
-            manaReduction: { type: graphql.GraphQLInt },
-            mitigation: { type: graphql.GraphQLInt },
-            accuracy: { type: graphql.GraphQLInt },
-            ammo: { type: graphql.GraphQLInt },
-            twoHanded: { type: graphql.GraphQLBoolean },
-            quality: { type: graphql.GraphQLInt },
-            maxDam: { type: graphql.GraphQLInt },
-            avgDam: { type: graphql.GraphQLInt },
-            minDam: { type: graphql.GraphQLInt },
-            parry: { type: graphql.GraphQLInt },
-            holdable: { type: graphql.GraphQLBoolean },
-            rent: { type: graphql.GraphQLInt },
-            value: { type: graphql.GraphQLInt },
-            weight: { type: new graphql.GraphQLNonNull(graphql.GraphQLFloat) },
-            speedFactor: { type: graphql.GraphQLInt },
-            notes: { type: graphql.GraphQLString },
-            uniqueWear: { type: graphql.GraphQLBoolean },
-            alignRestriction: { type: graphql.GraphQLInt },
-            bonded: { type: graphql.GraphQLBoolean },
-            soulbound: { type: graphql.GraphQLBoolean },
-            casts: { type: graphql.GraphQLString },
-            level: { type: graphql.GraphQLInt },
-            netStat: { type: graphql.GraphQLFloat },
-            concentration: { type: graphql.GraphQLInt },
-            rangedAccuracy: { type: graphql.GraphQLInt },
-            mobId: { type: graphql.GraphQLInt },
-            questId: { type: graphql.GraphQLInt },
-            weaponType: { type: graphql.GraphQLInt },
-            weaponStat: { type: graphql.GraphQLInt },
-            isLight: { type: graphql.GraphQLBoolean },
-            isHeroic: { type: graphql.GraphQLBoolean }
-        },
-        resolve: function(_, {
-            authToken,
-            name,
-            slot,
-            strength,
-            mind,
-            dexterity,
-            constitution,
-            perception,
-            spirit,
-            ac,
-            hit,
-            dam,
-            hp,
-            hpr,
-            ma,
-            mar,
-            mv,
-            mvr,
-            spelldam,
-            spellcrit,
-            manaReduction,
-            mitigation,
-            accuracy,
-            ammo,
-            twoHanded,
-            quality,
-            maxDam,
-            avgDam,
-            minDam,
-            parry,
-            holdable,
-            rent,
-            value,
-            weight,
-            speedFactor,
-            notes,
-            uniqueWear,
-            alignRestriction,
-            bonded,
-            soulbound,
-            casts,
-            level,
-            netStat,
-            concentration,
-            rangedAccuracy,
-            mobId,
-            questId,
-            weaponType,
-            weaponStat,
-            isLight,
-            isHeroic
-        }, req) {
-            return insertItem({
-                req,
-                authToken,
-                name,
-                slot,
-                strength,
-                mind,
-                dexterity,
-                constitution,
-                perception,
-                spirit,
-                ac,
-                hit,
-                dam,
-                hp,
-                hpr,
-                ma,
-                mar,
-                mv,
-                mvr,
-                spelldam,
-                spellcrit,
-                manaReduction,
-                mitigation,
-                accuracy,
-                ammo,
-                twoHanded,
-                quality,
-                maxDam,
-                avgDam,
-                minDam,
-                parry,
-                holdable,
-                rent,
-                value,
-                weight,
-                speedFactor,
-                notes,
-                uniqueWear,
-                alignRestriction,
-                bonded,
-                soulbound,
-                casts,
-                level,
-                netStat,
-                concentration,
-                rangedAccuracy,
-                mobId,
-                questId,
-                weaponType,
-                weaponStat,
-                isLight,
-                isHeroic
-            });
+        args: insertItemArgs,
+        resolve: function(_, itemArgs, req) {
+            itemArgs.req = req;
+            return insertItem(itemArgs);
         }
     },
     updateItem: {
         type: new graphql.GraphQLNonNull(auth.types.tokenRenewalType),
-        args: {
-            authToken: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
-            id: { type: new graphql.GraphQLNonNull(graphql.GraphQLInt) },
-            name: { type: graphql.GraphQLString },
-            slot: { type: graphql.GraphQLInt },
-            strength: { type: graphql.GraphQLInt },
-            mind: { type: graphql.GraphQLInt },
-            dexterity: { type: graphql.GraphQLInt },
-            constitution: { type: graphql.GraphQLInt },
-            perception: { type: graphql.GraphQLInt },
-            spirit: { type: graphql.GraphQLInt },
-            ac: { type: graphql.GraphQLInt },
-            hit: { type: graphql.GraphQLInt },
-            dam: { type: graphql.GraphQLInt },
-            hp: { type: graphql.GraphQLInt },
-            hpr: { type: graphql.GraphQLInt },
-            ma: { type: graphql.GraphQLInt },
-            mar: { type: graphql.GraphQLInt },
-            mv: { type: graphql.GraphQLInt },
-            mvr: { type: graphql.GraphQLInt },
-            spelldam: { type: graphql.GraphQLInt },
-            spellcrit: { type: graphql.GraphQLInt },
-            manaReduction: { type: graphql.GraphQLInt },
-            mitigation: { type: graphql.GraphQLInt },
-            accuracy: { type: graphql.GraphQLInt },
-            ammo: { type: graphql.GraphQLInt },
-            twoHanded: { type: graphql.GraphQLBoolean },
-            quality: { type: graphql.GraphQLInt },
-            maxDam: { type: graphql.GraphQLInt },
-            avgDam: { type: graphql.GraphQLInt },
-            minDam: { type: graphql.GraphQLInt },
-            parry: { type: graphql.GraphQLInt },
-            holdable: { type: graphql.GraphQLBoolean },
-            rent: { type: graphql.GraphQLInt },
-            value: { type: graphql.GraphQLInt },
-            weight: { type: graphql.GraphQLFloat },
-            speedFactor: { type: graphql.GraphQLInt },
-            notes: { type: graphql.GraphQLString },
-            uniqueWear: { type: graphql.GraphQLBoolean },
-            alignRestriction: { type: graphql.GraphQLInt },
-            bonded: { type: graphql.GraphQLBoolean },
-            soulbound: { type: graphql.GraphQLBoolean },
-            casts: { type: graphql.GraphQLString },
-            level: { type: graphql.GraphQLInt },
-            netStat: { type: graphql.GraphQLFloat },
-            concentration: { type: graphql.GraphQLInt },
-            rangedAccuracy: { type: graphql.GraphQLInt },
-            mobId: { type: graphql.GraphQLInt },
-            questId: { type: graphql.GraphQLInt },
-            weaponType: { type: graphql.GraphQLInt },
-            weaponStat: { type: graphql.GraphQLInt },
-            isLight: { type: graphql.GraphQLBoolean },
-            isHeroic: { type: graphql.GraphQLBoolean }
-        },
-        resolve: function(_, {
-            authToken,
-            id,
-            name,
-            slot,
-            strength,
-            mind,
-            dexterity,
-            constitution,
-            perception,
-            spirit,
-            ac,
-            hit,
-            dam,
-            hp,
-            hpr,
-            ma,
-            mar,
-            mv,
-            mvr,
-            spelldam,
-            spellcrit,
-            manaReduction,
-            mitigation,
-            accuracy,
-            ammo,
-            twoHanded,
-            quality,
-            maxDam,
-            avgDam,
-            minDam,
-            parry,
-            holdable,
-            rent,
-            value,
-            weight,
-            speedFactor,
-            notes,
-            uniqueWear,
-            alignRestriction,
-            bonded,
-            soulbound,
-            casts,
-            level,
-            netStat,
-            concentration,
-            rangedAccuracy,
-            mobId,
-            questId,
-            weaponType,
-            weaponStat,
-            isLight,
-            isHeroic
-        }, req) {
-            return updateItem({
-                req,
-                authToken,
-                id,
-                name,
-                slot,
-                strength,
-                mind,
-                dexterity,
-                constitution,
-                perception,
-                spirit,
-                ac,
-                hit,
-                dam,
-                hp,
-                hpr,
-                ma,
-                mar,
-                mv,
-                mvr,
-                spelldam,
-                spellcrit,
-                manaReduction,
-                mitigation,
-                accuracy,
-                ammo,
-                twoHanded,
-                quality,
-                maxDam,
-                avgDam,
-                minDam,
-                parry,
-                holdable,
-                rent,
-                value,
-                weight,
-                speedFactor,
-                notes,
-                uniqueWear,
-                alignRestriction,
-                bonded,
-                soulbound,
-                casts,
-                level,
-                netStat,
-                concentration,
-                rangedAccuracy,
-                mobId,
-                questId,
-                weaponType,
-                weaponStat,
-                isLight,
-                isHeroic
-            });
+        args: updateItemArgs,
+        resolve: function(_, itemArgs, req) {
+            itemArgs.req = req;
+            return updateItem(itemArgs);
         }
     },
     revertItem: {
