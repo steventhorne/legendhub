@@ -1641,7 +1641,10 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
 				fromBonus += parseInt(Math.max(dex - 70, 0) / 6);
 				break;
 			case "dam":
-				fromBonus += parseInt(($scope.getStatTotal("strength") - 30) / 3);
+                var strength = $scope.getStatTotal("strength");
+				fromBonus += parseInt((strength - 30) / 3);
+                fromBonus += parseInt((strength - 75) / 5);
+                fromBonus += parseInt((strength - 99) / 2);
 				break;
 			case "mitigation":
 				var con = $scope.getStatTotal("constitution");
@@ -1726,6 +1729,10 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
             case "dam":
                 max = 27;
                 break;
+            case "spelldam":
+            case "spellcrit":
+                max = 40;
+                break;
             case "hpr":
                 var con = $scope.getStatTotal("constitution");
 
@@ -1763,8 +1770,6 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
             case "spirit":
                 max = 110;
                 break;
-            case "spelldam":
-            case "spellcrit":
             case "manaReduction":
                 max = 50;
                 break;
@@ -1925,6 +1930,8 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
             case "dam":
             case "hit":
             case "hpr":
+            case "spelldam":
+            case "spellcrit":
                 total = total + " (" + fromItems + ")";
                 break;
         }
