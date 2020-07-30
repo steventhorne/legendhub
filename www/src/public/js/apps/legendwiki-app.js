@@ -4,7 +4,7 @@ var app = angular.module( "legendwiki-app", ['ngCookies'] );
  *
  * @param {string} name - The name of the query parameter.
  */
-getUrlParameter = function(name) {
+function getUrlParameter(name) {
     name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
     var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
     var results = regex.exec(location.search);
@@ -12,7 +12,11 @@ getUrlParameter = function(name) {
         '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 };
 
-app.run(function($templateCache) {
+app.run(templates);
+
+templates.$inject = ["$templateCache"];
+
+function templates($templateCache) {
     var notificationHtml = ' tabindex="0" role="button" data-container="lh-header>div" data-toggle="popover" data-placement="bottom" ng-attr-data-content="{{getNotificationContent()}}" ng-if="!!currentUser" lh-popover><span ng-if="notifications.length > 0"><span class="badge badge-pill badge-danger">{{notifications.length}}</span>&nbsp;</span><i class="fas fa-bell"></i></a>';
     var notificationWeb = '<a class="btn btn-dark d-none d-sm-inline-block"' + notificationHtml;
     var notificationMobile = '<a tabindex="0" class="btn btn-dark ml-auto mr-3 d-inline-block d-sm-none"' + notificationHtml;
@@ -105,11 +109,16 @@ app.run(function($templateCache) {
 	'</div>' +
 '</div>' +
 '<lh-cookie-consent></lh-cookie-consent>');
+};
 
-});
+app
+    .factory("unauthorizedInterceptor", unauthorizedInterceptor)
+    .config(httpProviderConfig);
+
+unauthorizedInterceptor.$inject = ["$q"];
 
 // http interceptor to redirect all 401/403 responses to the 401 page
-app.factory('unauthorizedInterceptor', function($q) {
+function unauthorizedInterceptor($q) {
 	return {
 		responseError(response) {
 			if (response.status === 401 || response.status === 403) {
@@ -119,9 +128,13 @@ app.factory('unauthorizedInterceptor', function($q) {
 			return $q.reject(response);
 		}
 	};
-}).config(function($httpProvider) {
-	$httpProvider.interceptors.push('unauthorizedInterceptor');
-});
+}
+
+httpProviderConfig.$inject = ["$httpProvider"];
+
+function httpProviderConfig($httpProvider) {
+    $httpProvider.interceptors.push("unauthorizedInterceptor");
+};
 
 app.constant('itemConstants', {
 	slots: ["Light",
@@ -258,15 +271,19 @@ app.constant('itemConstants', {
   }
 });
 
-app.factory('breadcrumb', function() {
+app.factory("breadcrumb", breadcrumbFactory);
+
+function breadcrumbFactory() {
 	function Breadcrumb() {
 		this.links = [];
 	}
 
 	return new Breadcrumb();
-});
+};
 
-app.factory('categories', function() {
+app.factory("categories", categoriesFactory);
+
+function categoriesFactory() {
 	function Categories() {
 		this.categories = [];
 		this.subcategories = [];
@@ -426,9 +443,13 @@ app.factory('categories', function() {
 	}
 
 	return new Categories();
-});
+};
 
-app.controller('header', ['$scope', '$http', '$cookies', '$compile', 'breadcrumb', function($scope, $http, $cookies, $compile, breadcrumb) {
+app.controller("header", HeaderController);
+
+HeaderController.$inject = ["$scope", "$http", "$cookies", "$compile", "breadcrumb"];
+
+function HeaderController($scope, $http, $cookies, $compile, breadcrumb) {
 	$scope.initialize = function() {
         $scope.themes = ['Light', 'Dark', 'Solarized Dark'];
 		$scope.bcFactory = breadcrumb;
@@ -479,9 +500,13 @@ app.controller('header', ['$scope', '$http', '$cookies', '$compile', 'breadcrumb
     }
 
 	$scope.initialize();
-}]);
+};
 
-app.directive('lhAutofocus', ['$timeout', function($timeout) {
+app.directive("lhAutofocus", autofocusDirective);
+
+autofocusDirective.$inject = ["$timeout"];
+
+function autofocusDirective($timeout) {
 	return {
 		restrict: 'A',
 		link : function($scope, $element) {
@@ -490,9 +515,11 @@ app.directive('lhAutofocus', ['$timeout', function($timeout) {
 			});
 		}
 	}
-}]);
+};
 
-app.directive("lhCookieConsent", function($cookies) {
+app.directive("lhCookieConsent", cookieConsentDirective);
+
+function cookieConsentDirective() {
     return {
         restrict: "A",
         link: function(scope, element, attrs) {
@@ -504,9 +531,11 @@ app.directive("lhCookieConsent", function($cookies) {
             });
         }
     };
-});
+};
 
-app.directive('lhTooltip', function() {
+app.directive('lhTooltip', tooltipDirective);
+
+function tooltipDirective() {
 	return {
 		restrict: 'A',
 		link: function(scope, element, attrs) {
@@ -519,9 +548,13 @@ app.directive('lhTooltip', function() {
 			});
 		}
 	};
-});
+};
 
-app.directive('lhPopover', function($compile) {
+app.directive('lhPopover', popoverDirective);
+
+popoverDirective.$inject = ["$compile"];
+
+function popoverDirective($compile) {
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {
@@ -531,9 +564,11 @@ app.directive('lhPopover', function($compile) {
             });
         }
     };
-});
+};
 
-app.factory('encoder', [function() {
+app.factory("encoder", encoderFactory);
+
+function encoderFactory() {
 	var rixits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 	return {
@@ -578,4 +613,4 @@ app.factory('encoder', [function() {
 			return result;
 		}
 	}
-}]);
+};
