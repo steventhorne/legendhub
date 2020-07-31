@@ -45,7 +45,7 @@
                             let stat = category.getItemStatInfo[j];
                             if (stat.editable && stat.var !== "name") {%>
                             <div class="form-group col-6 col-md-4 col-lg-<%- (stat.type === "bool" ? "2" : "3")%>"
-                            <% if (stat.var === "holdable" || stat.var === "weaponType" || stat.var === "weaponStat") {%>
+                            <% if (stat.var === "holdable" || stat.var === "weaponType" || stat.var === "weaponStat" || stat.var === "speedFactor" || stat.var === "quality") {%>
                                 ng-show="modifyItems.item.slot === 14"
                             <%} else if (stat.var === "accuracy") {%>
                                 ng-show="modifyItems.item.slot === 14 || modifyItems.item.slot === 15"

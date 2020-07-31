@@ -162,7 +162,7 @@ AC: <%-vm.item.ac%>" />
                         <%_
                             for (let i = 0; i < vm.statCategories.length; ++i) {
                                 let category = vm.statCategories[i];
-                                if (category.name === "Weapon" && vm.item.slot !== 14) {
+                                if (category.name === "Weapon" && !(vm.item.slot === 14 || (vm.item.slot == 15 && vm.item.accuracy > 0))) {
                                     continue;
                                 }
                         %>
@@ -191,6 +191,10 @@ AC: <%-vm.item.ac%>" />
                                         vm.item[stat.var] == 0)
                                         continue;
                                     if ((stat.type === "string" || stat.type === "bool" || stat.type === "select") && !vm.item[stat.var])
+                                        continue;
+                                    if ((stat.var === "holdable" || stat.var === "weaponType" || stat.var === "weaponStat" || stat.var === "speedFactor" || stat.var === "quality") && vm.item.slot !== 14)
+                                        continue;
+                                    else if (stat.var === "accuracy" && (vm.item.slot !== 14 && vm.item.slot !== 15))
                                         continue;
                                 %>
                             <div class="col-sm-6 col-12 mb-1">
