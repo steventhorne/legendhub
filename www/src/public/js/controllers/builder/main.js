@@ -1764,11 +1764,13 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
             case "mind":
             case "dexterity":
             case "constitution":
-                max = 105;
-                break;
             case "perception":
             case "spirit":
-                max = 110;
+                max = 100;
+                for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+                    if ($scope.selectedList.items[i][statName + "Cap"])
+                        max += $scope.selectedList.items[i][statName + "Cap"];
+                }
                 break;
             case "manaReduction":
                 max = 50;
