@@ -1644,7 +1644,7 @@ function builderController($scope, $cookies, $http, $q, $timeout, itemConstants,
                 var strength = $scope.getStatTotal("strength");
 				fromBonus += parseInt((strength - 30) / 3);
                 fromBonus += parseInt((strength - 75) / 5);
-                fromBonus += parseInt((strength - 99) / 2);
+                fromBonus += parseInt(Math.max(strength - 99, 0) / 2);
 				break;
 			case "mitigation":
 				var con = $scope.getStatTotal("constitution");
