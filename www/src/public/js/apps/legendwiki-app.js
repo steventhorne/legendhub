@@ -616,3 +616,35 @@ function encoderFactory() {
 		}
 	}
 };
+
+function exceptionService($log) {
+    var service = {};
+    service.callbacks = [];
+
+    function addCallback(cb) {
+        service.callbacks.push(cb);
+    }
+
+    function logException(exception, cause) {
+        for (var i = 0; i < service.callbacks.length; ++i) {
+            service.callbacks[i](exception, cause);
+        }
+
+        $log.error(exception, cause);
+    }
+
+    service.addCallback = addCallback;
+    service.logException = logException;
+
+    return service;
+};
+
+app.factory("exceptionService", ["$log", exceptionService]);
+
+function exceptionHandler(exceptionService) {
+    return function myHandler(exception, cause) {
+        exceptionService.logException(exception, cause);
+    }
+}
+
+app.factory("$exceptionHandler", ["exceptionService", exceptionHandler]);

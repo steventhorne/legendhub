@@ -167,6 +167,10 @@
 				</div>
 			</div>
 		</div>
+        <div class="row mb-3" ng-if="exceptionEncountered" ng-cloak>
+            <span class="col-12 text-danger mb-2">An error has occurred, your lists have stopped saving to prevent corrupt data from being saved. Please refresh your browser.</span>
+            <span class="col-12 text-danger">If you continue to have this issue, please contact the site administrator.</span>
+        </div>
 		<div class="row" ng-show="statInfo != null">
 			<div class="table-responsive" ng-cloak>
 				<table class="table table-striped table-hover table-sm table-bordered">
