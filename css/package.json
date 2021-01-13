@@ -8,12 +8,12 @@
     "build:lint": "stylelint --syntax scss \"scss/**/*.scss\"",
     "build:prefix": "postcss --config build/postcss.config.js --replace \"dist/css/*.css\" \"!dist/css/*.min.css\"",
     "build:minify": "cleancss --level 1 --source-map --source-map-inline-sources --output dist/css/bootstrap-light.min.css dist/css/bootstrap-light.css && cleancss --level 1 --source-map --source-map-inline-sources --output dist/css/bootstrap-dark.min.css dist/css/bootstrap-dark.css && cleancss --level 1 --source-map --source-map-inline-sources --output dist/css/bootstrap-solarized-dark.min.css dist/css/bootstrap-solarized-dark.css",
-    "build:copy": "shx cp dist/css/*.min.css ../www/public/css/",
+    "build:copy": "shx cp dist/css/*.min.css ../www/src/public/css/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SvarturH/legendhub.git"
+    "url": "git+https://github.com/steventhorne/legendhub.git"
   },
   "keywords": [
     "legendhub",
@@ -23,14 +23,14 @@
     "css"
   ],
   "author": {
-    "name": "Svartur",
-    "url": "https://www.github.com/SvarturH/"
+    "name": "Steve Thorne",
+    "url": "https://www.sthorne.dev"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/SvarturH/legendhub/issues"
+    "url": "https://github.com/steventhorne/legendhub/issues"
   },
-  "homepage": "https://github.com/SvarturH/legendhub#readme",
+  "homepage": "https://github.com/steventhorne/legendhub#readme",
   "dependencies": {},
   "devDependencies": {
     "clean-css-cli": "^4.3.0",
