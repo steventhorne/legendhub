@@ -48,6 +48,7 @@ services:
             - MYSQL_DATABASE=${MYSQL_DATABASE}
             - GITHUB_TOKEN=${GITHUB_TOKEN}
             - GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
+            - RECAPTCHA_SITEKEY=${RECAPTCHA_SITEKEY}
             - RECAPTCHA_SECRET=${RECAPTCHA_SECRET}
         networks:
             - legendhub
