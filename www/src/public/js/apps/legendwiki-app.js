@@ -575,10 +575,11 @@ function encoderFactory() {
 
 	return {
 		fromNumber : function(number, minLength) {
-			if (isNaN(Number(number)) || number === null
-				|| number === Number.POSITIVE_INFINITY
-			  || number === Number.NEGATIVE_INFINITY)
-				  throw "The input is not valid";
+			if (isNaN(Number(number))
+                || number === null
+			    || number === Number.POSITIVE_INFINITY
+			    || number === Number.NEGATIVE_INFINITY)
+				  number = 0;
 			var negative = number < 0;
 			number = Math.abs(number);
 
