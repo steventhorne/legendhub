@@ -265,3 +265,5 @@ These aren't necessarily major features, but things that should be noted.
 * Update builder to store lists in the database instead of in localStorage
     *Might require merging/overwriting support to allow people to upload their lists from separate computers which may contain conflicts
 * Use LegendMUD logins instead of a separate LegendHUB login to provide better security and account help.
+* Use websockets to provide more immediate feedback for new notifications. (would require changes to python service most likely.)
+* Move AngularJS to a more recent Javascript framework, preferrably one that is component-driven.
