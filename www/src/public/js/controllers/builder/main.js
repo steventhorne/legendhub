@@ -16,17 +16,23 @@
             $scope.itemsPerPageOptions = [20, 50, 100, 200, 500, 1000];
 
             $scope.slotOrder = [0,1,1,2,2,3,4,5,6,7,8,9,11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21];
-            $scope.longhouseList = ["Bear -- ( spi - min )",
-                                    "Beaver -- ( min - dex )",
-                                    "Eagle -- ( per - str )",
-                                    "Moose -- ( str - con )",
-                                    "Snake -- ( dex - per )",
-                                    "Turtle -- ( con - spi )",
-                                    "Dragon -- ( dex - con )",
-                                    "Hydra -- ( per - dex )",
-                                    "Wyvern -- ( min - spi )"];
+            $scope.longhouseList = ["Bear -- ( +5 spi - +3 min )",
+                                    "Beaver -- ( +5 min - +3 dex )",
+                                    "Eagle -- ( +5 per / +3 str )",
+                                    "Moose -- ( +5 str / +3 con )",
+                                    "Snake -- ( +5 dex / +3 per )",
+                                    "Turtle -- ( +5 con / +3 spi )",
+                                    "Dragon -- ( +5 dex / +3 con )",
+                                    "Hydra -- ( +5 per / +3 dex )",
+                                    "Wyvern -- ( +5 min / +3 spi )",
+                                    "Beetle -- ( +8 spi )",
+                                    "Falcon -- ( +8 dex )",
+                                    "Sphinx -- ( +8 per )",
+                                    "Merlin -- ( +10 min / -2 dex )"];
 
             $scope.amuletList = ["Strength", "Mind", "Dexterity", "Constitution", "Perception", "Spirit"];
+
+            $scope.druidList = ["Strength", "Mind", "Dexterity", "Constitution", "Perception", "Spirit"];
 
             // item searching vars
             $scope.searchString = "";
@@ -86,7 +92,7 @@
             list.name = name;
 
             // base stats
-            list.baseStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0, "longhouse": -1, "amulet": -1};
+            list.baseStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0, "longhouse": -1, "amulet": -1, "druid": -1};
             list.ksmStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0};
 
             // items
@@ -232,6 +238,9 @@
             newList.baseStats.amulet = Number(each[0]);
             each.shift();
 
+            newList.baseStats.druid = Number(each[0]);
+            each.shift();
+
             newList.ksmStats = {
                 strength: 0,
                 mind: 0,
@@ -303,6 +312,12 @@
             else
                 baseStats.amulet = encoder.toNumber(listStr.slice(0,1));
             listStr = listStr.substring(1);
+
+            if (statList[0] === '_')
+                baseStats.druid = -1;
+            else
+                baseStats.druid = encoder.toNumber(listStr.slice(0,1));
+        listStr = listStr.substring(1);
 
             var items = [];
             var itemIndex = 0;
@@ -649,6 +664,11 @@
                 listCookieStr += encoder.fromNumber(list.baseStats.amulet,1);
             else
                 listCookieStr += "_";
+            
+            if (list.baseStats.druid >= 0)
+                listCookieStr += encoder.fromNumber(list.baseStats.druid,1);
+            else
+                listCookieStr += "_";
 
             for (let k = 0; k < list.items.length; ++k) {
                 if (list.items[k].id) {
@@ -732,6 +752,7 @@
                 if (total === 244) {
                     $scope.selectedList.baseStats.longhouse = -1;
                     $scope.selectedList.baseStats.amulet = -1;
+                    $scope.selectedList.baseStats.druid = -1;
                 }
             }
 
@@ -1517,7 +1538,7 @@
                     if (totalBaseStats < 244) {
                         fromStatQuests += 3;
                     }
-                    if ($scope.selectedList.baseStats.amulet == 1) {
+                    if ($scope.selectedList.baseStats.amulet == 1 || $scope.selectedList.baseStats.longhouse == 12) {
                         fromStatQuests += 10;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 1 || $scope.selectedList.baseStats.longhouse == 8) {
@@ -1534,11 +1555,17 @@
                     if ($scope.selectedList.baseStats.amulet == 2) {
                         fromStatQuests += 10;
                     }
+                    if ($scope.selectedList.baseStats.amulet == 10) {
+                        fromStatQuests += 8;
+                    }
                     if ($scope.selectedList.baseStats.longhouse == 4 || $scope.selectedList.baseStats.longhouse == 6) {
                         fromStatQuests += 5;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 1 || $scope.selectedList.baseStats.longhouse == 7) {
                         fromStatQuests += 3;
+                    }
+                    if ($scope.selectedList.baseStats.amulet == 12) {
+                        fromStatQuests -= 2;
                     }
                     break;
                 case "constitution":
@@ -1562,6 +1589,9 @@
                     if ($scope.selectedList.baseStats.amulet == 4) {
                         fromStatQuests += 10;
                     }
+                    if ($scope.selectedList.baseStats.amulet == 11) {
+                        fromStatQuests += 8;
+                    }
                     if ($scope.selectedList.baseStats.longhouse == 2 || $scope.selectedList.baseStats.longhouse == 7) {
                         fromStatQuests += 5;
                     }
@@ -1571,10 +1601,13 @@
                     break;
                 case "spirit":
                     if (totalBaseStats < 244) {
-                        fromStatQuests += 13;
+                        fromStatQuests += 3;
                     }
                     if ($scope.selectedList.baseStats.amulet == 5) {
                         fromStatQuests += 10;
+                    }
+                    if ($scope.selectedList.baseStats.amulet == 9) {
+                        fromStatQuests += 8;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 0) {
                         fromStatQuests += 5;
