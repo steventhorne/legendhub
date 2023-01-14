@@ -20,12 +20,12 @@
 
             $scope.longhouseList = ["Bear -- ( +5 spi - +3 min )",
                                     "Beaver -- ( +5 min - +3 dex )",
-                                    "Eagle -- ( +5 per / +3 str )",
-                                    "Moose -- ( +5 str / +3 con )",
-                                    "Snake -- ( +5 dex / +3 per )",
+                                    "Eagle  -- ( +5 per / +3 str )",
+                                    "Moose  -- ( +5 str / +3 con )",
+                                    "Snake  -- ( +5 dex / +3 per )",
                                     "Turtle -- ( +5 con / +3 spi )",
                                     "Dragon -- ( +5 dex / +3 con )",
-                                    "Hydra -- ( +5 per / +3 dex )",
+                                    "Hydra  -- ( +5 per / +3 dex )",
                                     "Wyvern -- ( +5 min / +3 spi )",
                                     "Beetle -- ( +8 spi )",
                                     "Falcon -- ( +8 dex )",
@@ -35,9 +35,6 @@
             $scope.amuletList = ["Strength", "Mind", "Dexterity", "Constitution", "Perception", "Spirit"];
 
             $scope.hazelnutList = ["Strength", "Mind", "Dexterity", "Constitution", "Perception", "Spirit"];
-
-            $scope.druidList = ["Strength", "Mind", "Dexterity", "Constitution", "Perception", "Spirit"];
-
 
             // item searching vars
             $scope.searchString = "";
@@ -98,7 +95,6 @@
 
             // base stats
             list.baseStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0, "longhouse": -1, "amulet": -1, "hazelnut": -1};
-
             list.ksmStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0};
 
             // items
@@ -255,9 +251,6 @@
             newList.baseStats.hazelnut = Number(each[0]);
 			each.shift();
 
-            newList.baseStats.druid = Number(each[0]);
-            each.shift();
-
             newList.ksmStats = {
                 strength: 0,
                 mind: 0,
@@ -342,12 +335,12 @@
                 baseStats.hazelnut = 5;
             }
             if (statList[0] === '_')
-                baseStats.druid = -1;
-            else
+                baseStats.hazelnut = -1;
+            else {
                 baseStats.druid = encoder.toNumber(listStr.slice(0,1));
-				listStr = listStr.substring(1);
-
-
+				listStr = listStr.substring(1);;
+			}
+			
             var items = [];
             var itemIndex = 0;
             while (listStr.length > 0) {
@@ -712,11 +705,6 @@
 			else
                 listCookieStr += "_";
 
-            if (list.baseStats.druid >= 0)
-                listCookieStr += encoder.fromNumber(list.baseStats.druid,1);
-            else
-                listCookieStr += "_";
-
             for (let k = 0; k < list.items.length; ++k) {
                 if (list.items[k].id) {
                     listCookieStr += (list.items[k].locked ? "." : "") + encoder.fromNumber(list.items[k].id,3);
@@ -800,7 +788,6 @@
                     $scope.selectedList.baseStats.longhouse = -1;
                     $scope.selectedList.baseStats.amulet = -1;
                     $scope.selectedList.baseStats.hazelnut = -1;
-                    $scope.selectedList.baseStats.druid = -1;
                 }
             }
 
@@ -1595,7 +1582,10 @@
                     if (totalBaseStats < 244) {
                         fromStatQuests += 3;
                     }
-                    if ($scope.selectedList.baseStats.amulet == 1 || $scope.selectedList.baseStats.longhouse == 12) {
+                    if ($scope.selectedList.baseStats.amulet == 1 || $scope.selectedList.baseStats.hazelnut == 1) {
+                        fromStatQuests += 10;
+                    }
+                    if ($scope.selectedList.baseStats.hazelnut == 1) {
                         fromStatQuests += 10;
                     }
                     if ($scope.selectedList.baseStats.hazelnut == 1) {
@@ -1621,9 +1611,6 @@
                     if ($scope.selectedList.baseStats.longhouse == 10) {
 						fromStatQuests += 8;
 					}
-                    if ($scope.selectedList.baseStats.amulet == 10) {
-                        fromStatQuests += 8;
-                    }
                     if ($scope.selectedList.baseStats.longhouse == 4 || $scope.selectedList.baseStats.longhouse == 6) {
                         fromStatQuests += 5;
                     }
@@ -1633,6 +1620,7 @@
                     if ($scope.selectedList.baseStats.longhouse == 12) {
 						fromStatQuests -= 2;
 					}
+
                     break;
                 case "constitution":
                     if (totalBaseStats < 244) {
@@ -2053,7 +2041,7 @@
             var total = fromBaseStats + fromKSMStats + fromStatQuests + fromItems + fromSpells + fromBonus;
 
             // apply total bonuses
-            total += getStatTotalBonus(statName, total);
+            // total += getStatTotalBonus(statName, total);
 
             // apply min and max
             totalMax = getStatTotalMax(statName);
