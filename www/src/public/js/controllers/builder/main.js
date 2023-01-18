@@ -1347,7 +1347,7 @@
                     //$scope.allLists.length - 1
                 }
                 else {
-                    selectListByIndex($scope.allLists.length - 1);
+                    selectListByIndex($scope.selectedListIndex);
                 }
             }
         }
