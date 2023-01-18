@@ -18,7 +18,7 @@
 
             $scope.slotOrder = [0,1,1,2,2,3,4,5,6,7,8,9,11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21,21,21,21,21,21,21];
 
-            $scope.longhouseList = ["Bear -- ( +5 spi - +3 min )",
+            $scope.longhouseList = ["Bear   -- ( +5 spi - +3 min )",
                                     "Beaver -- ( +5 min - +3 dex )",
                                     "Eagle  -- ( +5 per / +3 str )",
                                     "Moose  -- ( +5 str / +3 con )",
@@ -183,7 +183,6 @@
                             default:
                                 break;
                         }
-
                         var found = false;
                         for (let j = 0; j < lists.length; ++j) {
                             if (newList.name === lists[j].name) {
@@ -334,13 +333,7 @@
             else {
                 baseStats.hazelnut = 5;
             }
-            if (statList[0] === '_')
-                baseStats.hazelnut = -1;
-            else {
-                baseStats.druid = encoder.toNumber(listStr.slice(0,1));
-				listStr = listStr.substring(1);;
-			}
-			
+
             var items = [];
             var itemIndex = 0;
             while (listStr.length > 0) {
@@ -1354,7 +1347,7 @@
                     //$scope.allLists.length - 1
                 }
                 else {
-                    selectListByIndex($scope.selectedListIndex);
+                    selectListByIndex($scope.allLists.length - 1);
                 }
             }
         }
@@ -1582,7 +1575,7 @@
                     if (totalBaseStats < 244) {
                         fromStatQuests += 3;
                     }
-                    if ($scope.selectedList.baseStats.amulet == 1 || $scope.selectedList.baseStats.hazelnut == 1) {
+                    if ($scope.selectedList.baseStats.amulet == 1) {
                         fromStatQuests += 10;
                     }
                     if ($scope.selectedList.baseStats.hazelnut == 1) {
@@ -2041,7 +2034,7 @@
             var total = fromBaseStats + fromKSMStats + fromStatQuests + fromItems + fromSpells + fromBonus;
 
             // apply total bonuses
-            // total += getStatTotalBonus(statName, total);
+            total += getStatTotalBonus(statName, total);
 
             // apply min and max
             totalMax = getStatTotalMax(statName);
