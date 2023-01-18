@@ -144,38 +144,42 @@
         var loadCharacterLists = function() {
             var lists = [];
 
-            // load lists
+            // load lists and version check
             if ($cookies.get("cookie-consent")) {
                 var listVersion = -1;
-                var listCookieStr = localStorage.getItem("cl3")
+                var listCookieStr = localStorage.getItem("cl3");
                 
-                // version check
-                if (localStorage.getItem("cl1")) {
-                    listCookieStr = localStorage.getItem("cl1");
-                    listVersion = 1;
-                } 
-                if (localStorage.getItem("cl2")) {
-                    listCookieStr = localStorage.getItem("cl2");
-                    listVersion = 2;
-                }
-                if (localStorage.getItem("cl3")) {
-                    listCookieStr = localStorage.getItem("cl3");
+                if (listCookieStr) {
                     listVersion = 3;
-                }                    
+                }
+                else {
+                    listCookieStr = localStorage.getItem("cl2");
+                    if (listCookieStr) {
+                        listVersion = 2;
+                    }
+                    else {
+                        listCookieStr = localStorage.getItem("cl1");
+                        if (listCookieStr) {
+                            listVersion = 1;
+                        }
+                        else {
+                            listVersion = "cl";
+                        }
+                    }
+                }    
 
                 if (listCookieStr) {
                     var listStrs = listCookieStr.split("*").filter(function(el) {return el.length != 0});
                     for (var i = 0; i < listStrs.length; ++i) {
                         switch (listVersion) {
-                            case 3:
-                                var newList = createListFromStringV2(listStrs[i], listVersion);
-                                break;
-                            case 2:
-                                var newList = createListFromStringV2(listStrs[i], listVersion);
-                                break;
+                            case "cl":
                             case 1:
                                 var newList = createListFromString(listStrs[i]);
                                 break;
+                            case 2:
+                            case 3:
+                                var newList = createListFromStringV2(listStrs[i], listVersion);
+                                break;                            
                             default:
                                 break;
                         }
@@ -325,7 +329,10 @@
                     baseStats.hazelnut = -1;
                 else
                     baseStats.hazelnut = encoder.toNumber(listStr.slice(0,1));
-                    listStr = listStr.substring(1);
+                listStr = listStr.substring(1);
+            }
+            else {
+                baseStats.hazelnut = 5;
             }
 
             var items = [];
@@ -1341,7 +1348,7 @@
                     //$scope.allLists.length - 1
                 }
                 else {
-                    selectListByIndex($scope.allLists.length - 1);
+                    selectListByIndex($scope.selectedListIndex);
                 }
             }
         }
