@@ -5,6 +5,7 @@
         /** Initializes the controller. */
         $scope.initialize = function() {
             $scope.exceptionEncountered = false;
+            $scope.listVer = -1;
             exceptionService.addCallback(function (exception, cause) {
                 $scope.exceptionEncountered = true;
             });
@@ -15,7 +16,7 @@
             $scope.itemsPerPage = 20;
             $scope.itemsPerPageOptions = [20, 50, 100, 200, 500, 1000];
 
-            $scope.slotOrder = [0,1,1,2,2,3,4,5,6,7,8,9,11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21];
+            $scope.slotOrder = [0,1,1,2,2,3,4,5,6,7,8,9,11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21,21,21,21,21,21,21];
             $scope.longhouseList = ["Bear   -- ( +5 spi - +3 min )",
                                     "Beaver -- ( +5 min - +3 dex )",
                                     "Eagle  -- ( +5 per / +3 str )",
@@ -146,27 +147,34 @@
             // load lists
             if ($cookies.get("cookie-consent")) {
                 var listVersion = -1;
-                var listCookieStr = localStorage.getItem("cl2");
-                if (listCookieStr) {
+                var listCookieStr = localStorage.getItem("cl3")
+                
+                // version check
+                if (localStorage.getItem("cl1")) {
+                    listCookieStr = localStorage.getItem("cl1");
+                    listVersion = 1;
+                } 
+                if (localStorage.getItem("cl2")) {
+                    listCookieStr = localStorage.getItem("cl2");
                     listVersion = 2;
                 }
-                else {
-                    var listCookieStr = localStorage.getItem("cl");
-                    if (!listCookieStr) {
-                        listCookieStr = $cookies.get("cl1");
-                    }
-                    listVersion = 1;
-                }
+                if (localStorage.getItem("cl3")) {
+                    listCookieStr = localStorage.getItem("cl3");
+                    listVersion = 3;
+                }                    
 
                 if (listCookieStr) {
                     var listStrs = listCookieStr.split("*").filter(function(el) {return el.length != 0});
                     for (var i = 0; i < listStrs.length; ++i) {
                         switch (listVersion) {
-                            case 1:
-                                var newList = createListFromString(listStrs[i]);
+                            case 3:
+                                var newList = createListFromStringV2(listStrs[i], listVersion);
                                 break;
                             case 2:
-                                var newList = createListFromStringV2(listStrs[i]);
+                                var newList = createListFromStringV2(listStrs[i], listVersion);
+                                break;
+                            case 1:
+                                var newList = createListFromString(listStrs[i]);
                                 break;
                             default:
                                 break;
@@ -190,8 +198,6 @@
                     }
                 }
             }
-
-            console.log("Lists loaded using version", listVersion);
 
             return lists;
         };
@@ -260,8 +266,8 @@
                 newList.items.push({"id": Number(each[j]), "slot": $scope.slotOrder[j], "locked": isLocked});
             }
 
-            if (each.length < 29) {
-                for (var k = 0; k < (29 - each.length); ++k) {
+            if (each.length < 35) {
+                for (var k = 0; k < (35 - each.length); ++k) {
                     newList.items.push({"id": Number(each[j]), "slot": 21});
                 }
             }
@@ -269,7 +275,7 @@
             return {name: name, variants: [newList]};
         };
 
-        var createListFromStringV2 = function(listStr) {
+        var createListFromStringV2 = function(listStr, listVersion) {
             var index = listStr.indexOf('~');
             var name = listStr.slice(0, index);
             if (!(/^[A-Za-z\s\d]+$/).test(name)) {
@@ -313,11 +319,14 @@
                 baseStats.amulet = encoder.toNumber(listStr.slice(0,1));
             listStr = listStr.substring(1);
 
-            if (statList[0] === '_')
-                baseStats.hazelnut = -1;
-            else
-                baseStats.hazelnut = encoder.toNumber(listStr.slice(0,1));
-            listStr = listStr.substring(1);
+            // v3: Hazelnut
+            if (listVersion == 3) {
+                if (statList[0] === '_')
+                    baseStats.hazelnut = -1;
+                else
+                    baseStats.hazelnut = encoder.toNumber(listStr.slice(0,1));
+                    listStr = listStr.substring(1);
+            }
 
             var items = [];
             var itemIndex = 0;
@@ -350,6 +359,19 @@
                 }
 
                 itemIndex++;
+            }
+            
+            // v3: Adds missing "other" slots to previous lists
+            if(itemIndex < $scope.slotOrder.length) {
+                while (itemIndex < $scope.slotOrder.length){
+                    itemIndex++
+                    items.push({"id": Number([0]), "slot": 21});
+                }
+            }
+
+            // Version Check, if # of item slots loaded does not equal total number in current version it will throw an error
+            if(itemIndex > $scope.slotOrder.length) {
+                throw "Invalid list.";
             }
 
             return {
@@ -597,7 +619,7 @@
             if ($scope.exceptionEncountered)
                 return;
 
-            localStorage.setItem("cl2", listCookieStr);
+            localStorage.setItem("cl3", listCookieStr);
             localStorage.setItem("scl", $scope.allLists[$scope.selectedListIndex].name + "!" + $scope.selectedList.name);
 
             if ($cookies.get("cl1")) {
@@ -900,10 +922,15 @@
                 for (let i = 0; i < listStrs.length; ++i) {
                     var newList;
                     try {
-                        newList = createListFromStringV2(listStrs[i]);
+                        newList = createListFromStringV2(listStrs[i], 2);
                     }
                     catch (e) {
-                        newList = createListFromString(listStrs[i]);
+                        try {                             
+                            newList = createListFromStringV2(listStrs[i], 3);
+                        }
+                        catch (e) {
+                            newList = createListFromString(listStrs[i]);
+                        }
                     }
 
                     // check if list exists
@@ -1311,9 +1338,10 @@
                 }
                 else if ($scope.selectedListIndex >= $scope.allLists.length) {
                     selectListByIndex($scope.allLists.length - 1);
+                    //$scope.allLists.length - 1
                 }
                 else {
-                    selectListByIndex($scope.selectedListIndex);
+                    selectListByIndex($scope.allLists.length - 1);
                 }
             }
         }
@@ -1541,7 +1569,7 @@
                     if (totalBaseStats < 244) {
                         fromStatQuests += 3;
                     }
-                    if ($scope.selectedList.baseStats.amulet == 1 || $scope.selectedList.baseStats.hazelnut == 1) {
+                    if ($scope.selectedList.baseStats.amulet == 1) {
                         fromStatQuests += 10;
                     }
                     if ($scope.selectedList.baseStats.hazelnut == 1) {
@@ -1762,18 +1790,19 @@
          * @return {number} the bonus amount based on the current total.
          */
         var getStatTotalBonus = function(statName, curTotal) {
-            switch (statName) {
+            /*switch (statName) {
                 case "dam":
                     for (var i = 0; i < $scope.selectedList.items.length; ++i) {
                         if ($scope.selectedList.items[i].slot == 14 && $scope.selectedList.items[i].twoHanded) {
                             return parseInt(curTotal / 3);
                         }
                     }
-                    break;
-                default:
+                   break;
+          
+                   default:
                     break;
             }
-
+            */
             return 0;
         };
 
@@ -1963,7 +1992,7 @@
             var total = fromBaseStats + fromKSMStats + fromStatQuests + fromItems + fromSpells + fromBonus;
 
             // apply total bonuses
-            // total += getStatTotalBonus(statName, total);
+            total += getStatTotalBonus(statName, total);
 
             // apply min and max
             totalMax = getStatTotalMax(statName);
