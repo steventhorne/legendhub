@@ -150,12 +150,13 @@
         var loadCharacterLists = function() {
             var lists = [];
 
-            // load lists
+            // load lists and version check
             if ($cookies.get("cookie-consent")) {
                 var listVersion = -1;
                 var listCookieStr = localStorage.getItem("cln");
-                
-                var versionIdx = listCookieStr.indexOf("*");
+
+                if (listCookieStr) {
+                    var versionIdx = listCookieStr.indexOf("*");
                     listVersion = Number(listCookieStr.slice(0, versionIdx));
                     listCookieStr = listCookieStr.slice(versionIdx);
                 }
@@ -170,25 +171,24 @@
                         if (!listCookieStr) 
                             localStorage.getItem("cl");                                
                     }
-                }    
+                }  
 				
                 if (listCookieStr) {
                     var listStrs = listCookieStr.split("*").filter(function(el) {return el.length != 0});
                     for (var i = 0; i < listStrs.length; ++i) {
-                        console.log("Listversion ", listVersion);
-                        switch (listVersion) {  
+                        switch (listVersion) {
+                            case "cl":
                             case 1:
                                 var newList = createListFromString(listStrs[i]);
                                 break;
                             case 2:
-                                var newList = createListFromStringV2(listStrs[i], listVersion);
-                                break;
                             case 3:
                                 var newList = createListFromStringV2(listStrs[i], listVersion);
-                                break;
+                                break;                            
                             default:
                                 break;
                         }
+						
                         var found = false;
                         for (let j = 0; j < lists.length; ++j) {
                             if (newList.name === lists[j].name) {
