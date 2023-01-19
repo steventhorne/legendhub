@@ -163,6 +163,7 @@
                             listVersion = 1;
                         }
                         else {
+                            localStorage.getItem("cl");
                             listVersion = "cl";
                         }
                     }
