@@ -1715,7 +1715,6 @@
                     var dex = $scope.getStatTotal("dexterity");
                     var con = $scope.getStatTotal("constitution");
 
-                    var bestStat = dex;
                     var wearingStrWeap = false;
                     var wearingConWeap = false;
                     for (var i = 0; i < $scope.selectedList.items.length; ++i) {
@@ -1728,21 +1727,54 @@
                             }
                         }
                     }
-                    if (wearingStrWeap && str > bestStat) { // replace false with wearingStrWeap
-                        bestStat = str;
-                    }
-                    if (wearingConWeap && con > bestStat) { // replace false with wearingConWeap
-                        bestStat = con;
-                    }
 
-                    fromBonus += parseInt((bestStat - 30) / 3);
-                    fromBonus += parseInt(Math.max(dex - 70, 0) / 6);
+                    var dexHitroll = Math.floor(Math.max(dex - 4, 0) / 3) + 1;
+                    var strHitroll = Math.floor(Math.min(Math.max(str / 4, 0), 25));
+                    var conHitroll = Math.floor(Math.min(Math.max(con / 4, 0), 25));
+
+                    var bestStat = dexHitroll;
+
+                    if (wearingStrWeap && strHitroll > dexHitroll) { // replace false with wearingStrWeap
+                        bestStat = strHitroll;
+                    }
+                    if (wearingConWeap && conHitroll > dexHitroll) { // replace false with wearingConWeap
+                        bestStat = conHitroll;
+                    }
+                    
+                    fromBonus += bestStat;
                     break;
                 case "dam":
-                    var strength = $scope.getStatTotal("strength");
-                    fromBonus += parseInt((strength - 30) / 3);
-                    fromBonus += parseInt((strength - 75) / 5);
-                    fromBonus += parseInt(Math.max(strength - 99, 0) / 2);
+                    var str = $scope.getStatTotal("strength");
+                    var dex = $scope.getStatTotal("dexterity");
+                    var con = $scope.getStatTotal("constitution");
+
+                    var wearingDexWeap = false;
+                    var wearingConWeap = false;
+                    for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+                        if ($scope.selectedList.items[i].slot == 14 || $scope.selectedList.items[i].slot == 15) {
+                            if ($scope.selectedList.items[i].weaponStat == 2) {
+                                wearingDexWeap = true;
+                            }
+                            else if ($scope.selectedList.items[i].weaponStat == 3) {
+                                wearingConWeap = true;
+                            }
+                        }
+                    }
+
+                    var dexDamroll = Math.floor(Math.min(Math.max(dex / 4, 0), 25));
+                    var strDamroll = Math.floor(Math.max(str - 4, 0) / 3) + 1;
+                    var conDamroll = Math.floor(Math.min(Math.max(con / 4, 0), 25));
+
+                    var bestStat = strDamroll;
+
+                    if (wearingDexWeap && dexDamroll > strDamroll) { // replace false with wearingDexWeap
+                        bestStat = dexDamroll;
+                    }
+                    if (wearingConWeap && conDamroll > strDamroll) { // replace false with wearingConWeap
+                        bestStat = conDamroll;
+                    }
+                    
+                    fromBonus += bestStat;
                     break;
                 case "mitigation":
                     var con = $scope.getStatTotal("constitution");
