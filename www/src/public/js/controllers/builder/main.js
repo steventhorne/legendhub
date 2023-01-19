@@ -5,6 +5,7 @@
         /** Initializes the controller. */
         $scope.initialize = function() {
             $scope.exceptionEncountered = false;
+            $scope.listVer = -1;
             exceptionService.addCallback(function (exception, cause) {
                 $scope.exceptionEncountered = true;
             });
@@ -15,18 +16,24 @@
             $scope.itemsPerPage = 20;
             $scope.itemsPerPageOptions = [20, 50, 100, 200, 500, 1000];
 
-            $scope.slotOrder = [0,1,1,2,2,3,4,5,6,7,8,9,11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21];
-            $scope.longhouseList = ["Bear -- ( spi - min )",
-                                    "Beaver -- ( min - dex )",
-                                    "Eagle -- ( per - str )",
-                                    "Moose -- ( str - con )",
-                                    "Snake -- ( dex - per )",
-                                    "Turtle -- ( con - spi )",
-                                    "Dragon -- ( dex - con )",
-                                    "Hydra -- ( per - dex )",
-                                    "Wyvern -- ( min - spi )"];
+            $scope.slotOrder = [0,1,1,2,2,3,4,5,6,7,8,9,11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21,21,21,21,21,21,21];
+            $scope.longhouseList = ["Bear   -- ( +5 spi - +3 min )",
+                                    "Beaver -- ( +5 min - +3 dex )",
+                                    "Eagle  -- ( +5 per / +3 str )",
+                                    "Moose  -- ( +5 str / +3 con )",
+                                    "Snake  -- ( +5 dex / +3 per )",
+                                    "Turtle -- ( +5 con / +3 spi )",
+                                    "Dragon -- ( +5 dex / +3 con )",
+                                    "Hydra  -- ( +5 per / +3 dex )",
+                                    "Wyvern -- ( +5 min / +3 spi )",
+                                    "Beetle -- ( +8 spi )",
+                                    "Falcon -- ( +8 dex )",
+                                    "Sphinx -- ( +8 per )",
+                                    "Merlin -- ( +10 min / -2 dex )"];
 
             $scope.amuletList = ["Strength", "Mind", "Dexterity", "Constitution", "Perception", "Spirit"];
+
+            $scope.hazelnutList = ["Strength", "Mind", "Dexterity", "Constitution", "Perception", "Spirit"];
 
             // item searching vars
             $scope.searchString = "";
@@ -86,7 +93,7 @@
             list.name = name;
 
             // base stats
-            list.baseStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0, "longhouse": -1, "amulet": -1};
+            list.baseStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0, "longhouse": -1, "amulet": -1, "hazelnut": -1};
             list.ksmStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0};
 
             // items
@@ -137,31 +144,39 @@
         var loadCharacterLists = function() {
             var lists = [];
 
-            // load lists
+            // load lists and version check
             if ($cookies.get("cookie-consent")) {
                 var listVersion = -1;
-                var listCookieStr = localStorage.getItem("cl2");
+                var listCookieStr = localStorage.getItem("cl3");
+                
                 if (listCookieStr) {
-                    listVersion = 2;
+                    listVersion = 3;
                 }
                 else {
-                    var listCookieStr = localStorage.getItem("cl");
-                    if (!listCookieStr) {
-                        listCookieStr = $cookies.get("cl1");
+                    listCookieStr = localStorage.getItem("cl2");
+                    if (listCookieStr) {
+                        listVersion = 2;
                     }
-                    listVersion = 1;
-                }
+                    else {
+                        listCookieStr = localStorage.getItem("cl1");
+                        listVersion = 1;
+                        if (!listCookieStr) 
+                            localStorage.getItem("cl");                                
+                    }
+                }    
 
                 if (listCookieStr) {
                     var listStrs = listCookieStr.split("*").filter(function(el) {return el.length != 0});
                     for (var i = 0; i < listStrs.length; ++i) {
                         switch (listVersion) {
+                            case "cl":
                             case 1:
                                 var newList = createListFromString(listStrs[i]);
                                 break;
                             case 2:
-                                var newList = createListFromStringV2(listStrs[i]);
-                                break;
+                            case 3:
+                                var newList = createListFromStringV2(listStrs[i], listVersion);
+                                break;                            
                             default:
                                 break;
                         }
@@ -184,8 +199,6 @@
                     }
                 }
             }
-
-            console.log("Lists loaded using version", listVersion);
 
             return lists;
         };
@@ -232,6 +245,9 @@
             newList.baseStats.amulet = Number(each[0]);
             each.shift();
 
+            newList.baseStats.hazelnut = Number(each[0]);
+            each.shift();
+
             newList.ksmStats = {
                 strength: 0,
                 mind: 0,
@@ -251,8 +267,8 @@
                 newList.items.push({"id": Number(each[j]), "slot": $scope.slotOrder[j], "locked": isLocked});
             }
 
-            if (each.length < 29) {
-                for (var k = 0; k < (29 - each.length); ++k) {
+            if (each.length < 35) {
+                for (var k = 0; k < (35 - each.length); ++k) {
                     newList.items.push({"id": Number(each[j]), "slot": 21});
                 }
             }
@@ -260,7 +276,7 @@
             return {name: name, variants: [newList]};
         };
 
-        var createListFromStringV2 = function(listStr) {
+        var createListFromStringV2 = function(listStr, listVersion) {
             var index = listStr.indexOf('~');
             var name = listStr.slice(0, index);
             if (!(/^[A-Za-z\s\d]+$/).test(name)) {
@@ -304,6 +320,18 @@
                 baseStats.amulet = encoder.toNumber(listStr.slice(0,1));
             listStr = listStr.substring(1);
 
+            // v3: Hazelnut
+            if (listVersion == 3) {
+                if (statList[0] === '_')
+                    baseStats.hazelnut = -1;
+                else
+                    baseStats.hazelnut = encoder.toNumber(listStr.slice(0,1));
+                listStr = listStr.substring(1);
+            }
+            else {
+                baseStats.hazelnut = 5;
+            }
+
             var items = [];
             var itemIndex = 0;
             while (listStr.length > 0) {
@@ -335,6 +363,19 @@
                 }
 
                 itemIndex++;
+            }
+            
+            // v3: Adds missing "other" slots to previous lists
+            if(itemIndex < $scope.slotOrder.length) {
+                while (itemIndex < $scope.slotOrder.length){
+                    itemIndex++
+                    items.push({"id": Number([0]), "slot": 21});
+                }
+            }
+
+            // Version Check, if # of item slots loaded does not equal total number in current version it will throw an error
+            if(itemIndex > $scope.slotOrder.length) {
+                throw "Invalid list.";
             }
 
             return {
@@ -582,7 +623,7 @@
             if ($scope.exceptionEncountered)
                 return;
 
-            localStorage.setItem("cl2", listCookieStr);
+            localStorage.setItem("cl3", listCookieStr);
             localStorage.setItem("scl", $scope.allLists[$scope.selectedListIndex].name + "!" + $scope.selectedList.name);
 
             if ($cookies.get("cl1")) {
@@ -647,6 +688,11 @@
 
             if (list.baseStats.amulet >= 0)
                 listCookieStr += encoder.fromNumber(list.baseStats.amulet,1);
+            else
+                listCookieStr += "_";
+            
+            if (list.baseStats.hazelnut >= 0)
+                listCookieStr += encoder.fromNumber(list.baseStats.hazelnut,1);
             else
                 listCookieStr += "_";
 
@@ -732,6 +778,7 @@
                 if (total === 244) {
                     $scope.selectedList.baseStats.longhouse = -1;
                     $scope.selectedList.baseStats.amulet = -1;
+                    $scope.selectedList.baseStats.hazelnut = -1;
                 }
             }
 
@@ -879,10 +926,15 @@
                 for (let i = 0; i < listStrs.length; ++i) {
                     var newList;
                     try {
-                        newList = createListFromStringV2(listStrs[i]);
+                        newList = createListFromStringV2(listStrs[i], 2);
                     }
                     catch (e) {
-                        newList = createListFromString(listStrs[i]);
+                        try {                             
+                            newList = createListFromStringV2(listStrs[i], 3);
+                        }
+                        catch (e) {
+                            newList = createListFromString(listStrs[i]);
+                        }
                     }
 
                     // check if list exists
@@ -1290,6 +1342,7 @@
                 }
                 else if ($scope.selectedListIndex >= $scope.allLists.length) {
                     selectListByIndex($scope.allLists.length - 1);
+                    //$scope.allLists.length - 1
                 }
                 else {
                     selectListByIndex($scope.selectedListIndex);
@@ -1506,6 +1559,9 @@
                     if ($scope.selectedList.baseStats.amulet == 0) {
                         fromStatQuests += 10;
                     }
+                    if ($scope.selectedList.baseStats.hazelnut == 0) {
+                        fromStatQuests += 10;
+                    }
                     if ($scope.selectedList.baseStats.longhouse == 3) {
                         fromStatQuests += 5;
                     }
@@ -1518,6 +1574,9 @@
                         fromStatQuests += 3;
                     }
                     if ($scope.selectedList.baseStats.amulet == 1) {
+                        fromStatQuests += 10;
+                    }
+                    if ($scope.selectedList.baseStats.hazelnut == 1) {
                         fromStatQuests += 10;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 1 || $scope.selectedList.baseStats.longhouse == 8) {
@@ -1534,11 +1593,20 @@
                     if ($scope.selectedList.baseStats.amulet == 2) {
                         fromStatQuests += 10;
                     }
+                    if ($scope.selectedList.baseStats.hazelnut == 2) {
+                        fromStatQuests += 10;
+                    }
+                    if ($scope.selectedList.baseStats.longhouse == 10) {
+                        fromStatQuests += 8;
+                    }
                     if ($scope.selectedList.baseStats.longhouse == 4 || $scope.selectedList.baseStats.longhouse == 6) {
                         fromStatQuests += 5;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 1 || $scope.selectedList.baseStats.longhouse == 7) {
                         fromStatQuests += 3;
+                    }
+                    if ($scope.selectedList.baseStats.longhouse == 12) {
+                        fromStatQuests -= 2;
                     }
                     break;
                 case "constitution":
@@ -1546,6 +1614,9 @@
                         fromStatQuests += 3;
                     }
                     if ($scope.selectedList.baseStats.amulet == 3) {
+                        fromStatQuests += 10;
+                    }
+                    if ($scope.selectedList.baseStats.hazelnut == 3) {
                         fromStatQuests += 10;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 5) {
@@ -1562,6 +1633,12 @@
                     if ($scope.selectedList.baseStats.amulet == 4) {
                         fromStatQuests += 10;
                     }
+                    if ($scope.selectedList.baseStats.hazelnut == 4) {
+                        fromStatQuests += 10;
+                    }
+                    if ($scope.selectedList.baseStats.longhouse == 11) {
+                        fromStatQuests += 8;
+                    }
                     if ($scope.selectedList.baseStats.longhouse == 2 || $scope.selectedList.baseStats.longhouse == 7) {
                         fromStatQuests += 5;
                     }
@@ -1571,10 +1648,16 @@
                     break;
                 case "spirit":
                     if (totalBaseStats < 244) {
-                        fromStatQuests += 13;
+                        fromStatQuests += 3;
                     }
                     if ($scope.selectedList.baseStats.amulet == 5) {
                         fromStatQuests += 10;
+                    }
+                    if ($scope.selectedList.baseStats.hazelnut == 5) {
+                        fromStatQuests += 10;
+                    }
+                    if ($scope.selectedList.baseStats.longhouse == 9) {
+                        fromStatQuests += 8;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 0) {
                         fromStatQuests += 5;
@@ -1628,7 +1711,6 @@
                     var dex = $scope.getStatTotal("dexterity");
                     var con = $scope.getStatTotal("constitution");
 
-                    var bestStat = dex;
                     var wearingStrWeap = false;
                     var wearingConWeap = false;
                     for (var i = 0; i < $scope.selectedList.items.length; ++i) {
@@ -1641,21 +1723,54 @@
                             }
                         }
                     }
-                    if (wearingStrWeap && str > bestStat) { // replace false with wearingStrWeap
-                        bestStat = str;
-                    }
-                    if (wearingConWeap && con > bestStat) { // replace false with wearingConWeap
-                        bestStat = con;
-                    }
 
-                    fromBonus += parseInt((bestStat - 30) / 3);
-                    fromBonus += parseInt(Math.max(dex - 70, 0) / 6);
+                    var dexHitroll = Math.floor(Math.max(dex - 4, 0) / 3) + 1;
+                    var strHitroll = Math.floor(Math.min(Math.max(str / 4, 0), 25));
+                    var conHitroll = Math.floor(Math.min(Math.max(con / 4, 0), 25));
+
+                    var bestStat = dexHitroll;
+
+                    if (wearingStrWeap && strHitroll > dexHitroll) { // replace false with wearingStrWeap
+                        bestStat = strHitroll;
+                    }
+                    if (wearingConWeap && conHitroll > dexHitroll) { // replace false with wearingConWeap
+                        bestStat = conHitroll;
+                    }
+                    
+                    fromBonus += bestStat;
                     break;
                 case "dam":
-                    var strength = $scope.getStatTotal("strength");
-                    fromBonus += parseInt((strength - 30) / 3);
-                    fromBonus += parseInt((strength - 75) / 5);
-                    fromBonus += parseInt(Math.max(strength - 99, 0) / 2);
+                    var str = $scope.getStatTotal("strength");
+                    var dex = $scope.getStatTotal("dexterity");
+                    var con = $scope.getStatTotal("constitution");
+
+                    var wearingDexWeap = false;
+                    var wearingConWeap = false;
+                    for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+                        if ($scope.selectedList.items[i].slot == 14 || $scope.selectedList.items[i].slot == 15) {
+                            if ($scope.selectedList.items[i].weaponStat == 2) {
+                                wearingDexWeap = true;
+                            }
+                            else if ($scope.selectedList.items[i].weaponStat == 3) {
+                                wearingConWeap = true;
+                            }
+                        }
+                    }
+
+                    var dexDamroll = Math.floor(Math.min(Math.max(dex / 4, 0), 25));
+                    var strDamroll = Math.floor(Math.max(str - 4, 0) / 3) + 1;
+                    var conDamroll = Math.floor(Math.min(Math.max(con / 4, 0), 25));
+
+                    var bestStat = strDamroll;
+
+                    if (wearingDexWeap && dexDamroll > strDamroll) { // replace false with wearingDexWeap
+                        bestStat = dexDamroll;
+                    }
+                    if (wearingConWeap && conDamroll > strDamroll) { // replace false with wearingConWeap
+                        bestStat = conDamroll;
+                    }
+                    
+                    fromBonus += bestStat;
                     break;
                 case "mitigation":
                     var con = $scope.getStatTotal("constitution");
@@ -1711,18 +1826,19 @@
          * @return {number} the bonus amount based on the current total.
          */
         var getStatTotalBonus = function(statName, curTotal) {
-            switch (statName) {
+            /*switch (statName) {
                 case "dam":
                     for (var i = 0; i < $scope.selectedList.items.length; ++i) {
                         if ($scope.selectedList.items[i].slot == 14 && $scope.selectedList.items[i].twoHanded) {
                             return parseInt(curTotal / 3);
                         }
                     }
-                    break;
-                default:
+                   break;
+          
+                   default:
                     break;
             }
-
+            */
             return 0;
         };
 
