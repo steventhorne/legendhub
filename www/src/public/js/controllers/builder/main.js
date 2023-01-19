@@ -159,13 +159,9 @@
                     }
                     else {
                         listCookieStr = localStorage.getItem("cl1");
-                        if (listCookieStr) {
-                            listVersion = 1;
-                        }
-                        else {
-                            localStorage.getItem("cl");
-                            listVersion = "cl";
-                        }
+                        listVersion = 1;
+                        if (!listCookieStr) 
+                            localStorage.getItem("cl");                                
                     }
                 }    
 
