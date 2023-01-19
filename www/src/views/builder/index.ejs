@@ -327,12 +327,16 @@
 										<div class="input-group-prepend">
 										</div>
 										<!-- Button trigger modal -->
-										<button type="button" class="btn btn-primary" data-toggle="modal" ng-click="$('#itemChoiceModal').modal('hide')" data-target="#runeCraftCharmModal">
-											Runecraft Charm
+										<button type="button" class="btn btn-primary" data-toggle="modal" ng-if="!isRuneCrafting" ng-click="runeCraftButtonClick()" data-target="#runeCraftCharmModal">
+											Runecraft Customizer
 										</button>
+										<button type="button" class="btn btn-primary" data-toggle="modal" ng-if="isRuneCrafting" ng-click="runeCraftButtonClick()" data-target="#runeCraftCharmModal">
+											Items
+										</button>
+										
 
-										<!-- Modal -->
-										<div class="modal fade" id="runeCraftCharmModal" tabindex="-1" role="dialog" aria-labelledby="runeCraftCharmModal" aria-hidden="true">
+										<!-- Modal 
+										<div class="modal fade" id="runeCraftCharmModal" tabindex="-1" role="dialog" ng-if="isRuneCrafting" aria-labelledby="runeCraftCharmModal" aria-hidden="true">
 											<div class="modal-dialog modal-dialog-centered" role="document">
 												<div class="modal-content">
 													<div class="modal-header">
@@ -484,7 +488,7 @@
 													</div>
 												</div>
 											</div>
-										</div>
+										</div> -->
 									</div>
                                 </div>
                             </div>
@@ -493,8 +497,8 @@
 									<table class="table table-striped table-bordered table-sm table-hover">
 										<thead class="thead-dark">
 											<tr>
-												<th scope="col" class="clickable" ng-click="onColumnHeaderClicked('name')" nowrap>Name&nbsp;<i ng-class="getSortClass('name')"></i></th>
-												<th scope="col" class="clickable" ng-repeat="stat in statInfo track by $index" ng-if="stat.showColumn && stat.var !== 'name' && stat.var !== 'slot'" ng-attr-title="{{stat.display}}" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
+												<th scope="col" class="clickable" ng-click="onColumnHeaderClicked('name')" ng-if="!isRuneCrafting" nowrap>Name&nbsp;<i ng-class="getSortClass('name')"></i></th>
+												<th scope="col" class="clickable" ng-repeat="stat in statInfo track by $index" ng-if="stat.showColumn && stat.var !== 'name' && stat.var !== 'slot' && !isRuneCrafting" ng-attr-title="{{stat.display}}" ng-click="onColumnHeaderClicked(stat.var)" nowrap>{{stat.short}}&nbsp;<i ng-class="getSortClass(stat.var)"></i></th>
 											</tr>
 										</thead>
                                         <tbody ng-show="itemsBySlot[currentItem.slot].length === 0">
@@ -502,7 +506,7 @@
                                                 <td class="text-center font-weight-bold" colspan="100%" style="font-size:2rem">Loading...</td>
                                             </tr>
                                         </tbody>
-                                        <tbody ng-show="itemsBySlot[currentItem.slot].length > 0">
+                                        <tbody ng-show="itemsBySlot[currentItem.slot].length > 0" ng-if="!isRuneCrafting">
                                             <tr ng-repeat="item in getFilteredSearchResults() track by $index" ng-click="onSearchRowClicked(item)">
 												<td scope="row">
 													<span>{{item['name']}}</span><a class="float-right" href="/items/details.html?id={{item.id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.id"><i class="fas fa-external-link-alt fa-lg"></i></a>
@@ -516,11 +520,156 @@
 												</td>
 											</tr>
 										</tbody>
+										<tbody ng-if="isRuneCrafting">
+											<td scope="row"
+												<span>
+												<select class="custom-select" ng-model="$parent.$parent.charm1Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm1Selector = runeCraftLoad(0)">
+														<option value="A">-</option>
+														<option value="B">1 str</option>
+														<option value="C">1 min</option>
+														<option value="D">1 dex</option>
+														<option value="E">1 con</option>
+														<option value="F">1 per</option>
+														<option value="G">1 spi</option>
+														<option value="H">2 hit</option>
+														<option value="I">2 dam</option>
+														<option value="J">1 hit, 1 dam</option>
+														<option value="K">10 hp</option>
+														<option value="L">10 ma</option>
+														<option value="M">10 mv</option>
+														<option value="N">5 mvr</option>
+														<option value="O">2 mar, 1 mvr</option>
+														<option value="P">2 hpr, 1 mvr</option>
+														<option value="Q">2 bonus accuracy</option>
+														<option value="R">-3 ac</option>
+														<option value="S">2 spell crit</option>
+														<option value="T">2 spell dam</option>
+														<option value="U">2 mana redux, 1 concentration</option>
+														<option value="V">detect invis</option>
+														<option value="W">see dark</option>
+														<option value="X">detect illusion</option>
+														<option value="Y">sneak</option>
+													</select>
+												</span>
+												<select class="custom-select" ng-model="$parent.$parent.charm2Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm2Selector = runeCraftLoad(1)">
+													<option value="A">-</option>
+													<option value="B">1 str</option>
+													<option value="C">1 min</option>
+													<option value="D">1 dex</option>
+													<option value="E">1 con</option>
+													<option value="F">1 per</option>
+													<option value="G">1 spi</option>
+													<option value="H">2 hit</option>
+													<option value="I">2 dam</option>
+													<option value="J">1 hit, 1 dam</option>
+													<option value="K">10 hp</option>
+													<option value="L">10 ma</option>
+													<option value="M">10 mv</option>
+													<option value="N">5 mvr</option>
+													<option value="O">2 mar, 1 mvr</option>
+													<option value="P">2 hpr, 1 mvr</option>
+													<option value="Q">2 bonus accuracy</option>
+													<option value="R">-3 ac</option>
+													<option value="S">2 spell crit</option>
+													<option value="T">2 spell dam</option>
+													<option value="U">2 mana redux, 1 concentration</option>
+													<option value="V">detect invis</option>
+													<option value="W">see dark</option>
+													<option value="X">detect illusion</option>
+													<option value="Y">sneak</option>
+												</select>
+												</span>
+												<select class="custom-select" ng-model="$parent.$parent.charm3Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm3Selector = runeCraftLoad(2)">
+													<option value="A">-</option>
+													<option value="B">1 str</option>
+													<option value="C">1 min</option>
+													<option value="D">1 dex</option>
+													<option value="E">1 con</option>
+													<option value="F">1 per</option>
+													<option value="G">1 spi</option>
+													<option value="H">2 hit</option>
+													<option value="I">2 dam</option>
+													<option value="J">1 hit, 1 dam</option>
+													<option value="K">10 hp</option>
+													<option value="L">10 ma</option>
+													<option value="M">10 mv</option>
+													<option value="N">5 mvr</option>
+													<option value="O">2 mar, 1 mvr</option>
+													<option value="P">2 hpr, 1 mvr</option>
+													<option value="Q">2 bonus accuracy</option>
+													<option value="R">-3 ac</option>
+													<option value="S">2 spell crit</option>
+													<option value="T">2 spell dam</option>
+													<option value="U">2 mana redux, 1 concentration</option>
+													<option value="V">detect invis</option>
+													<option value="W">see dark</option>
+													<option value="X">detect illusion</option>
+													<option value="Y">sneak</option>
+												</select>
+												</span>
+												<select class="custom-select" ng-model="$parent.$parent.charm4Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm4Selector = runeCraftLoad(3)">
+													<option value="A">-</option>
+													<option value="B">1 str</option>
+													<option value="C">1 min</option>
+													<option value="D">1 dex</option>
+													<option value="E">1 con</option>
+													<option value="F">1 per</option>
+													<option value="G">1 spi</option>
+													<option value="H">2 hit</option>
+													<option value="I">2 dam</option>
+													<option value="J">1 hit, 1 dam</option>
+													<option value="K">10 hp</option>
+													<option value="L">10 ma</option>
+													<option value="M">10 mv</option>
+													<option value="N">5 mvr</option>
+													<option value="O">2 mar, 1 mvr</option>
+													<option value="P">2 hpr, 1 mvr</option>
+													<option value="Q">2 bonus accuracy</option>
+													<option value="R">-3 ac</option>
+													<option value="S">2 spell crit</option>
+													<option value="T">2 spell dam</option>
+													<option value="U">2 mana redux, 1 concentration</option>
+													<option value="V">detect invis</option>
+													<option value="W">see dark</option>
+													<option value="X">detect illusion</option>
+													<option value="Y">sneak</option>
+												</select>
+												</span>
+												<select class="custom-select" ng-model="$parent.$parent.charm5Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm5Selector = runeCraftLoad(4)">
+													<option value="A">-</option>
+													<option value="B">1 str</option>
+													<option value="C">1 min</option>
+													<option value="D">1 dex</option>
+													<option value="E">1 con</option>
+													<option value="F">1 per</option>
+													<option value="G">1 spi</option>
+													<option value="H">2 hit</option>
+													<option value="I">2 dam</option>
+													<option value="J">1 hit, 1 dam</option>
+													<option value="K">10 hp</option>
+													<option value="L">10 ma</option>
+													<option value="M">10 mv</option>
+													<option value="N">5 mvr</option>
+													<option value="O">2 mar, 1 mvr</option>
+													<option value="P">2 hpr, 1 mvr</option>
+													<option value="Q">2 bonus accuracy</option>
+													<option value="R">-3 ac</option>
+													<option value="S">2 spell crit</option>
+													<option value="T">2 spell dam</option>
+													<option value="U">2 mana redux, 1 concentration</option>
+													<option value="V">detect invis</option>
+													<option value="W">see dark</option>
+													<option value="X">detect illusion</option>
+													<option value="Y">sneak</option>
+												</select>
+												</span>
+											</td>
+										</tbody>
 									</table>
 								</div>
 							</div>
                             <div class="row">
-							    <nav class="col-12" aria-label="Item result navigation" ng-if="totalPages > 1">
+							    <nav class="col-12" aria-label="Item result navigation" ng-if="totalPages > 1 && !isRuneCrafting">
 								    <ul class="pagination">
 									    <li class="page-item">
 										    <a class="page-link" ng-click="onPreviousClicked()" href aria-label="Previous">
