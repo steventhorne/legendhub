@@ -858,9 +858,7 @@
                         listCookieStr += "_";
                     }
                     else {
-                        listCookieStr += "-" + charmStr;
-                        console.log("list: ", listCookieStr);
-                        
+                        listCookieStr += "-" + charmStr;                        
                     }
                 } 
                 else {
@@ -988,6 +986,11 @@
             $scope.sortDir = "";
             $scope.currentItem = item;
             $scope.currentItemIndex = index;
+
+            if(item.id === -5) {
+                $scope.isRuneCrafting = true;
+                $scope.runeCraftLoad(0);
+            }
 
             if ($scope.itemsBySlot[item.slot].length == 0) {
                 $scope.loadingModal = true;
@@ -2256,6 +2259,14 @@
                     charm1 += $scope.charm5Selector;
 
                     $scope.selectedList.runeCharms.charm1 = charm1;
+                    
+                    var runeStats = applyRunecharmStats($scope.selectedList.runeCharms.charm1);
+                    for (const [stat, num] of Object.entries(runeStats)) {
+                        $scope.selectedList.items[cslot][stat] = num;
+                    }
+                    var name = runeStats.charmName.substring(0, runeStats.charmName.length-1);
+
+                    $scope.selectedList.items[cslot].name = "Runecharm ("+ name + ")";
                     console.log("Charm 1 change: ", charm1);
                     break;
                 case 4:
@@ -2266,6 +2277,14 @@
                     charm2 += $scope.charm5Selector;
 
                     $scope.selectedList.runeCharms.charm2 = charm2;
+
+                    var runeStats = applyRunecharmStats($scope.selectedList.runeCharms.charm2);
+                    for (const [stat, num] of Object.entries(runeStats)) {
+                        $scope.selectedList.items[cslot][stat] = num;
+                    }
+                    var name = runeStats.charmName.substring(0, runeStats.charmName.length-1);
+
+                    $scope.selectedList.items[cslot].name = "Runecharm ("+ name + ")";
                     break;
                 case 14:
                     charm3 += $scope.charm1Selector;
@@ -2275,6 +2294,14 @@
                     charm3 += $scope.charm5Selector;
 
                     $scope.selectedList.runeCharms.charm3 = charm3;
+
+                    var runeStats = applyRunecharmStats($scope.selectedList.runeCharms.charm3);
+                    for (const [stat, num] of Object.entries(runeStats)) {
+                        $scope.selectedList.items[cslot][stat] = num;
+                    }
+                    var name = runeStats.charmName.substring(0, runeStats.charmName.length-1);
+
+                    $scope.selectedList.items[cslot].name = "Runecharm ("+ name + ")";
                     console.log("Charm: ", charm3);
                     break;
                 case 15:
@@ -2285,17 +2312,31 @@
                     charm4 += $scope.charm5Selector;
 
                     $scope.selectedList.runeCharms.charm4 = charm4;
+                    var runeStats = applyRunecharmStats($scope.selectedList.runeCharms.charm4);
+                    for (const [stat, num] of Object.entries(runeStats)) {
+                        $scope.selectedList.items[cslot][stat] = num;
+                    }
+                    var name = runeStats.charmName.substring(0, runeStats.charmName.length-1);
+
+                    $scope.selectedList.items[cslot].name = "Runecharm ("+ name + ")";
                     console.log("Charm: ", charm4);
                     break;
             }
 
             $scope.saveClientSideData();
+            applyItemRestrictions();
+        };
+
+        /** Hides the runecraft configuration and sets isRuneCrafting to fale **/
+        $scope.runeCraftApply = function() {
+            $('#itemChoiceModal').modal('hide');
+            $scope.isRuneCrafting = false;
         };
         
         /** returns the charm string character at index num to display the current rune selection **/
         $scope.runeCraftLoad = function(num) {
             var cslot = $scope.currentItemIndex;
-
+            
             switch (cslot) {
                 case 3:
                     return $scope.selectedList.runeCharms.charm1[num];
@@ -2309,9 +2350,8 @@
                 case 15:
                     return $scope.selectedList.runeCharms.charm4[num];
                     break;
-            }
             
-            
+            } 
         };
 
         var applyRunecharmStats = function(charmStr) {
@@ -2490,12 +2530,6 @@
                         //sneak
                         runeStats.charmName = runeStats.charmName + "Ingwaz/";
                         break;
-                }
-            }
-
-            for (const [stat, num] of Object.entries(runeStats)) {
-                if (num === 0) {
-                    delete runeStats[stat];
                 }
             }
 
