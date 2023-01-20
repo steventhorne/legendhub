@@ -293,7 +293,7 @@
             return {name: name, variants: [newList]};
         };
 
-        var createListFromStringV2 = function(listStr, version) {
+        var createListFromStringV2 = function(listStr, listVersion) {
             var index = listStr.indexOf('~');
             var name = listStr.slice(0, index);
             if (!(/^[A-Za-z\s\d]+$/).test(name)) {
@@ -308,15 +308,6 @@
                 throw "Invalid list.";
             }
             listStr = listStr.substring(++index);
-
-            if (version === 3) {
-                if (listStr[0] != '#') {
-                    throw "Invalid version, run version 2.";
-                }
-                else {
-                    listStr = listStr.substring(1);
-                }
-            }
 
             var baseStats = {};
             var runeCharms = {};
@@ -798,7 +789,6 @@
 
         var createStringFromList = function(listName, list) {
             var listCookieStr = listName + "~" + list.name + "~";
-            listCookieStr += "#";
             listCookieStr += encoder.fromNumber(list.baseStats.strength,2);
             listCookieStr += encoder.fromNumber(list.baseStats.mind,2);
             listCookieStr += encoder.fromNumber(list.baseStats.dexterity,2);
@@ -1813,9 +1803,6 @@
                     }
                     if ($scope.selectedList.baseStats.longhouse == 4) {
                         fromStatQuests += 3;
-                    }
-					if ($scope.selectedList.baseStats.longhouse == 11) {
-                        fromStatQuests += 8;
                     }
                     break;
                 case "spirit":
