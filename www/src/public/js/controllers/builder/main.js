@@ -5,7 +5,7 @@
         /** Initializes the controller. */
         $scope.initialize = function() {
             $scope.exceptionEncountered = false;
-            $scope.listVer = -1;
+            $scope.listVer = 3;
             exceptionService.addCallback(function (exception, cause) {
                 $scope.exceptionEncountered = true;
             });
@@ -147,10 +147,12 @@
             // load lists and version check
             if ($cookies.get("cookie-consent")) {
                 var listVersion = -1;
-                var listCookieStr = localStorage.getItem("cl3");
+                var listCookieStr = localStorage.getItem("cln");
                 
                 if (listCookieStr) {
-                    listVersion = 3;
+                    var versionIdx = listCookieStr.indexOf("*");
+                    listVersion = Number(listCookieStr.slice(0, versionIdx));
+                    listCookieStr = listCookieStr.slice(versionIdx);
                 }
                 else {
                     listCookieStr = localStorage.getItem("cl2");
@@ -321,7 +323,7 @@
             listStr = listStr.substring(1);
 
             // v3: Hazelnut
-            if (listVersion == 3) {
+            if (listVersion >= 3) {
                 if (statList[0] === '_')
                     baseStats.hazelnut = -1;
                 else
@@ -608,7 +610,7 @@
             $cookies.put("sc2", savedColumns, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
 
             // save lists
-            listCookieStr = "";
+            listCookieStr = `${$scope.listVer}*`;
             for (let i = 0; i < $scope.allLists.length; ++i) {
                 for (let j = 0; j < $scope.allLists[i].variants.length; ++j) {
                     listCookieStr += createStringFromList(
@@ -623,7 +625,7 @@
             if ($scope.exceptionEncountered)
                 return;
 
-            localStorage.setItem("cl3", listCookieStr);
+            localStorage.setItem("cln", listCookieStr);
             localStorage.setItem("scl", $scope.allLists[$scope.selectedListIndex].name + "!" + $scope.selectedList.name);
 
             if ($cookies.get("cl1")) {
