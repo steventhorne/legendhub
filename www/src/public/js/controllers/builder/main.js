@@ -355,10 +355,10 @@
                 listStr = listStr.substring(1);
             }
             else {
-					baseStats.hazelnut = encoder.toNumber(listStr.slice(0,1));
-                    listStr = listStr.substring(1);
-                }  
+                baseStats.hazelnut = 5;
             }
+
+            listStr = listStr.substring(1);
 
             runeCharms.charm1 = "AAAAA";
             runeCharms.charm2 = "AAAAA";
@@ -445,7 +445,7 @@
                 itemIndex++;
             }
 
-            if (version === 2) {
+            if (listVersion === 2) {
                 if (itemIndex < $scope.slotOrder.length) {
                     for (var x = 0; x < $scope.slotOrder.length - itemIndex; ++x) {
                         items.push({
@@ -859,6 +859,7 @@
                     }
                     else {
                         listCookieStr += "-" + charmStr;
+                        console.log("list: ", listCookieStr);
                         
                     }
                 } 
@@ -1744,6 +1745,9 @@
 					if ($scope.selectedList.baseStats.hazelnut == 1) {
                         fromStatQuests += 10;
                     }
+                    if ($scope.selectedList.baseStats.longhouse == 12) {
+                        fromStatQuests += 10;
+                    }
                     break;
                 case "dexterity":
                     if (totalBaseStats < 244) {
@@ -1766,7 +1770,10 @@
 					}
 					if ($scope.selectedList.baseStats.hazelnut == 2) {
                         fromStatQuests += 10;
-                    })
+                    }
+                    if ($scope.selectedList.baseStats.longhouse == 12) {
+                        fromStatQuests -= 2;
+                    }
                     break;
                 case "constitution":
                     if (totalBaseStats < 244) {
