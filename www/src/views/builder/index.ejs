@@ -202,7 +202,7 @@
 							<td ng-class="anyItemRestrictions($index) ? 'bg-danger' : 'bg-primary'" class="bg-primary text-white text-center py-md-1 py-lg-0" data-toggle="tooltip" ng-attr-data-original-title="{{getItemRestrictionText($index)}}" nowrap lh-tooltip><span ng-show="anyItemRestrictions($index)"><i class="fas fa-question-circle"></i>&nbsp;</span>{{::slots[item.slot]}}</td>
                             <td class="text-center" ng-click="onRowLockClicked($index)"><i class="fas" ng-class="item.locked ? 'fa-lock text-success' : 'fa-unlock text-secondary'"></i></td>
 							<th scope="row" ng-click="onRowClicked($index)" style="cursor: pointer;" class="py-1 py-lg-0">
-                                <span>{{item.name}}</span><a class="float-right" href="/items/details.html?id={{item.id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.id"><i class="fas fa-external-link-alt fa-lg"></i></a></th>
+								<span>{{item.name}}</span><a class="float-right" href="/items/details.html?id={{item.id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.id > 0"><i class="fas fa-external-link-alt fa-lg"></i></a></th>
 							<td ng-repeat="stat in statInfo track by $index" ng-if="stat.showColumn && stat.var !== 'name' && stat.var !== 'slot'" class="text-center py-1 py-lg-0" ng-click="onRowClicked($parent.$parent.$index)" style="cursor: pointer;">
 								<span ng-if="stat.type == 'bool'">
 									<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
@@ -367,7 +367,7 @@
 										<tbody ng-if="isRuneCrafting">
 											<td scope="row"
 												<span>
-												<select class="custom-select" ng-model="$parent.$parent.charm1Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm1Selector = runeCraftLoad(0)">
+												<select class="custom-select" ng-model="$parent.$parent.charm1Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm1Selector='A'">
 														<option value="A">-</option>
 														<option value="B">1 str</option>
 														<option value="C">1 min</option>
@@ -395,7 +395,7 @@
 														<option value="Y">sneak</option>
 													</select>
 												</span>
-												<select class="custom-select" ng-model="$parent.$parent.charm2Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm2Selector = runeCraftLoad(1)">
+												<select class="custom-select" ng-model="$parent.$parent.charm2Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm2Selector='A'">
 													<option value="A">-</option>
 													<option value="B">1 str</option>
 													<option value="C">1 min</option>
@@ -423,7 +423,7 @@
 													<option value="Y">sneak</option>
 												</select>
 												</span>
-												<select class="custom-select" ng-model="$parent.$parent.charm3Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm3Selector = runeCraftLoad(2)">
+												<select class="custom-select" ng-model="$parent.$parent.charm3Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm3Selector='A'">
 													<option value="A">-</option>
 													<option value="B">1 str</option>
 													<option value="C">1 min</option>
@@ -451,7 +451,7 @@
 													<option value="Y">sneak</option>
 												</select>
 												</span>
-												<select class="custom-select" ng-model="$parent.$parent.charm4Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm4Selector = runeCraftLoad(3)">
+												<select class="custom-select" ng-model="$parent.$parent.charm4Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm4Selector='A'">
 													<option value="A">-</option>
 													<option value="B">1 str</option>
 													<option value="C">1 min</option>
@@ -479,7 +479,7 @@
 													<option value="Y">sneak</option>
 												</select>
 												</span>
-												<select class="custom-select" ng-model="$parent.$parent.charm5Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm5Selector = runeCraftLoad(4)">
+												<select class="custom-select" ng-model="$parent.$parent.charm5Selector" ng-change="runeCraftCharms()" ng-init="$parent.$parent.charm5Selector='A'">
 													<option value="A">-</option>
 													<option value="B">1 str</option>
 													<option value="C">1 min</option>

@@ -349,8 +349,6 @@
                 baseStats.hazelnut = 5;
             }
 
-            listStr = listStr.substring(1);
-
             runeCharms.charm1 = "AAAAA";
             runeCharms.charm2 = "AAAAA";
             runeCharms.charm3 = "AAAAA";
@@ -969,6 +967,7 @@
          */
         $scope.onRowClicked = function(index) {
             var item = $scope.selectedList.items[index];
+            console.log("Index: ", index, " Item id: ", item.id);
 
             $scope.loadingModal = false;
             $scope.searchString = "";
@@ -979,7 +978,10 @@
 
             if(item.id === -5) {
                 $scope.isRuneCrafting = true;
-                $scope.runeCraftLoad(0);
+                getCurrentRunes(index);
+            }
+            else {
+                $scope.isRuneCrafting = false;
             }
 
             if ($scope.itemsBySlot[item.slot].length == 0) {
@@ -1336,6 +1338,25 @@
 
                 return;
             }
+
+            //if the new item is not a runecharm, set that charm slot to default AAAAA
+            if($scope.selectedList.items[$scope.currentItemIndex].id === -5 && angular.copy(item).id != -5) {
+                switch ($scope.currentItemIndex) {
+                    case 3:
+                        $scope.selectedList.runeCharms.charm1 = "AAAAA";
+                        break;
+                    case 4:
+                        $scope.selectedList.runeCharms.charm2 = "AAAAA";
+                        break;
+                    case 14:
+                        $scope.selectedList.runeCharms.charm3 = "AAAAA";
+                        break;
+                    case 15:
+                        $scope.selectedList.runeCharms.charm4 = "AAAAA";
+                        break;
+                }
+            }
+
             $scope.selectedList.items[$scope.currentItemIndex] = angular.copy(item);
             $scope.saveClientSideData();
             applyItemRestrictions();
@@ -2230,7 +2251,6 @@
 
         /** Update runecraft charms. */
         $scope.runeCraftCharms = function() {
-            
             var cslot = $scope.currentItemIndex;
             var charm1 = "";
             var charm2 = "";
@@ -2254,7 +2274,7 @@
                     var name = runeStats.charmName.substring(0, runeStats.charmName.length-1);
 
                     $scope.selectedList.items[cslot].name = "Runecharm ("+ name + ")";
-                    console.log("Charm 1 change: ", charm1);
+                    $scope.selectedList.items[cslot].id = -5;
                     break;
                 case 4:
                     charm2 += $scope.charm1Selector;
@@ -2272,6 +2292,7 @@
                     var name = runeStats.charmName.substring(0, runeStats.charmName.length-1);
 
                     $scope.selectedList.items[cslot].name = "Runecharm ("+ name + ")";
+                    $scope.selectedList.items[cslot].id = -5;
                     break;
                 case 14:
                     charm3 += $scope.charm1Selector;
@@ -2289,7 +2310,7 @@
                     var name = runeStats.charmName.substring(0, runeStats.charmName.length-1);
 
                     $scope.selectedList.items[cslot].name = "Runecharm ("+ name + ")";
-                    console.log("Charm: ", charm3);
+                    $scope.selectedList.items[cslot].id = -5;
                     break;
                 case 15:
                     charm4 += $scope.charm1Selector;
@@ -2306,39 +2327,12 @@
                     var name = runeStats.charmName.substring(0, runeStats.charmName.length-1);
 
                     $scope.selectedList.items[cslot].name = "Runecharm ("+ name + ")";
-                    console.log("Charm: ", charm4);
+                    $scope.selectedList.items[cslot].id = -5;
                     break;
             }
 
             $scope.saveClientSideData();
             applyItemRestrictions();
-        };
-
-        /** Hides the runecraft configuration and sets isRuneCrafting to fale **/
-        $scope.runeCraftApply = function() {
-            $('#itemChoiceModal').modal('hide');
-            $scope.isRuneCrafting = false;
-        };
-        
-        /** returns the charm string character at index num to display the current rune selection **/
-        $scope.runeCraftLoad = function(num) {
-            var cslot = $scope.currentItemIndex;
-            
-            switch (cslot) {
-                case 3:
-                    return $scope.selectedList.runeCharms.charm1[num];
-                    break;
-                case 4:
-                    return $scope.selectedList.runeCharms.charm2[num];
-                    break;
-                case 14:
-                    return $scope.selectedList.runeCharms.charm3[num];
-                    break;
-                case 15:
-                    return $scope.selectedList.runeCharms.charm4[num];
-                    break;
-            
-            } 
         };
 
         var applyRunecharmStats = function(charmStr) {
@@ -2369,6 +2363,8 @@
             };
 
             for(var i = 0; i < charmStr.length; ++i) {
+
+                
 
                 switch (charmStr[i]) {
                     case "A":
@@ -2525,7 +2521,40 @@
         
         $scope.runeCraftButtonClick = function() {
                $scope.isRuneCrafting = !$scope.isRuneCrafting;
-               console.log("IsRuneCrafting: ", $scope.isRuneCrafting);
+        };
+
+        var getCurrentRunes = function(index) {
+            console.log("index: ", index);
+            switch (index) {
+                case 3:
+                    $scope.charm1Selector = $scope.selectedList.runeCharms.charm1[0];
+                    $scope.charm2Selector = $scope.selectedList.runeCharms.charm1[1];
+                    $scope.charm3Selector = $scope.selectedList.runeCharms.charm1[2];
+                    $scope.charm4Selector = $scope.selectedList.runeCharms.charm1[3];
+                    $scope.charm5Selector = $scope.selectedList.runeCharms.charm1[4];
+                    break;
+                case 4:
+                    $scope.charm1Selector = $scope.selectedList.runeCharms.charm2[0];
+                    $scope.charm2Selector = $scope.selectedList.runeCharms.charm2[1];
+                    $scope.charm3Selector = $scope.selectedList.runeCharms.charm2[2];
+                    $scope.charm4Selector = $scope.selectedList.runeCharms.charm2[3];
+                    $scope.charm5Selector = $scope.selectedList.runeCharms.charm2[4];
+                    break;
+                case 14:
+                    $scope.charm1Selector = $scope.selectedList.runeCharms.charm3[0];
+                    $scope.charm2Selector = $scope.selectedList.runeCharms.charm3[1];
+                    $scope.charm3Selector = $scope.selectedList.runeCharms.charm3[2];
+                    $scope.charm4Selector = $scope.selectedList.runeCharms.charm3[3];
+                    $scope.charm5Selector = $scope.selectedList.runeCharms.charm3[4];
+                    break;
+                case 15:
+                    $scope.charm1Selector = $scope.selectedList.runeCharms.charm4[0];
+                    $scope.charm2Selector = $scope.selectedList.runeCharms.charm4[1];
+                    $scope.charm3Selector = $scope.selectedList.runeCharms.charm4[2];
+                    $scope.charm4Selector = $scope.selectedList.runeCharms.charm4[3];
+                    $scope.charm5Selector = $scope.selectedList.runeCharms.charm4[4];
+                    break;
+            }   
         };
         
 
