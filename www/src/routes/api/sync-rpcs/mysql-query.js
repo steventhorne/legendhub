@@ -1,21 +1,18 @@
-let mysql = require("./mysql-connection");
+const mysql = require("../mysql-connection");
 
-function init(connection) {
+function init() {
     return function (query) {
         return new Promise(function(resolve, reject) {
             mysql.query(
                 query,
                 [],
                 function(error, results, fields) {
-                    if (error) {
-                        reject(error);
-                    }
-
+                    if (error) reject(error);
                     resolve(results);
                 }
             );
         });
     }
-};
+}
 
 module.exports = init;
