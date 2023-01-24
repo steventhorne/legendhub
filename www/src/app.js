@@ -1,23 +1,26 @@
 require("dotenv").config();
 
-let compression = require("compression");
-let express = require("express");
-let path = require("path");
-let cookieParser = require("cookie-parser");
-let logger = require("morgan");
+const compression = require("compression");
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
 
-let authRouter = require("./routes/auth");
+const authRouter = require("./routes/auth");
 
-let indexRouter = require("./routes/index");
-let apiRouter = require("./routes/api");
-let itemsRouter = require("./routes/items");
-let mobsRouter = require("./routes/mobs");
-let questsRouter = require("./routes/quests");
-let wikiRouter = require("./routes/wiki");
-let builderRouter = require("./routes/builder");
-let changelogRouter = require("./routes/changelog");
-let notificationsRouter = require("./routes/notifications");
-let accountRouter = require("./routes/account");
+const indexRouter = require("./routes/index");
+const apiRouter = require("./routes/api");
+const itemsRouter = require("./routes/items");
+const mobsRouter = require("./routes/mobs");
+const questsRouter = require("./routes/quests");
+const wikiRouter = require("./routes/wiki");
+const builderRouter = require("./routes/builder");
+const changelogRouter = require("./routes/changelog");
+const notificationsRouter = require("./routes/notifications");
+const accountRouter = require("./routes/account");
+const migrations = require("./routes/api/migrations");
+
+migrations.up();
 
 let app = express();
 

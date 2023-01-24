@@ -13,8 +13,8 @@ String.prototype.format = function() {
     return a;
 }
 
-const rpcClient = syncRpc(__dirname + "/sync-mysql-worker.js");
-let itemColumnsResults = rpcClient("SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'legendhub' AND TABLE_NAME = 'Items'");
+const syncQuery = syncRpc(__dirname + "/sync-rpcs/mysql-query.js");
+const itemColumnsResults = syncQuery("SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'legendhub' AND TABLE_NAME = 'Items'");
 let itemColumns = [];
 for (let i = 0; i < itemColumnsResults.length; ++i) {
     itemColumns.push({
