@@ -36,6 +36,42 @@
 			
 			$scope.hazelnutList = ["Strength", "Mind", "Dexterity", "Constitution", "Perception", "Spirit"]; 
 
+            $scope.charmOptions = [{"charm": "B", "stat": "1 str"},
+                                   {"charm": "C", "stat": "1 min"},
+                                   {"charm": "D", "stat": "1 dex"},
+                                   {"charm": "E", "stat": "1 con"},
+                                   {"charm": "F", "stat": "1 per"},
+                                   {"charm": "G", "stat": "1 spi"},
+                                   {"charm": "H", "stat": "2 hit"},
+                                   {"charm": "I", "stat": "2 dam"},
+                                   {"charm": "J", "stat": "1 hit, 1 dam"},
+                                   {"charm": "K", "stat": "10 hp"},
+                                   {"charm": "L", "stat": "10 ma"},
+                                   {"charm": "M", "stat": "10 mv"},
+                                   {"charm": "N", "stat": "5 mvr"},
+                                   {"charm": "O", "stat": "2 mar, 1 mvr"},
+                                   {"charm": "P", "stat": "2 hpr, 1 mvr"},
+                                   {"charm": "Q", "stat": "2 bonus accuracy"},
+                                   {"charm": "R", "stat": "-3 ac"}, 
+                                   {"charm": "S", "stat": "2 spell crit"},
+                                   {"charm": "T", "stat": "2 spell dam"},
+                                   {"charm": "U", "stat": "2 mana redux, 1 concentration"},
+                                   {"charm": "V", "stat": "detect invis"},
+                                   {"charm": "W", "stat": "see dark"},
+                                   {"charm": "X", "stat": "detect illusion"},
+                                   {"charm": "Y", "stat": "sneak"
+            }];
+
+
+
+            $scope.currentListVariantStats = "";
+
+               this.charm1Selector = 'A';
+               this.charm2Selector = 'A';
+               this.charm3Selector = 'A';
+               this.charm4Selector = 'A';
+               this.charm5Selector = 'A';
+
             $scope.isRuneCrafting = false;
 
             // item searching vars
@@ -822,7 +858,7 @@
                 if (list.items[k].id > 0) {
                         listCookieStr += (list.items[k].locked ? "." : "") + encoder.fromNumber(list.items[k].id,3);
                 }
-                else if (k === 3 || k ===4 || k === 14 || k === 15) {
+                else if (k === 3 || k === 4 || k === 14 || k === 15) {
                     if (list.items[k].locked) {
                         listCookieStr += ".";
                     }
@@ -846,7 +882,7 @@
                         listCookieStr += "_";
                     }
                     else {
-                        listCookieStr += "-" + charmStr;                        
+                        listCookieStr += "-" + charmStr;
                     }
                 } 
                 else {
@@ -967,7 +1003,7 @@
          */
         $scope.onRowClicked = function(index) {
             var item = $scope.selectedList.items[index];
-            console.log("Index: ", index, " Item id: ", item.id);
+  
 
             $scope.loadingModal = false;
             $scope.searchString = "";
@@ -978,7 +1014,7 @@
 
             if(item.id === -5) {
                 $scope.isRuneCrafting = true;
-                getCurrentRunes(index);
+                $scope.getCurrentRunes($scope.currentItemIndex);
             }
             else {
                 $scope.isRuneCrafting = false;
@@ -1536,8 +1572,31 @@
         $scope.clearItemsFromList = function() {
             for (var i = 0; i < $scope.selectedList.items.length; ++i) {
                 if (!$scope.selectedList.items[i].locked) {
-                    $scope.selectedList.items[i] = {"slot": $scope.selectedList.items[i].slot, "id": 0, "name": "-"};
+                    if ($scope.selectedList.items[i].id === -5) {
+                        switch (i) {
+                        case 3:
+                            $scope.selectedList.runeCharms.charm1 = "AAAAA";
+                            break;
+                        case 4:
+                            $scope.selectedList.runeCharms.charm2 = "AAAAA";
+                            break;
+                        case 14:
+                            $scope.selectedList.runeCharms.charm3 = "AAAAA";
+                            break;
+                        case 15:
+                            $scope.selectedList.runeCharms.charm4 = "AAAAA";
+                            break;
+                        }
+
+                        this.charm1Selector = 'A';
+                        this.charm2Selector = 'A';
+                        this.charm3Selector = 'A';
+                        this.charm4Selector = 'A';
+                        this.charm5Selector = 'A';
+                    }
+                    $scope.selectedList.items[i] = {"slot": $scope.selectedList.items[i].slot, "id": 0, "name": "-"}; 
                 }
+                
             }
             $scope.saveClientSideData();
         };
@@ -2250,38 +2309,44 @@
         };
 
         /** Update runecraft charms. */
-        $scope.runeCraftCharms = function() {
+        $scope.runeCraftCharms = function($event) {
+            console.log(event);
+
             var cslot = $scope.currentItemIndex;
             var charm1 = "";
             var charm2 = "";
             var charm3 = "";
             var charm4 = "";
 
+
             switch (cslot) {
                 case 3:
-                    charm1 += $scope.charm1Selector;
-                    charm1 += $scope.charm2Selector;
-                    charm1 += $scope.charm3Selector;
-                    charm1 += $scope.charm4Selector;
-                    charm1 += $scope.charm5Selector;
-
-                    $scope.selectedList.runeCharms.charm1 = charm1;
+                    console.log("charm1: " , $scope.charm1Selector);
                     
-                    var runeStats = applyRunecharmStats($scope.selectedList.runeCharms.charm1);
-                    for (const [stat, num] of Object.entries(runeStats)) {
-                        $scope.selectedList.items[cslot][stat] = num;
-                    }
-                    var name = runeStats.charmName.substring(0, runeStats.charmName.length-1);
-
-                    $scope.selectedList.items[cslot].name = "Runecharm ("+ name + ")";
-                    $scope.selectedList.items[cslot].id = -5;
+                   charm1 += this.charm1Selector;
+                   charm1 += this.charm2Selector;
+                   charm1 += this.charm3Selector;
+                   charm1 += this.charm4Selector;
+                   charm1 += this.charm5Selector;
+                   
+                   $scope.selectedList.runeCharms.charm1 = charm1;
+                   console.log("Charm1 post: ", charm1);
+                   
+                   var runeStats = applyRunecharmStats($scope.selectedList.runeCharms.charm1);
+                   for (const [stat, num] of Object.entries(runeStats)) {
+                       $scope.selectedList.items[cslot][stat] = num;
+                   }
+                   var name = runeStats.charmName.substring(0, runeStats.charmName.length-1);
+                   
+                   $scope.selectedList.items[cslot].name = "Runecharm ("+ name + ")";
+                   $scope.selectedList.items[cslot].id = -5;
                     break;
                 case 4:
-                    charm2 += $scope.charm1Selector;
-                    charm2 += $scope.charm2Selector;
-                    charm2 += $scope.charm3Selector;
-                    charm2 += $scope.charm4Selector;
-                    charm2 += $scope.charm5Selector;
+                    charm2 += this.charm1Selector;
+                    charm2 += this.charm2Selector;
+                    charm2 += this.charm3Selector;
+                    charm2 += this.charm4Selector;
+                    charm2 += this.charm5Selector;
 
                     $scope.selectedList.runeCharms.charm2 = charm2;
 
@@ -2295,11 +2360,11 @@
                     $scope.selectedList.items[cslot].id = -5;
                     break;
                 case 14:
-                    charm3 += $scope.charm1Selector;
-                    charm3 += $scope.charm2Selector;
-                    charm3 += $scope.charm3Selector;
-                    charm3 += $scope.charm4Selector;
-                    charm3 += $scope.charm5Selector;
+                    charm3 += this.charm1Selector;
+                    charm3 += this.charm2Selector;
+                    charm3 += this.charm3Selector;
+                    charm3 += this.charm4Selector;
+                    charm3 += this.charm5Selector;
 
                     $scope.selectedList.runeCharms.charm3 = charm3;
 
@@ -2313,11 +2378,11 @@
                     $scope.selectedList.items[cslot].id = -5;
                     break;
                 case 15:
-                    charm4 += $scope.charm1Selector;
-                    charm4 += $scope.charm2Selector;
-                    charm4 += $scope.charm3Selector;
-                    charm4 += $scope.charm4Selector;
-                    charm4 += $scope.charm5Selector;
+                    charm4 += this.charm1Selector;
+                    charm4 += this.charm2Selector;
+                    charm4 += this.charm3Selector;
+                    charm4 += this.charm4Selector;
+                    charm4 += this.charm5Selector;
 
                     $scope.selectedList.runeCharms.charm4 = charm4;
                     var runeStats = applyRunecharmStats($scope.selectedList.runeCharms.charm4);
@@ -2330,11 +2395,11 @@
                     $scope.selectedList.items[cslot].id = -5;
                     break;
             }
-
             $scope.saveClientSideData();
-            applyItemRestrictions();
+            //applyItemRestrictions();
         };
 
+        /** applies stats to a runecharm from a given string **/
         var applyRunecharmStats = function(charmStr) {
             
             var runeStats = { 
@@ -2363,150 +2428,147 @@
             };
 
             for(var i = 0; i < charmStr.length; ++i) {
-
-                
-
                 switch (charmStr[i]) {
                     case "A":
                          //no rune
                          break;
                     case "B":
                         //1 str
-                        runeStats.rent = runeStats.rent + 203;
+                        runeStats.rent += 203;
                         runeStats.strength++;
                         runeStats.charmName = runeStats.charmName + "Uruz/";
                         break;
                     case "C":
                         //1 min
-                        runeStats.rent = runeStats.rent + 203;
+                        runeStats.rent += 203;
                         runeStats.mind++;
                         runeStats.charmName = runeStats.charmName + "Isa/";
                         break;
                     case "D":
                         //1 dex
-                        runeStats.rent = runeStats.rent + 203;
+                        runeStats.rent += + 203;
                         runeStats.dexterity++;
                         runeStats.charmName = runeStats.charmName + "Algiz/";
                          break;
                     case "E":
                         //1 con
-                        runeStats.rent = runeStats.rent + 203;
+                        runeStats.rent += 203;
                         runeStats.constitution++;
                         runeStats.charmName = runeStats.charmName + "Ansuz/";
                         break;
                     case "F":
                         //1 per
-                        runeStats.rent = runeStats.rent + 203;
+                        runeStats.rent += 203;
                         runeStats.perception++;
                         runeStats.charmName = runeStats.charmName + "Mannaz/";
                         break;
                     case "G":
                         //1 spi
-                        runeStats.rent = runeStats.rent + 203;
+                        runeStats.rent += 203;
                         runeStats.spirit++;
                         runeStats.charmName = runeStats.charmName + "Tiwaz/";
                          break;
                     case "H":
                         //2 hit
-                        runeStats.rent = runeStats.rent + 675;
+                        runeStats.rent += 675;
                         runeStats.hit = runeStats.hit + 2;
                         runeStats.charmName = runeStats.charmName + "Eihwaz/";
                         break;
                     case "I":
                         //2 dam
-                        runeStats.rent = runeStats.rent + 675;
+                        runeStats.rent += 675;
                         runeStats.dam = runeStats.dam + 2;
                         runeStats.charmName = runeStats.charmName + "Ehwaz/";
                         break;
                     case "J":
                         //1 hit, 1 dam
-                        runeStats.rent = runeStats.rent + 675;
+                        runeStats.rent += 675;
                         runeStats.hit++;
                         runeStats.dam++;
                         runeStats.charmName = runeStats.charmName + "Laguz/";
                          break;
                     case "K":
                         //10 hp
-                        runeStats.rent = runeStats.rent + 450;
-                        runeStats.hp = runeStats.hp + 10;
+                        runeStats.rent += 450;
+                        runeStats.hp += 10;
                         runeStats.charmName = runeStats.charmName + "Gebo/";
                         break;
                     case "L":
                         //10 ma
-                        runeStats.rent = runeStats.rent + 450;
-                        runeStats.ma = runeStats.ma + 10;
+                        runeStats.rent += 450;
+                        runeStats.ma += 10;
                         runeStats.charmName = runeStats.charmName + "Berkano/";
                         break;
                     case "M":
                         //10 mv
-                        runeStats.rent = runeStats.rent + 450;
-                        runeStats.mv = runeStats.mv + 10;
+                        runeStats.rent += 450;
+                        runeStats.mv += 10;
                         runeStats.charmName = runeStats.charmName + "Raidho/";
                         break;
                     case "N":
                         //5 mvr
-                        runeStats.rent = runeStats.rent + 450;
-                        runeStats.mvr = runeStats.mv + 5;
+                        runeStats.rent += 450;
+                        runeStats.mvr += 5;
                         runeStats.charmName = runeStats.charmName + "Fehu/";
                         break;
                     case "O":
                         //2 mar, 1 mvr
-                        runeStats.rent = runeStats.rent + 450;
-                        runeStats.mar = runeStats.mar + 2;
+                        runeStats.rent += 450;
+                        runeStats.mar += 2;
                         runeStats.mvr++;
                         runeStats.charmName = runeStats.charmName + "Wunjo/";
                         break;
                     case "P":
                         //2 hpr, 1 mvr
-                        runeStats.rent = runeStats.rent + 450;
-                        runeStats.hpr = runeStats.hpr + 2;
+                        runeStats.rent += 450;
+                        runeStats.hpr += 2;
                         runeStats.mvr++;
                         runeStats.charmName = runeStats.charmName + "Kenaz/";
                         break;
                     case "Q":
                         //2 bonus accuracy
-                        runeStats.rent = runeStats.rent + 360;
-                        runeStats.rangedAccuracy = runeStats.rangedAccuracy + 2;
+                        runeStats.rent += 360;
+                        runeStats.rangedAccuracy += 2;
                         runeStats.charmName = runeStats.charmName + "Perthro/";
                         break;
                     case "R":
                         //-3 ac
-                        runeStats.rent = runeStats.rent + 135;
-                        runeStats.ac = runeStats.ac - 3;
+                        runeStats.rent += 135;
+                        runeStats.ac -= 3;
                         runeStats.charmName = runeStats.charmName + "Thurisaz/";
                         break;
                     case "S":
                         //2 spell crit
-                        runeStats.rent = runeStats.rent + 103;
-                        runeStats.spellcrit = runeStats.spellcrit + 2;
+                        runeStats.rent += 103;
+                        runeStats.spellcrit += 2;
                         runeStats.charmName = runeStats.charmName + "Hagalaz/";
                         break;
                     case "T":
                         //2 spell dam
-                        runeStats.rent = runeStats.rent + 675;
-                        runeStats.spelldam = runeStats.spelldam + 2;
+                        runeStats.rent += 675;
+                        runeStats.spelldam += 2;
                         runeStats.charmName = runeStats.charmName + "Nauthiz/";
                         break;
                     case "U":
                         //2 mana redux
-                        runeStats.rent = runeStats.rent + 203;
+                        runeStats.rent += 203;
                         runeStats.concentration++;
-                        runeStats.manaReduction = runeStats.manaReduction + 2;
+                        runeStats.manaReduction += 2;
                         runeStats.charmName = runeStats.charmName + "Sowilo/";
                         break;
                     case "V":
                         //detect invis
-                        runeStats.rent = runeStats.rent + 900;
+                        runeStats.rent += 900;
                         runeStats.charmName = runeStats.charmName + "Jera/";
                         break;
                     case "W":
                         //see dark
-                        runeStats.rent = runeStats.rent + 900;
+                        runeStats.rent += 900;
                         runeStats.charmName = runeStats.charmName + "Dagaz/";
                         break;
                     case "X":
                         //detect illusion
-                        runeStats.rent = runeStats.rent + 900;
+                        runeStats.rent += 900;
                         runeStats.charmName = runeStats.charmName + "Othala/";
                         break;
                     case "Y":
@@ -2519,26 +2581,39 @@
             return runeStats;
         };
         
+        /** swaps isRuneCrafting for modal hiding purposes **/
         $scope.runeCraftButtonClick = function() {
                $scope.isRuneCrafting = !$scope.isRuneCrafting;
+               console.log("Button click");
+               $scope.getCurrentRunes($scope.currentItemIndex);
+   
         };
 
-        var getCurrentRunes = function(index) {
-            console.log("index: ", index);
+        $scope.getCurrentRunes = function(index) {
+           console.log("Get runes:", index);
+
+           this.charm1Selector = 'A';
+           this.charm2Selector = 'A';
+           this.charm3Selector = 'A';
+           this.charm4Selector = 'A';
+           this.charm5Selector = 'A';
+
             switch (index) {
                 case 3:
-                    $scope.charm1Selector = $scope.selectedList.runeCharms.charm1[0];
-                    $scope.charm2Selector = $scope.selectedList.runeCharms.charm1[1];
-                    $scope.charm3Selector = $scope.selectedList.runeCharms.charm1[2];
-                    $scope.charm4Selector = $scope.selectedList.runeCharms.charm1[3];
-                    $scope.charm5Selector = $scope.selectedList.runeCharms.charm1[4];
+                    this.charm1Selector = $scope.selectedList.runeCharms.charm1[0];
+                    console.log("This: ", this.charm1Selector, "Scope: ", $scope.charm1Selector);
+
+                    this.charm2Selector = $scope.selectedList.runeCharms.charm1[1];
+                    this.charm3Selector = $scope.selectedList.runeCharms.charm1[2];
+                    this.charm4Selector = $scope.selectedList.runeCharms.charm1[3];
+                    this.charm5Selector = $scope.selectedList.runeCharms.charm1[4];
                     break;
                 case 4:
-                    $scope.charm1Selector = $scope.selectedList.runeCharms.charm2[0];
-                    $scope.charm2Selector = $scope.selectedList.runeCharms.charm2[1];
-                    $scope.charm3Selector = $scope.selectedList.runeCharms.charm2[2];
-                    $scope.charm4Selector = $scope.selectedList.runeCharms.charm2[3];
-                    $scope.charm5Selector = $scope.selectedList.runeCharms.charm2[4];
+                    this.charm1Selector = $scope.selectedList.runeCharms.charm2[0];
+                    this.charm2Selector = $scope.selectedList.runeCharms.charm2[1];
+                    this.charm3Selector = $scope.selectedList.runeCharms.charm2[2];
+                    this.charm4Selector = $scope.selectedList.runeCharms.charm2[3];
+                    this.charm5Selector = $scope.selectedList.runeCharms.charm2[4];
                     break;
                 case 14:
                     $scope.charm1Selector = $scope.selectedList.runeCharms.charm3[0];
