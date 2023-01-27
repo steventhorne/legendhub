@@ -107,7 +107,7 @@
 								<div class="col-4 col-sm-2 text-center">
 									<label class="col-form-label col-form-label-sm" for="spiInput">Spi</label>
 									<input type="number" id="spiInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.spirit" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-									<span ng-show="showStatQuests()">3&nbsp;<i class="far fa-question-circle" data-toggle="tooltip" data-placement="bottom" data-container=".multiline-tooltip" data-html="true" title="<div><span>...has learned of the art and spirit of music.</span><br><span>...traveled to the Well of Saegais and ate from the magical hazelnut trees.</span></div>" lh-tooltip></i></span>
+									<span ng-show="showStatQuests()">3&nbsp;<i class="far fa-question-circle" data-toggle="tooltip" data-placement="bottom" data-container=".multiline-tooltip" data-html="true" title="<div><span>...has learned of the art and spirit of music.</span></div>" lh-tooltip></i></span>
 								</div>
 							</div>
 							<p ng-show="baseStatsForm.strInput.$error.total" class="text-danger">Base stats should add up to either 198 or 244.</p>
@@ -367,25 +367,25 @@
 										<tbody ng-if="isRuneCrafting">
 											<td scope="row"
 												<span> <!-- charm selector-->
-													<select class="custom-select" ng-model="charm1Selector" ng-change="runeCraftCharms($event)">
+													<select class="custom-select" ng-model="charm1Selector" ng-change="runeCraftCharms()">
 														<option ng-value="'A'">--Select--</option>																			
-														<option ng-repeat="option in charmOptions" ng-value="option.charm">{{option.stat}}</option>					
+														<option ng-repeat="option in charmOptions" ng-value="option.id">{{option.label}}</option>					
 													</select>																											
 													<select class="custom-select" ng-model="charm2Selector" ng-change="runeCraftCharms()">
 														<option ng-value="'A'">--Select--</option>																			
-														<option ng-repeat="option in charmOptions" ng-value="option.charm">{{option.stat}}</option>					
+														<option ng-repeat="option in charmOptions" ng-value="option.id">{{option.label}}</option>					
 													</select>																											
 													<select class="custom-select" ng-model="charm3Selector" ng-change="runeCraftCharms()">
 														<option ng-value="'A'">--Select--</option>																			
-														<option ng-repeat="option in charmOptions" ng-value="option.charm">{{option.stat}}</option>					
+														<option ng-repeat="option in charmOptions" ng-value="option.id">{{option.label}}</option>					
 													</select>																											
 													<select class="custom-select" ng-model="charm4Selector" ng-change="runeCraftCharms()">
 														<option ng-value="'A'">--Select--</option>																			
-														<option ng-repeat="option in charmOptions" ng-value="option.charm">{{option.stat}}</option>					
+														<option ng-repeat="option in charmOptions" ng-value="option.id">{{option.label}}</option>					
 													</select>																											
 													<select class="custom-select" ng-model="charm5Selector" ng-change="runeCraftCharms()">
 														<option ng-value="'A'">--Select--</option>
-														<option ng-repeat="option in charmOptions" ng-value="option.charm">{{option.stat}}</option>
+														<option ng-repeat="option in charmOptions" ng-value="option.id">{{option.label}}</option>
 													</select>
 												</span>
 											</td>
