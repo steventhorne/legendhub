@@ -1073,17 +1073,31 @@
             $scope.importModel.message = "";
             $scope.importModel.exists = false;
 
-            if ($scope.importModel.input) {
-                var listStrs = $scope.importModel.input.split("*").filter(function(el) {return el.length != 0});;
+            var importStr = $scope.importModel.input;
+            if (importStr) {
+                var listVersion = -1;
+
+                // check if list has a version number
+                var asteriskIdx = listCookieStr.indexOf("*");
+                var tildeIdx = listCookieStr.indexOf("~");
+                if (asteriskIdx < tildeIdx) {
+                    listVersion = Number(importStr.substring(0, asteriskIdx));
+                    importStr = importStr.slice(asteriskIdx);
+                }
+
+                var listStrs = importStr.split("*").filter(function(el) {return el.length != 0});;
                 for (let i = 0; i < listStrs.length; ++i) {
                     var newList;
-                    try {
-                         newList = createListFromStringV2(listStrs[i], 3);
-                         console.log("v3 import");
+                    if (listVersion > 0) {
+                        newList = createListFromStringV2(listStrs[i], listVersion);
                     }
-                    catch (e) {
-                        console.log("error: ", e);
-                        newList = createListFromStringV2(listStrs[i], 2);
+                    else {
+                        try {
+                            newList = createListFromStringV2(listStrs[i], 2);
+                        }
+                        catch (e) {
+                            newList = createListFromString(listStrs[i]);
+                        }
                     }
                 
                     // check if list exists
@@ -1108,7 +1122,7 @@
                 $scope.importModel.exists = true;
                 $scope.importModel.message = "The following lists already exist and will be overwritten unless otherwise specified:";
             }
-            else if ($scope.importModel.input && $scope.importModel.lists.length === 0) {
+            else if (importStr && $scope.importModel.lists.length === 0) {
                 $scope.importModel.message = "Invalid list import string.";
             }
 
@@ -1192,9 +1206,9 @@
             );
 
             $scope.exportModel = {
-                "allLists": allListsStr,
-                "curList": curListStr,
-                "curVariant": curVariantStr
+                "allLists": `${$scope.listVer}*${allListsStr}`,
+                "curList": `${$scope.listVer}*${curListStr}`,
+                "curVariant": `${$scope.listVer}*${curVariantStr}`,
             };
 
             $("#exportModal").modal("show");
