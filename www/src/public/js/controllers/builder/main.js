@@ -2406,6 +2406,7 @@
                 $scope.itemRestrictions.push([]);
             }
 
+            var limitedCount = 0;
             var handCount = 0;
             var handApplied = false;
             for (var i = 0; i < $scope.selectedList.items.length; ++i) {
@@ -2431,6 +2432,14 @@
                 if (curItem.slot == 14) {
                     if (curItem.weight * 4 > strength) {
                         $scope.itemRestrictions[i].push("weight");
+                    }
+                }
+                
+                // limited
+                if(curItem.isLimited) {
+                    limitedCount++;
+                    if(limitedCount > 3) {
+                        $scope.itemRestrictions[i].push("limited");
                     }
                 }
 
@@ -2481,6 +2490,9 @@
                         break;
                     case "twohanded":
                         text += "You do not have enough hands to hold this item.";
+                        break;
+                    case "limited":
+                        text += "You can only have three limited items equipped.";
                         break;
                     default:
                         break;
