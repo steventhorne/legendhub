@@ -62,11 +62,7 @@
                                    "Y": {"id": 'Y',"label": "sneak", "name": "Ingwaz", "stats": [{"statVar": "rent", "value": 0}]}
                                    };
 
-            //$scope.charm1Selector = 'A';
-            //$scope.charm2Selector = 'A';
-            //$scope.charm3Selector = 'A';
-            //$scope.charm4Selector = 'A';
-            //$scope.charm5Selector = 'A';
+            $scope.charmSelectors = ['A', 'A', 'A', 'A', 'A'];
 
             $scope.isRuneCrafting = false;
 
@@ -384,12 +380,10 @@
                 baseStats.hazelnut = 5;
             }
             
-            if (listVersion < 4) {
-                runeCharms.charm1 = "AAAAA";
-                runeCharms.charm2 = "AAAAA";
-                runeCharms.charm3 = "AAAAA";
-                runeCharms.charm4 = "AAAAA";
-            }
+            runeCharms.charm1 = "AAAAA";
+            runeCharms.charm2 = "AAAAA";
+            runeCharms.charm3 = "AAAAA";
+            runeCharms.charm4 = "AAAAA";
             
             var items = [];
             var itemIndex = 0;
@@ -2292,11 +2286,10 @@
 
 
             if(charmSlot) {
-                $scope.selectedList.runeCharms[charmSlot] = this.charm1Selector;
-                $scope.selectedList.runeCharms[charmSlot] += this.charm2Selector;
-                $scope.selectedList.runeCharms[charmSlot] += this.charm3Selector;
-                $scope.selectedList.runeCharms[charmSlot] += this.charm4Selector;
-                $scope.selectedList.runeCharms[charmSlot] += this.charm5Selector;
+                $scope.selectedList.runeCharms[charmSlot] = "";
+                for(var i = 0; i < $scope.charmSelectors.length; ++i) {
+                    $scope.selectedList.runeCharms[charmSlot] += $scope.charmSelectors[i];
+                }
 
                 var runeStats = applyRunecharmStats($scope.selectedList.runeCharms[charmSlot]);
                 for (const [stat, num] of Object.entries(runeStats)) {
@@ -2313,7 +2306,6 @@
 
         /** applies stats to a runecharm from a given string **/
         var applyRunecharmStats = function(charmStr) {
-            
             var runeStats = { 
                 "strength": 0,
                 "mind": 0,
@@ -2357,45 +2349,29 @@
                $scope.getCurrentRunes($scope.currentItemIndex);
         };
 
+        /** updates charm selectors with current charm string for that slot index*/
         $scope.getCurrentRunes = function(index) {
-            $scope.charm1Selector;
-            $scope.charm2Selector;
-            $scope.charm3Selector;
-            $scope.charm4Selector;
-            $scope.charm5Selector;
+            var charmStr = "";
+            switch (index) {
+                case 3:
+                    charmStr = $scope.selectedList.runeCharms.charm1;
+                    break;
+                case 4:
+                    charmStr = $scope.selectedList.runeCharms.charm2;
+                    break;
+                case 14:
+                    charmStr = $scope.selectedList.runeCharms.charm3;
+                    break;
+                case 15:
+                    charmStr = $scope.selectedList.runeCharms.charm4;
+                    break;
+                default:
+                    break;
+            }
             
-
-
-           switch (index) {
-               case 3:
-                   $scope.charm1Selector = $scope.selectedList.runeCharms.charm1[0];
-                   $scope.charm2Selector = $scope.selectedList.runeCharms.charm1[1];
-                   $scope.charm3Selector = $scope.selectedList.runeCharms.charm1[2];
-                   $scope.charm4Selector = $scope.selectedList.runeCharms.charm1[3];
-                   $scope.charm5Selector = $scope.selectedList.runeCharms.charm1[4];
-                   break;
-               case 4:
-                   $scope.charm1Selector = $scope.selectedList.runeCharms.charm2[0];
-                   $scope.charm2Selector = $scope.selectedList.runeCharms.charm2[1];
-                   $scope.charm3Selector = $scope.selectedList.runeCharms.charm2[2];
-                   $scope.charm4Selector = $scope.selectedList.runeCharms.charm2[3];
-                   $scope.charm5Selector = $scope.selectedList.runeCharms.charm2[4];
-                   break;
-               case 14:
-                   $scope.charm1Selector = $scope.selectedList.runeCharms.charm3[0];
-                   $scope.charm2Selector = $scope.selectedList.runeCharms.charm3[1];
-                   $scope.charm3Selector = $scope.selectedList.runeCharms.charm3[2];
-                   $scope.charm4Selector = $scope.selectedList.runeCharms.charm3[3];
-                   $scope.charm5Selector = $scope.selectedList.runeCharms.charm3[4];
-                   break;
-               case 15:
-                   $scope.charm1Selector = $scope.selectedList.runeCharms.charm4[0];
-                   $scope.charm2Selector = $scope.selectedList.runeCharms.charm4[1];
-                   $scope.charm3Selector = $scope.selectedList.runeCharms.charm4[2];
-                   $scope.charm4Selector = $scope.selectedList.runeCharms.charm4[3];
-                   $scope.charm5Selector = $scope.selectedList.runeCharms.charm4[4];
-                   break;
-            }   
+            for(var i = 0; i < $scope.charmSelectors.length; ++i) {
+                $scope.charmSelectors[i] = charmStr[i];
+            }
         };
 
         /** Applies item restrictions. */
