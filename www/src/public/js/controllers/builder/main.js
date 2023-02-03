@@ -46,19 +46,19 @@
                                    "I": {"id": 'I',"label": "2 dam", "name": "Ehwaz", "stats": [{"statVar": "dam", "value": 2},{"statVar": "rent", "value": 675}]},
                                    "J": {"id": 'J',"label": "1 hit, 1 dam", "name": "Laguz", "stats": [{"statVar": "hit", "value": 1},{"statVar": "dam", "value": 1},{"statVar": "rent", "value": 675}]},
                                    "K": {"id": 'K',"label": "10 hp", "name": "Gebo", "stats": [{"statVar": "hp", "value": 10},{"statVar": "rent", "value": 450}]},
-                                   "L": {"id": 'L',"label": "10 ma", "name": "Berkano", "stats": [{"statVar": "ma", "value": 10},{"statVar": "rent", "value": 450}]},
+                                   "L": {"id": 'L',"label": "10 ma", "name": "Berkano", "stats": [{"statVar": "ma", "value": 10},{"statVar": "rent", "value": 225}]},
                                    "M": {"id": 'M',"label": "10 mv", "name": "Raidho", "stats": [{"statVar": "mv", "value": 10},{"statVar": "rent", "value": 450}]},
                                    "N": {"id": 'N',"label": "5 mvr", "name": "Fehu", "stats": [{"statVar": "mvr", "value": 5},{"statVar": "rent", "value": 450}]},
                                    "O": {"id": 'O',"label": "2 mar, 1 mvr", "name": "Wunjo", "stats": [{"statVar": "mar", "value": 2},{"statVar": "mvr", "value": 1},{"statVar": "rent", "value": 450}]},
                                    "P": {"id": 'P',"label": "2 hpr, 1 mvr", "name": "Kenaz", "stats": [{"statVar": "hpr", "value": 2},{"statVar": "mvr", "value": 1},{"statVar": "rent", "value": 450}]},
                                    "Q": {"id": 'Q',"label": "2 bonus accuracy", "name": "Perthro", "stats": [{"statVar": "rangedAccuracy", "value": 2},{"statVar": "rent", "value": 360}]},
-                                   "R": {"id": 'R',"label": "-3 ac", "name": "Thurisaz", "stats": [{"statVar": "ac", "value": -3},{"statVar": "rent", "value": 135}]},
+                                   "R": {"id": 'R',"label": "-3 ac", "name": "Thurisaz", "stats": [{"statVar": "ac", "value": -3},{"statVar": "rent", "value": 95}]},
                                    "S": {"id": 'S',"label": "2 spell crit", "name": "Hagalaz", "stats": [{"statVar": "spellcrit", "value": 2},{"statVar": "rent", "value": 103}]},
                                    "T": {"id": 'T',"label": "2 spell dam", "name": "Nauthiz", "stats": [{"statVar": "spelldam", "value": 2},{"statVar": "rent", "value": 675}]},
-                                   "U": {"id": 'U',"label": "2 mana reduction", "name": "Sowilo", "stats": [{"statVar": "manaReduction", "value": 2},{"statVar": "rent", "value": 203}]},
+                                   "U": {"id": 'U',"label": "2 mana reduction", "name": "Sowilo", "stats": [{"statVar": "manaReduction", "value": 2},{"statVar": "rent", "value": 292}]},
                                    "V": {"id": 'V',"label": "detect invis", "name": "Jera", "stats": [{"statVar": "rent", "value": 900}]},
                                    "W": {"id": 'W',"label": "see dark", "name": "Dagaz", "stats": [{"statVar": "rent", "value": 900}]},
-                                   "X": {"id": 'X',"label": "detect illusion", "name": "Othala", "stats": [{"statVar": "rent", "value": 900}]},
+                                   "X": {"id": 'X',"label": "detect illusion", "name": "Othala", "stats": [{"statVar": "rent", "value": 675}]},
                                    "Y": {"id": 'Y',"label": "sneak", "name": "Ingwaz", "stats": [{"statVar": "rent", "value": 0}]}
                                    };
 
@@ -1074,7 +1074,7 @@
                 // check if list has a version number
                 var asteriskIdx = listCookieStr.indexOf("*");
                 var tildeIdx = listCookieStr.indexOf("~");
-                if (asteriskIdx < tildeIdx) {
+                if (asteriskIdx < tildeIdx && asteriskIdx != -1) {
                     listVersion = Number(importStr.substring(0, asteriskIdx));
                     importStr = importStr.slice(asteriskIdx);
                 }
@@ -2543,22 +2543,41 @@
             if (items) {
                 let filteredItems = items.slice(0);
                 let i = filteredItems.length;
+                var operators = /\<|\>|\=/;
+
                 while (i--) {
-                    let filteredBySearch = $scope.searchString && !filteredItems[i].name.toLowerCase().includes($scope.searchString.toLowerCase());
+                    var filteredBySearch = true;
+                    if($scope.searchString.includes('=') || $scope.searchString.includes('>') || $scope.searchString.includes('<')) {
+                      var strings = $scope.searchString.split(',');
+                      var isFiltered = [strings.length];
+                      for (var s = 0;s < strings.length; ++s) {
+                        var compare = strings[s].match(operators);
+                        if(compare) {
+                            isFiltered[s] = filterByStats(compare, filteredItems[i]);
+                        }
+                      }
+
+                      if(isFiltered.includes(true))
+                        filteredBySearch = true;
+                      else
+                        filteredBySearch = false;
+                    }
+                    else {
+                        filteredBySearch = $scope.searchString && !filteredItems[i].name.toLowerCase().includes($scope.searchString.toLowerCase()); 
+                    }
 
                     let filteredByWield = false;
                     if ($scope.currentItem.slot == 14 || $scope.currentItem.slot == 15) {
                         if ($scope.wieldSlotFilter == 1 && filteredItems[i].realSlot != 14) {
                             filteredByWield = true;
-                        }
-                        else if ($scope.wieldSlotFilter == 2 && filteredItems[i].realSlot != 15) {
-                            filteredByWield = true;
+                         }
+                         else if ($scope.wieldSlotFilter == 2 && filteredItems[i].realSlot != 15) {
+                             filteredByWield = true;
                         }
                         else if ($scope.wieldSlotFilter == 3 && filteredItems[i].realSlot != 10) {
                             filteredByWield = true;
                         }
-                    }
-
+                     }
                     if (filteredBySearch || filteredByWield) {
                         filteredItems.splice(i, 1);
                     }
@@ -2570,6 +2589,46 @@
                 $scope.filteredItems = items;
             }
 
+        };
+
+        /**
+         * Filters items by stats in the search bar, ex: "str=3,hit>0,ac=-5" will filter all items for the slot that don't meet ALL three paramaters.
+         *
+         * @param {string} compare - String with an operator.
+         * @param {item} item - The item to compare strings to.
+         * @return {true/false} - If the comparison is true given the operator in the compare string, return false (don't filter).
+         */
+        var filterByStats = function(compare, item) {
+            let string = compare.input;
+            let operator = compare[0];
+            let index = string.indexOf(operator);
+            let stat = string.slice(0,index);
+            let value = Number(string.slice(index+1, string.length));
+            for (var i = 0; i < $scope.statInfo.length; ++i) {
+                if ($scope.statInfo[i].short.toLowerCase() == stat.toLowerCase()) {
+                    stat = $scope.statInfo[i].var;
+                }
+            }
+
+            switch (operator) {
+                case '=':
+                    if (item[stat] == value)
+                        return false;
+                    else
+                        return true;
+                case '<':
+                    if (item[stat] < value)
+                        return false;
+                    else
+                        return true;
+                case '>':
+                    if (item[stat] > value)
+                        return false;
+                    else
+                        return true;
+                default:
+                    return true;
+            }
         };
 
         $scope.showColumn = function(statShort, def) {
