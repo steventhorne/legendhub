@@ -150,9 +150,19 @@
                 var listCookieStr = localStorage.getItem("cln");
                 
                 if (listCookieStr) {
-                    var versionIdx = listCookieStr.indexOf("*");
-                    listVersion = Number(listCookieStr.slice(0, versionIdx));
-                    listCookieStr = listCookieStr.slice(versionIdx);
+                    var asteriskIdx = listCookieStr.indexOf("*");
+                    var tildeIdx = listCookieStr.indexOf("~");
+                    
+                    // check if list has a version number attached to string.  If so, set listVersion
+                    // this check is necessary to account for lists that have been made since the last update which are technically cln lists but do not have the new version standard applied
+                    if (asteriskIdx < tildeIdx && asteriskIdx != -1) {
+                        listVersion = Number(listCookieStr.slice(0, asteriskIdx));
+                        listCookieStr = listCookieStr.slice(asteriskIdx);
+                    }
+                    // this is used on the current cln lists in the wild without a version number attached
+                    else {
+                        listVersion = 3;
+                    }
                 }
                 else {
                     listCookieStr = localStorage.getItem("cl2");
