@@ -247,9 +247,6 @@
             newList.baseStats.amulet = Number(each[0]);
             each.shift();
 
-            newList.baseStats.hazelnut = Number(each[0]);
-            each.shift();
-
             newList.ksmStats = {
                 strength: 0,
                 mind: 0,
@@ -269,6 +266,7 @@
                 newList.items.push({"id": Number(each[j]), "slot": $scope.slotOrder[j], "locked": isLocked});
             }
 
+            // v3: Adds missing "other" slots to previous lists
             if (each.length < 35) {
                 for (var k = 0; k < (35 - each.length); ++k) {
                     newList.items.push({"id": Number(each[j]), "slot": 21});
@@ -279,6 +277,7 @@
         };
 
         var createListFromStringV2 = function(listStr, listVersion) {
+            
             var index = listStr.indexOf('~');
             var name = listStr.slice(0, index);
             if (!(/^[A-Za-z\s\d]+$/).test(name)) {
@@ -302,7 +301,7 @@
                 baseStats[statList[i]] = encoder.toNumber(listStr.slice(0,takeAmt));
                 listStr = listStr.substring(takeAmt);
             }
-
+           
             var ksmStats = {};
             for (var i = 0; i < statList.length; ++i) {
                 takeAmt = listStr[0] === '-' ? 2 : 1;
@@ -321,7 +320,7 @@
             else
                 baseStats.amulet = encoder.toNumber(listStr.slice(0,1));
             listStr = listStr.substring(1);
-
+            
             // v3: Hazelnut
             if (listVersion >= 3) {
                 if (statList[0] === '_')
@@ -331,9 +330,10 @@
                 listStr = listStr.substring(1);
             }
             else {
+                // v3: sets the hazelnut to default to spirit if its not present as all old lists would assume +10 spirit automatically
                 baseStats.hazelnut = 5;
             }
-
+            
             var items = [];
             var itemIndex = 0;
             while (listStr.length > 0) {
@@ -366,19 +366,22 @@
 
                 itemIndex++;
             }
-            
+
             // v3: Adds missing "other" slots to previous lists
-            if(itemIndex < $scope.slotOrder.length) {
+            if (itemIndex < $scope.slotOrder.length && listVersion < $scope.listVer) {
                 while (itemIndex < $scope.slotOrder.length){
                     itemIndex++
                     items.push({"id": Number([0]), "slot": 21});
                 }
             }
-
-            // Version Check, if # of item slots loaded does not equal total number in current version it will throw an error
-            if(itemIndex > $scope.slotOrder.length) {
-                throw "Invalid list.";
+            
+            // Version Check, if # of item slots loaded does not equal total number in current version it will throw an error and attempt to parse the list with a different version in the try/catch
+            if(itemIndex != $scope.slotOrder.length) {
+                
+                throw "Invalid List";
             }
+
+           
 
             return {
                 name: name,
@@ -481,6 +484,9 @@
                 $timeout(function() {
                     getItemsInId(ids).then(
                         function(data) {
+                            if (data == null){
+                                return
+                            }
                             for (var i = 0; i < list.items.length; ++i) {
                                 for (var j = 0; j < data.length; ++j) {
                                     if (list.items[i].id == data[j].id) {
@@ -926,12 +932,13 @@
 
             var importStr = $scope.importModel.input;
             if (importStr) {
-                var listVersion = -1;
+                var listVersion = 3;
 
-                // check if list has a version number
-                var asteriskIdx = listCookieStr.indexOf("*");
-                var tildeIdx = listCookieStr.indexOf("~");
-                if (asteriskIdx < tildeIdx) {
+                // check if list has a version number attached to string.  If so, set listVersion
+                // the -1 check is here get around lists that do not have a list number reporting as a -1 which otherwise causes this function to always run and remove the first letter of lists that do not have a version number
+                var asteriskIdx = importStr.indexOf("*");
+                var tildeIdx = importStr.indexOf("~");
+                if (asteriskIdx < tildeIdx && asteriskIdx != -1) {
                     listVersion = Number(importStr.substring(0, asteriskIdx));
                     importStr = importStr.slice(asteriskIdx);
                 }
@@ -939,17 +946,23 @@
                 var listStrs = importStr.split("*").filter(function(el) {return el.length != 0});;
                 for (let i = 0; i < listStrs.length; ++i) {
                     var newList;
-                    if (listVersion > 0) {
+                    // if list version is higher than 3 it should always have a version number, thus use the listVersion set above.  Otherwise, cycle through the previous versions until it works.
+                    if (listVersion > 3) {
                         newList = createListFromStringV2(listStrs[i], listVersion);
                     }
-                    else {
+                    else {                    
                         try {
-                            newList = createListFromStringV2(listStrs[i], 2);
+                            newList = createListFromStringV2(listStrs[i], 3);
                         }
                         catch (e) {
-                            newList = createListFromString(listStrs[i]);
+                            try {
+                                newList = createListFromStringV2(listStrs[i], 2);
+                            }
+                            catch (e) {
+                                newList = createListFromString(listStrs[i]);
+                            }
                         }
-                    }
+                    }           
 
                     // check if list exists
                     for (let j = 0; j < $scope.allLists.length; ++j) {
