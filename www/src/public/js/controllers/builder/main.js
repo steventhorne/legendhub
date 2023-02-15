@@ -2557,10 +2557,7 @@
                         }
                       }
 
-                      if(isFiltered.includes(true))
-                        filteredBySearch = true;
-                      else
-                        filteredBySearch = false;
+                      filteredBySearch = isFiltered.includes(true);
                     }
                     else {
                         filteredBySearch = $scope.searchString && !filteredItems[i].name.toLowerCase().includes($scope.searchString.toLowerCase()); 
