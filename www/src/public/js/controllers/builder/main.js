@@ -63,7 +63,7 @@
                                    };
 
             $scope.charmSelectors = ['A', 'A', 'A', 'A', 'A'];
-
+            $scope.runeCharmId = -5;
             $scope.isRuneCrafting = false;
 
             // item searching vars
@@ -204,22 +204,11 @@
                 if (listCookieStr) {
                     var listStrs = listCookieStr.split("*").filter(function(el) {return el.length != 0});
                     for (var i = 0; i < listStrs.length; ++i) {
-                        switch (listVersion) {
-                            case "cl":
-                            case 1:
-                                var newList = createListFromString(listStrs[i]);
-                                break;
-                            case 2:
-                            case 3:
-                                var newList = createListFromStringV2(listStrs[i], listVersion);
-                                break;    
-                            case 4: //should we change how this works to use the new built in version?
-                                var newList = createListFromStringV2(listStrs[i], listVersion);
-                                break;
-                            default:
-                                break;
-                        }
-						
+                        if (listVersion == "cl" || listVersion == 1)
+                            var newList = createListFromString(listStrs[i]);
+                        else
+                            var newList = createListFromStringV2(listStrs[i], listVersion);
+
                         var found = false;
                         for (let j = 0; j < lists.length; ++j) {
                             if (newList.name === lists[j].name) {
@@ -315,8 +304,8 @@
                 newList.items.push({"id": Number(each[j]), "slot": $scope.slotOrder[j], "locked": isLocked});
             }
 
-            if (each.length < 32) {
-                for (var k = 0; k < (32 - each.length); ++k) {
+            if (each.length < 35) {
+                for (var k = 0; k < (35 - each.length); ++k) {
                     newList.items.push({"id": Number(each[j]), "slot": 21});
                 }
             }
@@ -404,7 +393,7 @@
                 }
                 else if (listStr[0] === '-') {
                     items.push({
-                        id: -5,
+                        id: $scope.runeCharmId,
                         slot: $scope.slotOrder[itemIndex],
                         locked: isLocked,
                     });
@@ -545,7 +534,7 @@
                         }
                     }
                 }
-                else if (list.items[i].id === -5) {
+                else if (list.items[i].id === $scope.runeCharmId) {
                         let charmStr = undefined;
                         switch (i) {
                             case 3:
@@ -809,7 +798,7 @@
                 if (list.items[k].id > 0) {
                     listCookieStr += (list.items[k].locked ? "." : "") + encoder.fromNumber(list.items[k].id,3);
                 }
-                else if (list.items[k].id === -5) {
+                else if (list.items[k].id === $scope.runeCharmId) {
                     if (list.items[k].locked) {
                         listCookieStr += ".";
                     }
@@ -963,7 +952,7 @@
             $scope.currentItem = item;
             $scope.currentItemIndex = index;
 
-            if(item.id === -5) {
+            if(item.id === $scope.runeCharmId) {
                 $scope.isRuneCrafting = true;
                 $scope.getCurrentRunes($scope.currentItemIndex);
             }
@@ -1341,7 +1330,7 @@
             }
 
             //if the new item is not a runecharm, set that charm slot to default AAAAA
-            if($scope.selectedList.items[$scope.currentItemIndex].id === -5 && angular.copy(item).id != -5) {
+            if($scope.selectedList.items[$scope.currentItemIndex].id === $scope.runeCharmId && angular.copy(item).id != $scope.runeCharmId) {
                 switch ($scope.currentItemIndex) {
                     case 3:
                         $scope.selectedList.runeCharms.charm1 = "AAAAA";
@@ -2298,7 +2287,7 @@
                 
                 var name = runeStats.charmName.substring(0, runeStats.charmName.length-1);          
                 $scope.selectedList.items[cslot].name = "Runecharm (" + name + ")";
-                $scope.selectedList.items[cslot].id = -5;
+                $scope.selectedList.items[cslot].id = $scope.runeCharmId;
             }
 
             $scope.saveClientSideData();
