@@ -1,17 +1,12 @@
 # IDE
-.vscode
+.vs
 
 # dotenv
 .env
 
 # notification listener
-python/src/__pycache__/
-python/**/*.py[cod]
-python/**/*$py.class
+
 
 # NPM
-node_modules/
 
 # mysql
-mysql/backup.sql
-mysql/get_database
