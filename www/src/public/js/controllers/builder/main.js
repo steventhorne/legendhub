@@ -1061,8 +1061,8 @@
                 var listVersion = -1;
 
                 // check if list has a version number
-                var asteriskIdx = listCookieStr.indexOf("*");
-                var tildeIdx = listCookieStr.indexOf("~");
+                var asteriskIdx = importStr.indexOf("*");
+                var tildeIdx = importStr.indexOf("~");
                 if (asteriskIdx < tildeIdx && asteriskIdx != -1) {
                     listVersion = Number(importStr.substring(0, asteriskIdx));
                     importStr = importStr.slice(asteriskIdx);
