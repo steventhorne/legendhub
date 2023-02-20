@@ -1330,7 +1330,7 @@
             }
 
             //if the new item is not a runecharm, set that charm slot to default AAAAA
-            if($scope.selectedList.items[$scope.currentItemIndex].id === $scope.runeCharmId && angular.copy(item).id != $scope.runeCharmId) {
+            if($scope.selectedList.items[$scope.currentItemIndex].id === $scope.runeCharmId) {
                 switch ($scope.currentItemIndex) {
                     case 3:
                         $scope.selectedList.runeCharms.charm1 = "AAAAA";
