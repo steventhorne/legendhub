@@ -16,4 +16,3 @@ node_modules/
 # mysql
 mysql/backup.sql
 mysql/get_database
-mysql/backup.sql
