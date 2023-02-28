@@ -107,7 +107,7 @@
 								<div class="col-4 col-sm-2 text-center">
 									<label class="col-form-label col-form-label-sm" for="spiInput">Spi</label>
 									<input type="number" id="spiInput" class="form-control form-control-sm" ng-model="selectedList.baseStats.spirit" ng-change="onStatChanged()" ng-model-options="{debounce:250}">
-									<span ng-show="showStatQuests()">13&nbsp;<i class="far fa-question-circle" data-toggle="tooltip" data-placement="bottom" data-container=".multiline-tooltip" data-html="true" title="<div><span>...has learned of the art and spirit of music.</span></div>" lh-tooltip></i></span>
+									<span ng-show="showStatQuests()">3&nbsp;<i class="far fa-question-circle" data-toggle="tooltip" data-placement="bottom" data-container=".multiline-tooltip" data-html="true" title="<div><span>...has learned of the art and spirit of music.</span></div>" lh-tooltip></i></span>
 								</div>
 							</div>
 							<p ng-show="baseStatsForm.strInput.$error.total" class="text-danger">Base stats should add up to either 198 or 244.</p>
@@ -155,20 +155,20 @@
 							</div>
 							<div class="input-group input-group-sm col-8 col-sm-4 mb-3 mb-sm-0">
 								<div class="input-group-prepend">
-									<label class="input-group-text" for="amuletSelect">Amulet</label>
-								</div>
-								<select class="custom-select custom-select-sm" id="amuletSelect" ng-model="selectedList.baseStats.amulet" ng-change="saveClientSideData()" ng-model-options="{debounce:250}" ng-disabled="!showStatQuests()">
-									<option ng-value="-1">-</option>
-									<option ng-repeat="amulet in amuletList track by $index" ng-value="$index">{{::amulet}}</option>
-								</select>
-							</div>
-							<div class="input-group input-group-sm col-8 col-sm-4 mb-3 mb-sm-0">
-								<div class="input-group-prepend">
 									<label class="input-group-text" for="hazelnutSelect">Hazelnut</label>
 								</div>
 								<select class="custom-select custom-select-sm" id="hazelnutSelect" ng-model="selectedList.baseStats.hazelnut" ng-change="saveClientSideData()" ng-model-options="{debounce:250}" ng-disabled="!showStatQuests()">
 									<option ng-value="-1">-</option>
 									<option ng-repeat="hazelnut in hazelnutList track by $index" ng-value="$index">{{::hazelnut}}</option>
+								</select>
+							</div>
+							<div class="input-group input-group-sm col-8 col-sm-4 mb-3 mb-sm-0">
+								<div class="input-group-prepend">
+									<label class="input-group-text" for="amuletSelect">Amulet</label>
+								</div>
+								<select class="custom-select custom-select-sm" id="amuletSelect" ng-model="selectedList.baseStats.amulet" ng-change="saveClientSideData()" ng-model-options="{debounce:250}" ng-disabled="!showStatQuests()">
+									<option ng-value="-1">-</option>
+									<option ng-repeat="amulet in amuletList track by $index" ng-value="$index">{{::amulet}}</option>
 								</select>
 							</div>
 						</div>
@@ -202,7 +202,7 @@
 							<td ng-class="anyItemRestrictions($index) ? 'bg-danger' : 'bg-primary'" class="bg-primary text-white text-center py-md-1 py-lg-0" data-toggle="tooltip" ng-attr-data-original-title="{{getItemRestrictionText($index)}}" nowrap lh-tooltip><span ng-show="anyItemRestrictions($index)"><i class="fas fa-question-circle"></i>&nbsp;</span>{{::slots[item.slot]}}</td>
                             <td class="text-center" ng-click="onRowLockClicked($index)"><i class="fas" ng-class="item.locked ? 'fa-lock text-success' : 'fa-unlock text-secondary'"></i></td>
 							<th scope="row" ng-click="onRowClicked($index)" style="cursor: pointer;" class="py-1 py-lg-0">
-                                <span>{{item.name}}</span><a class="float-right" href="/items/details.html?id={{item.id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.id"><i class="fas fa-external-link-alt fa-lg"></i></a></th>
+								<span>{{item.name}}</span><a class="float-right" href="/items/details.html?id={{item.id}}" target="_blank" ng-click="$event.stopPropagation()" ng-show="item.id > 0"><i class="fas fa-external-link-alt fa-lg"></i></a></th>
 							<td ng-repeat="stat in statInfo track by $index" ng-if="stat.showColumn && stat.var !== 'name' && stat.var !== 'slot'" class="text-center py-1 py-lg-0" ng-click="onRowClicked($parent.$parent.$index)" style="cursor: pointer;">
 								<span ng-if="stat.type == 'bool'">
 									<i class="{{item[stat.var] == 1 ? 'text-success fas fa-check' : 'text-danger fas fa-times'}}"></i>
@@ -322,10 +322,23 @@
 										</select>
 									</div>
                                 </div>
+								<div class="col-auto" ng-if="currentItem.slot == 13 || currentItem.slot == 2">
+									<div class="input-group input-group-sm">
+										<div class="input-group-prepend">
+										</div>
+										<!-- Button trigger modal -->
+										<button type="button" class="btn btn-primary" data-toggle="modal" ng-if="!isRuneCrafting" ng-click="runeCraftButtonClick()">
+											Runecraft Customizer
+										</button>
+										<button type="button" class="btn btn-primary" data-toggle="modal" ng-if="isRuneCrafting" ng-click="runeCraftButtonClick()">
+											Items
+										</button>
+									</div>
+                                </div>
                             </div>
 							<div class="row">
 								<div class="table-responsive" ng-cloak>
-									<table class="table table-striped table-bordered table-sm table-hover">
+									<table class="table table-striped table-bordered table-sm table-hover" ng-if="!isRuneCrafting">
 										<thead class="thead-dark">
 											<tr>
 												<th scope="col" class="clickable" ng-click="onColumnHeaderClicked('name')" nowrap>Name&nbsp;<i ng-class="getSortClass('name')"></i></th>
@@ -352,10 +365,23 @@
 											</tr>
 										</tbody>
 									</table>
+									<table class="table table-striped table-bordered table-sm table-hover" ng-if="isRuneCrafting">
+										<thead class="thead-dark"></thead>                                        
+										<tbody>
+											<td scope="row"
+												<span> <!-- RuneCharms -->
+													<select class="custom-select" ng-change="runeCraftCharms()" ng-repeat="selector in charmSelectors track by $index" ng-model="charmSelectors[$index]">
+														<option ng-value="'A'">--Select--</option>
+														<option ng-repeat="option in charmOptions" ng-value="option.id">{{option.label}}</option>
+													</select>
+												</span>
+											</td>
+										</tbody>
+									</table>
 								</div>
 							</div>
                             <div class="row">
-							    <nav class="col-12" aria-label="Item result navigation" ng-if="totalPages > 1">
+							    <nav class="col-12" aria-label="Item result navigation" ng-if="totalPages > 1 && !isRuneCrafting">
 								    <ul class="pagination">
 									    <li class="page-item">
 										    <a class="page-link" ng-click="onPreviousClicked()" href aria-label="Previous">
@@ -505,7 +531,7 @@
 				</div>
 			</div>
 		</div>
-	</div>
+    </div>
 	<div class="multiline-tooltip"></div>
     <%-include('../shared/columnsModal')-%>
     <%-include("../shared/footer")-%>
