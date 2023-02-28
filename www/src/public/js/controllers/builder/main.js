@@ -5,7 +5,7 @@
         /** Initializes the controller. */
         $scope.initialize = function() {
             $scope.exceptionEncountered = false;
-            $scope.listVer = 3;
+            $scope.listVer = 4;
             exceptionService.addCallback(function (exception, cause) {
                 $scope.exceptionEncountered = true;
             });
@@ -15,6 +15,7 @@
 
             $scope.itemsPerPage = 20;
             $scope.itemsPerPageOptions = [20, 50, 100, 200, 500, 1000];
+
 
             $scope.slotOrder = [0,1,1,2,2,3,4,5,6,7,8,9,11,12,13,13,14,15,15,16,16,17,18,19,20,21,21,21,21,21,21,21,21,21,21];
             $scope.longhouseList = ["Bear   -- ( +5 spi - +3 min )",
@@ -32,8 +33,38 @@
                                     "Merlin -- ( +10 min / -2 dex )"];
 
             $scope.amuletList = ["Strength", "Mind", "Dexterity", "Constitution", "Perception", "Spirit"];
+			
+            $scope.hazelnutList = ["Strength", "Mind", "Dexterity", "Constitution", "Perception", "Spirit"]; 
 
-            $scope.hazelnutList = ["Strength", "Mind", "Dexterity", "Constitution", "Perception", "Spirit"];
+            $scope.charmOptions = {"B": {"id": 'B',"label": "1 str", "name": "Uruz", "stats": [{"statVar": "strength", "value": 1},{"statVar": "rent", "value": 203}]},
+                                   "C": {"id": 'C',"label": "1 min", "name": "Isa", "stats": [{"statVar": "mind", "value": 1},{"statVar": "rent", "value": 203}]},
+                                   "D": {"id": 'D',"label": "1 dex", "name": "Algiz", "stats": [{"statVar": "dexterity", "value": 1},{"statVar": "rent", "value": 203}]},
+                                   "E": {"id": 'E',"label": "1 con", "name": "Ansuz", "stats": [{"statVar": "constitution", "value": 1},{"statVar": "rent", "value": 203}]},
+                                   "F": {"id": 'F',"label": "1 per", "name": "Mannaz", "stats": [{"statVar": "perception", "value": 1},{"statVar": "rent", "value": 203}]},
+                                   "G": {"id": 'G',"label": "1 spi", "name": "Tiwaz", "stats": [{"statVar": "spirit", "value": 1},{"statVar": "rent", "value": 203}]},
+                                   "H": {"id": 'H',"label": "2 hit", "name": "Eihwaz", "stats": [{"statVar": "hit", "value": 2},{"statVar": "rent", "value": 675}]},
+                                   "I": {"id": 'I',"label": "2 dam", "name": "Ehwaz", "stats": [{"statVar": "dam", "value": 2},{"statVar": "rent", "value": 675}]},
+                                   "J": {"id": 'J',"label": "1 hit, 1 dam", "name": "Laguz", "stats": [{"statVar": "hit", "value": 1},{"statVar": "dam", "value": 1},{"statVar": "rent", "value": 675}]},
+                                   "K": {"id": 'K',"label": "10 hp", "name": "Gebo", "stats": [{"statVar": "hp", "value": 10},{"statVar": "rent", "value": 450}]},
+                                   "L": {"id": 'L',"label": "10 ma", "name": "Berkano", "stats": [{"statVar": "ma", "value": 10},{"statVar": "rent", "value": 225}]},
+                                   "M": {"id": 'M',"label": "10 mv", "name": "Raidho", "stats": [{"statVar": "mv", "value": 10},{"statVar": "rent", "value": 450}]},
+                                   "N": {"id": 'N',"label": "5 mvr", "name": "Fehu", "stats": [{"statVar": "mvr", "value": 5},{"statVar": "rent", "value": 450}]},
+                                   "O": {"id": 'O',"label": "2 mar, 1 mvr", "name": "Wunjo", "stats": [{"statVar": "mar", "value": 2},{"statVar": "mvr", "value": 1},{"statVar": "rent", "value": 450}]},
+                                   "P": {"id": 'P',"label": "2 hpr, 1 mvr", "name": "Kenaz", "stats": [{"statVar": "hpr", "value": 2},{"statVar": "mvr", "value": 1},{"statVar": "rent", "value": 450}]},
+                                   "Q": {"id": 'Q',"label": "2 bonus accuracy", "name": "Perthro", "stats": [{"statVar": "rangedAccuracy", "value": 2},{"statVar": "rent", "value": 360}]},
+                                   "R": {"id": 'R',"label": "-3 ac", "name": "Thurisaz", "stats": [{"statVar": "ac", "value": -3},{"statVar": "rent", "value": 95}]},
+                                   "S": {"id": 'S',"label": "2 spell crit", "name": "Hagalaz", "stats": [{"statVar": "spellcrit", "value": 2},{"statVar": "rent", "value": 103}]},
+                                   "T": {"id": 'T',"label": "2 spell dam", "name": "Nauthiz", "stats": [{"statVar": "spelldam", "value": 2},{"statVar": "rent", "value": 675}]},
+                                   "U": {"id": 'U',"label": "2 mana reduction", "name": "Sowilo", "stats": [{"statVar": "manaReduction", "value": 2},{"statVar": "rent", "value": 292}]},
+                                   "V": {"id": 'V',"label": "detect invis", "name": "Jera", "stats": [{"statVar": "rent", "value": 900}]},
+                                   "W": {"id": 'W',"label": "see dark", "name": "Dagaz", "stats": [{"statVar": "rent", "value": 900}]},
+                                   "X": {"id": 'X',"label": "detect illusion", "name": "Othala", "stats": [{"statVar": "rent", "value": 675}]},
+                                   "Y": {"id": 'Y',"label": "sneak", "name": "Ingwaz", "stats": [{"statVar": "rent", "value": 0}]}
+                                   };
+
+            $scope.charmSelectors = ['A', 'A', 'A', 'A', 'A'];
+            $scope.runeCharmId = -5;
+            $scope.isRuneCrafting = false;
 
             // item searching vars
             $scope.searchString = "";
@@ -93,8 +124,11 @@
             list.name = name;
 
             // base stats
-            list.baseStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0, "longhouse": -1, "amulet": -1, "hazelnut": -1};
+            list.baseStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0, "longhouse": -1, "hazelnut": -1, "amulet": -1};
             list.ksmStats = {"strength": 0, "mind": 0, "dexterity": 0, "constitution": 0, "perception": 0, "spirit": 0};
+            
+            // runecraft charms
+            list.runeCharms = {"charm1": "AAAAA", "charm2": "AAAAA", "charm3": "AAAAA", "charm4": "AAAAA"};
 
             // items
             list.items = [];
@@ -148,7 +182,7 @@
             if ($cookies.get("cookie-consent")) {
                 var listVersion = -1;
                 var listCookieStr = localStorage.getItem("cln");
-                
+
                 if (listCookieStr) {
                     var versionIdx = listCookieStr.indexOf("*");
                     listVersion = Number(listCookieStr.slice(0, versionIdx));
@@ -165,23 +199,15 @@
                         if (!listCookieStr) 
                             localStorage.getItem("cl");                                
                     }
-                }    
-
+                }  
+				
                 if (listCookieStr) {
                     var listStrs = listCookieStr.split("*").filter(function(el) {return el.length != 0});
                     for (var i = 0; i < listStrs.length; ++i) {
-                        switch (listVersion) {
-                            case "cl":
-                            case 1:
-                                var newList = createListFromString(listStrs[i]);
-                                break;
-                            case 2:
-                            case 3:
-                                var newList = createListFromStringV2(listStrs[i], listVersion);
-                                break;                            
-                            default:
-                                break;
-                        }
+                        if (listVersion == "cl" || listVersion == 1)
+                            var newList = createListFromString(listStrs[i]);
+                        else
+                            var newList = createListFromStringV2(listStrs[i], listVersion);
 
                         var found = false;
                         for (let j = 0; j < lists.length; ++j) {
@@ -201,6 +227,8 @@
                     }
                 }
             }
+
+            console.log("Lists loaded using version", listVersion);
 
             return lists;
         };
@@ -243,12 +271,12 @@
 
             newList.baseStats.longhouse = Number(each[0]);
             each.shift();
-
+			
             newList.baseStats.amulet = Number(each[0]);
             each.shift();
 
             newList.baseStats.hazelnut = Number(each[0]);
-            each.shift();
+			each.shift();
 
             newList.ksmStats = {
                 strength: 0,
@@ -257,6 +285,13 @@
                 constitution: 0,
                 perception: 0,
                 spirit: 0
+            };
+
+            newList.runeCharms = {
+                charm1: "AAAAA",
+                charm2: "AAAAA",
+                charm3: "AAAAA",
+                charm4: "AAAAA",
             };
 
             // items
@@ -295,6 +330,7 @@
             listStr = listStr.substring(++index);
 
             var baseStats = {};
+            var runeCharms = {};
             var statList = ["strength", "mind", "dexterity", "constitution", "perception", "spirit"];
             var takeAmt;
             for (var i = 0; i < statList.length; ++i) {
@@ -309,18 +345,17 @@
                 ksmStats[statList[i]] = encoder.toNumber(listStr.slice(0,takeAmt));
                 listStr = listStr.substring(takeAmt);
             }
-
             if (statList[0] === '_')
                 baseStats.longhouse = -1;
             else
                 baseStats.longhouse = encoder.toNumber(listStr.slice(0,1));
             listStr = listStr.substring(1);
-
+			
             if (statList[0] === '_')
                 baseStats.amulet = -1;
             else
                 baseStats.amulet = encoder.toNumber(listStr.slice(0,1));
-            listStr = listStr.substring(1);
+			listStr = listStr.substring(1);
 
             // v3: Hazelnut
             if (listVersion >= 3) {
@@ -333,48 +368,71 @@
             else {
                 baseStats.hazelnut = 5;
             }
-
+            
+            runeCharms.charm1 = "AAAAA";
+            runeCharms.charm2 = "AAAAA";
+            runeCharms.charm3 = "AAAAA";
+            runeCharms.charm4 = "AAAAA";
+            
             var items = [];
             var itemIndex = 0;
             while (listStr.length > 0) {
+                let isLocked = false;
+                if (listStr[0] === '.') {
+                    isLocked = true;
+                    listStr.substr(1);
+                }
+                
                 if (listStr[0] === '_') {
                     items.push({
                         id: 0,
                         slot: $scope.slotOrder[itemIndex],
-                        locked: false
+                        locked: isLocked
                     });
                     listStr = listStr.substring(1);
                 }
-                else {
-                    if (listStr[0] === '.') {
-                        items.push({
-                            id: encoder.toNumber(listStr.slice(1,4)),
-                            slot: $scope.slotOrder[itemIndex],
-                            locked: true
-                        });
-                        listStr = listStr.substring(4);
+                else if (listStr[0] === '-') {
+                    items.push({
+                        id: $scope.runeCharmId,
+                        slot: $scope.slotOrder[itemIndex],
+                        locked: isLocked,
+                    });
+                        
+                    if (itemIndex === 3) {
+                        runeCharms.charm1 = listStr.slice(1,6);
                     }
-                    else {
-                        items.push({
-                            id: encoder.toNumber(listStr.slice(0,3)),
-                            slot: $scope.slotOrder[itemIndex],
-                            locked: false
-                        });
-                        listStr = listStr.substring(3);
+                    else if (itemIndex === 4) {
+                        runeCharms.charm2 = listStr.slice(1,6);
                     }
+                    else if (itemIndex === 14) {
+                        runeCharms.charm3 = listStr.slice(1,6);
+                    }
+                    else if (itemIndex === 15) {
+                        runeCharms.charm4 = listStr.slice(1,6);
+                    }
+                    listStr = listStr.substring(6);
                 }
-
+                else {
+                    items.push({
+                        id: encoder.toNumber(listStr.slice(0,3)),
+                        slot: $scope.slotOrder[itemIndex],
+                        locked: isLocked
+                    });
+                    listStr = listStr.substring(3);
+                }
                 itemIndex++;
             }
-            
-            // v3: Adds missing "other" slots to previous lists
-            if(itemIndex < $scope.slotOrder.length) {
-                while (itemIndex < $scope.slotOrder.length){
-                    itemIndex++
-                    items.push({"id": Number([0]), "slot": 21});
-                }
-            }
 
+            if (itemIndex < $scope.slotOrder.length) {
+                  for (var x = 0; x < $scope.slotOrder.length - itemIndex; ++x) {
+                     items.push({
+                        id: 0,
+                        slot: 21,
+                        locked: false
+                    });
+                 }
+            }
+            
             // Version Check, if # of item slots loaded does not equal total number in current version it will throw an error
             if(itemIndex > $scope.slotOrder.length) {
                 throw "Invalid list.";
@@ -386,6 +444,7 @@
                     name: variantName,
                     baseStats: baseStats,
                     ksmStats: ksmStats,
+                    runeCharms: runeCharms,
                     items: items
                 }]
             };
@@ -464,7 +523,10 @@
                                     break;
                                 }
                             }
+
                         }
+
+
 
                         if (!found) {
                             list.items[i].name = "Loading...";
@@ -472,16 +534,47 @@
                         }
                     }
                 }
+                else if (list.items[i].id === $scope.runeCharmId) {
+                        let charmStr = undefined;
+                        switch (i) {
+                            case 3:
+                                charmStr = list.runeCharms.charm1;
+                                break;
+                            case 4:
+                                charmStr = list.runeCharms.charm2;
+                                break;
+                            case 14:
+                                charmStr = list.runeCharms.charm3;
+                                break;
+                            case 15:
+                                charmStr = list.runeCharms.charm4;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        var runeStats = applyRunecharmStats(charmStr);
+                        for (const [stat, num] of Object.entries(runeStats)) {
+                                list.items[i][stat] = num;
+                        }
+
+                        var name = runeStats.charmName.substring(0, runeStats.charmName.length-1);
+                        list.items[i].name = "Runecharm ("+ name + ")";
+                }
                 else {
                     list.items[i].name = "-";
                 }
             }
 
+
+
             if (ids.length > 0) {
                 $timeout(function() {
                     getItemsInId(ids).then(
+
                         function(data) {
-                            for (var i = 0; i < list.items.length; ++i) {
+                                if (data == null) { return;}
+                                for (var i = 0; i < list.items.length; ++i) {
                                 for (var j = 0; j < data.length; ++j) {
                                     if (list.items[i].id == data[j].id) {
                                         var isLocked = list.items[i].locked;
@@ -494,8 +587,9 @@
 
                                 if (list.items[i].name == "Loading...") {
                                     list.items[i].name = "DELETED";
-                                }
-                            }
+                                    }
+                                 }
+                            
 
                             applyItemRestrictions();
                             $scope.onStatChanged();
@@ -695,13 +789,42 @@
             
             if (list.baseStats.hazelnut >= 0)
                 listCookieStr += encoder.fromNumber(list.baseStats.hazelnut,1);
-            else
-                listCookieStr += "_";
+			else
+                listCookieStr += "_";    
+
+            var charmStr = "";
 
             for (let k = 0; k < list.items.length; ++k) {
-                if (list.items[k].id) {
+                if (list.items[k].id > 0) {
                     listCookieStr += (list.items[k].locked ? "." : "") + encoder.fromNumber(list.items[k].id,3);
                 }
+                else if (list.items[k].id === $scope.runeCharmId) {
+                    if (list.items[k].locked) {
+                        listCookieStr += ".";
+                    }
+
+                    switch (k) {
+                        case 3:
+                            charmStr = list.runeCharms.charm1;
+                            break;
+                        case 4:
+                            charmStr = list.runeCharms.charm2;
+                            break;
+                        case 14:
+                            charmStr = list.runeCharms.charm3;
+                            break;
+                        case 15:
+                            charmStr = list.runeCharms.charm4;
+                            break;
+                    }
+
+                    if (charmStr === "AAAAA") {
+                        listCookieStr += "_";
+                    }
+                    else {
+                        listCookieStr += "-" + charmStr;
+                    }
+                } 
                 else {
                     listCookieStr += "_";
                 }
@@ -820,6 +943,7 @@
          */
         $scope.onRowClicked = function(index) {
             var item = $scope.selectedList.items[index];
+  
 
             $scope.loadingModal = false;
             $scope.searchString = "";
@@ -827,6 +951,14 @@
             $scope.sortDir = "";
             $scope.currentItem = item;
             $scope.currentItemIndex = index;
+
+            if(item.id === $scope.runeCharmId) {
+                $scope.isRuneCrafting = true;
+                $scope.getCurrentRunes($scope.currentItemIndex);
+            }
+            else {
+                $scope.isRuneCrafting = false;
+            }
 
             if ($scope.itemsBySlot[item.slot].length == 0) {
                 $scope.loadingModal = true;
@@ -929,9 +1061,9 @@
                 var listVersion = -1;
 
                 // check if list has a version number
-                var asteriskIdx = listCookieStr.indexOf("*");
-                var tildeIdx = listCookieStr.indexOf("~");
-                if (asteriskIdx < tildeIdx) {
+                var asteriskIdx = importStr.indexOf("*");
+                var tildeIdx = importStr.indexOf("~");
+                if (asteriskIdx < tildeIdx && asteriskIdx != -1) {
                     listVersion = Number(importStr.substring(0, asteriskIdx));
                     importStr = importStr.slice(asteriskIdx);
                 }
@@ -950,7 +1082,7 @@
                             newList = createListFromString(listStrs[i]);
                         }
                     }
-
+                
                     // check if list exists
                     for (let j = 0; j < $scope.allLists.length; ++j) {
                         if ($scope.allLists[j].name === newList.name) {
@@ -1196,6 +1328,25 @@
 
                 return;
             }
+
+            //if the new item is not a runecharm, set that charm slot to default AAAAA
+            if($scope.selectedList.items[$scope.currentItemIndex].id === $scope.runeCharmId && item.id != $scope.runeCharmId) {
+                switch ($scope.currentItemIndex) {
+                    case 3:
+                        $scope.selectedList.runeCharms.charm1 = "AAAAA";
+                        break;
+                    case 4:
+                        $scope.selectedList.runeCharms.charm2 = "AAAAA";
+                        break;
+                    case 14:
+                        $scope.selectedList.runeCharms.charm3 = "AAAAA";
+                        break;
+                    case 15:
+                        $scope.selectedList.runeCharms.charm4 = "AAAAA";
+                        break;
+                }
+            }
+
             $scope.selectedList.items[$scope.currentItemIndex] = angular.copy(item);
             $scope.saveClientSideData();
             applyItemRestrictions();
@@ -1356,7 +1507,6 @@
                 }
                 else if ($scope.selectedListIndex >= $scope.allLists.length) {
                     selectListByIndex($scope.allLists.length - 1);
-                    //$scope.allLists.length - 1
                 }
                 else {
                     selectListByIndex($scope.selectedListIndex);
@@ -1376,8 +1526,23 @@
         $scope.clearItemsFromList = function() {
             for (var i = 0; i < $scope.selectedList.items.length; ++i) {
                 if (!$scope.selectedList.items[i].locked) {
-                    $scope.selectedList.items[i] = {"slot": $scope.selectedList.items[i].slot, "id": 0, "name": "-"};
+                    switch (i) {
+                        case 3:
+                            $scope.selectedList.runeCharms.charm1 = "AAAAA";
+                            break;
+                        case 4:
+                            $scope.selectedList.runeCharms.charm2 = "AAAAA";
+                            break;
+                        case 14:
+                            $scope.selectedList.runeCharms.charm3 = "AAAAA";
+                            break;
+                        case 15:
+                            $scope.selectedList.runeCharms.charm4 = "AAAAA";
+                            break;
+                    }
+                    $scope.selectedList.items[i] = {"slot": $scope.selectedList.items[i].slot, "id": 0, "name": "-"}; 
                 }
+                
             }
             $scope.saveClientSideData();
         };
@@ -1573,14 +1738,14 @@
                     if ($scope.selectedList.baseStats.amulet == 0) {
                         fromStatQuests += 10;
                     }
-                    if ($scope.selectedList.baseStats.hazelnut == 0) {
-                        fromStatQuests += 10;
-                    }
                     if ($scope.selectedList.baseStats.longhouse == 3) {
                         fromStatQuests += 5;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 2) {
                         fromStatQuests += 3;
+                    }
+                    if ($scope.selectedList.baseStats.hazelnut == 0) {
+                        fromStatQuests += 10;
                     }
                     break;
                 case "mind":
@@ -1590,14 +1755,17 @@
                     if ($scope.selectedList.baseStats.amulet == 1) {
                         fromStatQuests += 10;
                     }
-                    if ($scope.selectedList.baseStats.hazelnut == 1) {
-                        fromStatQuests += 10;
-                    }
                     if ($scope.selectedList.baseStats.longhouse == 1 || $scope.selectedList.baseStats.longhouse == 8) {
                         fromStatQuests += 5;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 0) {
                         fromStatQuests += 3;
+                    }
+					if ($scope.selectedList.baseStats.hazelnut == 1) {
+                        fromStatQuests += 10;
+                    }
+                    if ($scope.selectedList.baseStats.longhouse == 12) {
+                        fromStatQuests += 10;
                     }
                     break;
                 case "dexterity":
@@ -1607,12 +1775,9 @@
                     if ($scope.selectedList.baseStats.amulet == 2) {
                         fromStatQuests += 10;
                     }
-                    if ($scope.selectedList.baseStats.hazelnut == 2) {
-                        fromStatQuests += 10;
-                    }
                     if ($scope.selectedList.baseStats.longhouse == 10) {
-                        fromStatQuests += 8;
-                    }
+						fromStatQuests += 8;
+					}
                     if ($scope.selectedList.baseStats.longhouse == 4 || $scope.selectedList.baseStats.longhouse == 6) {
                         fromStatQuests += 5;
                     }
@@ -1620,7 +1785,10 @@
                         fromStatQuests += 3;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 12) {
-                        fromStatQuests -= 2;
+						fromStatQuests -= 2;
+					}
+					if ($scope.selectedList.baseStats.hazelnut == 2) {
+                        fromStatQuests += 10;
                     }
                     break;
                 case "constitution":
@@ -1630,14 +1798,14 @@
                     if ($scope.selectedList.baseStats.amulet == 3) {
                         fromStatQuests += 10;
                     }
-                    if ($scope.selectedList.baseStats.hazelnut == 3) {
-                        fromStatQuests += 10;
-                    }
                     if ($scope.selectedList.baseStats.longhouse == 5) {
                         fromStatQuests += 5;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 3 || $scope.selectedList.baseStats.longhouse == 6) {
                         fromStatQuests += 3;
+                    }
+					if ($scope.selectedList.baseStats.hazelnut == 3) {
+                        fromStatQuests += 10;
                     }
                     break;
                 case "perception":
@@ -1651,7 +1819,7 @@
                         fromStatQuests += 10;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 11) {
-                        fromStatQuests += 8;
+						fromStatQuests += 8;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 2 || $scope.selectedList.baseStats.longhouse == 7) {
                         fromStatQuests += 5;
@@ -1667,17 +1835,17 @@
                     if ($scope.selectedList.baseStats.amulet == 5) {
                         fromStatQuests += 10;
                     }
-                    if ($scope.selectedList.baseStats.hazelnut == 5) {
-                        fromStatQuests += 10;
-                    }
-                    if ($scope.selectedList.baseStats.longhouse == 9) {
-                        fromStatQuests += 8;
-                    }
                     if ($scope.selectedList.baseStats.longhouse == 0) {
                         fromStatQuests += 5;
                     }
                     if ($scope.selectedList.baseStats.longhouse == 5 || $scope.selectedList.baseStats.longhouse == 8) {
                         fromStatQuests += 3;
+                    }
+					if ($scope.selectedList.baseStats.longhouse == 9) {
+                        fromStatQuests += 8;
+                    }
+					if ($scope.selectedList.baseStats.hazelnut == 5) {
+                        fromStatQuests += 10;
                     }
                     break;
                 default:
@@ -1840,19 +2008,20 @@
          * @return {number} the bonus amount based on the current total.
          */
         var getStatTotalBonus = function(statName, curTotal) {
-            /*switch (statName) {
+            switch (statName) {
                 case "dam":
-                    for (var i = 0; i < $scope.selectedList.items.length; ++i) {
-                        if ($scope.selectedList.items[i].slot == 14 && $scope.selectedList.items[i].twoHanded) {
-                            return parseInt(curTotal / 3);
-                        }
-                    }
-                   break;
-          
-                   default:
+               /**
+				*	for (var i = 0; i < $scope.selectedList.items.length; ++i) {
+                *       if ($scope.selectedList.items[i].slot == 14 && $scope.selectedList.items[i].twoHanded) {
+                *            return parseInt(curTotal / 3);
+                *        }
+                *    }
+				*/
+                    break;
+                default:
                     break;
             }
-            */
+
             return 0;
         };
 
@@ -2082,6 +2251,118 @@
             return total;
         };
 
+        /** Update runecraft charms. */
+        $scope.runeCraftCharms = function() {
+            var cslot = $scope.currentItemIndex;
+            var charmSlot = undefined;
+
+            switch (cslot) {
+                case 3:
+                    charmSlot = "charm1";
+                    break;
+                case 4:
+                    charmSlot = "charm2";
+                    break;
+                case 14:
+                    charmSlot = "charm3";
+                    break;
+                case 15:
+                    charmSlot = "charm4";
+                    break;
+                default:
+                    break;
+            }
+
+
+            if(charmSlot) {
+                $scope.selectedList.runeCharms[charmSlot] = "";
+                for(var i = 0; i < $scope.charmSelectors.length; ++i) {
+                    $scope.selectedList.runeCharms[charmSlot] += $scope.charmSelectors[i];
+                }
+
+                var runeStats = applyRunecharmStats($scope.selectedList.runeCharms[charmSlot]);
+                for (const [stat, num] of Object.entries(runeStats)) {
+                    $scope.selectedList.items[cslot][stat] = num;
+                }
+                
+                var name = runeStats.charmName.substring(0, runeStats.charmName.length-1);          
+                $scope.selectedList.items[cslot].name = "Runecharm (" + name + ")";
+                $scope.selectedList.items[cslot].id = $scope.runeCharmId;
+            }
+
+            $scope.saveClientSideData();
+        };
+
+        /** applies stats to a runecharm from a given string **/
+        var applyRunecharmStats = function(charmStr) {
+            var runeStats = { 
+                "strength": 0,
+                "mind": 0,
+                "dexterity": 0,
+                "constitution": 0,
+                "perception": 0,
+                "spirit": 0,
+                "hit": 0,
+                "dam": 0,
+                "hp": 0,
+                "ma": 0,
+                "mv": 0,
+                "hpr": 0,
+                "mar": 0,
+                "mvr": 0,
+                "spellcrit": 0,
+                "spelldam": 0,
+                "ac": -5,
+                "rangedAccuracy": 0,
+                "manaReduction": 0,
+                "concentration": 0,
+                "rent": 225,
+                "charmName": ""
+            };
+
+           for(var i = 0; i < charmStr.length; ++i) {
+                if(charmStr[i] === 'A') continue;
+                var charmOption = $scope.charmOptions[charmStr[i]] 
+                runeStats.charmName += charmOption.name + "/";
+                for(var j = 0; j < charmOption.stats.length; ++j) {
+                    runeStats[charmOption.stats[j].statVar] += charmOption.stats[j].value;
+                }
+           } 
+           
+           return runeStats;
+        };
+        
+        /** swaps isRuneCrafting for modal hiding purposes **/
+        $scope.runeCraftButtonClick = function() {
+               $scope.isRuneCrafting = !$scope.isRuneCrafting;
+               $scope.getCurrentRunes($scope.currentItemIndex);
+        };
+
+        /** updates charm selectors with current charm string for that slot index*/
+        $scope.getCurrentRunes = function(index) {
+            var charmStr = "";
+            switch (index) {
+                case 3:
+                    charmStr = $scope.selectedList.runeCharms.charm1;
+                    break;
+                case 4:
+                    charmStr = $scope.selectedList.runeCharms.charm2;
+                    break;
+                case 14:
+                    charmStr = $scope.selectedList.runeCharms.charm3;
+                    break;
+                case 15:
+                    charmStr = $scope.selectedList.runeCharms.charm4;
+                    break;
+                default:
+                    break;
+            }
+            
+            for(var i = 0; i < $scope.charmSelectors.length; ++i) {
+                $scope.charmSelectors[i] = charmStr[i];
+            }
+        };
+
         /** Applies item restrictions. */
         var applyItemRestrictions = function() {
             // initialize restriction array
@@ -2090,6 +2371,7 @@
                 $scope.itemRestrictions.push([]);
             }
 
+            var limitedCount = 0;
             var handCount = 0;
             var handApplied = false;
             for (var i = 0; i < $scope.selectedList.items.length; ++i) {
@@ -2115,6 +2397,14 @@
                 if (curItem.slot == 14) {
                     if (curItem.weight * 4 > strength) {
                         $scope.itemRestrictions[i].push("weight");
+                    }
+                }
+                
+                // limited
+                if(curItem.isLimited) {
+                    limitedCount++;
+                    if(limitedCount > 3) {
+                        $scope.itemRestrictions[i].push("limited");
                     }
                 }
 
@@ -2165,6 +2455,9 @@
                         break;
                     case "twohanded":
                         text += "You do not have enough hands to hold this item.";
+                        break;
+                    case "limited":
+                        text += "You can only have three limited items equipped.";
                         break;
                     default:
                         break;
@@ -2239,22 +2532,38 @@
             if (items) {
                 let filteredItems = items.slice(0);
                 let i = filteredItems.length;
+                var operators = /\<|\>|\=/;
+
                 while (i--) {
-                    let filteredBySearch = $scope.searchString && !filteredItems[i].name.toLowerCase().includes($scope.searchString.toLowerCase());
+                    var filteredBySearch = true;
+                    if($scope.searchString.includes('=') || $scope.searchString.includes('>') || $scope.searchString.includes('<')) {
+                      var strings = $scope.searchString.split(',');
+                      var isFiltered = [strings.length];
+                      for (var s = 0;s < strings.length; ++s) {
+                        var compare = strings[s].match(operators);
+                        if(compare) {
+                            isFiltered[s] = filterByStats(compare, filteredItems[i]);
+                        }
+                      }
+
+                      filteredBySearch = isFiltered.includes(true);
+                    }
+                    else {
+                        filteredBySearch = $scope.searchString && !filteredItems[i].name.toLowerCase().includes($scope.searchString.toLowerCase()); 
+                    }
 
                     let filteredByWield = false;
                     if ($scope.currentItem.slot == 14 || $scope.currentItem.slot == 15) {
                         if ($scope.wieldSlotFilter == 1 && filteredItems[i].realSlot != 14) {
                             filteredByWield = true;
-                        }
-                        else if ($scope.wieldSlotFilter == 2 && filteredItems[i].realSlot != 15) {
-                            filteredByWield = true;
+                         }
+                         else if ($scope.wieldSlotFilter == 2 && filteredItems[i].realSlot != 15) {
+                             filteredByWield = true;
                         }
                         else if ($scope.wieldSlotFilter == 3 && filteredItems[i].realSlot != 10) {
                             filteredByWield = true;
                         }
-                    }
-
+                     }
                     if (filteredBySearch || filteredByWield) {
                         filteredItems.splice(i, 1);
                     }
@@ -2266,6 +2575,46 @@
                 $scope.filteredItems = items;
             }
 
+        };
+
+        /**
+         * Filters items by stats in the search bar, ex: "str=3,hit>0,ac=-5" will filter all items for the slot that don't meet ALL three paramaters.
+         *
+         * @param {string} compare - String with an operator.
+         * @param {item} item - The item to compare strings to.
+         * @return {true/false} - If the comparison is true given the operator in the compare string, return false (don't filter).
+         */
+        var filterByStats = function(compare, item) {
+            let string = compare.input;
+            let operator = compare[0];
+            let index = string.indexOf(operator);
+            let stat = string.slice(0,index);
+            let value = Number(string.slice(index+1, string.length));
+            for (var i = 0; i < $scope.statInfo.length; ++i) {
+                if ($scope.statInfo[i].short.toLowerCase() == stat.toLowerCase()) {
+                    stat = $scope.statInfo[i].var;
+                }
+            }
+
+            switch (operator) {
+                case '=':
+                    if (item[stat] == value)
+                        return false;
+                    else
+                        return true;
+                case '<':
+                    if (item[stat] < value)
+                        return false;
+                    else
+                        return true;
+                case '>':
+                    if (item[stat] > value)
+                        return false;
+                    else
+                        return true;
+                default:
+                    return true;
+            }
         };
 
         $scope.showColumn = function(statShort, def) {
