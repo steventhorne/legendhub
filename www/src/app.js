@@ -1,5 +1,8 @@
 require("dotenv").config();
 
+const migrations = require("./routes/api/migrations");
+migrations.up();
+
 const compression = require("compression");
 const express = require("express");
 const path = require("path");
@@ -18,9 +21,6 @@ const builderRouter = require("./routes/builder");
 const changelogRouter = require("./routes/changelog");
 const notificationsRouter = require("./routes/notifications");
 const accountRouter = require("./routes/account");
-const migrations = require("./routes/api/migrations");
-
-migrations.up();
 
 let app = express();
 
