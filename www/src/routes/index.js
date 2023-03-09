@@ -126,7 +126,7 @@ router.all(["/feedback.html"], function(req, res, next) {
 
                 if (body.success) {
                     if (feedbackTitle) {
-                        let query = `mutation {createIssue(input:{repositoryId:"""${process.env.GITHUB_REPOSITORY}""",title:"""${feedbackTitle}"""${feedbackBody?`,body:"""${feedbackBody}"""`:""}}) {issue {url}}}`;
+                        let query = `mutation {createIssue(input:{assigneeIds:["MDQ6VXNlcjMzNzQwMzI="],labelIds:["LA_kwDOCDoKdM8AAAABOL_TfA"],repositoryId:"""${process.env.GITHUB_REPOSITORY}""",title:"""${feedbackTitle}"""${feedbackBody?`,body:"""Feedback from site\n\n\"${feedbackBody}\"."""`:""}}) {issue {url}}}`;
                         let options = {
                             url: "https://api.github.com/graphql",
                             headers: {
