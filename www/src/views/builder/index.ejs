@@ -155,20 +155,20 @@
 							</div>
 							<div class="input-group input-group-sm col-8 col-sm-4 mb-3 mb-sm-0">
 								<div class="input-group-prepend">
-									<label class="input-group-text" for="hazelnutSelect">Hazelnut</label>
-								</div>
-								<select class="custom-select custom-select-sm" id="hazelnutSelect" ng-model="selectedList.baseStats.hazelnut" ng-change="saveClientSideData()" ng-model-options="{debounce:250}" ng-disabled="!showStatQuests()">
-									<option ng-value="-1">-</option>
-									<option ng-repeat="hazelnut in hazelnutList track by $index" ng-value="$index">{{::hazelnut}}</option>
-								</select>
-							</div>
-							<div class="input-group input-group-sm col-8 col-sm-4 mb-3 mb-sm-0">
-								<div class="input-group-prepend">
 									<label class="input-group-text" for="amuletSelect">Amulet</label>
 								</div>
 								<select class="custom-select custom-select-sm" id="amuletSelect" ng-model="selectedList.baseStats.amulet" ng-change="saveClientSideData()" ng-model-options="{debounce:250}" ng-disabled="!showStatQuests()">
 									<option ng-value="-1">-</option>
 									<option ng-repeat="amulet in amuletList track by $index" ng-value="$index">{{::amulet}}</option>
+								</select>
+							</div>
+							<div class="input-group input-group-sm col-8 col-sm-4 mb-3 mb-sm-0">
+								<div class="input-group-prepend">
+									<label class="input-group-text" for="hazelnutSelect">Hazelnut</label>
+								</div>
+								<select class="custom-select custom-select-sm" id="hazelnutSelect" ng-model="selectedList.baseStats.hazelnut" ng-change="saveClientSideData()" ng-model-options="{debounce:250}" ng-disabled="!showStatQuests()">
+									<option ng-value="-1">-</option>
+									<option ng-repeat="hazelnut in hazelnutList track by $index" ng-value="$index">{{::hazelnut}}</option>
 								</select>
 							</div>
 						</div>
