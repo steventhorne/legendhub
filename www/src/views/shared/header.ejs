@@ -35,6 +35,9 @@
                    <a ng-repeat="theme in themes" class="dropdown-item" href="" ng-click="setTheme(theme)">{{::theme}}</a>
                 </div>
 			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="http://legendmud.org:19999/" target="_blank">Play Now</a>
+			</li>
             <%_ if (locals.user) { %>
             <li class="nav-item dropdown float-right">
 				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><%=locals.user.username%></a>
