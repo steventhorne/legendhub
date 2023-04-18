@@ -26,7 +26,7 @@ services:
             - database-logs:/var/log
             - database-backups:/backups
         tty: true
-        restart: always
+        restart: unless-stopped
     www:
         build:
             context: ./www
@@ -52,12 +52,7 @@ services:
             - RECAPTCHA_SECRET=${RECAPTCHA_SECRET}
         networks:
             - legendhub
-        deploy:
-            replicas: 2
-            update_config:
-                parallelism: 1
-                delay: 20s
-        restart: always
+        restart: unless-stopped
     python:
         build:
             context: ./python
@@ -73,4 +68,4 @@ services:
             - legendhub
         volumes:
             - python-logs:/var/log
-        restart: always
+        restart: unless-stopped
