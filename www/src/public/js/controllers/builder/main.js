@@ -380,7 +380,7 @@
                 let isLocked = false;
                 if (listStr[0] === '.') {
                     isLocked = true;
-                    listStr.substr(1);
+                    listStr = listStr.substring(1);
                 }
                 
                 if (listStr[0] === '_') {
