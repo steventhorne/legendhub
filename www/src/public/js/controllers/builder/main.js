@@ -510,7 +510,7 @@
             // load savedColumns from character cookie
             var cookieConsent = $cookies.get("cookie-consent");
             if (cookieConsent) {
-                var columnCookie = $cookies.get($scope.allLists[listIndex].name);
+                var columnCookie = $cookies.get(`sc-${$scope.allLists[$scope.selectedListIndex].name}`);
             }
             loadSelectedColumns(columnCookie, $scope.statInfo);
 
@@ -680,8 +680,14 @@
 
             // load columns
             if (cookieConsent) {
-                console.log($scope.allLists[$scope.selectedListIndex].name);
-                var columnCookie = $cookies.get($scope.allLists[$scope.selectedListIndex].name);
+                var columnCookie = $cookies.get(`sc-${$scope.allLists[$scope.selectedListIndex].name}`);
+                if(!columnCookie) {
+                    var columnCookie = $cookies.get("sc2");
+                    if(!columnCookie) { //if cookie sc2 does not exist, insert a basic column string
+                        $cookies.put("sc2", "Slot-Name-Align-Rent-Str-Min-Dex-Con-Per-Spi-Ac-", {path: "/", samesite: "lax", secure: true, expires: cookieDate});
+                        var columnCookie = "Slot-Name-Align-Rent-Str-Min-Dex-Con-Per-Spi-Ac-";
+                    }
+                }
             }
             loadSelectedColumns(columnCookie, $scope.statInfo);
 
@@ -702,14 +708,6 @@
             cookieDate.setFullYear(cookieDate.getFullYear() + 20);
 
             $cookies.put("ipp", $scope.itemsPerPage, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
-
-            let savedColumns = "";
-            for (var i = 0; i < $scope.statInfo.length; ++i) {
-                if ($scope.statInfo[i].showColumn) {
-                    savedColumns += $scope.statInfo[i].short + "-";
-                }
-            }
-            $cookies.put("sc2", savedColumns, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
 
             // save lists
             listCookieStr = `${$scope.listVer}*`;
@@ -734,6 +732,14 @@
                 $cookies.remove("cl1");
                 $cookies.remove("scl1");
             }
+
+            let savedColumns = "";
+            for (var i = 0; i < $scope.statInfo.length; ++i) {
+                if ($scope.statInfo[i].showColumn) {
+                    savedColumns += $scope.statInfo[i].short + "-";
+                }
+            }
+            $cookies.put(`sc-${$scope.allLists[$scope.selectedListIndex].name}`, savedColumns, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
 
             $scope.clientSideDataSize = $scope.getClientSideDataSize();
         };
@@ -1442,8 +1448,8 @@
                     var cookieDate = new Date();
                     cookieDate.setFullYear(cookieDate.getFullYear() + 20);
                     var savedColumns = $cookies.get(oldName);
-                    $cookies.put(newName, savedColumns, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
-                    $cookies.remove(oldName, {"path": "/"});
+                    $cookies.put(`sc-${newName}`, savedColumns, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
+                    $cookies.remove(`sc-${oldName}`, {"path": "/"});
                 }
 
 
@@ -1521,7 +1527,7 @@
         /** Deletes the currently selected character. */
         var deleteCharacter = function() {
             var index = $scope.selectedListIndex;
-            var cookieName = $scope.allLists[index].name;
+            var cookieName = `sc-${$scope.allLists[index].name}`;
             if (index > -1) {
                 $scope.allLists.splice(index, 1);
                 if ($scope.allLists.length == 0) {
