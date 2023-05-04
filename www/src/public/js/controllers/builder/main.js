@@ -509,8 +509,17 @@
 
             // load savedColumns from character cookie
             var cookieConsent = $cookies.get("cookie-consent");
+            var cookieDate = new Date();
+            cookieDate.setFullYear(cookieDate.getFullYear() + 20);
             if (cookieConsent) {
                 var columnCookie = $cookies.get(`sc-${$scope.allLists[$scope.selectedListIndex].name}`);
+                if(!columnCookie) {
+                    var columnCookie = $cookies.get("sc2");
+                    if(!columnCookie) { //if cookie sc2 does not exist, insert a basic column string
+                        $cookies.put("sc2", "Slot-Name-Align-Rent-Str-Min-Dex-Con-Per-Spi-Ac-", {path: "/", samesite: "lax", secure: true, expires: cookieDate});
+                        var columnCookie = "Slot-Name-Align-Rent-Str-Min-Dex-Con-Per-Spi-Ac-";
+                    }
+                }
             }
             loadSelectedColumns(columnCookie, $scope.statInfo);
 
@@ -681,13 +690,6 @@
             // load columns
             if (cookieConsent) {
                 var columnCookie = $cookies.get(`sc-${$scope.allLists[$scope.selectedListIndex].name}`);
-                if(!columnCookie) {
-                    var columnCookie = $cookies.get("sc2");
-                    if(!columnCookie) { //if cookie sc2 does not exist, insert a basic column string
-                        $cookies.put("sc2", "Slot-Name-Align-Rent-Str-Min-Dex-Con-Per-Spi-Ac-", {path: "/", samesite: "lax", secure: true, expires: cookieDate});
-                        var columnCookie = "Slot-Name-Align-Rent-Str-Min-Dex-Con-Per-Spi-Ac-";
-                    }
-                }
             }
             loadSelectedColumns(columnCookie, $scope.statInfo);
 
@@ -703,7 +705,6 @@
                 return;
             }
 
-            // save columns
             var cookieDate = new Date();
             cookieDate.setFullYear(cookieDate.getFullYear() + 20);
 
@@ -733,6 +734,7 @@
                 $cookies.remove("scl1");
             }
 
+            //save columns
             let savedColumns = "";
             for (var i = 0; i < $scope.statInfo.length; ++i) {
                 if ($scope.statInfo[i].showColumn) {
