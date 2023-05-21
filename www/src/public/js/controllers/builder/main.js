@@ -516,8 +516,8 @@
                 if(!columnCookie) {
                     var columnCookie = $cookies.get("sc2");
                     if(!columnCookie) { //if cookie sc2 does not exist, insert a basic column string
-                        $cookies.put("sc2", "Slot-Name-Align-Rent-Str-Min-Dex-Con-Per-Spi-Ac-", {path: "/", samesite: "lax", secure: true, expires: cookieDate});
                         var columnCookie = "Slot-Name-Align-Rent-Str-Min-Dex-Con-Per-Spi-Ac-";
+                        $cookies.put("sc2", columnCookie, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
                     }
                 }
             }
@@ -686,12 +686,6 @@
             else {
                 selectListByName();
             }
-
-            // load columns
-            if (cookieConsent) {
-                var columnCookie = $cookies.get(`sc-${$scope.allLists[$scope.selectedListIndex].name}`);
-            }
-            loadSelectedColumns(columnCookie, $scope.statInfo);
 
             $timeout($scope.loadItemsForAllSlotsAsync());
         };
@@ -1446,7 +1440,7 @@
                 var newName = $scope.textInputModalModel.input;
 
                 //copy savedColumns to new cookie and remove the old cookie
-                if(cookieConsent) {
+                if(cookieConsent && oldName !== newName) {
                     var cookieDate = new Date();
                     cookieDate.setFullYear(cookieDate.getFullYear() + 20);
                     var savedColumns = $cookies.get(oldName);
