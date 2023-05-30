@@ -507,6 +507,22 @@
             $scope.editCharacterModel = {"name": $scope.allLists[listIndex].name};
             var list = $scope.selectedList;
 
+            // load savedColumns from character cookie
+            var cookieConsent = $cookies.get("cookie-consent");
+            var cookieDate = new Date();
+            cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+            if (cookieConsent) {
+                var columnCookie = $cookies.get(`sc-${$scope.allLists[$scope.selectedListIndex].name}`);
+                if(!columnCookie) {
+                    var columnCookie = $cookies.get("sc2");
+                    if(!columnCookie) { //if cookie sc2 does not exist, insert a basic column string
+                        var columnCookie = "Slot-Name-Align-Rent-Str-Min-Dex-Con-Per-Spi-Ac-";
+                        $cookies.put("sc2", columnCookie, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
+                    }
+                }
+            }
+            loadSelectedColumns(columnCookie, $scope.statInfo);
+
             var ids = [];
             for (var i = 0; i < list.items.length; ++i) {
                 if (list.items[i].id > 0) {
@@ -647,12 +663,6 @@
                 $scope.itemsPerPage = Number($cookies.get("ipp") || "20");
             }
 
-            // load columns
-            if (cookieConsent) {
-                var columnCookie = $cookies.get("sc2");
-            }
-            loadSelectedColumns(columnCookie, $scope.statInfo);
-
             $scope.allLists = loadCharacterLists();
             $scope.allLists.sort(compareLists);
 
@@ -689,19 +699,10 @@
                 return;
             }
 
-            // save columns
             var cookieDate = new Date();
             cookieDate.setFullYear(cookieDate.getFullYear() + 20);
 
             $cookies.put("ipp", $scope.itemsPerPage, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
-
-            let savedColumns = "";
-            for (var i = 0; i < $scope.statInfo.length; ++i) {
-                if ($scope.statInfo[i].showColumn) {
-                    savedColumns += $scope.statInfo[i].short + "-";
-                }
-            }
-            $cookies.put("sc2", savedColumns, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
 
             // save lists
             listCookieStr = `${$scope.listVer}*`;
@@ -726,6 +727,15 @@
                 $cookies.remove("cl1");
                 $cookies.remove("scl1");
             }
+
+            //save columns
+            let savedColumns = "";
+            for (var i = 0; i < $scope.statInfo.length; ++i) {
+                if ($scope.statInfo[i].showColumn) {
+                    savedColumns += $scope.statInfo[i].short + "-";
+                }
+            }
+            $cookies.put(`sc-${$scope.allLists[$scope.selectedListIndex].name}`, savedColumns, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
 
             $scope.clientSideDataSize = $scope.getClientSideDataSize();
         };
@@ -1425,7 +1435,21 @@
         /** Confirm function for the edit character modal. */
         var editCharacter = function() {
             if (validateEditCharacter()) {
-                $scope.allLists[$scope.selectedListIndex].name = $scope.textInputModalModel.input;
+                var cookieConsent = $cookies.get("cookie-consent");
+                var oldName = $scope.allLists[$scope.selectedListIndex].name
+                var newName = $scope.textInputModalModel.input;
+
+                //copy savedColumns to new cookie and remove the old cookie
+                if(cookieConsent && oldName !== newName) {
+                    var cookieDate = new Date();
+                    cookieDate.setFullYear(cookieDate.getFullYear() + 20);
+                    var savedColumns = $cookies.get(oldName);
+                    $cookies.put(`sc-${newName}`, savedColumns, {path: "/", samesite: "lax", secure: true, expires: cookieDate});
+                    $cookies.remove(`sc-${oldName}`, {"path": "/"});
+                }
+
+
+                $scope.allLists[$scope.selectedListIndex].name = newName
                 $scope.saveClientSideData();
 
                 $("#textInputModal").modal("hide");
@@ -1499,6 +1523,7 @@
         /** Deletes the currently selected character. */
         var deleteCharacter = function() {
             var index = $scope.selectedListIndex;
+            var cookieName = `sc-${$scope.allLists[index].name}`;
             if (index > -1) {
                 $scope.allLists.splice(index, 1);
                 if ($scope.allLists.length == 0) {
@@ -1512,6 +1537,9 @@
                     selectListByIndex($scope.selectedListIndex);
                 }
             }
+
+            //remove savedColumn cookie
+            $cookies.remove(cookieName, {"path": "/"});
         }
 
         /** Opens the modal for deleting an existing character. */
