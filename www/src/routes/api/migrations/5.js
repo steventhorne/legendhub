@@ -3,7 +3,7 @@ exports.up = function() {
         -- Update SortNumber to split up category 1 again
         UPDATE ItemStatInfo
         SET SortNumber = SortNumber + 895
-        WHERE SortNumber >= 105 AND SortNumber <= 114
+        WHERE SortNumber >= 105 AND SortNumber <= 114;
     `;
 }
 
@@ -12,6 +12,6 @@ exports.down = function() {
         -- Update SortNumber to merge category 1 again
         UPDATE ItemStatInfo
         SET SortNumber = SortNumber - 895
-        WHERE SortNumber >= 1000 AND SortNumber <= 1009
+        WHERE SortNumber >= 1000 AND SortNumber <= 1009;
     `;
 }
