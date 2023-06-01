@@ -1,5 +1,5 @@
 <header ng-controller="header">
-<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
 	<a class="navbar-brand" href="/">LegendHUB</a>
     <%-include("notification", {classes: "btn btn-dark ml-auto mr-3 d-inline-block d-sm-none", id: "not-pop-1"})-%>
 	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,9 @@
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="themeDropdown">
                    <a ng-repeat="theme in themes" class="dropdown-item" href="" ng-click="setTheme(theme)">{{::theme}}</a>
                 </div>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="http://legendmud.org:19999/" target="_blank" rel="noopener noreferrer">Play Now</a>
 			</li>
             <%_ if (locals.user) { %>
             <li class="nav-item dropdown float-right">
