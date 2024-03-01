@@ -53,7 +53,7 @@ exports.up = function() {
                     OLD.Level, OLD.NetStat, OLD.RangedAccuracy,
                     OLD.Concentration, OLD.MobId, OLD.QuestId,
                     OLD.WeaponType, OLD.SpeedFactor, OLD.WeaponType,
-                    OLD.IsLight, OLD.IsHeroic, OLD.Soulbound, OLD.Deleted, OLD.IsLimited
+                    OLD.IsLight, OLD.IsHeroic, OLD.Soulbound, OLD.Deleted, OLD.IsLimited,
                     OLD.Meleecritperc, OLD.Meleecrit, OLD.Meleedamcap, OLD.Damageshield);
 
                 INSERT INTO NotificationQueue (ActorId, ObjectId, ObjectType, ObjectPage, ObjectName, Verb, CreatedOn)
@@ -65,10 +65,10 @@ exports.up = function() {
 
         -- Add 'Melee Crit Chance', 'Melee Crit Damage', and 'Damage Shield' stats to 'ItemStatInfo'
         INSERT INTO ItemStatInfo (Display, Short, Var, Type, FilterString, DefaultValue, NetStat, ShowColumnDefault, Editable, CategoryId, SortNumber)
-        VALUES ('Melee Crit Percentage', 'MeCritPerc', 'meleecritperc', 'int', '> 0', '0', 1, false, 1, 4, 402),
-               ('Melee Crit', 'MeCrit', 'meleecrit', 'int', '> 0', '0', 1, false, 1, 4, 403),
-               ('Melee Damage Cap', 'MeDamCap', 'meleedamcap', 'int', '> 0', '0', 2, false, 1, 4, 404),
-               ('Damage Shield', 'DmgShield', 'damageshield', 'int', '> 0', '0', 3, false, 1, 6, 602);
+        VALUES ('Melee Crit Percentage', 'MeCritPerc', 'meleecritperc', 'int', '> 0', '0', 1, false, 1, 4, 502),
+               ('Melee Crit', 'MeCrit', 'meleecrit', 'int', '> 0', '0', 1, false, 1, 4, 503),
+               ('Melee Damage Cap', 'MeDamCap', 'meleedamcap', 'int', '> 0', '0', 2, false, 1, 4, 504),
+               ('Damage Shield', 'DmgShield', 'damageshield', 'int', '> 0', '0', 3, false, 1, 6, 702);
     `;
 }
 

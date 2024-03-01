@@ -72,6 +72,7 @@ function runMigration(connection, migrationId) {
                     SET @DISABLE_NOTIFICATIONS = NULL;
                 `, [], function(err, _results, _fields) {
                     if (err) {
+                        console.error(`Error running migration '${nextMigrationFile}': ${err}`);
                         connection.rollback(function() {
                             connection.release();
                         });
@@ -79,6 +80,7 @@ function runMigration(connection, migrationId) {
                     else {
                         connection.commit(function(err) {
                             if (err) {
+                                console.error(`Error running migration '${nextMigrationFile}': ${err}`);
                                 connection.rollback(function() {
                                     connection.release();
                                 });
