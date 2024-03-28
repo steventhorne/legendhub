@@ -30,7 +30,7 @@
         "cookie-parser": "^1.4.4",
         "dotenv": "^7.0.0",
         "ejs": "^3.1.7",
-        "express": "^4.18.2",
+        "express": "^4.19.2",
         "express-graphql": "^0.8.0",
         "graphql": "^14.5.4",
         "graphql-iso-date": "^3.6.1",
