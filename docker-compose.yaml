@@ -11,22 +11,34 @@ networks:
 
 services:
     mysql:
-        build:
-            context: ./mysql
+        image: mysql:5
         environment:
             - MYSQL_PORT=${MYSQL_PORT}
             - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_USER=legendhub
             - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_DATABASE=legendhub
         networks:
             - legendhub
         volumes:
             - database:/var/lib/mysql
             - database-logs:/var/log
-            - database-backups:/backups
+            - ./mysql/init:/docker-entrypoint-initdb.d
+            - ./mysql/conf:/etc/mysql/mysql.conf.d
         tty: true
         restart: unless-stopped
+    mysql-backup:
+        build:
+            context: ./mysql
+        environment:
+            - MYSQL_PORT=${MYSQL_PORT}
+            - MYSQL_USER=legendhub
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+            - MYSQL_DATABASE=legendhub
+        networks:
+            - legendhub
+        volumes:
+            - database-backups:/backups
     www:
         build:
             context: ./www
